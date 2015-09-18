@@ -1,4 +1,4 @@
-# Simple PHP router
+# [WIP] Simple PHP router
 Simple, fast PHP router that is easy to get integrated and in almost any project. Heavily inspired by the Laravel router.
 
 ## Installation
