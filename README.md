@@ -43,11 +43,10 @@ using \Pecee\Router;
 
 /*
  * This route will match the url /v1/services/answers/1/
- * 
  * The middleware is just a class that renders before the 
  * Controller or callback is loaded. This is useful for stopping
  * the request, for instance if a user is not authenticated.
- * /
+ */
 
 Router::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\SomeMiddlewareClass'], function() {
 
