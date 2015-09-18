@@ -22,8 +22,5 @@
         "psr-4": {
             "Pecee\\": "src/Pecee/"
         }
-    },
-    "config": {
-        "preferred-install": "dist"
     }
 }
