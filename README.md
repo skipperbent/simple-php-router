@@ -22,13 +22,15 @@ In your ```index.php``` require your ```routes.php``` and call the ```routeReque
 This is an example of a basic ```index.php``` file:
 
 ```php
+use \Pecee\SimpleRouter;
+
 require_once 'routes.php'; // change this to whatever makes sense in your project
-	
-// Initialise the router
-$router = \Pecee\SimpleRouter::GetInstance();
-	
-// Do the actual routing
-$router->routeRequest()
+
+// The apps default namespace (so we don't have to specify it each time we use MyController@home)
+$defaultControllerNamespace = 'MyWebsite\\Controller';
+
+// Do the routing
+SimpleRouter::init($defaultControllerNamespace);
 ```
 
 ## Adding routes
@@ -39,7 +41,7 @@ This router is heavily inspired by the Laravel 5.* router, so anything you find 
 ### Basic example
 
 ```php
-using \Pecee\Router;
+using \Pecee\SimpleRouter;
 
 /*
  * This route will match the url /v1/services/answers/1/
@@ -49,11 +51,11 @@ using \Pecee\Router;
  * the request, for instance if a user is not authenticated.
  */
 
-Router::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\SomeMiddlewareClass'], function() {
+SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\SomeMiddlewareClass'], function() {
 
-    Router::group(['prefix' => 'services'], function() {
+    SimpleRouter::group(['prefix' => 'services'], function() {
 
-        Router::get('/answers/{id}', 'ControllerAnswers@show');
+        SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show');
 
     });
 });
@@ -65,9 +67,9 @@ The ```Router``` class is just a simple helper class that knows how to communica
 
 ```php
 use \Pecee\SimpleRouter;
-use \Pecee\Router\RouterRoute;
+use \Pecee\SimpleRouter\Router;
 
-$router = SimpleRouter::GetInstance();
+$router = Router::getInstance();
 
 $route = new RouterRoute('/answer/1', function() {
     die('this callback will match /answer/1');

@@ -3,7 +3,7 @@
 namespace Pecee\Router;
 
 use Pecee\Registry;
-use Pecee\SimpleRouter;
+use Pecee\Router;
 
 class RouterRoute extends RouterEntry {
 

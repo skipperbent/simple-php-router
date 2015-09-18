@@ -1,7 +1,7 @@
 <?php
 namespace Pecee\Router;
 
-class SimpleRouter {
+class Router {
 
     protected static $instance;
 
@@ -11,6 +11,7 @@ class SimpleRouter {
     protected $requestUri;
     protected $requestMethod;
     protected $loadedClass;
+    protected $defaultControllerNamespace;
 
     public function __construct() {
         $this->routes = array();
@@ -20,6 +21,11 @@ class SimpleRouter {
     }
 
     public function addRoute(RouterEntry $route) {
+        // Add default namespace
+        if(!$route->getNamespace() && $this->defaultControllerNamespace !== null) {
+            $route->setNamespace($this->defaultControllerNamespace);
+        }
+
         if($this->currentRoute !== null) {
             $this->backstack[] = $route;
         } else {
@@ -130,7 +136,63 @@ class SimpleRouter {
         }
     }
 
-    public static function GetInstance() {
+    /**
+     * @return string
+     */
+    public function getDefaultControllerNamespace(){
+        return $this->defaultControllerNamespace;
+    }
+
+    /**
+     * @param string $defaultControllerNamespace
+     */
+    public function setDefaultControllerNamespace($defaultControllerNamespace) {
+        $this->defaultControllerNamespace = $defaultControllerNamespace;
+    }
+
+    /**
+     * @return RouterEntry
+     */
+    public function getLoadedClass() {
+        return $this->loadedClass;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRequestMethod() {
+        return $this->requestMethod;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRequestUri() {
+        return $this->requestUri;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBackstack() {
+        return $this->backstack;
+    }
+
+    /**
+     * @return RouterEntry
+     */
+    public function getCurrentRoute(){
+        return $this->currentRoute;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRoutes(){
+        return $this->routes;
+    }
+
+    public static function getInstance() {
         if(self::$instance === null) {
             self::$instance = new self();
         }
