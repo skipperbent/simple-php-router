@@ -1,6 +1,6 @@
 <?php
 
-namespace Pecee\Router;
+namespace Pecee\SimpleRouter;
 
 class RouterGroup extends RouterEntry {
 

@@ -7,11 +7,11 @@
  * This class is added so calls can be made staticly like Router::get() making the code look more pretty.
  */
 
-namespace Pecee\SimpleRouter;
+namespace Pecee;
 
-use Pecee\Router\RouterGroup;
-use Pecee\Router\RouterRoute;
-use Pecee\Router\Router;
+use Pecee\SimpleRouter\RouterGroup;
+use Pecee\SimpleRouter\RouterRoute;
+use Pecee\SimpleRouter\Router;
 
 class SimpleRouter {
 
