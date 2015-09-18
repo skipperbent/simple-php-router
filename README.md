@@ -1,5 +1,5 @@
 # Simple PHP router
-Simple, fast PHP router - easy to load in through composer and heavily inspired by Laravel.
+Simple, fast PHP router that is easy to get integrated and in almost any project. Heavily inspired by the Laravel router.
 
 ## Installation
 Add the latest version pf Simple PHP Router to your ```composer.json```
@@ -43,6 +43,7 @@ using \Pecee\Router;
 
 /*
  * This route will match the url /v1/services/answers/1/
+ 
  * The middleware is just a class that renders before the 
  * Controller or callback is loaded. This is useful for stopping
  * the request, for instance if a user is not authenticated.
