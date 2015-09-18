@@ -3,8 +3,6 @@ namespace Pecee\Router;
 
 class SimpleRouter {
 
-    const SETTINGS_APPNAME = 'AppName';
-
     protected static $instance;
 
     protected $currentRoute;
@@ -13,15 +11,8 @@ class SimpleRouter {
     protected $requestUri;
     protected $requestMethod;
     protected $loadedClass;
-    protected $appName;
 
     public function __construct() {
-
-        $this->appName = Registry::GetInstance()->get(self::SETTINGS_APPNAME, false);
-        if (!$this->appName) {
-            throw new RouterException('"AppName" registry key not defined!', 2);
-        }
-
         $this->routes = array();
         $this->backstack = array();
         $this->requestUri = rtrim($_SERVER['REQUEST_URI'], '/');

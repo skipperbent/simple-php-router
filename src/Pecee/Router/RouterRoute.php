@@ -15,9 +15,6 @@ class RouterRoute extends RouterEntry {
         $this->callback = $callback;
 
         $this->settings['aliases'] = array();
-
-        // Set default namespace
-        $this->namespace = Registry::GetInstance()->get(SimpleRouter::SETTINGS_APPNAME, false) . '\\' . 'Controller';
     }
 
     public function getRoute($requestMethod, &$url) {

@@ -9,9 +9,15 @@
 
 namespace Pecee;
 
+use Pecee\Router\RouterGroup;
+use Pecee\Router\RouterRoute;
 use Pecee\Router\SimpleRouter;
 
 class Router {
+
+    public static function init() {
+        SimpleRouter::GetInstance()->routeRequest();
+    }
 
     public static function get($url, $callback) {
         $route = new RouterRoute($url, $callback);
