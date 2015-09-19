@@ -35,7 +35,6 @@ SimpleRouter::init($defaultControllerNamespace);
 
 ## Adding routes
 Remember the ```routes.php``` file you required in your ```index.php```? This file will contain all your custom rules for routing. 
-
 This router is heavily inspired by the Laravel 5.* router, so anything you find in the Laravel documentation should work here as well.
 
 ### Basic example
