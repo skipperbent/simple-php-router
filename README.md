@@ -1,6 +1,8 @@
 # [WIP] Simple PHP router
 Simple, fast PHP router that is easy to get integrated and in almost any project. Heavily inspired by the Laravel router.
 
+**Please note: this project has just been added and is still a work in progress. Please use with caution until a stable release version is available :)**
+
 ## Installation
 Add the latest version pf Simple PHP Router to your ```composer.json```
 
@@ -62,7 +64,7 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
 
 ### Doing it the object oriented (hardcore) way
 
-The ```Router``` class is just a simple helper class that knows how to communicate with the ```SimpleRouter``` class. If you are up for a challenge, want the full control or simply just want to create your own ```Router``` helper class, this example is for you.
+The ```SimpleRouter``` class is just a simple helper class that knows how to communicate with the ```Router``` class. If you are up for a challenge, want the full control or simply just want to create your own ```SimpleRouter``` helper class, this example is for you.
 
 ```php
 use \Pecee\SimpleRouter;
