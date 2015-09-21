@@ -27,18 +27,6 @@ abstract class RouterEntry {
         $this->parameters = array();
     }
 
-    protected function parseParameter($path) {
-        $parameters = array();
-
-        preg_match('/{([A-Za-z\-\_]*?)}/is', $path, $parameters);
-
-        if(isset($parameters[1]) && count($parameters[1]) > 0) {
-            return $parameters[1];
-        }
-
-        return null;
-    }
-
     /**
      * @param string $callback
      * @return self;

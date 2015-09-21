@@ -11,10 +11,34 @@ class RouterRoute extends RouterEntry {
 
     public function __construct($url, $callback) {
         parent::__construct();
-        $this->url = $url;
-        $this->callback = $callback;
+        $this->setUrl($url);
+        $this->setCallback($callback);
 
         $this->settings['aliases'] = array();
+    }
+
+    protected function parseParameters($url) {
+        $parameters = array();
+
+        preg_match_all('/{([A-Za-z\-\_]*?)}/is', $url, $parameters);
+
+        if(isset($parameters[1]) && count($parameters[1]) > 0) {
+            return $parameters[1];
+        }
+
+        return null;
+    }
+
+    protected function parseParameter($path) {
+        $parameters = array();
+
+        preg_match('/{([A-Za-z\-\_]*?)}/is', $path, $parameters);
+
+        if(isset($parameters[1]) && count($parameters[1]) > 0) {
+            return $parameters[1];
+        }
+
+        return null;
     }
 
     public function getRoute($requestMethod, &$url) {
@@ -73,6 +97,15 @@ class RouterRoute extends RouterEntry {
      * @return self
      */
     public function setUrl($url) {
+
+        $parameters = $this->parseParameters($url);
+
+        if($parameters !== null) {
+            foreach($parameters as $param) {
+                $this->parameters[$param] = '';
+            }
+        }
+
         $this->url = $url;
         return $this;
     }

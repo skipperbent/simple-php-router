@@ -1,12 +1,15 @@
 <?php
 namespace Pecee\SimpleRouter;
 
-class Router {
+use Pecee\Url;
+
+class RouterBase {
 
     protected static $instance;
 
     protected $currentRoute;
     protected $routes;
+    protected $controllerUrlMap;
     protected $backstack;
     protected $requestUri;
     protected $requestMethod;
@@ -16,27 +19,17 @@ class Router {
     public function __construct() {
         $this->routes = array();
         $this->backstack = array();
+        $this->controllerUrlMap = array();
         $this->requestUri = rtrim($_SERVER['REQUEST_URI'], '/');
         $this->requestMethod = strtolower(isset($_GET['_method']) ? $_GET['_method'] : $_SERVER['REQUEST_METHOD']);
     }
 
     public function addRoute(RouterEntry $route) {
-        // Add default namespace
-        if(!$route->getNamespace() && $this->defaultControllerNamespace !== null) {
-            $route->setNamespace($this->defaultControllerNamespace);
-        }
-
         if($this->currentRoute !== null) {
             $this->backstack[] = $route;
         } else {
             $this->routes[] = $route;
         }
-    }
-
-    public function route($url, $callback) {
-        $route = new RouterRoute($url, $callback);
-        $this->addRoute($route);
-        return $route;
     }
 
     protected function loadClass($name) {
@@ -55,6 +48,11 @@ class Router {
             $this->loadClass($route->getMiddleware());
         }
 
+        // Add default namespace
+        if(!$route->getNamespace() && $this->defaultControllerNamespace !== null) {
+            $route->setNamespace($this->defaultControllerNamespace);
+        }
+
         if(is_object($route->getCallback()) && is_callable($route->getCallback())) {
 
             // When the callback is a function
@@ -64,6 +62,7 @@ class Router {
             // When the callback is a method
 
             $controller = explode('@', $route->getCallback());
+
             $class = $route->getNamespace() . '\\' . $controller[0];
 
             $class = $this->loadClass($class);
@@ -80,7 +79,7 @@ class Router {
         }
     }
 
-    protected function renderBackstack(array $routes, &$settings, &$prefixes) {
+    protected function processRoutes(array $routes, array &$settings = array(), array &$prefixes = array()) {
         // Loop through each route-request
         /* @var $route RouterEntry */
         foreach($routes as $route) {
@@ -90,10 +89,16 @@ class Router {
                 array_push($prefixes, $route->getPrefix());
             }
 
-            // If the route is a group
+            $route->setSettings($settings);
+
             if($route instanceof RouterRoute) {
-                $route->setSettings($settings);
-                $route->setUrl( '/' . join('/', $prefixes) . $route->getUrl() );
+                if(is_array($prefixes) && count($prefixes)) {
+                    $route->setUrl( '/' . join('/', $prefixes) . $route->getUrl() );
+                }
+
+                if(stripos($route->getCallback(), '@') !== false) {
+                    $this->controllerUrlMap[$route->getCallback()] = $route;
+                }
             }
 
             // Stop if the route matches
@@ -102,38 +107,20 @@ class Router {
                 $this->renderRoute($route);
             }
 
-            // Remove itself from backstack
-            array_shift($this->backstack);
+            if(count($this->backstack)) {
+                // Remove itself from backstack
+                array_shift($this->backstack);
 
-            // Route any routes added to the backstack
-            $this->renderBackstack($this->backstack, $settings, $prefixes);
+                // Route any routes added to the backstack
+                $this->processRoutes($this->backstack, $settings, $prefixes);
+            }
         }
     }
 
     public function routeRequest() {
         // Loop through each route-request
-        /* @var $route RouterEntry */
-        foreach($this->routes as $route) {
 
-            // Reset variables
-            $settings = array();
-            $prefixes = array();
-
-            $settings = array_merge($settings, $route->getMergeableSettings());
-
-            if($route->getPrefix()) {
-                array_push($prefixes, $route->getPrefix());
-            }
-
-            // Stop if the route matches
-            $route = $route->getRoute($this->requestMethod, $this->requestUri);
-            if($route) {
-                $this->renderRoute($route);
-            }
-
-            // Route any routes added to the backstack
-            $this->renderBackstack($this->backstack, $settings, $prefixes);
-        }
+        $this->processRoutes($this->routes);
     }
 
     /**
@@ -190,6 +177,36 @@ class Router {
      */
     public function getRoutes(){
         return $this->routes;
+    }
+
+    public function getRoute($controller, $parameters = null, $getParams = null) {
+        /* @var $route RouterRoute */
+        foreach($this->controllerUrlMap as $c => $route) {
+            $params = $route->getParameters();
+
+            if(strtolower($c) === strtolower($controller)) {
+
+                $url = $route->getUrl();
+
+                $i = 0;
+                foreach($params as $param => $value) {
+                    $value = (isset($parameters[$param])) ? $parameters[$param] : $value;
+                    $url = str_ireplace('{' . $param. '}', $value, $route->getUrl());
+                    $i++;
+                }
+
+                $p = '';
+                if($getParams !== null) {
+                    $p = '?'.Url::arrayToParams($getParams);
+                }
+
+                $url .= $p;
+
+                return $url;
+            }
+        }
+
+        return '/';
     }
 
     public static function getInstance() {

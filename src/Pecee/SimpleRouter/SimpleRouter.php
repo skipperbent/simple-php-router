@@ -7,16 +7,12 @@
  * This class is added so calls can be made staticly like Router::get() making the code look more pretty.
  */
 
-namespace Pecee;
-
-use Pecee\SimpleRouter\RouterGroup;
-use Pecee\SimpleRouter\RouterRoute;
-use Pecee\SimpleRouter\Router;
+namespace Pecee\SimpleRouter;
 
 class SimpleRouter {
 
-    public static function init($defaultNamespace = null) {
-        $router = Router::GetInstance();
+    public static function start($defaultNamespace = null) {
+        $router = RouterBase::GetInstance();
         $router->setDefaultControllerNamespace($defaultNamespace);
         $router->routeRequest();
     }
@@ -25,7 +21,7 @@ class SimpleRouter {
         $route = new RouterRoute($url, $callback);
         $route->addRequestType(RouterRoute::REQUEST_TYPE_GET);
 
-        $router = Router::GetInstance();
+        $router = RouterBase::getInstance();
         $router->addRoute($route);
 
         return $route;
@@ -35,7 +31,7 @@ class SimpleRouter {
         $route = new RouterRoute($url, $callback);
         $route->addRequestType(RouterRoute::REQUEST_TYPE_POST);
 
-        $router = Router::GetInstance();
+        $router = RouterBase::getInstance();
         $router->addRoute($route);
 
         return $route;
@@ -45,7 +41,7 @@ class SimpleRouter {
         $route = new RouterRoute($url, $callback);
         $route->addRequestType(RouterRoute::REQUEST_TYPE_PUT);
 
-        $router = Router::GetInstance();
+        $router = RouterBase::getInstance();
         $router->addRoute($route);
 
         return $route;
@@ -55,7 +51,7 @@ class SimpleRouter {
         $route = new RouterRoute($url, $callback);
         $route->addRequestType(RouterRoute::REQUEST_TYPE_DELETE);
 
-        $router = Router::GetInstance();
+        $router = RouterBase::getInstance();
         $router->addRoute($route);
 
         return $route;
@@ -69,7 +65,7 @@ class SimpleRouter {
             $group->setSettings($settings);
         }
 
-        $router = Router::GetInstance();
+        $router = RouterBase::getInstance();
         $router->addRoute($group);
 
         return $group;
@@ -81,10 +77,14 @@ class SimpleRouter {
             $route->addRequestType($requestType);
         }
 
-        $router = Router::GetInstance();
+        $router = RouterBase::getInstance();
         $router->addRoute($route);
 
         return $route;
+    }
+
+    public static function ressource($controller, $settings = array()) {
+        // not yet implemented
     }
 
 }
