@@ -1,5 +1,7 @@
-# Simple PHP router
+# [WIP] Simple PHP router
 Simple, fast PHP router that is easy to get integrated and in almost any project. Heavily inspired by the Laravel router.
+
+**Please note: this project has just been added and is still a work in progress. Please use with caution until a stable release version is available :)**
 
 ## Installation
 Add the latest version pf Simple PHP Router to your ```composer.json```
@@ -35,7 +37,6 @@ SimpleRouter::init($defaultControllerNamespace);
 
 ## Adding routes
 Remember the ```routes.php``` file you required in your ```index.php```? This file will contain all your custom rules for routing. 
-
 This router is heavily inspired by the Laravel 5.* router, so anything you find in the Laravel documentation should work here as well.
 
 ### Basic example
