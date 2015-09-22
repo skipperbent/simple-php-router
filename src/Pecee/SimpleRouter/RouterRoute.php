@@ -8,6 +8,7 @@ use Pecee\Router;
 class RouterRoute extends RouterEntry {
 
     protected $url;
+    protected $requestTypes;
 
     public function __construct($url, $callback) {
         parent::__construct();
@@ -15,6 +16,7 @@ class RouterRoute extends RouterEntry {
         $this->setCallback($callback);
 
         $this->settings['aliases'] = array();
+        $this->requestTypes = array();
     }
 
     protected function parseParameters($url) {
@@ -45,6 +47,9 @@ class RouterRoute extends RouterEntry {
 
         // Check if request method is allowed
         if(count($this->requestTypes) === 0 || in_array($requestMethod, $this->requestTypes)) {
+
+            $url = parse_url($url);
+            $url = $url['path'];
 
             $url = explode('/', trim($url, '/'));
             $route = explode('/', trim($this->url, '/'));
@@ -132,5 +137,28 @@ class RouterRoute extends RouterEntry {
 
     public function getAliases() {
         $this->aliases;
+    }
+
+    /**
+     * Add request type
+     *
+     * @param $type
+     * @return self
+     * @throws RouterException
+     */
+    public function addRequestType($type) {
+        if(!in_array($type, self::$allowedRequestTypes)) {
+            throw new RouterException('Invalid request method: ' . $type);
+        }
+
+        $this->requestTypes[] = $type;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRequestTypes() {
+        return $this->requestTypes;
     }
 }

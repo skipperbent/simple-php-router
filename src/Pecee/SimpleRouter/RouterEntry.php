@@ -17,13 +17,11 @@ abstract class RouterEntry {
     );
 
     protected $settings;
-    protected $requestTypes;
     protected $callback;
     protected $parameters;
 
     public function __construct() {
         $this->settings = array();
-        $this->requestTypes = array();
         $this->parameters = array();
     }
 
@@ -41,29 +39,6 @@ abstract class RouterEntry {
      */
     public function getCallback() {
         return $this->callback;
-    }
-
-    /**
-     * Add request type
-     *
-     * @param $type
-     * @return self
-     * @throws RouterException
-     */
-    public function addRequestType($type) {
-        if(!in_array($type, self::$allowedRequestTypes)) {
-            throw new RouterException('Invalid request method: ' . $type);
-        }
-
-        $this->requestTypes[] = $type;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getRequestTypes() {
-        return $this->requestTypes;
     }
 
     /**

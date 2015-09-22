@@ -83,6 +83,22 @@ class SimpleRouter {
         return $route;
     }
 
+    public static function all($url, $callback) {
+        $route = new RouterRoute($url, $callback);
+        $router = RouterBase::getInstance();
+        $router->addRoute($route);
+
+        return $route;
+    }
+
+    public static function controller($url, $controller) {
+        $route = new RouterController($url, $controller);
+        $router = RouterBase::getInstance();
+        $router->addRoute($route);
+
+        return $route;
+    }
+
     public static function ressource($controller, $settings = array()) {
         // not yet implemented
     }

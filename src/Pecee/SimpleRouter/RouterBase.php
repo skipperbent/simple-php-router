@@ -20,7 +20,7 @@ class RouterBase {
         $this->routes = array();
         $this->backstack = array();
         $this->controllerUrlMap = array();
-        $this->requestUri = rtrim($_SERVER['REQUEST_URI'], '/');
+        $this->requestUri = $_SERVER['REQUEST_URI'];
         $this->requestMethod = strtolower(isset($_GET['_method']) ? $_GET['_method'] : $_SERVER['REQUEST_METHOD']);
     }
 
@@ -48,31 +48,26 @@ class RouterBase {
             $this->loadClass($route->getMiddleware());
         }
 
-        // Add default namespace
-        if(!$route->getNamespace() && $this->defaultControllerNamespace !== null) {
-            $route->setNamespace($this->defaultControllerNamespace);
-        }
-
         if(is_object($route->getCallback()) && is_callable($route->getCallback())) {
 
             // When the callback is a function
-            call_user_func_array($route->getCallback(), $route->getParameters());
+            call_user_func_array($route->getCallback(), $route->getParameters(), 404);
 
         } else if(stripos($route->getCallback(), '@') > 0) {
             // When the callback is a method
 
             $controller = explode('@', $route->getCallback());
 
-            $class = $route->getNamespace() . '\\' . $controller[0];
+            $className = $route->getNamespace() . '\\' . $controller[0];
 
-            $class = $this->loadClass($class);
+            $class = $this->loadClass($className);
 
             $this->loadedClass = $class;
 
             $method = $controller[1];
 
             if(!method_exists($class, $method)) {
-                throw new RouterException(sprintf('Method %s does not exist', $method));
+                throw new RouterException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
             }
 
             call_user_func_array(array($class, $method), $route->getParameters());
@@ -83,6 +78,18 @@ class RouterBase {
         // Loop through each route-request
         /* @var $route RouterEntry */
         foreach($routes as $route) {
+
+            if($this->defaultControllerNamespace) {
+                $namespace = null;
+
+                if ($route->getNamespace()) {
+                    $namespace = $this->defaultControllerNamespace . '\\' . $route->getNamespace();
+                } else {
+                    $namespace = $this->defaultControllerNamespace;
+                }
+
+                $route->setNamespace($namespace);
+            }
 
             $settings = array_merge($settings, $route->getMergeableSettings());
             if($route->getPrefix()) {
@@ -101,7 +108,17 @@ class RouterBase {
                 }
             }
 
+            if($route instanceof RouterController) {
+
+                if(is_array($prefixes) && count($prefixes)) {
+                    $route->setUrl( '/' . join('/', $prefixes) . $route->getUrl() );
+                }
+
+                $this->controllerUrlMap[$route->getController()] = $route;
+            }
+
             // Stop if the route matches
+
             $route = $route->getRoute($this->requestMethod, $this->requestUri);
             if($route) {
                 $this->renderRoute($route);
