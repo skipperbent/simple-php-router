@@ -14,7 +14,7 @@ class RouterBase {
     protected $requestUri;
     protected $requestMethod;
     protected $loadedClass;
-    protected $defaultControllerNamespace;
+    protected $defaultNamespace;
 
     public function __construct() {
         $this->routes = array();
@@ -25,6 +25,15 @@ class RouterBase {
     }
 
     public function addRoute(RouterEntry $route) {
+
+        if($route instanceof RouterRoute && stripos($route->getCallback(), '@') !== false) {
+            $this->controllerUrlMap[$route->getCallback()] = $route;
+        } else if($route instanceof RouterController) {
+            $this->controllerUrlMap[$route->getController()] = $route;
+        } else if($route instanceof RouterGroup) {
+            $this->renderRoute($route);
+        }
+
         if($this->currentRoute !== null) {
             $this->backstack[] = $route;
         } else {
@@ -43,7 +52,7 @@ class RouterBase {
     public function renderRoute(RouterEntry $route) {
         $this->currentRoute = $route;
 
-        // Load middlewares if any
+        // Load middlewares
         if($route->getMiddleware()) {
             $this->loadClass($route->getMiddleware());
         }
@@ -79,13 +88,13 @@ class RouterBase {
         /* @var $route RouterEntry */
         foreach($routes as $route) {
 
-            if($this->defaultControllerNamespace) {
+            if($this->defaultNamespace) {
                 $namespace = null;
 
                 if ($route->getNamespace()) {
-                    $namespace = $this->defaultControllerNamespace . '\\' . $route->getNamespace();
+                    $namespace = $this->defaultNamespace . '\\' . $route->getNamespace();
                 } else {
-                    $namespace = $this->defaultControllerNamespace;
+                    $namespace = $this->defaultNamespace;
                 }
 
                 $route->setNamespace($namespace);
@@ -98,27 +107,13 @@ class RouterBase {
 
             $route->setSettings($settings);
 
-            if($route instanceof RouterRoute) {
+            if($route instanceof RouterRoute || $route instanceof RouterController) {
                 if(is_array($prefixes) && count($prefixes)) {
                     $route->setUrl( '/' . join('/', $prefixes) . $route->getUrl() );
                 }
-
-                if(stripos($route->getCallback(), '@') !== false) {
-                    $this->controllerUrlMap[$route->getCallback()] = $route;
-                }
-            }
-
-            if($route instanceof RouterController) {
-
-                if(is_array($prefixes) && count($prefixes)) {
-                    $route->setUrl( '/' . join('/', $prefixes) . $route->getUrl() );
-                }
-
-                $this->controllerUrlMap[$route->getController()] = $route;
             }
 
             // Stop if the route matches
-
             $route = $route->getRoute($this->requestMethod, $this->requestUri);
             if($route) {
                 $this->renderRoute($route);
@@ -143,15 +138,15 @@ class RouterBase {
     /**
      * @return string
      */
-    public function getDefaultControllerNamespace(){
-        return $this->defaultControllerNamespace;
+    public function getDefaultNamespace(){
+        return $this->defaultNamespace;
     }
 
     /**
-     * @param string $defaultControllerNamespace
+     * @param string $defaultNamespace
      */
-    public function setDefaultControllerNamespace($defaultControllerNamespace) {
-        $this->defaultControllerNamespace = $defaultControllerNamespace;
+    public function setDefaultNamespace($defaultNamespace) {
+        $this->defaultNamespace = $defaultNamespace;
     }
 
     /**
@@ -201,7 +196,7 @@ class RouterBase {
         foreach($this->controllerUrlMap as $c => $route) {
             $params = $route->getParameters();
 
-            if(strtolower($c) === strtolower($controller)) {
+            if(strtolower($c) === strtolower($controller) || stripos($c, $controller) === 0) {
 
                 $url = $route->getUrl();
 

@@ -13,7 +13,7 @@ class SimpleRouter {
 
     public static function start($defaultNamespace = null) {
         $router = RouterBase::GetInstance();
-        $router->setDefaultControllerNamespace($defaultNamespace);
+        $router->setDefaultNamespace($defaultNamespace);
         $router->routeRequest();
     }
 
