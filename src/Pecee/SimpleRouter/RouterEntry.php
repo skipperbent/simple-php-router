@@ -183,7 +183,7 @@ abstract class RouterEntry {
             $controller = explode('@', $this->getCallback());
             $className = $this->getNamespace() . '\\' . $controller[0];
             $class = $this->loadClass($className);
-            $method = strtolower($requestMethod) . ucfirst($controller[1]);
+            $method = $requestMethod . ucfirst($controller[1]);
 
             if (!method_exists($class, $method)) {
                 throw new RouterException(sprintf('Method %s does not exist in class %s', $method, $className), 404);

@@ -20,7 +20,32 @@ class RouterRessource extends RouterEntry {
     }
 
     public function renderRoute($requestMethod) {
-        return parent::renderRoute($requestMethod);
+        // Load middleware
+        if($this->getMiddleware()) {
+            $this->loadClass($this->getMiddleware());
+        }
+
+        if(is_object($this->getCallback()) && is_callable($this->getCallback())) {
+
+            // When the callback is a function
+            call_user_func_array($this->getCallback(), $this->getParameters());
+        } else {
+            // When the callback is a method
+            $controller = explode('@', $this->getCallback());
+            $className = $this->getNamespace() . '\\' . $controller[0];
+            $class = $this->loadClass($className);
+            $method = strtolower($controller[1]);
+
+            if (!method_exists($class, $method)) {
+                throw new RouterException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
+            }
+
+            call_user_func_array(array($class, $method), $this->getParameters());
+
+            return $class;
+        }
+
+        return null;
     }
 
     protected function call($method, $parameters) {
@@ -50,38 +75,37 @@ class RouterRessource extends RouterEntry {
             if (count($path)) {
 
                 // Delete
-                if($this->postMethod == 'DELETE' && $requestMethod == self::REQUEST_TYPE_POST) {
+                if($this->postMethod === 'DELETE' && $requestMethod === self::REQUEST_TYPE_POST) {
                     return $this->call('destroy', $args);
                 }
 
                 // Update
-                if(in_array($this->postMethod, array('PUT', 'PATCH')) && $requestMethod == self::REQUEST_TYPE_POST) {
+                if(in_array($this->postMethod, array('PUT', 'PATCH')) && $requestMethod === self::REQUEST_TYPE_POST) {
                     return $this->call('update', array_merge(array($action), $args));
                 }
 
                 // Edit
-                if(isset($args[0]) && strtolower($args[0]) == 'edit' && $requestMethod == self::REQUEST_TYPE_GET) {
+                if(isset($args[0]) && strtolower($args[0]) === 'edit' && $requestMethod === self::REQUEST_TYPE_GET) {
                     return $this->call('edit', array_merge(array($action), array_slice($args, 1)));
                 }
 
                 // Create
-                if(strtolower($action) == 'create' && $this->postMethod == 'GET') {
+                if(strtolower($action) === 'create' && $this->postMethod === 'GET') {
                     return $this->call('create', $args);
                 }
 
                 // Save
-                if($requestMethod == 'POST') {
+                if($requestMethod === self::REQUEST_TYPE_POST) {
                     return $this->call('store', $args);
                 }
 
                 // Show
-                if($action && $requestMethod == 'GET') {
+                if($action && $requestMethod === self::REQUEST_TYPE_GET) {
                     return $this->call('show', array_merge(array($action), $args));
                 }
 
                 // Index
                 return $this->call('index', $args);
-
             }
         }
 
