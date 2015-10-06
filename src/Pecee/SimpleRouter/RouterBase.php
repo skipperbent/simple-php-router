@@ -22,7 +22,7 @@ class RouterBase {
         $this->backstack = array();
         $this->controllerUrlMap = array();
         $this->requestUri = $_SERVER['REQUEST_URI'];
-        $this->requestMethod = strtolower(isset($_GET['_method']) ? $_GET['_method'] : $_SERVER['REQUEST_METHOD']);
+        $this->requestMethod = ($_SERVER['REQUEST_METHOD'] != 'GET') ? 'post' : 'get';
     }
 
     public function addRoute(RouterEntry $route) {

@@ -99,8 +99,12 @@ class SimpleRouter {
         return $route;
     }
 
-    public static function ressource($controller, $settings = array()) {
-        // not yet implemented
+    public static function ressource($url, $controller) {
+        $route = new RouterRessource($url, $controller);
+        $router = RouterBase::getInstance();
+        $router->addRoute($route);
+
+        return $route;
     }
 
     public function getRoute($controller = null, $parameters = null, $getParams = null) {

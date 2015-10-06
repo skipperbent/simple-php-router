@@ -31,11 +31,9 @@ class RouterController extends RouterEntry {
             if(count($path)) {
 
                 $method = (!isset($path[0]) || trim($path[0]) === '') ? self::DEFAULT_METHOD : $path[0];
-
                 $this->method = $method;
 
                 array_shift($path);
-
                 $this->parameters = $path;
 
                 // Set callback
@@ -43,11 +41,8 @@ class RouterController extends RouterEntry {
 
                 return $this;
             }
-
         }
-
         return null;
-
     }
 
     /**
