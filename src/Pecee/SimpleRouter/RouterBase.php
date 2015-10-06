@@ -14,15 +14,18 @@ class RouterBase {
     protected $backstack;
     protected $requestUri;
     protected $requestMethod;
-    protected $loadedClass;
+    protected $loadedRoute;
     protected $defaultNamespace;
+
+    // TODO: make interface for controller routers, so they can be easily detected
+    // TODO: clean up - cut some of the methods down to smaller pieces
 
     public function __construct() {
         $this->routes = array();
         $this->backstack = array();
         $this->controllerUrlMap = array();
         $this->requestUri = $_SERVER['REQUEST_URI'];
-        $this->requestMethod = ($_SERVER['REQUEST_METHOD'] != 'GET') ? 'post' : 'get';
+        $this->requestMethod = (isset($_POST['_method'])) ? strtolower($_POST['_method']) : strtolower($_SERVER['REQUEST_METHOD']);
     }
 
     public function addRoute(RouterEntry $route) {
@@ -33,11 +36,11 @@ class RouterBase {
         }
     }
 
-    protected function processRoutes(array $routes, array &$settings = array(), array &$prefixes = array(), $match = false, $backstack = false) {
+    protected function processRoutes(array $routes, array $settings = array(), array $prefixes = array(), $backstack = false) {
         // Loop through each route-request
 
         /* @var $route RouterEntry */
-        foreach($routes as $i => $route) {
+        foreach($routes as $route) {
 
             if($this->defaultNamespace) {
                 $namespace = null;
@@ -51,54 +54,51 @@ class RouterBase {
                 $route->setNamespace($namespace);
             }
 
-            $settings = array_merge($settings, $route->getMergeableSettings());
+            $newPrefixes = $prefixes;
+            $mergedSettings = array_merge($settings, $route->getMergeableSettings());
             if($route->getPrefix()) {
-                array_push($prefixes, $route->getPrefix());
+                array_push($newPrefixes, rtrim($route->getPrefix(), '/'));
+            }
+            $route->addSettings($mergedSettings);
+
+            if(!($route instanceof RouterGroup) && is_array($newPrefixes) && count($newPrefixes) && $backstack) {
+                $route->setUrl( join('/', $newPrefixes) . $route->getUrl() );
             }
 
-            $route->setSettings($settings);
-
-            if(($route instanceof RouterRoute || $route instanceof RouterController)) {
-                if(is_array($prefixes) && count($prefixes)) {
-                    $route->setUrl( '/' . join('/', $prefixes) . $route->getUrl() );
-                }
-            }
+            $this->controllerUrlMap[] = $route;
 
             $this->currentRoute = $route;
-
-            if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
-                $this->controllerUrlMap[] = $route;
-            } else if($route instanceof RouterController) {
-                $this->controllerUrlMap[] = $route;
+            if($route instanceof RouterGroup && is_callable($route->getCallback())) {
+                $route->renderRoute($this->requestMethod);
             }
-
-            $routeMatch = $route->matchRoute($this->requestMethod, rtrim($this->requestUri, '/') . '/');
-
-            if($routeMatch && $match) {
-                $this->loadedClass = $routeMatch->renderRoute($this->requestMethod);
-            }
+            $this->currentRoute = null;
 
             if(count($this->backstack)) {
-
-                if($backstack) {
-                    array_shift($this->backstack);
-                }
+                $backstack = $this->backstack;
+                $this->backstack = array();
 
                 // Route any routes added to the backstack
-                $this->processRoutes($this->backstack, $settings, $prefixes, $match, true);
+                $this->processRoutes($backstack, $mergedSettings, $newPrefixes, true);
             }
-
         }
     }
 
     public function routeRequest() {
         // Loop through each route-request
-        $settings = array();
-        $prefixes = array();
 
-        $this->processRoutes($this->routes, $settings, $prefixes, true);
+        $this->processRoutes($this->routes);
 
-        if(!$this->loadedClass) {
+        foreach($this->controllerUrlMap as $route) {
+            $routeMatch = $route->matchRoute($this->requestMethod, rtrim($this->requestUri, '/') . '/');
+
+            if($routeMatch && !($routeMatch instanceof RouterGroup)) {
+                $this->loadedRoute = $routeMatch;
+                $routeMatch->renderRoute($this->requestMethod);
+                break;
+            }
+        }
+
+        if(!$this->loadedRoute) {
             throw new RouterException(sprintf('Route not found: %s', $this->requestUri), 404);
         }
     }
@@ -149,10 +149,7 @@ class RouterBase {
      * @return RouterEntry
      */
     public function getCurrentRoute(){
-        if($this->currentRoute !== null && !($this->currentRoute instanceof RouterGroup)) {
-            return $this->currentRoute;
-        }
-        return null;
+        return $this->currentRoute;
     }
 
     /**
@@ -169,12 +166,12 @@ class RouterBase {
             $url .= $method . '/';
         }
 
-        if($route instanceof RouterController) {
+        if($route instanceof RouterController || $route instanceof RouterRessource) {
             if(count($parameters)) {
                 $url .= join('/', $parameters);
             }
-
         } else {
+            /* @var $route RouterEntry */
             $params = $route->getParameters();
             if(count($params)) {
                 $i = 0;
@@ -187,7 +184,7 @@ class RouterBase {
         }
 
         $p = '';
-        if($getParams !== null) {
+        if($getParams !== null && count($getParams)) {
             $p = '?'.Url::arrayToParams($getParams);
         }
 
@@ -197,6 +194,15 @@ class RouterBase {
     }
 
     public function getRoute($controller = null, $parameters = null, $getParams = null) {
+
+        if($parameters !== null && !is_array($parameters)) {
+            throw new \InvalidArgumentException('Invalid type for parameter. Must be array or null');
+        }
+
+        if($getParams !== null && !is_array($getParams)) {
+            throw new \InvalidArgumentException('Invalid type for getParams. Must be array or null');
+        }
+
         $c = '';
         $method = null;
 
@@ -205,7 +211,7 @@ class RouterBase {
 
             if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
                 $c = $route->getCallback();
-            } else if($route instanceof RouterController) {
+            } else if($route instanceof RouterController || $route instanceof RouterRessource) {
                 $c = $route->getController();
             }
 
@@ -228,7 +234,7 @@ class RouterBase {
                     $c = $tmp[0];
                 }
 
-            } else if($route instanceof RouterController) {
+            } else if($route instanceof RouterController || $route instanceof RouterRessource) {
                 $c = $route->getController();
             }
 
@@ -241,6 +247,14 @@ class RouterBase {
             if($controller == $c) {
                 return $this->processUrl($route, $method, $parameters, $getParams);
             }
+        }
+
+        // Nothing found - return current route
+        if($this->loadedRoute) {
+            $getParams = ($getParams === null) ? array() : $getParams;
+            $params = ($this->loadedRoute->getParameters() == null) ? array() : $this->loadedRoute->getParameters();
+            $parameters = ($parameters === null) ? array() : $parameters;
+            return $this->processUrl($this->loadedRoute, null, array_merge($params, $parameters), array_merge($_GET, $getParams));
         }
 
         return '/';

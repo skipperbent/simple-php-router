@@ -70,7 +70,7 @@ abstract class RouterEntry {
      * @return self
      */
     public function setPrefix($prefix) {
-        $this->prefix = trim($prefix, '/');
+        $this->prefix = '/' . trim($prefix, '/') . '/';
         return $this;
     }
 
@@ -143,8 +143,22 @@ abstract class RouterEntry {
      * @param array $settings
      * @return self
      */
+    public function addSettings(array $settings) {
+        array_merge($this->settings, $settings);
+        return $this;
+    }
+
+    /**
+     * @param array $settings
+     * @return self
+     */
     public function setSettings($settings) {
         $this->settings = $settings;
+
+        if($settings['prefix']) {
+            $this->setPrefix($settings['prefix']);
+        }
+
         return $this;
     }
 

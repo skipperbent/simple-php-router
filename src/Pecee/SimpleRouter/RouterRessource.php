@@ -8,15 +8,13 @@ class RouterRessource extends RouterEntry {
     protected $url;
     protected $controller;
     protected $method;
-    protected $parameters;
     protected $postMethod;
 
     public function __construct($url, $controller) {
         parent::__construct();
         $this->url = $url;
         $this->controller = $controller;
-        $this->parameters;
-        $this->postMethod = strtoupper(isset($_POST['_method']) ? $_POST['_method'] : $_SERVER['REQUEST_METHOD']);
+        $this->postMethod = strtolower(($_SERVER['REQUEST_METHOD'] != 'GET') ? 'post' : 'get');
     }
 
     public function renderRoute($requestMethod) {
@@ -26,7 +24,6 @@ class RouterRessource extends RouterEntry {
         }
 
         if(is_object($this->getCallback()) && is_callable($this->getCallback())) {
-
             // When the callback is a function
             call_user_func_array($this->getCallback(), $this->getParameters());
         } else {
@@ -58,7 +55,7 @@ class RouterRessource extends RouterEntry {
         $url = parse_url($url);
         $url = $url['path'];
 
-        if(strtolower($url) == strtolower($this->url) || stripos($url, $this->url) !== false) {
+        if(strtolower($url) == strtolower($this->url) || stripos($url, $this->url . '/') === 0) {
             $url = rtrim($url, '/');
 
             $strippedUrl = trim(substr($url, strlen($this->url)), '/');
@@ -75,32 +72,32 @@ class RouterRessource extends RouterEntry {
             if (count($path)) {
 
                 // Delete
-                if($this->postMethod === 'DELETE' && $requestMethod === self::REQUEST_TYPE_POST) {
+                if($requestMethod === self::REQUEST_TYPE_DELETE && $this->postMethod === self::REQUEST_TYPE_POST) {
                     return $this->call('destroy', $args);
                 }
 
                 // Update
-                if(in_array($this->postMethod, array('PUT', 'PATCH')) && $requestMethod === self::REQUEST_TYPE_POST) {
+                if(in_array($requestMethod, array('put', 'patch')) && $this->postMethod === self::REQUEST_TYPE_POST) {
                     return $this->call('update', array_merge(array($action), $args));
                 }
 
                 // Edit
-                if(isset($args[0]) && strtolower($args[0]) === 'edit' && $requestMethod === self::REQUEST_TYPE_GET) {
+                if(isset($args[0]) && strtolower($args[0]) === 'edit' && $this->postMethod === self::REQUEST_TYPE_GET) {
                     return $this->call('edit', array_merge(array($action), array_slice($args, 1)));
                 }
 
                 // Create
-                if(strtolower($action) === 'create' && $this->postMethod === 'GET') {
+                if(strtolower($action) === 'create' && $requestMethod === self::REQUEST_TYPE_GET) {
                     return $this->call('create', $args);
                 }
 
                 // Save
-                if($requestMethod === self::REQUEST_TYPE_POST) {
+                if($this->postMethod === self::REQUEST_TYPE_POST) {
                     return $this->call('store', $args);
                 }
 
                 // Show
-                if($action && $requestMethod === self::REQUEST_TYPE_GET) {
+                if($action && $this->postMethod === self::REQUEST_TYPE_GET) {
                     return $this->call('show', array_merge(array($action), $args));
                 }
 
@@ -110,6 +107,49 @@ class RouterRessource extends RouterEntry {
         }
 
         return null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl() {
+        return $this->url;
+    }
+
+    /**
+     * @param string $url
+     */
+    public function setUrl($url) {
+        $url = rtrim($url, '/') . '/';
+        $this->url = $url;
+    }
+
+    /**
+     * @return string
+     */
+    public function getController() {
+        return $this->controller;
+    }
+
+    /**
+     * @param string $controller
+     */
+    public function setController($controller) {
+        $this->controller = $controller;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMethod() {
+        return $this->method;
+    }
+
+    /**
+     * @param string $method
+     */
+    public function setMethod($method) {
+        $this->method = $method;
     }
 
 }

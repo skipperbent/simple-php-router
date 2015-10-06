@@ -8,13 +8,11 @@ class RouterController extends RouterEntry {
     protected $url;
     protected $controller;
     protected $method;
-    protected $parameters;
 
     public function __construct($url, $controller) {
         parent::__construct();
         $this->url = $url;
         $this->controller = $controller;
-        $this->parameters;
     }
 
     public function matchRoute($requestMethod, $url) {
@@ -22,7 +20,7 @@ class RouterController extends RouterEntry {
         $url = parse_url($url);
         $url = $url['path'];
 
-        if(strtolower($url) == strtolower($this->url) || stripos($url, $this->url) !== false) {
+        if(strtolower($url) == strtolower($this->url) || stripos($url, $this->url) === 0) {
 
             $strippedUrl = trim(str_ireplace($this->url, '/', $url), '/');
 
@@ -58,20 +56,6 @@ class RouterController extends RouterEntry {
     public function setUrl($url) {
         $url = rtrim($url, '/') . '/';
         $this->url = $url;
-    }
-
-    /**
-     * @return array
-     */
-    public function getParameters() {
-        return $this->parameters;
-    }
-
-    /**
-     * @param array $parameters
-     */
-    public function setParameters($parameters) {
-        $this->parameters = $parameters;
     }
 
     /**
