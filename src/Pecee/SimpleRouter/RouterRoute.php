@@ -43,7 +43,7 @@ class RouterRoute extends RouterEntry {
         return null;
     }
 
-    public function getRoute($requestMethod, &$url) {
+    public function matchRoute($requestMethod, $url) {
 
         // Check if request method is allowed
         if(count($this->requestTypes) === 0 || in_array($requestMethod, $this->requestTypes)) {

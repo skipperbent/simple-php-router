@@ -9,6 +9,7 @@ class RouterBase {
 
     protected $currentRoute;
     protected $routes;
+    protected $processedRoutes;
     protected $controllerUrlMap;
     protected $backstack;
     protected $requestUri;
@@ -25,15 +26,6 @@ class RouterBase {
     }
 
     public function addRoute(RouterEntry $route) {
-
-        if($route instanceof RouterRoute && stripos($route->getCallback(), '@') !== false) {
-            $this->controllerUrlMap[$route->getCallback()] = $route;
-        } else if($route instanceof RouterController) {
-            $this->controllerUrlMap[$route->getController()] = $route;
-        } else if($route instanceof RouterGroup) {
-            $this->renderRoute($route);
-        }
-
         if($this->currentRoute !== null) {
             $this->backstack[] = $route;
         } else {
@@ -41,52 +33,11 @@ class RouterBase {
         }
     }
 
-    protected function loadClass($name) {
-        if(!class_exists($name)) {
-            throw new RouterException(sprintf('Class %s does not exist', $name));
-        }
-
-        return new $name();
-    }
-
-    public function renderRoute(RouterEntry $route) {
-        $this->currentRoute = $route;
-
-        // Load middlewares
-        if($route->getMiddleware()) {
-            $this->loadClass($route->getMiddleware());
-        }
-
-        if(is_object($route->getCallback()) && is_callable($route->getCallback())) {
-
-            // When the callback is a function
-            call_user_func_array($route->getCallback(), $route->getParameters(), 404);
-
-        } else if(stripos($route->getCallback(), '@') > 0) {
-            // When the callback is a method
-
-            $controller = explode('@', $route->getCallback());
-
-            $className = $route->getNamespace() . '\\' . $controller[0];
-
-            $class = $this->loadClass($className);
-
-            $this->loadedClass = $class;
-
-            $method = $controller[1];
-
-            if(!method_exists($class, $method)) {
-                throw new RouterException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
-            }
-
-            call_user_func_array(array($class, $method), $route->getParameters());
-        }
-    }
-
-    protected function processRoutes(array $routes, array &$settings = array(), array &$prefixes = array()) {
+    protected function processRoutes(array $routes, array &$settings = array(), array &$prefixes = array(), $match = false, $backstack = false) {
         // Loop through each route-request
+
         /* @var $route RouterEntry */
-        foreach($routes as $route) {
+        foreach($routes as $i => $route) {
 
             if($this->defaultNamespace) {
                 $namespace = null;
@@ -107,32 +58,49 @@ class RouterBase {
 
             $route->setSettings($settings);
 
-            if($route instanceof RouterRoute || $route instanceof RouterController) {
+            if(($route instanceof RouterRoute || $route instanceof RouterController)) {
                 if(is_array($prefixes) && count($prefixes)) {
                     $route->setUrl( '/' . join('/', $prefixes) . $route->getUrl() );
                 }
             }
 
-            // Stop if the route matches
-            $route = $route->getRoute($this->requestMethod, $this->requestUri);
-            if($route) {
-                $this->renderRoute($route);
+            $this->currentRoute = $route;
+
+            if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
+                $this->controllerUrlMap[] = $route;
+            } else if($route instanceof RouterController) {
+                $this->controllerUrlMap[] = $route;
+            }
+
+            $routeMatch = $route->matchRoute($this->requestMethod, rtrim($this->requestUri, '/') . '/');
+
+            if($routeMatch && $match) {
+                $this->loadedClass = $routeMatch->renderRoute($this->requestMethod);
             }
 
             if(count($this->backstack)) {
-                // Remove itself from backstack
-                array_shift($this->backstack);
+
+                if($backstack) {
+                    array_shift($this->backstack);
+                }
 
                 // Route any routes added to the backstack
-                $this->processRoutes($this->backstack, $settings, $prefixes);
+                $this->processRoutes($this->backstack, $settings, $prefixes, $match, true);
             }
+
         }
     }
 
     public function routeRequest() {
         // Loop through each route-request
+        $settings = array();
+        $prefixes = array();
 
-        $this->processRoutes($this->routes);
+        $this->processRoutes($this->routes, $settings, $prefixes, true);
+
+        if(!$this->loadedClass) {
+            throw new RouterException(sprintf('Route not found: %s', $this->requestUri), 404);
+        }
     }
 
     /**
@@ -181,7 +149,10 @@ class RouterBase {
      * @return RouterEntry
      */
     public function getCurrentRoute(){
-        return $this->currentRoute;
+        if($this->currentRoute !== null && !($this->currentRoute instanceof RouterGroup)) {
+            return $this->currentRoute;
+        }
+        return null;
     }
 
     /**
@@ -191,30 +162,84 @@ class RouterBase {
         return $this->routes;
     }
 
-    public function getRoute($controller, $parameters = null, $getParams = null) {
-        /* @var $route RouterRoute */
-        foreach($this->controllerUrlMap as $c => $route) {
+    protected function processUrl($route, $method = null, $parameters = null, $getParams = null) {
+        $url = rtrim($route->getUrl(), '/') . '/';
+
+        if($method !== null) {
+            $url .= $method . '/';
+        }
+
+        if($route instanceof RouterController) {
+            if(count($parameters)) {
+                $url .= join('/', $parameters);
+            }
+
+        } else {
             $params = $route->getParameters();
-
-            if(strtolower($c) === strtolower($controller) || stripos($c, $controller) === 0) {
-
-                $url = $route->getUrl();
-
+            if(count($params)) {
                 $i = 0;
                 foreach($params as $param => $value) {
                     $value = (isset($parameters[$param])) ? $parameters[$param] : $value;
                     $url = str_ireplace('{' . $param. '}', $value, $route->getUrl());
                     $i++;
                 }
+            }
+        }
 
-                $p = '';
-                if($getParams !== null) {
-                    $p = '?'.Url::arrayToParams($getParams);
+        $p = '';
+        if($getParams !== null) {
+            $p = '?'.Url::arrayToParams($getParams);
+        }
+
+        $url .= $p;
+
+        return $url;
+    }
+
+    public function getRoute($controller = null, $parameters = null, $getParams = null) {
+        $c = '';
+        $method = null;
+
+        /* @var $route RouterRoute */
+        foreach($this->controllerUrlMap as $route) {
+
+            if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
+                $c = $route->getCallback();
+            } else if($route instanceof RouterController) {
+                $c = $route->getController();
+            }
+
+            if($c === $controller || strpos($c, $controller) === 0) {
+                if(stripos($c, '@') !== false) {
+                    $tmp = explode('@', $route->getCallback());
+                    $method = strtolower($tmp[1]);
+                }
+                return $this->processUrl($route, $method, $parameters, $getParams);
+            }
+        }
+
+        // No match has yet been found, let's try to guess what url that should be returned
+        foreach($this->controllerUrlMap as $route) {
+            if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
+                $c = $route->getCallback();
+
+                if(stripos($controller, '@') !== false) {
+                    $tmp = explode('@', $controller);
+                    $c = $tmp[0];
                 }
 
-                $url .= $p;
+            } else if($route instanceof RouterController) {
+                $c = $route->getController();
+            }
 
-                return $url;
+            if(stripos($controller, '@') !== false) {
+                $tmp = explode('@', $controller);
+                $controller = $tmp[0];
+                $method = $tmp[1];
+            }
+
+            if($controller == $c) {
+                return $this->processUrl($route, $method, $parameters, $getParams);
             }
         }
 
@@ -223,7 +248,7 @@ class RouterBase {
 
     public static function getInstance() {
         if(self::$instance === null) {
-            self::$instance = new self();
+            self::$instance = new static();
         }
         return self::$instance;
     }

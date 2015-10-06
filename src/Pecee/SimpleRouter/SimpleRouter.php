@@ -103,4 +103,8 @@ class SimpleRouter {
         // not yet implemented
     }
 
+    public function getRoute($controller = null, $parameters = null, $getParams = null) {
+        return RouterBase::getInstance()->getRoute($controller, $parameters, $getParams);
+    }
+
 }

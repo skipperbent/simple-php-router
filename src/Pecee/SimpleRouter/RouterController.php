@@ -17,29 +17,7 @@ class RouterController extends RouterEntry {
         $this->parameters;
     }
 
-    protected function loadClass() {
-
-        if($this->getNamespace()) {
-            $className = $this->getNamespace() . '\\' . $this->controller;
-        } else {
-            $className = $this->controller;
-        }
-
-        if(!class_exists($className)) {
-            throw new RouterException(sprintf('Controller %s not found', $className), 404);
-        }
-
-        // Call controller
-        $class = new $className();
-
-        if(!method_exists($class, $this->method)) {
-            throw new RouterException(sprintf('Method %s not found in controller %s', $this->method, $className), 404);
-        }
-
-        call_user_func_array(array($class, $this->method), $this->parameters);
-    }
-
-    public function getRoute($requestMethod, &$url) {
+    public function matchRoute($requestMethod, $url) {
 
         $url = parse_url($url);
         $url = $url['path'];
@@ -54,16 +32,21 @@ class RouterController extends RouterEntry {
 
                 $method = (!isset($path[0]) || trim($path[0]) === '') ? self::DEFAULT_METHOD : $path[0];
 
-                $this->method = $requestMethod . ucfirst($method);
+                $this->method = $method;
 
                 array_shift($path);
 
                 $this->parameters = $path;
 
-                $this->loadClass();
+                // Set callback
+                $this->setCallback($this->controller . '@' . $this->method);
+
+                return $this;
             }
 
         }
+
+        return null;
 
     }
 
@@ -78,6 +61,7 @@ class RouterController extends RouterEntry {
      * @param string $url
      */
     public function setUrl($url) {
+        $url = rtrim($url, '/') . '/';
         $this->url = $url;
     }
 
