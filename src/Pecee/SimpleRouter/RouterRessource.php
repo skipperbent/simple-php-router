@@ -55,7 +55,7 @@ class RouterRessource extends RouterEntry {
         $url = parse_url($url);
         $url = $url['path'];
 
-        if(strtolower($url) == strtolower($this->url) || stripos($url, $this->url . '/') === 0) {
+        if(strtolower($url) == strtolower($this->url) || stripos($url, $this->url) === 0) {
             $url = rtrim($url, '/');
 
             $strippedUrl = trim(substr($url, strlen($this->url)), '/');
