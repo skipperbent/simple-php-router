@@ -59,10 +59,10 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
         SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show');
         
         // Resetful ressource
-        Router::ressource('/rest', 'ControllerRessource');
+        SimpleRouter::ressource('/rest', 'ControllerRessource');
         
         // Load the entire controller (where url matches method names - getIndex(), postIndex() etc)
-        Router::controller('/controller', 'ControllerDefault');
+        SimpleRouter::controller('/controller', 'ControllerDefault');
         
         // Example of providing callback instead of Controller
         SimpleRouter::get('/something', function() {
@@ -158,7 +158,7 @@ function url($controller, $parameters = null, $getParams = null) {
 
 In ```routes.php``` we have added this route:
 
-```Router::get('/item/{id}', 'myController@show');```
+```SimpleRouter::get('/item/{id}', 'myController@show');```
 
 In the template we then call:
 
