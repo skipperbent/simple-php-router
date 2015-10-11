@@ -1,4 +1,4 @@
-# [WIP] Simple PHP router
+# Simple PHP router
 Simple, fast PHP router that is easy to get integrated and in almost any project. Heavily inspired by the Laravel router.
 
 **Please note: this project has just been added and is still a work in progress. Please use with caution until a stable release version is available :)**
@@ -57,6 +57,17 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
     SimpleRouter::group(['prefix' => 'services'], function() {
 
         SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show');
+        
+        // Resetful ressource
+        SimpleRouter::ressource('/rest', 'ControllerRessource');
+        
+        // Load the entire controller (where url matches method names - getIndex(), postIndex() etc)
+        SimpleRouter::controller('/controller', 'ControllerDefault');
+        
+        // Example of providing callback instead of Controller
+        SimpleRouter::get('/something', function() {
+            die('Callback example');
+        });
 
     });
 });
@@ -147,7 +158,7 @@ function url($controller, $parameters = null, $getParams = null) {
 
 In ```routes.php``` we have added this route:
 
-```Router::get('/item/{id}', 'myController@show');```
+```SimpleRouter::get('/item/{id}', 'myController@show');```
 
 In the template we then call:
 
