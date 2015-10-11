@@ -57,6 +57,17 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
     SimpleRouter::group(['prefix' => 'services'], function() {
 
         SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show');
+        
+        // Resetful ressource
+        Router::ressource('/rest', 'ControllerRessource');
+        
+        // Load the entire controller (where url matches method names - getIndex(), postIndex() etc)
+        Router::controller('/controller', 'ControllerDefault');
+        
+        // Example of providing callback instead of Controller
+        SimpleRouter::get('/something', function() {
+            die('Callback example');
+        });
 
     });
 });
