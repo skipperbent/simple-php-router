@@ -120,8 +120,11 @@ class RouterBase {
     /**
      * @return RouterEntry
      */
-    public function getLoadedClass() {
-        return $this->loadedClass;
+    public function getLoadedRoute() {
+        if(!($this->loadedRoute instanceof RouterGroup)) {
+            return $this->loadedRoute;
+        }
+        return null;
     }
 
     /**

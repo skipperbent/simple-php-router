@@ -34,6 +34,20 @@ abstract class RouterEntry {
     }
 
     /**
+     * Returns callback name/identifier for the current route based on the callback.
+     * Useful if you need to get a unique identifier for the loaded route, for instance
+     * when using translations etc.
+     *
+     * @return string
+     */
+    public function getIdentifier() {
+        if(strpos($this->callback, '@') !== false) {
+            return $this->callback;
+        }
+        return 'function_' . md5($this->callback);
+    }
+
+    /**
      * @param string $callback
      * @return self;
      */
