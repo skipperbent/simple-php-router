@@ -61,11 +61,13 @@ class RouterBase {
             }
             $route->addSettings($mergedSettings);
 
-            if(!($route instanceof RouterGroup) && is_array($newPrefixes) && count($newPrefixes) && $backstack) {
-                $route->setUrl( join('/', $newPrefixes) . $route->getUrl() );
-            }
+            if(!($route instanceof RouterGroup)) {
+                if(is_array($newPrefixes) && count($newPrefixes) && $backstack) {
+                    $route->setUrl( join('/', $newPrefixes) . $route->getUrl() );
+                }
 
-            $this->controllerUrlMap[] = $route;
+                $this->controllerUrlMap[] = $route;
+            }
 
             $this->currentRoute = $route;
             if($route instanceof RouterGroup && is_callable($route->getCallback())) {
@@ -87,6 +89,11 @@ class RouterBase {
         // Loop through each route-request
 
         $this->processRoutes($this->routes);
+
+        // Make sure the urls is in the right order when comparing
+        usort($this->controllerUrlMap, function($a, $b) {
+            return strcmp($b->getUrl(), $a->getUrl());
+        });
 
         foreach($this->controllerUrlMap as $route) {
             $routeMatch = $route->matchRoute($this->requestMethod, rtrim($this->requestUri, '/') . '/');
