@@ -53,7 +53,7 @@ class RouterRessource extends RouterEntry {
 
     public function matchRoute($requestMethod, $url) {
         $url = parse_url($url);
-        $url = $url['path'];
+        $url = rtrim($url['path'], '/') . '/';
 
         if(strtolower($url) == strtolower($this->url) || stripos($url, $this->url) === 0) {
             $url = rtrim($url, '/');
