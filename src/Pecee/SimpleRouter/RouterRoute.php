@@ -9,6 +9,8 @@ class RouterRoute extends RouterEntry {
 
     protected $url;
     protected $requestTypes;
+    protected $parameters;
+    protected $parametersRegex;
 
     public function __construct($url, $callback) {
         parent::__construct();
@@ -17,6 +19,8 @@ class RouterRoute extends RouterEntry {
 
         $this->settings['aliases'] = array();
         $this->requestTypes = array();
+        $this->parameters = array();
+        $this->parametersRegex = array();
     }
 
     protected function parseParameters($url) {
@@ -73,7 +77,21 @@ class RouterRoute extends RouterEntry {
 
                     // Save parameter if we have one
                     if($parameter) {
-                        $parameters[$parameter] = $url[$i];
+                        $parameterValue = $url[$i];
+                        $regex = (isset($this->parametersRegex[$parameter]) ? $this->parametersRegex[$parameter] : null);
+
+                        if($regex !== null) {
+                            // Use the regular expression rule provided to filter the value
+                            $matches = array();
+                            preg_match('/'.$regex.'/is', $url[$i], $matches);
+
+                            if(count($matches)) {
+                                $parameterValue = $matches[0];
+                            }
+                        }
+
+                        // Add parameter value
+                        $parameters[$parameter] = $parameterValue;
                     }
                 }
 
@@ -82,7 +100,6 @@ class RouterRoute extends RouterEntry {
                     $this->parameters = $parameters;
                     return $this;
                 }
-
             }
         }
 
@@ -160,5 +177,32 @@ class RouterRoute extends RouterEntry {
      */
     public function getRequestTypes() {
         return $this->requestTypes;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getParameters(){
+        return $this->parameters;
+    }
+
+    /**
+     * @param mixed $parameters
+     * @return self
+     */
+    public function setParameters($parameters) {
+        $this->parameters = $parameters;
+        return $this;
+    }
+
+    /**
+     * Add regular expression parameter match
+     *
+     * @param array $options
+     * @return self
+     */
+    public function where(array $options) {
+        $this->parametersRegex = array_merge($this->parametersRegex, $options);
+        return $this;
     }
 }

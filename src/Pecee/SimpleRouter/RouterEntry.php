@@ -18,11 +18,9 @@ abstract class RouterEntry {
 
     protected $settings;
     protected $callback;
-    protected $parameters;
 
     public function __construct() {
         $this->settings = array();
-        $this->parameters = array();
     }
 
     protected function loadClass($name) {
@@ -61,22 +59,6 @@ abstract class RouterEntry {
      */
     public function getCallback() {
         return $this->callback;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getParameters(){
-        return $this->parameters;
-    }
-
-    /**
-     * @param mixed $parameters
-     * @return self
-     */
-    public function setParameters($parameters) {
-        $this->parameters = $parameters;
-        return $this;
     }
 
     /**
