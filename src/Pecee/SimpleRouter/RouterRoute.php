@@ -9,8 +9,6 @@ class RouterRoute extends RouterEntry {
 
     protected $url;
     protected $requestTypes;
-    protected $parameters;
-    protected $parametersRegex;
 
     public function __construct($url, $callback) {
         parent::__construct();
@@ -19,8 +17,6 @@ class RouterRoute extends RouterEntry {
 
         $this->settings['aliases'] = array();
         $this->requestTypes = array();
-        $this->parameters = array();
-        $this->parametersRegex = array();
     }
 
     protected function parseParameters($url) {
@@ -177,32 +173,5 @@ class RouterRoute extends RouterEntry {
      */
     public function getRequestTypes() {
         return $this->requestTypes;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getParameters(){
-        return $this->parameters;
-    }
-
-    /**
-     * @param mixed $parameters
-     * @return self
-     */
-    public function setParameters($parameters) {
-        $this->parameters = $parameters;
-        return $this;
-    }
-
-    /**
-     * Add regular expression parameter match
-     *
-     * @param array $options
-     * @return self
-     */
-    public function where(array $options) {
-        $this->parametersRegex = array_merge($this->parametersRegex, $options);
-        return $this;
     }
 }

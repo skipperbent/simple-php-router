@@ -18,9 +18,13 @@ abstract class RouterEntry {
 
     protected $settings;
     protected $callback;
+    protected $parameters;
+    protected $parametersRegex;
 
     public function __construct() {
         $this->settings = array();
+        $this->parameters = array();
+        $this->parametersRegex = array();
     }
 
     protected function loadClass($name) {
@@ -114,6 +118,33 @@ abstract class RouterEntry {
      */
     public function getSettings() {
         return $this->settings;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getParameters(){
+        return $this->parameters;
+    }
+
+    /**
+     * @param mixed $parameters
+     * @return self
+     */
+    public function setParameters($parameters) {
+        $this->parameters = $parameters;
+        return $this;
+    }
+
+    /**
+     * Add regular expression parameter match
+     *
+     * @param array $options
+     * @return self
+     */
+    public function where(array $options) {
+        $this->parametersRegex = array_merge($this->parametersRegex, $options);
+        return $this;
     }
 
     /**
