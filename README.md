@@ -17,6 +17,16 @@ Add the latest version pf Simple PHP Router to your ```composer.json```
 }
 ```
 
+## Notes
+
+### Features currently "in-the-works"
+
+- Global Constraints
+- Named Routes
+- Sub-Domain Routing
+- CSRF Protection
+- Optinal/required parameters
+
 ## Initialising the router
 
 In your ```index.php``` require your ```routes.php``` and call the ```routeRequest()``` method when all your custom routes has been loaded. This will trigger and do the actual routing of the requests.
@@ -56,7 +66,8 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
 
     SimpleRouter::group(['prefix' => 'services'], function() {
 
-        SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show');
+        SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show')
+        ->where(['id' => '[0-9]+');
         
         // Resetful ressource
         SimpleRouter::ressource('/rest', 'ControllerRessource');
