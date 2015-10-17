@@ -1,6 +1,6 @@
 <?php
 
-namespace Pecee\Router;
+namespace Pecee\SimpleRouter;
 
 abstract class RouterEntry {
 
@@ -17,26 +17,36 @@ abstract class RouterEntry {
     );
 
     protected $settings;
-    protected $requestTypes;
     protected $callback;
     protected $parameters;
+    protected $parametersRegex;
 
     public function __construct() {
         $this->settings = array();
-        $this->requestTypes = array();
         $this->parameters = array();
+        $this->parametersRegex = array();
     }
 
-    protected function parseParameter($path) {
-        $parameters = array();
-
-        preg_match('/{([A-Za-z\-\_]*?)}/is', $path, $parameters);
-
-        if(isset($parameters[1]) && count($parameters[1]) > 0) {
-            return $parameters[1];
+    protected function loadClass($name) {
+        if(!class_exists($name)) {
+            throw new RouterException(sprintf('Class %s does not exist', $name));
         }
 
-        return null;
+        return new $name();
+    }
+
+    /**
+     * Returns callback name/identifier for the current route based on the callback.
+     * Useful if you need to get a unique identifier for the loaded route, for instance
+     * when using translations etc.
+     *
+     * @return string
+     */
+    public function getIdentifier() {
+        if(strpos($this->callback, '@') !== false) {
+            return $this->callback;
+        }
+        return 'function_' . md5($this->callback);
     }
 
     /**
@@ -56,50 +66,11 @@ abstract class RouterEntry {
     }
 
     /**
-     * Add request type
-     *
-     * @param $type
-     * @return self
-     * @throws RouterException
-     */
-    public function addRequestType($type) {
-        if(!in_array($type, self::$allowedRequestTypes)) {
-            throw new RouterException('Invalid request method: ' . $type);
-        }
-
-        $this->requestTypes[] = $type;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getRequestTypes() {
-        return $this->requestTypes;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getParameters(){
-        return $this->parameters;
-    }
-
-    /**
-     * @param mixed $parameters
-     * @return self
-     */
-    public function setParameters($parameters) {
-        $this->parameters = $parameters;
-        return $this;
-    }
-
-    /**
      * @param string $prefix
      * @return self
      */
     public function setPrefix($prefix) {
-        $this->prefix = trim($prefix, '/');
+        $this->prefix = '/' . trim($prefix, '/') . '/';
         return $this;
     }
 
@@ -150,6 +121,33 @@ abstract class RouterEntry {
     }
 
     /**
+     * @return mixed
+     */
+    public function getParameters(){
+        return $this->parameters;
+    }
+
+    /**
+     * @param mixed $parameters
+     * @return self
+     */
+    public function setParameters($parameters) {
+        $this->parameters = $parameters;
+        return $this;
+    }
+
+    /**
+     * Add regular expression parameter match
+     *
+     * @param array $options
+     * @return self
+     */
+    public function where(array $options) {
+        $this->parametersRegex = array_merge($this->parametersRegex, $options);
+        return $this;
+    }
+
+    /**
      * Get settings that are allowed to be inherited by child routes.
      *
      * @return array
@@ -172,8 +170,22 @@ abstract class RouterEntry {
      * @param array $settings
      * @return self
      */
+    public function addSettings(array $settings) {
+        array_merge($this->settings, $settings);
+        return $this;
+    }
+
+    /**
+     * @param array $settings
+     * @return self
+     */
     public function setSettings($settings) {
         $this->settings = $settings;
+
+        if($settings['prefix']) {
+            $this->setPrefix($settings['prefix']);
+        }
+
         return $this;
     }
 
@@ -197,6 +209,35 @@ abstract class RouterEntry {
         $this->settings[$name] = $value;
     }
 
-    abstract function getRoute($requestMethod, &$url);
+    public function renderRoute($requestMethod) {
+        // Load middleware
+        if($this->getMiddleware()) {
+            $this->loadClass($this->getMiddleware());
+        }
+
+        if(is_object($this->getCallback()) && is_callable($this->getCallback())) {
+
+            // When the callback is a function
+            call_user_func_array($this->getCallback(), $this->getParameters());
+        } else {
+            // When the callback is a method
+            $controller = explode('@', $this->getCallback());
+            $className = $this->getNamespace() . '\\' . $controller[0];
+            $class = $this->loadClass($className);
+            $method = $requestMethod . ucfirst($controller[1]);
+
+            if (!method_exists($class, $method)) {
+                throw new RouterException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
+            }
+
+            call_user_func_array(array($class, $method), $this->getParameters());
+
+            return $class;
+        }
+
+        return null;
+    }
+
+    abstract function matchRoute($requestMethod, $url);
 
 }

@@ -1,6 +1,8 @@
 # Simple PHP router
 Simple, fast PHP router that is easy to get integrated and in almost any project. Heavily inspired by the Laravel router.
 
+**Please note: this project has just been added and is still a work in progress. Please use with caution until a stable release version is available :)**
+
 ## Installation
 Add the latest version pf Simple PHP Router to your ```composer.json```
 
@@ -15,6 +17,16 @@ Add the latest version pf Simple PHP Router to your ```composer.json```
 }
 ```
 
+## Notes
+
+### Features currently "in-the-works"
+
+- Global Constraints
+- Named Routes
+- Sub-Domain Routing
+- CSRF Protection
+- Optinal/required parameters
+
 ## Initialising the router
 
 In your ```index.php``` require your ```routes.php``` and call the ```routeRequest()``` method when all your custom routes has been loaded. This will trigger and do the actual routing of the requests.
@@ -22,24 +34,25 @@ In your ```index.php``` require your ```routes.php``` and call the ```routeReque
 This is an example of a basic ```index.php``` file:
 
 ```php
+use \Pecee\SimpleRouter;
+
 require_once 'routes.php'; // change this to whatever makes sense in your project
-	
-// Initialise the router
-$router = \Pecee\SimpleRouter::GetInstance();
-	
-// Do the actual routing
-$router->routeRequest()
+
+// The apps default namespace (so we don't have to specify it each time we use MyController@home)
+$defaultControllerNamespace = 'MyWebsite\\Controller';
+
+// Do the routing
+SimpleRouter::init($defaultControllerNamespace);
 ```
 
 ## Adding routes
 Remember the ```routes.php``` file you required in your ```index.php```? This file will contain all your custom rules for routing. 
-
 This router is heavily inspired by the Laravel 5.* router, so anything you find in the Laravel documentation should work here as well.
 
 ### Basic example
 
 ```php
-using \Pecee\Router;
+use Pecee\SimpleRouter\SimpleRouter;
 
 /*
  * This route will match the url /v1/services/answers/1/
@@ -49,11 +62,23 @@ using \Pecee\Router;
  * the request, for instance if a user is not authenticated.
  */
 
-Router::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\SomeMiddlewareClass'], function() {
+SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\SomeMiddlewareClass'], function() {
 
-    Router::group(['prefix' => 'services'], function() {
+    SimpleRouter::group(['prefix' => 'services'], function() {
 
-        Router::get('/answers/{id}', 'ControllerAnswers@show');
+        SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show')
+        ->where(['id' => '[0-9]+');
+        
+        // Resetful ressource
+        SimpleRouter::ressource('/rest', 'ControllerRessource');
+        
+        // Load the entire controller (where url matches method names - getIndex(), postIndex() etc)
+        SimpleRouter::controller('/controller', 'ControllerDefault');
+        
+        // Example of providing callback instead of Controller
+        SimpleRouter::get('/something', function() {
+            die('Callback example');
+        });
 
     });
 });
@@ -61,13 +86,14 @@ Router::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\SomeMidd
 
 ### Doing it the object oriented (hardcore) way
 
-The ```Router``` class is just a simple helper class that knows how to communicate with the ```SimpleRouter``` class. If you are up for a challenge, want the full control or simply just want to create your own ```Router``` helper class, this example is for you.
+The ```SimpleRouter``` class referenced in the previous example, is just a simple helper class that knows how to communicate with the ```RouterBase``` class. 
+If you are up for a challenge, want the full control or simply just want to create your own ```Router``` helper class, this example is for you.
 
 ```php
-use \Pecee\SimpleRouter;
-use \Pecee\Router\RouterRoute;
+use \Pecee\SimpleRouter\RouterBase;
+use \Pecee\SimpleRouter\RouterRoute;
 
-$router = SimpleRouter::GetInstance();
+$router = RouterBase::getInstance();
 
 $route = new RouterRoute('/answer/1', function() {
     die('this callback will match /answer/1');
@@ -80,6 +106,78 @@ $route->setPrefix('v1');
 // Add the route to the router
 $router->addRoute($route);
 ```
+
+This is a simple example of an integration into a framework.
+
+The framework has it's own ```Router``` class which inherits from the ```SimpleRouter``` class. This allows the framework to add custom functionality.
+
+```php
+namespace MyProject;
+
+use Pecee\Handler\ExceptionHandler;
+use Pecee\SimpleRouter\SimpleRouter;
+
+class Router extends SimpleRouter {
+
+    protected static $exceptionHandlers = array();
+
+    public static function start() {
+
+        Debug::getInstance()->add('Router initialised.');
+
+        // Load routes.php
+        $file = $_ENV['basePath'] . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'routes.php';
+        if(file_exists($file)) {
+            require_once $file;
+        }
+
+        // Init locale settings
+        Locale::getInstance();
+
+        // Set default namespace
+        $defaultNamespace = '\\'.Registry::getInstance()->get('AppName') . '\\Controller';
+
+        // Handle exceptions
+        try {
+            parent::start($defaultNamespace);
+        } catch(\Exception $e) {
+            /* @var $handler ExceptionHandler */
+            foreach(self::$exceptionHandlers as $handler) {
+                $class = new $handler();
+                $class->handleError($e);
+            }
+
+            throw $e;
+        }
+    }
+
+    public static function addExceptionHandler($handler) {
+        self::$exceptionHandlers[] = $handler;
+    }
+
+}
+```
+
+This is a basic example of a helper function for generating urls.
+
+```php
+use Pecee\SimpleRouter\RouterBase;
+function url($controller, $parameters = null, $getParams = null) {
+    RouterBase::getInstance()->getRoute($controller, $parameters, $getParams);
+}
+```
+
+In ```routes.php``` we have added this route:
+
+```SimpleRouter::get('/item/{id}', 'myController@show');```
+
+In the template we then call:
+
+```url('myController@show', ['id' => 22], ['category' => 'shoes']);``` 
+
+Result url is:
+
+```/item/22?category=shoes ```
 
 ## Documentation
 While I work on a better documentation, please refer to the Laravel 5 routing documentation here:
