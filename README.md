@@ -67,6 +67,12 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
         SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show')
         ->where(['id' => '[0-9]+');
         
+        /**
+         * This example will route url when matching the regular expression to the method.
+         * For example route: /ajax/music/world -> ControllerAjax@process (parameter: music/world)
+         */
+        SimpleRouter::all('/ajax', 'ControllerAjax@process')->match('ajax\\/([A-Za-z0-9\\/]+)');
+        
         // Resetful ressource
         SimpleRouter::ressource('/rest', 'ControllerRessource');
         
