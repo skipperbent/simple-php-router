@@ -6,6 +6,8 @@ use Pecee\Http\Request;
 
 class RouterRoute extends RouterEntry {
 
+    const PARAMETERS_REGEX_MATCH = '{([A-Za-z\-\_]*?)}';
+
     protected $url;
     protected $requestTypes;
 
@@ -18,13 +20,13 @@ class RouterRoute extends RouterEntry {
         $this->requestTypes = array();
     }
 
-    protected function parseParameters($url, $multiple = false) {
+    protected function parseParameters($url, $multiple = false, $regex = self::PARAMETERS_REGEX_MATCH) {
         $parameters = array();
 
         if($multiple) {
-            preg_match_all('/{([A-Za-z\-\_]*?)}/is', $url, $parameters);
+            preg_match_all('/'.$regex.'/is', $url, $parameters);
         } else {
-            preg_match('/{([A-Za-z\-\_]*?)}/is', $url, $parameters);
+            preg_match('/'.$regex.'/is', $url, $parameters);
         }
 
         if(isset($parameters[1]) && count($parameters[1]) > 0) {
@@ -42,43 +44,58 @@ class RouterRoute extends RouterEntry {
             $url = parse_url($request->getUri());
             $url = $url['path'];
 
-            $url = explode('/', trim($url, '/'));
-            $route = explode('/', trim($this->url, '/'));
+            $route = $this->url;
+
+            $routeMatch = preg_replace('/'.self::PARAMETERS_REGEX_MATCH.'/is', '', $route);
 
             // Check if url parameter count matches
-            if(count($url) === count($route)) {
-
-                $parameters = array();
+            if(stripos($url, $routeMatch) === 0) {
 
                 $matches = true;
 
-                // Check if url matches
-                foreach($route as $i => $path) {
-                    $parameter = $this->parseParameters($path);
+                if($this->regexMatch) {
+                    $parameters = $this->parseParameters($url, true, $this->regexMatch);
 
-                    // Check if parameter of path matches, otherwise quit..
-                    if(is_null($parameter) && strtolower($path) != strtolower($url[$i])) {
-                        $matches = false;
-                        break;
+                    // If regex doesn't match, make sure to return an array
+                    if(!is_array($parameters)) {
+                        $parameters = array();
                     }
 
-                    // Save parameter if we have one
-                    if($parameter) {
-                        $parameterValue = $url[$i];
-                        $regex = (isset($this->parametersRegex[$parameter]) ? $this->parametersRegex[$parameter] : null);
+                } else {
 
-                        if($regex !== null) {
-                            // Use the regular expression rule provided to filter the value
-                            $matches = array();
-                            preg_match('/'.$regex.'/is', $url[$i], $matches);
+                    $url = explode('/', $url);
+                    $route = explode('/', $route);
 
-                            if(count($matches)) {
-                                $parameterValue = $matches[0];
-                            }
+                    $parameters = array();
+
+                    // Check if url matches
+                    foreach ($route as $i => $path) {
+                        $parameter = $this->parseParameters($path, false);
+
+                        // Check if parameter of path matches, otherwise quit..
+                        if (is_null($parameter) && strtolower($path) != strtolower($url[$i])) {
+                            $matches = false;
+                            break;
                         }
 
-                        // Add parameter value
-                        $parameters[$parameter] = $parameterValue;
+                        // Save parameter if we have one
+                        if ($parameter) {
+                            $parameterValue = $url[$i];
+                            $regex = (isset($this->parametersRegex[$parameter]) ? $this->parametersRegex[$parameter] : null);
+
+                            if ($regex !== null) {
+                                // Use the regular expression rule provided to filter the value
+                                $matches = array();
+                                preg_match('/' . $regex . '/is', $url[$i], $matches);
+
+                                if (count($matches)) {
+                                    $parameterValue = $matches[0];
+                                }
+                            }
+
+                            // Add parameter value
+                            $parameters[$parameter] = $parameterValue;
+                        }
                     }
                 }
 
