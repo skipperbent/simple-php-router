@@ -2,24 +2,26 @@
 
 namespace Pecee\SimpleRouter;
 
+use Pecee\Http\Request;
+
 class RouterGroup extends RouterEntry {
 
     public function __construct() {
         parent::__construct();
     }
 
-    public function matchRoute($requestMethod, $url) {
+    public function matchRoute(Request $request) {
         // Check if request method is allowed
 
-        if(strtolower($url) == strtolower($this->prefix) || stripos($url, $this->prefix) === 0) {
+        if(strtolower($request->getUri()) == strtolower($this->prefix) || stripos($request->getUri(), $this->prefix) === 0) {
 
             $hasAccess = (!$this->method);
 
             if($this->method) {
                 if(is_array($this->method)) {
-                    $hasAccess = (in_array($requestMethod, $this->method));
+                    $hasAccess = (in_array($request->getMethod(), $this->method));
                 } else {
-                    $hasAccess = strtolower($this->method) == strtolower($requestMethod);
+                    $hasAccess = strtolower($this->method) == strtolower($request->getMethod());
                 }
             }
 

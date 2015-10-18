@@ -1,19 +1,19 @@
 <?php
 namespace Pecee\SimpleRouter;
 
+use Pecee\Http\Request;
 use Pecee\Url;
 
 class RouterBase {
 
     protected static $instance;
 
+    protected $request;
     protected $currentRoute;
     protected $routes;
     protected $processedRoutes;
     protected $controllerUrlMap;
     protected $backstack;
-    protected $requestUri;
-    protected $requestMethod;
     protected $loadedRoute;
     protected $defaultNamespace;
 
@@ -24,8 +24,7 @@ class RouterBase {
         $this->routes = array();
         $this->backstack = array();
         $this->controllerUrlMap = array();
-        $this->requestUri = $_SERVER['REQUEST_URI'];
-        $this->requestMethod = (isset($_POST['_method'])) ? strtolower($_POST['_method']) : strtolower($_SERVER['REQUEST_METHOD']);
+        $this->request = new Request();
     }
 
     public function addRoute(RouterEntry $route) {
@@ -42,9 +41,8 @@ class RouterBase {
         /* @var $route RouterEntry */
         foreach($routes as $route) {
 
-            if($this->defaultNamespace) {
+            if($this->defaultNamespace && !$route->getNamespace()) {
                 $namespace = null;
-
                 if ($route->getNamespace()) {
                     $namespace = $this->defaultNamespace . '\\' . $route->getNamespace();
                 } else {
@@ -71,7 +69,7 @@ class RouterBase {
 
             $this->currentRoute = $route;
             if($route instanceof RouterGroup && is_callable($route->getCallback())) {
-                $route->renderRoute($this->requestMethod);
+                $route->renderRoute($this->request);
             }
             $this->currentRoute = null;
 
@@ -96,17 +94,17 @@ class RouterBase {
         });
 
         foreach($this->controllerUrlMap as $route) {
-            $routeMatch = $route->matchRoute($this->requestMethod, rtrim($this->requestUri, '/') . '/');
+            $routeMatch = $route->matchRoute($this->request);
 
             if($routeMatch && !($routeMatch instanceof RouterGroup)) {
                 $this->loadedRoute = $routeMatch;
-                $routeMatch->renderRoute($this->requestMethod);
+                $routeMatch->renderRoute($this->request);
                 break;
             }
         }
 
         if(!$this->loadedRoute) {
-            throw new RouterException(sprintf('Route not found: %s', $this->requestUri), 404);
+            throw new RouterException(sprintf('Route not found: %s', $this->request->getUri()), 404);
         }
     }
 
@@ -135,20 +133,6 @@ class RouterBase {
     }
 
     /**
-     * @return string
-     */
-    public function getRequestMethod() {
-        return $this->requestMethod;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRequestUri() {
-        return $this->requestUri;
-    }
-
-    /**
      * @return array
      */
     public function getBackstack() {
@@ -169,10 +153,20 @@ class RouterBase {
         return $this->routes;
     }
 
+    /**
+     * Get current request
+     *
+     * @return Request
+     */
+    public function getRequest() {
+        return $this->request;
+    }
+
     protected function processUrl($route, $method = null, $parameters = null, $getParams = null) {
+
         $url = rtrim($route->getUrl(), '/') . '/';
 
-        if($method !== null) {
+        if(($route instanceof RouterController || $route instanceof RouterRessource) && $method !== null) {
             $url .= $method . '/';
         }
 
@@ -226,24 +220,16 @@ class RouterBase {
             }
 
             if($c === $controller || strpos($c, $controller) === 0) {
-                if(stripos($c, '@') !== false) {
-                    $tmp = explode('@', $route->getCallback());
-                    $method = strtolower($tmp[1]);
-                }
-                return $this->processUrl($route, $method, $parameters, $getParams);
+                return $this->processUrl($route, $route->getMethod(), $parameters, $getParams);
             }
         }
+
+        $c = '';
 
         // No match has yet been found, let's try to guess what url that should be returned
         foreach($this->controllerUrlMap as $route) {
             if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
-                $c = $route->getCallback();
-
-                if(stripos($controller, '@') !== false) {
-                    $tmp = explode('@', $controller);
-                    $c = $tmp[0];
-                }
-
+                $c = $route->getClass();
             } else if($route instanceof RouterController || $route instanceof RouterRessource) {
                 $c = $route->getController();
             }
@@ -254,7 +240,7 @@ class RouterBase {
                 $method = $tmp[1];
             }
 
-            if($controller == $c) {
+            if($controller === $c) {
                 return $this->processUrl($route, $method, $parameters, $getParams);
             }
         }

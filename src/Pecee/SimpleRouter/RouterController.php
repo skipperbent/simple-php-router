@@ -1,6 +1,8 @@
 <?php
 namespace Pecee\SimpleRouter;
 
+use Pecee\Http\Request;
+
 class RouterController extends RouterEntry {
 
     const DEFAULT_METHOD = 'index';
@@ -15,8 +17,8 @@ class RouterController extends RouterEntry {
         $this->controller = $controller;
     }
 
-    public function matchRoute($requestMethod, $url) {
-        $url = parse_url($url);
+    public function matchRoute(Request $request) {
+        $url = parse_url($request->getUri());
         $url = rtrim($url['path'], '/') . '/';
 
         if(strtolower($url) == strtolower($this->url) || stripos($url, $this->url) === 0) {

@@ -2,8 +2,7 @@
 
 namespace Pecee\SimpleRouter;
 
-use Pecee\Registry;
-use Pecee\Router;
+use Pecee\Http\Request;
 
 class RouterRoute extends RouterEntry {
 
@@ -19,10 +18,14 @@ class RouterRoute extends RouterEntry {
         $this->requestTypes = array();
     }
 
-    protected function parseParameters($url) {
+    protected function parseParameters($url, $multiple = false) {
         $parameters = array();
 
-        preg_match_all('/{([A-Za-z\-\_]*?)}/is', $url, $parameters);
+        if($multiple) {
+            preg_match_all('/{([A-Za-z\-\_]*?)}/is', $url, $parameters);
+        } else {
+            preg_match('/{([A-Za-z\-\_]*?)}/is', $url, $parameters);
+        }
 
         if(isset($parameters[1]) && count($parameters[1]) > 0) {
             return $parameters[1];
@@ -31,24 +34,12 @@ class RouterRoute extends RouterEntry {
         return null;
     }
 
-    protected function parseParameter($path) {
-        $parameters = array();
-
-        preg_match('/{([A-Za-z\-\_]*?)}/is', $path, $parameters);
-
-        if(isset($parameters[1]) && count($parameters[1]) > 0) {
-            return $parameters[1];
-        }
-
-        return null;
-    }
-
-    public function matchRoute($requestMethod, $url) {
+    public function matchRoute(Request $request) {
 
         // Check if request method is allowed
-        if(count($this->requestTypes) === 0 || in_array($requestMethod, $this->requestTypes)) {
+        if(count($this->requestTypes) === 0 || in_array($request->getMethod(), $this->requestTypes)) {
 
-            $url = parse_url($url);
+            $url = parse_url($request->getUri());
             $url = $url['path'];
 
             $url = explode('/', trim($url, '/'));
@@ -63,7 +54,7 @@ class RouterRoute extends RouterEntry {
 
                 // Check if url matches
                 foreach($route as $i => $path) {
-                    $parameter = $this->parseParameter($path);
+                    $parameter = $this->parseParameters($path);
 
                     // Check if parameter of path matches, otherwise quit..
                     if(is_null($parameter) && strtolower($path) != strtolower($url[$i])) {
@@ -116,7 +107,7 @@ class RouterRoute extends RouterEntry {
      */
     public function setUrl($url) {
 
-        $parameters = $this->parseParameters($url);
+        $parameters = $this->parseParameters($url, true);
 
         if($parameters !== null) {
             foreach($parameters as $param) {
@@ -144,7 +135,9 @@ class RouterRoute extends RouterEntry {
      * @return self
      */
     public function addAlias($alias) {
-        $this->aliases[] = $alias;
+        $arr = $this->aliases;
+        $arr[] = $alias;
+        $this->aliases = $arr;
         return $this;
     }
 

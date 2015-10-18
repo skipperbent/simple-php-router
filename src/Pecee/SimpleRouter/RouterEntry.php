@@ -2,6 +2,9 @@
 
 namespace Pecee\SimpleRouter;
 
+use Pecee\Http\Middleware\Middleware;
+use Pecee\Http\Request;
+
 abstract class RouterEntry {
 
     const REQUEST_TYPE_POST = 'post';
@@ -25,14 +28,6 @@ abstract class RouterEntry {
         $this->settings = array();
         $this->parameters = array();
         $this->parametersRegex = array();
-    }
-
-    protected function loadClass($name) {
-        if(!class_exists($name)) {
-            throw new RouterException(sprintf('Class %s does not exist', $name));
-        }
-
-        return new $name();
     }
 
     /**
@@ -63,6 +58,22 @@ abstract class RouterEntry {
      */
     public function getCallback() {
         return $this->callback;
+    }
+
+    public function getMethod() {
+        if(strpos($this->callback, '@') !== false) {
+            $tmp = explode('@', $this->callback);
+            return $tmp[1];
+        }
+        return null;
+    }
+
+    public function getClass() {
+        if(strpos($this->callback, '@') !== false) {
+            $tmp = explode('@', $this->callback);
+            return $tmp[0];
+        }
+        return null;
     }
 
     /**
@@ -171,7 +182,7 @@ abstract class RouterEntry {
      * @return self
      */
     public function addSettings(array $settings) {
-        array_merge($this->settings, $settings);
+        $this->settings = array_merge($this->settings, $settings);
         return $this;
     }
 
@@ -209,11 +220,29 @@ abstract class RouterEntry {
         $this->settings[$name] = $value;
     }
 
-    public function renderRoute($requestMethod) {
-        // Load middleware
-        if($this->getMiddleware()) {
-            $this->loadClass($this->getMiddleware());
+    protected function loadClass($name) {
+        if(!class_exists($name)) {
+            throw new RouterException(sprintf('Class %s does not exist', $name));
         }
+
+        return new $name();
+    }
+
+    protected function loadMiddleware(Request $request) {
+        if($this->getMiddleware()) {
+            if (!($this->getMiddleware() instanceof Middleware)) {
+                throw new RouterException($this->getMiddleware() . ' must be instance of Middleware');
+            }
+
+            /* @var $class Middleware */
+            $class = $this->loadClass($this->getMiddleware());
+            $class->handle($request);
+        }
+    }
+
+    public function renderRoute(Request $request) {
+        // Load middleware
+        $this->loadMiddleware($request);
 
         if(is_object($this->getCallback()) && is_callable($this->getCallback())) {
 
@@ -223,8 +252,9 @@ abstract class RouterEntry {
             // When the callback is a method
             $controller = explode('@', $this->getCallback());
             $className = $this->getNamespace() . '\\' . $controller[0];
+
             $class = $this->loadClass($className);
-            $method = $requestMethod . ucfirst($controller[1]);
+            $method = $request->getMethod() . ucfirst($controller[1]);
 
             if (!method_exists($class, $method)) {
                 throw new RouterException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
@@ -238,6 +268,6 @@ abstract class RouterEntry {
         return null;
     }
 
-    abstract function matchRoute($requestMethod, $url);
+    abstract function matchRoute(Request $request);
 
 }

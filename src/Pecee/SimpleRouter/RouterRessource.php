@@ -1,6 +1,8 @@
 <?php
 namespace Pecee\SimpleRouter;
 
+use Pecee\Http\Request;
+
 class RouterRessource extends RouterEntry {
 
     const DEFAULT_METHOD = 'index';
@@ -17,11 +19,9 @@ class RouterRessource extends RouterEntry {
         $this->postMethod = strtolower(($_SERVER['REQUEST_METHOD'] != 'GET') ? 'post' : 'get');
     }
 
-    public function renderRoute($requestMethod) {
+    public function renderRoute(Request $request) {
         // Load middleware
-        if($this->getMiddleware()) {
-            $this->loadClass($this->getMiddleware());
-        }
+        $this->loadMiddleware($request);
 
         if(is_object($this->getCallback()) && is_callable($this->getCallback())) {
             // When the callback is a function
@@ -51,8 +51,8 @@ class RouterRessource extends RouterEntry {
         return $this;
     }
 
-    public function matchRoute($requestMethod, $url) {
-        $url = parse_url($url);
+    public function matchRoute(Request $request) {
+        $url = parse_url($request->getUri());
         $url = rtrim($url['path'], '/') . '/';
 
         if(strtolower($url) == strtolower($this->url) || stripos($url, $this->url) === 0) {
@@ -72,12 +72,12 @@ class RouterRessource extends RouterEntry {
             if (count($path)) {
 
                 // Delete
-                if($requestMethod === self::REQUEST_TYPE_DELETE && $this->postMethod === self::REQUEST_TYPE_POST) {
+                if($request->getMethod() === self::REQUEST_TYPE_DELETE && $this->postMethod === self::REQUEST_TYPE_POST) {
                     return $this->call('destroy', $args);
                 }
 
                 // Update
-                if(in_array($requestMethod, array('put', 'patch')) && $this->postMethod === self::REQUEST_TYPE_POST) {
+                if(in_array($request->getMethod(), array('put', 'patch')) && $this->postMethod === self::REQUEST_TYPE_POST) {
                     return $this->call('update', array_merge(array($action), $args));
                 }
 
@@ -87,7 +87,7 @@ class RouterRessource extends RouterEntry {
                 }
 
                 // Create
-                if(strtolower($action) === 'create' && $requestMethod === self::REQUEST_TYPE_GET) {
+                if(strtolower($action) === 'create' && $request->getMethod() === self::REQUEST_TYPE_GET) {
                     return $this->call('create', $args);
                 }
 
