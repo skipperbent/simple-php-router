@@ -191,10 +191,9 @@ http://laravel.com/docs/5.1/routing
 ## Easily extendable
 The router can be easily extended to customize your needs. 
 
-## License
-The MIT License (MIT)
+## The MIT License (MIT)
 
-Copyright (c) [year] [fullname]
+Copyright (c) 2015 Simon Sessingø / simple-php-router
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
