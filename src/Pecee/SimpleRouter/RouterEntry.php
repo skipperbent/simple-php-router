@@ -23,6 +23,7 @@ abstract class RouterEntry {
     protected $callback;
     protected $parameters;
     protected $parametersRegex;
+    protected $regexMatch;
 
     public function __construct() {
         $this->settings = array();
@@ -155,6 +156,17 @@ abstract class RouterEntry {
      */
     public function where(array $options) {
         $this->parametersRegex = array_merge($this->parametersRegex, $options);
+        return $this;
+    }
+
+    /**
+     * Add regular expression match for url
+     *
+     * @param string $regex
+     * @return self
+     */
+    public function match($regex) {
+        $this->regexMatch = $regex;
         return $this;
     }
 

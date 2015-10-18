@@ -1,6 +1,7 @@
 <?php
 namespace Pecee\SimpleRouter;
 
+use Pecee\ArrayUtil;
 use Pecee\Http\Request;
 use Pecee\Url;
 
@@ -245,15 +246,13 @@ class RouterBase {
             }
         }
 
-        // Nothing found - return current route
-        if($this->loadedRoute) {
-            $getParams = ($getParams === null) ? array() : $getParams;
-            $params = ($this->loadedRoute->getParameters() == null) ? array() : $this->loadedRoute->getParameters();
-            $parameters = ($parameters === null) ? array() : $parameters;
-            return $this->processUrl($this->loadedRoute, null, array_merge($params, $parameters), array_merge($_GET, $getParams));
-        }
+        $controller = ($controller === null) ? '/' : $controller;
+        $url = array($controller);
 
-        return '/';
+        if(is_array($parameters)) {
+            ArrayUtil::append($url, $parameters);
+        }
+        return join('/', $url);
     }
 
     public static function getInstance() {
