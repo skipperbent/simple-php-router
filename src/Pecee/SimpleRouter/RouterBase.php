@@ -165,10 +165,10 @@ class RouterBase {
 
     protected function processUrl($route, $method = null, $parameters = null, $getParams = null) {
 
-        $url = rtrim($route->getUrl(), '/') . '/';
+        $url = $route->getUrl();
 
         if(($route instanceof RouterController || $route instanceof RouterRessource) && $method !== null) {
-            $url .= $method . '/';
+            $url .= $method;
         }
 
         if($route instanceof RouterController || $route instanceof RouterRessource) {
@@ -182,18 +182,17 @@ class RouterBase {
                 $i = 0;
                 foreach($params as $param => $value) {
                     $value = (isset($parameters[$param])) ? $parameters[$param] : $value;
-                    $url = str_ireplace('{' . $param. '}', $value, $route->getUrl());
+                    $url = str_ireplace('{' . $param. '}', $value, $url);
                     $i++;
                 }
             }
         }
 
-        $p = '';
-        if($getParams !== null && count($getParams)) {
-            $p = '?'.Url::arrayToParams($getParams);
-        }
+        $url = rtrim($url, '/') . '/';
 
-        $url .= $p;
+        if($getParams !== null && count($getParams)) {
+            $url .= '?'.Url::arrayToParams($getParams);
+        }
 
         return $url;
     }
@@ -206,6 +205,10 @@ class RouterBase {
 
         if($getParams !== null && !is_array($getParams)) {
             throw new \InvalidArgumentException('Invalid type for getParams. Must be array or null');
+        }
+
+        if($controller === null && $parameters === null) {
+            return $this->processUrl($this->loadedRoute, null, $getParams);
         }
 
         $c = '';
@@ -252,6 +255,7 @@ class RouterBase {
         if(is_array($parameters)) {
             ArrayUtil::append($url, $parameters);
         }
+
         return join('/', $url);
     }
 
