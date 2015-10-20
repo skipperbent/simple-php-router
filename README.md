@@ -23,8 +23,7 @@ Add the latest version pf Simple PHP Router to your ```composer.json```
 - Named Routes
 - Sub-Domain Routing
 - CSRF Protection
-- Optinal/required parameters
-- Aliases for ```RouterRoute```
+- Optional/required parameters
 
 ### Known issues
 
