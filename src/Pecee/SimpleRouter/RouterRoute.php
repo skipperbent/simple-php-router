@@ -137,32 +137,6 @@ class RouterRoute extends RouterEntry {
     }
 
     /**
-     * @param array $aliases
-     * @return self
-     */
-    public function setAliases(array $aliases) {
-        $this->aliases = $aliases;
-        return $this;
-    }
-
-    /**
-     * Add alias
-     *
-     * @param $alias
-     * @return self
-     */
-    public function addAlias($alias) {
-        $arr = $this->aliases;
-        $arr[] = $alias;
-        $this->aliases = $arr;
-        return $this;
-    }
-
-    public function getAliases() {
-        $this->aliases;
-    }
-
-    /**
      * Add request type
      *
      * @param $type
@@ -184,4 +158,34 @@ class RouterRoute extends RouterEntry {
     public function getRequestTypes() {
         return $this->requestTypes;
     }
+
+    /**
+     * Get alias for the url which can be used when getting the url route.
+     * @return string
+     */
+    public function getAlias(){
+        return $this->alias;
+    }
+
+    /**
+     * Set the url alias for easier getting the url route.
+     * @param string $alias
+     * @return self
+     */
+    public function setAlias($alias){
+        $this->alias = $alias;
+        return $this;
+    }
+
+    public function setSettings($settings) {
+
+        // Change as to alias
+        if(isset($settings{'as'})) {
+            $this->setAlias($settings['as']);
+        }
+
+        return parent::setSettings($settings);
+    }
+
+
 }

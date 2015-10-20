@@ -17,8 +17,9 @@ class SimpleRouter {
         $router->routeRequest();
     }
 
-    public static function get($url, $callback) {
+    public static function get($url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
+        $route->addSettings($settings);
         $route->addRequestType(RouterRoute::REQUEST_TYPE_GET);
 
         $router = RouterBase::getInstance();
@@ -27,8 +28,9 @@ class SimpleRouter {
         return $route;
     }
 
-    public static function post($url, $callback) {
+    public static function post($url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
+        $route->addSettings($settings);
         $route->addRequestType(RouterRoute::REQUEST_TYPE_POST);
 
         $router = RouterBase::getInstance();
@@ -37,8 +39,9 @@ class SimpleRouter {
         return $route;
     }
 
-    public static function put($url, $callback) {
+    public static function put($url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
+        $route->addSettings($settings);
         $route->addRequestType(RouterRoute::REQUEST_TYPE_PUT);
 
         $router = RouterBase::getInstance();
@@ -47,8 +50,9 @@ class SimpleRouter {
         return $route;
     }
 
-    public static function delete($url, $callback) {
+    public static function delete($url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
+        $route->addSettings($settings);
         $route->addRequestType(RouterRoute::REQUEST_TYPE_DELETE);
 
         $router = RouterBase::getInstance();
@@ -71,8 +75,9 @@ class SimpleRouter {
         return $group;
     }
 
-    public static function match(array $requestTypes, $url, $callback) {
+    public static function match(array $requestTypes, $url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
+        $route->addSettings($settings);
         foreach($requestTypes as $requestType) {
             $route->addRequestType($requestType);
         }
@@ -83,24 +88,27 @@ class SimpleRouter {
         return $route;
     }
 
-    public static function all($url, $callback) {
+    public static function all($url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
+        $route->addSettings($settings);
         $router = RouterBase::getInstance();
         $router->addRoute($route);
 
         return $route;
     }
 
-    public static function controller($url, $controller) {
+    public static function controller($url, $controller, array $settings = null) {
         $route = new RouterController($url, $controller);
+        $route->addSettings($settings);
         $router = RouterBase::getInstance();
         $router->addRoute($route);
 
         return $route;
     }
 
-    public static function ressource($url, $controller) {
-        $route = new RouterRessource($url, $controller);
+    public static function resource($url, $controller, array $settings = null) {
+        $route = new RouterResource($url, $controller);
+        $route->addSettings($settings);
         $router = RouterBase::getInstance();
         $router->addRoute($route);
 

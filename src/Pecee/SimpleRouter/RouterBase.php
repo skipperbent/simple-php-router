@@ -167,11 +167,11 @@ class RouterBase {
 
         $url = $route->getUrl();
 
-        if(($route instanceof RouterController || $route instanceof RouterRessource) && $method !== null) {
+        if(($route instanceof RouterController || $route instanceof RouterResource) && $method !== null) {
             $url .= $method;
         }
 
-        if($route instanceof RouterController || $route instanceof RouterRessource) {
+        if($route instanceof RouterController || $route instanceof RouterResource) {
             if(count($parameters)) {
                 $url .= join('/', $parameters);
             }
@@ -217,9 +217,14 @@ class RouterBase {
         /* @var $route RouterRoute */
         foreach($this->controllerUrlMap as $route) {
 
+            // Check an alias exist, if the matches - use it
+            if($route instanceof RouterRoute && strtolower($route->getAlias()) === strtolower($controller)) {
+                return $this->processUrl($route, $route->getMethod(), $parameters, $getParams);
+            }
+
             if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
                 $c = $route->getCallback();
-            } else if($route instanceof RouterController || $route instanceof RouterRessource) {
+            } else if($route instanceof RouterController || $route instanceof RouterResource) {
                 $c = $route->getController();
             }
 
@@ -234,7 +239,7 @@ class RouterBase {
         foreach($this->controllerUrlMap as $route) {
             if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
                 $c = $route->getClass();
-            } else if($route instanceof RouterController || $route instanceof RouterRessource) {
+            } else if($route instanceof RouterController || $route instanceof RouterResource) {
                 $c = $route->getController();
             }
 

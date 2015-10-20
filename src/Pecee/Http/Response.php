@@ -22,6 +22,11 @@ class Response {
      */
     public function redirect($url) {
         header('location: ' . $url);
+        die();
+    }
+
+    public function refresh() {
+        $this->redirect(url());
     }
 
 }
