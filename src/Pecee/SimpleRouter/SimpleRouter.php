@@ -9,12 +9,27 @@
 
 namespace Pecee\SimpleRouter;
 
+use Pecee\Http\Middleware\BaseCsrfVerifier;
+
 class SimpleRouter {
 
+    /**
+     * Start/route request
+     * @param null $defaultNamespace
+     * @throws RouterException
+     */
     public static function start($defaultNamespace = null) {
         $router = RouterBase::GetInstance();
         $router->setDefaultNamespace($defaultNamespace);
         $router->routeRequest();
+    }
+
+    /**
+     * Set base csrf verifier
+     * @param BaseCsrfVerifier $baseCsrfVerifier
+     */
+    public static function csrfVerifier(BaseCsrfVerifier $baseCsrfVerifier) {
+        RouterBase::getInstance()->setBaseCsrfVerifier($baseCsrfVerifier);
     }
 
     public static function get($url, $callback, array $settings = null) {

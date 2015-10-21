@@ -3,37 +3,21 @@ namespace Pecee;
 
 class CsrfToken {
 
-    const CSRF_KEY = 'csrf_token';
+    const CSRF_KEY = 'XSRF-TOKEN';
 
-    protected static $instance;
-
-    protected $lastToken;
-    protected $currentToken;
-
-    public static function getInstance() {
-        if(self::$instance === null) {
-            self::$instance = new static();
-        }
-        return self::$instance;
-    }
+    protected $token;
 
     public function __construct() {
-        $this->lastToken = isset($_SESSION[self::CSRF_KEY]) ? $_SESSION[self::CSRF_KEY] : null;
-        $this->currentToken = $this->generate();
-
-        // Initialise session, if it hasn't been initialised.
-        if(!isset($_SESSION)) {
-            session_start();
+        if($this->getToken() === null) {
+            $this->setToken($this->generateToken());
         }
-
-        $_SESSION['csrf_token'] = $this->currentToken;
     }
 
     /**
      * Generate random identifier for CSRF token
      * @return string
      */
-    public static function generate() {
+    public static function generateToken() {
         if (function_exists('mcrypt_create_iv')) {
             return bin2hex(mcrypt_create_iv(32, MCRYPT_DEV_URANDOM));
         }
@@ -47,28 +31,30 @@ class CsrfToken {
      * @return bool
      */
     public function validate($token) {
-        return hash_equals($token, $_SESSION[self::CSRF_KEY]);
+        if($token !== null && $this->getToken() !== null) {
+            return hash_equals($token, $this->getToken());
+        }
+        return false;
     }
 
     /**
+     * Set csrf token cookie
+     *
+     * @param $token
+     */
+    public function setToken($token) {
+        setcookie(self::CSRF_KEY, $token, time() + 60 * 120, '/');
+    }
+
+    /**
+     * Get csrf token
      * @return string|null
      */
-    public function getLastToken(){
-        return $this->lastToken;
-    }
-
-    /**
-     * @param string|null $lastToken
-     */
-    public function setLastToken($lastToken){
-        $this->lastToken = $lastToken;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getCurrentToken(){
-        return $this->currentToken;
+    public function getToken(){
+        if(isset($_COOKIE[self::CSRF_KEY])) {
+            return $_COOKIE[self::CSRF_KEY];
+        }
+        return null;
     }
 
 }

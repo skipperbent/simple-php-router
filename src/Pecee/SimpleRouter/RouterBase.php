@@ -2,6 +2,7 @@
 namespace Pecee\SimpleRouter;
 
 use Pecee\ArrayUtil;
+use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
 use Pecee\Url;
 
@@ -17,6 +18,7 @@ class RouterBase {
     protected $backstack;
     protected $loadedRoute;
     protected $defaultNamespace;
+    protected $baseCsrfVerifier;
 
     // TODO: make interface for controller routers, so they can be easily detected
     // TODO: clean up - cut some of the methods down to smaller pieces
@@ -26,6 +28,7 @@ class RouterBase {
         $this->backstack = array();
         $this->controllerUrlMap = array();
         $this->request = new Request();
+        $this->baseCsrfVerifier = new BaseCsrfVerifier();
     }
 
     public function addRoute(RouterEntry $route) {
@@ -85,8 +88,16 @@ class RouterBase {
     }
 
     public function routeRequest() {
-        // Loop through each route-request
 
+        // Verify csrf token for request
+        if($this->baseCsrfVerifier !== null) {
+            /* @var $csrfVerifier BaseCsrfVerifier */
+            $csrfVerifier = $this->baseCsrfVerifier;
+            $csrfVerifier = new $csrfVerifier();
+            $csrfVerifier->handle($this->request);
+        }
+
+        // Loop through each route-request
         $this->processRoutes($this->routes);
 
         // Make sure the urls is in the right order when comparing
@@ -99,7 +110,6 @@ class RouterBase {
         /* @var $route RouterEntry */
         foreach($this->controllerUrlMap as $route) {
             $routeMatch = $route->matchRoute($this->request);
-
 
             if($routeMatch && !($routeMatch instanceof RouterGroup)) {
 
@@ -177,6 +187,25 @@ class RouterBase {
      */
     public function getRequest() {
         return $this->request;
+    }
+
+    /**
+     * Get base csrf verifier class
+     * @return BaseCsrfVerifier
+     */
+    public function getBaseCsrfVerifier() {
+        return $this->baseCsrfVerifier;
+    }
+
+    /**
+     * Set base csrf verifier class
+     *
+     * @param BaseCsrfVerifier $baseCsrfVerifier
+     * @return self
+     */
+    public function setBaseCsrfVerifier(BaseCsrfVerifier $baseCsrfVerifier) {
+        $this->baseCsrfVerifier = $baseCsrfVerifier;
+        return $this;
     }
 
     protected function processUrl($route, $method = null, $parameters = null, $getParams = null) {
