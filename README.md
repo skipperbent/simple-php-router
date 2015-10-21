@@ -197,19 +197,49 @@ function csrf_token() {
 }
 ```
 
-### Example for getting the url
+## Getting urls
 
-In ```routes.php``` we have added this route:
+**In ```routes.php``` we have added this route:**
 
-```SimpleRouter::get('/item/{id}', 'myController@show', ['as' => 'item']);```
+```php
+SimpleRouter::get('/item/{id}', 'myController@show', ['as' => 'item']);
+```
 
-In the template we then call:
+**In the template we then call:**
 
-```url('item', ['id' => 22], ['category' => 'shoes']);```
+```php
+url('item', ['id' => 22], ['category' => 'shoes']);
+```
 
-Result url is:
+**Result url is:**
 
-```/item/22?category=shoes ```
+```php
+/item/22/?category=shoes
+```
+
+## Custom CSRF verifier
+
+Create a new class and extend the ```BaseCsrfVerifier``` middleware class provided with simple-php-router.
+
+Add the property ```except``` with an array of the urls to the routes you would like to exclude from the CSRF validation. Using ```*``` at the end for the url will match the entire url.
+
+Querystrings are ignored.
+
+```php
+use Pecee\Http\Middleware\BaseCsrfVerifier;
+
+class CsrfVerifier extends BaseCsrfVerifier {
+
+    protected $except = ['/companies/*', '/user/save'];
+
+}
+```
+
+Register the new class in your ```routes.php```, custom ```Router``` class or wherever you register your routes.
+
+```php
+SimpleRouter::csrfVerifier(new \Demo\Middleware\CsrfVerifier());
+```
 
 ## Documentation
 While I work on a better documentation, please refer to the Laravel 5 routing documentation here:
