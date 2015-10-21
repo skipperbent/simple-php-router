@@ -245,13 +245,13 @@ abstract class RouterEntry {
 
     protected function loadMiddleware(Request $request) {
         if($this->getMiddleware()) {
-            if (!($this->getMiddleware() instanceof Middleware)) {
+            $middleware = $this->loadClass($this->getMiddleware());
+            if (!($middleware instanceof Middleware)) {
                 throw new RouterException($this->getMiddleware() . ' must be instance of Middleware');
             }
 
             /* @var $class Middleware */
-            $class = $this->loadClass($this->getMiddleware());
-            $class->handle($request);
+            $middleware->handle($request);
         }
     }
 
