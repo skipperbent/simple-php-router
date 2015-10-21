@@ -94,14 +94,30 @@ class RouterBase {
             return strcmp($b->getUrl(), $a->getUrl());
         });
 
+        $routeNotAllowed = false;
+
+        /* @var $route RouterEntry */
         foreach($this->controllerUrlMap as $route) {
             $routeMatch = $route->matchRoute($this->request);
 
+
             if($routeMatch && !($routeMatch instanceof RouterGroup)) {
+
+                if(count($route->getRequestMethods()) && !in_array($this->request->getMethod(), $route->getRequestMethods())) {
+                    $routeNotAllowed = true;
+                    continue;
+                }
+
+                $routeNotAllowed = false;
+
                 $this->loadedRoute = $routeMatch;
                 $routeMatch->renderRoute($this->request);
                 break;
             }
+        }
+
+        if($routeNotAllowed) {
+            throw new RouterException('Route or method not allowed', 403);
         }
 
         if(!$this->loadedRoute) {
@@ -165,13 +181,13 @@ class RouterBase {
 
     protected function processUrl($route, $method = null, $parameters = null, $getParams = null) {
 
-        $url = rtrim($route->getUrl(), '/') . '/';
+        $url = $route->getUrl();
 
-        if(($route instanceof RouterController || $route instanceof RouterRessource) && $method !== null) {
-            $url .= $method . '/';
+        if(($route instanceof RouterController || $route instanceof RouterResource) && $method !== null) {
+            $url .= $method;
         }
 
-        if($route instanceof RouterController || $route instanceof RouterRessource) {
+        if($route instanceof RouterController || $route instanceof RouterResource) {
             if(count($parameters)) {
                 $url .= join('/', $parameters);
             }
@@ -182,18 +198,17 @@ class RouterBase {
                 $i = 0;
                 foreach($params as $param => $value) {
                     $value = (isset($parameters[$param])) ? $parameters[$param] : $value;
-                    $url = str_ireplace('{' . $param. '}', $value, $route->getUrl());
+                    $url = str_ireplace('{' . $param. '}', $value, $url);
                     $i++;
                 }
             }
         }
 
-        $p = '';
-        if($getParams !== null && count($getParams)) {
-            $p = '?'.Url::arrayToParams($getParams);
-        }
+        $url = rtrim($url, '/') . '/';
 
-        $url .= $p;
+        if($getParams !== null && count($getParams)) {
+            $url .= '?'.Url::arrayToParams($getParams);
+        }
 
         return $url;
     }
@@ -208,15 +223,24 @@ class RouterBase {
             throw new \InvalidArgumentException('Invalid type for getParams. Must be array or null');
         }
 
+        if($controller === null && $parameters === null) {
+            return $this->processUrl($this->loadedRoute, null, $getParams);
+        }
+
         $c = '';
         $method = null;
 
         /* @var $route RouterRoute */
         foreach($this->controllerUrlMap as $route) {
 
+            // Check an alias exist, if the matches - use it
+            if($route instanceof RouterRoute && strtolower($route->getAlias()) === strtolower($controller)) {
+                return $this->processUrl($route, $route->getMethod(), $parameters, $getParams);
+            }
+
             if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
                 $c = $route->getCallback();
-            } else if($route instanceof RouterController || $route instanceof RouterRessource) {
+            } else if($route instanceof RouterController || $route instanceof RouterResource) {
                 $c = $route->getController();
             }
 
@@ -231,7 +255,7 @@ class RouterBase {
         foreach($this->controllerUrlMap as $route) {
             if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
                 $c = $route->getClass();
-            } else if($route instanceof RouterController || $route instanceof RouterRessource) {
+            } else if($route instanceof RouterController || $route instanceof RouterResource) {
                 $c = $route->getController();
             }
 
@@ -252,6 +276,7 @@ class RouterBase {
         if(is_array($parameters)) {
             ArrayUtil::append($url, $parameters);
         }
+
         return join('/', $url);
     }
 

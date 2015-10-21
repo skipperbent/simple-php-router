@@ -3,7 +3,7 @@ namespace Pecee\SimpleRouter;
 
 use Pecee\Http\Request;
 
-class RouterRessource extends RouterEntry {
+class RouterResource extends RouterEntry {
 
     const DEFAULT_METHOD = 'index';
 

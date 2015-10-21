@@ -19,9 +19,9 @@ class RouterGroup extends RouterEntry {
 
             if($this->method) {
                 if(is_array($this->method)) {
-                    $hasAccess = (in_array($request->getMethod(), $this->method));
+                    $hasAccess = (in_array($request->getMethod(), $this->getRequestMethods()));
                 } else {
-                    $hasAccess = strtolower($this->method) == strtolower($request->getMethod());
+                    $hasAccess = strtolower($this->getRequestMethods()) == strtolower($request->getMethod());
                 }
             }
 

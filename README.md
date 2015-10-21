@@ -23,7 +23,7 @@ Add the latest version pf Simple PHP Router to your ```composer.json```
 - Named Routes
 - Sub-Domain Routing
 - CSRF Protection
-- Optinal/required parameters
+- Optional/required parameters
 
 ## Initialising the router
 
@@ -44,7 +44,7 @@ SimpleRouter::init($defaultControllerNamespace);
 ```
 
 ## Adding routes
-Remember the ```routes.php``` file you required in your ```index.php```? This file will contain all your custom rules for routing. 
+Remember the ```routes.php``` file you required in your ```index.php```? This file will contain all your custom rules for routing.
 This router is heavily inspired by the Laravel 5.* router, so anything you find in the Laravel documentation should work here as well.
 
 ### Basic example
@@ -54,8 +54,8 @@ use Pecee\SimpleRouter\SimpleRouter;
 
 /*
  * This route will match the url /v1/services/answers/1/
- 
- * The middleware is just a class that renders before the 
+
+ * The middleware is just a class that renders before the
  * Controller or callback is loaded. This is useful for stopping
  * the request, for instance if a user is not authenticated.
  */
@@ -66,19 +66,19 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
 
         SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show')
         ->where(['id' => '[0-9]+');
-        
+
         /**
          * This example will route url when matching the regular expression to the method.
          * For example route: /ajax/music/world -> ControllerAjax@process (parameter: music/world)
          */
         SimpleRouter::all('/ajax', 'ControllerAjax@process')->match('ajax\\/([A-Za-z0-9\\/]+)');
-        
-        // Resetful ressource
-        SimpleRouter::ressource('/rest', 'ControllerRessource');
-        
+
+        // Resetful resource
+        SimpleRouter::resource('/rest', 'ControllerRessource');
+
         // Load the entire controller (where url matches method names - getIndex(), postIndex() etc)
         SimpleRouter::controller('/controller', 'ControllerDefault');
-        
+
         // Example of providing callback instead of Controller
         SimpleRouter::get('/something', function() {
             die('Callback example');
@@ -90,7 +90,7 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
 
 ### Doing it the object oriented (hardcore) way
 
-The ```SimpleRouter``` class referenced in the previous example, is just a simple helper class that knows how to communicate with the ```RouterBase``` class. 
+The ```SimpleRouter``` class referenced in the previous example, is just a simple helper class that knows how to communicate with the ```RouterBase``` class.
 If you are up for a challenge, want the full control or simply just want to create your own ```Router``` helper class, this example is for you.
 
 ```php
@@ -177,7 +177,7 @@ In ```routes.php``` we have added this route:
 
 In the template we then call:
 
-```url('myController@show', ['id' => 22], ['category' => 'shoes']);``` 
+```url('myController@show', ['id' => 22], ['category' => 'shoes']);```
 
 Result url is:
 
@@ -189,11 +189,11 @@ While I work on a better documentation, please refer to the Laravel 5 routing do
 http://laravel.com/docs/5.1/routing
 
 ## Easily extendable
-The router can be easily extended to customize your needs. 
+The router can be easily extended to customize your needs.
 
 ## The MIT License (MIT)
 
-Copyright (c) 2015 Simon Sessingø / simple-php-router
+Copyright (c) 2015 Simon Sessing� / simple-php-router
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
