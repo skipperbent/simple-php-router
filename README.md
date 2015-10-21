@@ -25,10 +25,6 @@ Add the latest version pf Simple PHP Router to your ```composer.json```
 - CSRF Protection
 - Optional/required parameters
 
-### Known issues
-
-- Posting invalid/unsupported request-type throws 404 instead of "method not allowed" exception, unless defined within a group.
-
 ## Initialising the router
 
 In your ```index.php``` require your ```routes.php``` and call the ```routeRequest()``` method when all your custom routes has been loaded. This will trigger and do the actual routing of the requests.
@@ -197,7 +193,7 @@ The router can be easily extended to customize your needs.
 
 ## The MIT License (MIT)
 
-Copyright (c) 2015 Simon Sessingø / simple-php-router
+Copyright (c) 2015 Simon Sessingï¿½ / simple-php-router
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

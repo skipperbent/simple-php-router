@@ -27,6 +27,7 @@ abstract class RouterEntry {
 
     public function __construct() {
         $this->settings = array();
+        $this->settings['requestMethods'] = array();
         $this->parameters = array();
         $this->parametersRegex = array();
     }
@@ -193,8 +194,10 @@ abstract class RouterEntry {
      * @param array $settings
      * @return self
      */
-    public function addSettings(array $settings) {
-        $this->settings = array_merge($this->settings, $settings);
+    public function addSettings(array $settings = null) {
+        if(is_array($settings)) {
+            $this->settings = array_merge($this->settings, $settings);
+        }
         return $this;
     }
 
@@ -278,6 +281,30 @@ abstract class RouterEntry {
         }
 
         return null;
+    }
+
+    /**
+     * Set allowed request methods
+     *
+     * @param array $methods
+     * @return self $this
+     */
+    public function setRequestMethods(array $methods) {
+        $this->settings['requestMethods'] = $methods;
+        return $this;
+    }
+
+    /**
+     * Get allowed requeset methods
+     *
+     * @return array
+     */
+    public function getRequestMethods() {
+        if(!isset($this->settings['requestMethods']) || isset($this->settings['requestMethods']) && !is_array($this->settings['requestMethods'])) {
+            $value = isset($this->settings['requestMethods']) ? $this->settings['requestMethods'] : null;
+            return array($value);
+        }
+        return $this->settings['requestMethods'];
     }
 
     abstract function matchRoute(Request $request);

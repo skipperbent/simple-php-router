@@ -94,14 +94,30 @@ class RouterBase {
             return strcmp($b->getUrl(), $a->getUrl());
         });
 
+        $routeNotAllowed = false;
+
+        /* @var $route RouterEntry */
         foreach($this->controllerUrlMap as $route) {
             $routeMatch = $route->matchRoute($this->request);
 
+
             if($routeMatch && !($routeMatch instanceof RouterGroup)) {
+
+                if(count($route->getRequestMethods()) && !in_array($this->request->getMethod(), $route->getRequestMethods())) {
+                    $routeNotAllowed = true;
+                    continue;
+                }
+
+                $routeNotAllowed = false;
+
                 $this->loadedRoute = $routeMatch;
                 $routeMatch->renderRoute($this->request);
                 break;
             }
+        }
+
+        if($routeNotAllowed) {
+            throw new RouterException('Route or method not allowed', 403);
         }
 
         if(!$this->loadedRoute) {

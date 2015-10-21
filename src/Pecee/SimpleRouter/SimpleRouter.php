@@ -20,7 +20,7 @@ class SimpleRouter {
     public static function get($url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
         $route->addSettings($settings);
-        $route->addRequestType(RouterRoute::REQUEST_TYPE_GET);
+        $route->setRequestMethods(array(RouterRoute::REQUEST_TYPE_GET));
 
         $router = RouterBase::getInstance();
         $router->addRoute($route);
@@ -31,7 +31,7 @@ class SimpleRouter {
     public static function post($url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
         $route->addSettings($settings);
-        $route->addRequestType(RouterRoute::REQUEST_TYPE_POST);
+        $route->setRequestMethods(array(RouterRoute::REQUEST_TYPE_POST));
 
         $router = RouterBase::getInstance();
         $router->addRoute($route);
@@ -42,7 +42,7 @@ class SimpleRouter {
     public static function put($url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
         $route->addSettings($settings);
-        $route->addRequestType(RouterRoute::REQUEST_TYPE_PUT);
+        $route->setRequestMethods(array(RouterRoute::REQUEST_TYPE_PUT));
 
         $router = RouterBase::getInstance();
         $router->addRoute($route);
@@ -53,7 +53,7 @@ class SimpleRouter {
     public static function delete($url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
         $route->addSettings($settings);
-        $route->addRequestType(RouterRoute::REQUEST_TYPE_DELETE);
+        $route->setRequestMethods(array(RouterRoute::REQUEST_TYPE_DELETE));
 
         $router = RouterBase::getInstance();
         $router->addRoute($route);
@@ -75,12 +75,10 @@ class SimpleRouter {
         return $group;
     }
 
-    public static function match(array $requestTypes, $url, $callback, array $settings = null) {
+    public static function match(array $requestMethods, $url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
+        $route->setRequestMethods($requestMethods);
         $route->addSettings($settings);
-        foreach($requestTypes as $requestType) {
-            $route->addRequestType($requestType);
-        }
 
         $router = RouterBase::getInstance();
         $router->addRoute($route);
