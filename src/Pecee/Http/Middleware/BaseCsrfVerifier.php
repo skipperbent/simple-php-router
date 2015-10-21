@@ -30,4 +30,5 @@ class BaseCsrfVerifier extends Middleware {
         }
 
     }
+
 }

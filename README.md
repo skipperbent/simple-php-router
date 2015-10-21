@@ -17,12 +17,22 @@ Add the latest version pf Simple PHP Router to your ```composer.json```
 
 ## Notes
 
+### Features
+
+- Basic routing (get, post, put, delete) with support for custom multiple verbs.
+- Regular Expression Constraints for parameters.
+- Named routes.
+- Generating url to routes.
+- Route groups.
+- Middleware (classes that intercepts before the route is rendered).
+- Namespaces.
+- Route prefixes.
+- CSRF protection.
+
 ### Features currently "in-the-works"
 
 - Global Constraints
-- Named Routes
 - Sub-Domain Routing
-- CSRF Protection
 - Optional/required parameters
 
 ## Initialising the router
@@ -138,8 +148,11 @@ class Router extends SimpleRouter {
         // Init locale settings
         Locale::getInstance();
 
-        // Set default namespace
+        // Set default namespace for routes
         $defaultNamespace = '\\'.Registry::getInstance()->get('AppName') . '\\Controller';
+        
+        // Add custom csrf verifier (must extend BaseCsrfVerifier)
+        parent::csrfVerifier('MyProject\Middleware\CustomCsrfVerifier');
 
         // Handle exceptions
         try {
@@ -171,13 +184,28 @@ function url($controller, $parameters = null, $getParams = null) {
 }
 ```
 
+This is a basic example for getting the current csrf token
+
+```php
+/**
+ * Get current csrf-token
+ * @return null|string
+ */
+function csrf_token() {
+    $token = new \Pecee\CsrfToken();
+    return $token->getToken();
+}
+```
+
+### Example for getting the url
+
 In ```routes.php``` we have added this route:
 
-```SimpleRouter::get('/item/{id}', 'myController@show');```
+```SimpleRouter::get('/item/{id}', 'myController@show', ['as' => 'item']);```
 
 In the template we then call:
 
-```url('myController@show', ['id' => 22], ['category' => 'shoes']);```
+```url('item', ['id' => 22], ['category' => 'shoes']);```
 
 Result url is:
 
