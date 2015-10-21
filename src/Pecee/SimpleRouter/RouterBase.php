@@ -210,7 +210,7 @@ class RouterBase {
 
     protected function processUrl($route, $method = null, $parameters = null, $getParams = null) {
 
-        $url = $route->getUrl();
+        $url = '/' . trim($route->getUrl(), '/');
 
         if(($route instanceof RouterController || $route instanceof RouterResource) && $method !== null) {
             $url .= $method;
@@ -306,7 +306,7 @@ class RouterBase {
             ArrayUtil::append($url, $parameters);
         }
 
-        return join('/', $url);
+        return '/' . join('/', $url);
     }
 
     public static function getInstance() {
