@@ -7,7 +7,5 @@ use Pecee\SimpleRouter\RouterEntry;
 
 abstract class Middleware
 {
-    public function handle(Request $request) {
-        return true;
-    }
+    abstract function handle(Request $request);
 }

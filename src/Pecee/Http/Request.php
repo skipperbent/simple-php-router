@@ -6,11 +6,13 @@ class Request {
     protected $uri;
     protected $host;
     protected $method;
+    protected $headers;
 
     public function __construct() {
         $this->host = $_SERVER['HTTP_HOST'];
         $this->uri = rtrim($_SERVER['REQUEST_URI'], '/') . '/';
         $this->method = (isset($_POST['_method'])) ? strtolower($_POST['_method']) : strtolower($_SERVER['REQUEST_METHOD']);
+        $this->headers = getallheaders();
     }
 
     /**
@@ -48,6 +50,23 @@ class Request {
      */
     public function getPassword() {
         return (isset($_SERVER['PHP_AUTH_PW'])) ? $_SERVER['PHP_AUTH_PW']: null;
+    }
+
+    /**
+     * Get headers
+     * @return array
+     */
+    public function getHeaders() {
+        return $this->headers;
+    }
+
+    /**
+     * Get header value by name
+     * @param string $name
+     * @return string|null
+     */
+    public function getHeader($name) {
+        return (isset($this->headers[$name])) ? $this->headers[$name] : null;
     }
 
 }

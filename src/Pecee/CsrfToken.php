@@ -3,22 +3,21 @@ namespace Pecee;
 
 class CsrfToken {
 
-    const CSRF_KEY = 'csrf';
+    const CSRF_KEY = 'XSRF-TOKEN';
 
     protected $token;
 
     public function __construct() {
-        $this->lastToken = isset($_SESSION[self::CSRF_KEY]) ? $_SESSION[self::CSRF_KEY] : null;
-        $this->currentToken = $this->generate();
-
-        $_COOKIE[self::CSRF_KEY] = $this->currentToken;
+        if($this->getToken() === null) {
+            $this->setToken($this->generateToken());
+        }
     }
 
     /**
      * Generate random identifier for CSRF token
      * @return string
      */
-    public static function generate() {
+    public static function generateToken() {
         if (function_exists('mcrypt_create_iv')) {
             return bin2hex(mcrypt_create_iv(32, MCRYPT_DEV_URANDOM));
         }
@@ -32,10 +31,23 @@ class CsrfToken {
      * @return bool
      */
     public function validate($token) {
-        return hash_equals($token, $this->getCurrentToken());
+        if($token !== null && $this->getToken() !== null) {
+            return hash_equals($token, $this->getToken());
+        }
+        return false;
     }
 
     /**
+     * Set csrf token cookie
+     *
+     * @param $token
+     */
+    public function setToken($token) {
+        setcookie(self::CSRF_KEY, $token, time() + 60 * 120, '/');
+    }
+
+    /**
+     * Get csrf token
      * @return string|null
      */
     public function getToken(){
