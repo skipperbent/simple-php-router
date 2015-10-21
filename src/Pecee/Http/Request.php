@@ -39,8 +39,15 @@ class Request {
      * @return string|null
      */
     public function getUser() {
-        $data = http_digest_parse($_SERVER['PHP_AUTH_DIGEST']);
-        return (isset($data['username'])) ? $data['username'] : null;
+        return (isset($_SERVER['PHP_AUTH_USER'])) ? $_SERVER['PHP_AUTH_USER']: null;
+    }
+
+    /**
+     * Get http basic auth password
+     * @return string|null
+     */
+    public function getPassword() {
+        return (isset($_SERVER['PHP_AUTH_PW'])) ? $_SERVER['PHP_AUTH_PW']: null;
     }
 
 }
