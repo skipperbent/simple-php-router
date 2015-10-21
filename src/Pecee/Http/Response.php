@@ -29,4 +29,9 @@ class Response {
         $this->redirect(url());
     }
 
+    public function auth($name = '') {
+        header('WWW-Authenticate: Basic realm="' . $name . '"');
+        header('HTTP/1.0 401 Unauthorized');
+    }
+
 }
