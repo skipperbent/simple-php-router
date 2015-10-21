@@ -209,7 +209,27 @@ In the template we then call:
 
 Result url is:
 
-```/item/22?category=shoes ```
+```/item/22/?category=shoes```
+
+## Custom CSRF verifier
+
+Create a new class and extend the ```BaseCsrfVerifier``` middleware class provided with simple-php-router.
+
+```php
+use Pecee\Http\Middleware\BaseCsrfVerifier;
+
+class CsrfVerifier extends BaseCsrfVerifier {
+
+    protected $except = ['/companies/*', '/user/save'];
+
+}
+```
+
+Register the new class in your ```routes.php```, custom ```Router``` class or wherever you register your routes.
+
+```php
+SimpleRouter::csrfVerifier(new \Demo\Middleware\CsrfVerifier());
+```
 
 ## Documentation
 While I work on a better documentation, please refer to the Laravel 5 routing documentation here:
