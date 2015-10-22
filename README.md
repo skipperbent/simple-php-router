@@ -33,7 +33,7 @@ Add the latest version pf Simple PHP Router to your ```composer.json```
 
 - Global Constraints
 - Sub-Domain Routing
-- Optional/required parameters
+- Required parameters
 
 ## Initialising the router
 
