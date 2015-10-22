@@ -1,10 +1,9 @@
 <?php
-
 namespace Pecee\Http\Middleware;
 
 use Pecee\CsrfToken;
+use Pecee\Exception\TokenMismatchException;
 use Pecee\Http\Request;
-use Pecee\SimpleRouter\RouterException;
 
 class BaseCsrfVerifier extends Middleware {
 
@@ -12,6 +11,12 @@ class BaseCsrfVerifier extends Middleware {
     const HEADER_KEY = 'X-CSRF-TOKEN';
 
     protected $except;
+    protected $csrfToken;
+
+
+    public function __construct() {
+        $this->csrfToken = new CsrfToken();
+    }
 
     /**
      * Check if the url matches the urls in the except property
@@ -52,9 +57,8 @@ class BaseCsrfVerifier extends Middleware {
                 $token = $request->getHeader(self::HEADER_KEY);
             }
 
-            $tokenValidator = new CsrfToken();
-            if( !$tokenValidator->validate( $token ) ) {
-                throw new RouterException('Invalid csrf-token.');
+            if( !$this->csrfToken->validate( $token ) ) {
+                throw new TokenMismatchException('Invalid csrf-token.');
             }
 
         }
