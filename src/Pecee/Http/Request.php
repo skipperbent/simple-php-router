@@ -93,4 +93,14 @@ class Request {
         return (isset($this->headers[$name])) ? $this->headers[$name] : null;
     }
 
+    /**
+     * Get request input or default value
+     * @param string $name
+     * @param string $defaultValue
+     * @return mixed
+     */
+    public function getInput($name, $defaultValue) {
+        return (isset($_REQUEST[$name]) ? $_REQUEST[$name] : $defaultValue);
+    }
+
 }
