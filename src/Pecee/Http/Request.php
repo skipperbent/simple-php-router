@@ -69,6 +69,22 @@ class Request {
     }
 
     /**
+     * Get referer
+     * @return string
+     */
+    public function getReferer() {
+        return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+    }
+
+    /**
+     * Get user agent
+     * @return string
+     */
+    public function getUserAgent() {
+        return isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+    }
+
+    /**
      * Get header value by name
      * @param string $name
      * @return string|null
