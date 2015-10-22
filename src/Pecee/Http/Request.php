@@ -61,12 +61,46 @@ class Request {
     }
 
     /**
+     * Get id address
+     * @return string
+     */
+    public function getIp() {
+        return isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
+    }
+
+    /**
+     * Get referer
+     * @return string
+     */
+    public function getReferer() {
+        return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+    }
+
+    /**
+     * Get user agent
+     * @return string
+     */
+    public function getUserAgent() {
+        return isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+    }
+
+    /**
      * Get header value by name
      * @param string $name
      * @return string|null
      */
     public function getHeader($name) {
         return (isset($this->headers[$name])) ? $this->headers[$name] : null;
+    }
+
+    /**
+     * Get request input or default value
+     * @param string $name
+     * @param string $defaultValue
+     * @return mixed
+     */
+    public function getInput($name, $defaultValue) {
+        return (isset($_REQUEST[$name]) ? $_REQUEST[$name] : $defaultValue);
     }
 
 }
