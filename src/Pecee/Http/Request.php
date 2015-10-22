@@ -61,6 +61,14 @@ class Request {
     }
 
     /**
+     * Get id address
+     * @return string
+     */
+    public function getIp() {
+        return isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
+    }
+
+    /**
      * Get header value by name
      * @param string $name
      * @return string|null
