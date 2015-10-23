@@ -128,7 +128,7 @@ class SimpleRouter {
         return $route;
     }
 
-    public function getRoute($controller = null, $parameters = null, $getParams = null) {
+    public static function getRoute($controller = null, $parameters = null, $getParams = null) {
         return RouterBase::getInstance()->getRoute($controller, $parameters, $getParams);
     }
 
