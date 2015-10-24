@@ -233,7 +233,7 @@ class RouterBase {
             } else {
                 // If no parameters are specified in the route, assume that the provided parameters should be used.
                 if(count($parameters)) {
-                    $url .= join('/', $parameters);
+                    $url = rtrim($url, '/') . '/' . join('/', $parameters);
                 }
             }
         }
