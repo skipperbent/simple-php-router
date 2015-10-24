@@ -230,6 +230,11 @@ class RouterBase {
                     $url = str_ireplace('{' . $param. '}', $value, $url);
                     $i++;
                 }
+            } else {
+                // If no parameters are specified in the route, assume that the provided parameters should be used.
+                if(count($parameters)) {
+                    $url .= join('/', $parameters);
+                }
             }
         }
 
