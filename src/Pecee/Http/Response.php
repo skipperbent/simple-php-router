@@ -54,12 +54,11 @@ class Response {
     /**
      * Json encode array
      * @param array $value
-     * @return self $this
      */
     public function json(array $value) {
         $this->header('Content-type: application/json');
         echo json_encode($value);
-        return $this;
+        die();
     }
 
     /**

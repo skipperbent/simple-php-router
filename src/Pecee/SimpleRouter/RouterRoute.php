@@ -90,8 +90,8 @@ class RouterRoute extends RouterEntry {
                             }
                         }
 
-                        // Add parameter value
-                        $parameters[$parameter] = $parameterValue;
+                        // Add parameter value, if it doesn't exist - replace it with null value
+                        $parameters[$parameter] = ($parameterValue === '') ? null : $parameterValue;
                     }
                 }
             }
@@ -159,6 +159,5 @@ class RouterRoute extends RouterEntry {
 
         return parent::setSettings($settings);
     }
-
 
 }
