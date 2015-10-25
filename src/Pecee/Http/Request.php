@@ -10,7 +10,7 @@ class Request {
 
     public function __construct() {
         $this->host = $_SERVER['HTTP_HOST'];
-        $this->uri = rtrim($_SERVER['REQUEST_URI'], '/') . '/';
+        $this->uri = $_SERVER['REQUEST_URI'];
         $this->method = (isset($_POST['_method'])) ? strtolower($_POST['_method']) : strtolower($_SERVER['REQUEST_METHOD']);
         $this->headers = getallheaders();
     }

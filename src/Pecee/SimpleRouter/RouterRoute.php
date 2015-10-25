@@ -19,6 +19,7 @@ class RouterRoute extends RouterEntry {
     }
 
     protected function parseParameters($url, $multiple = false, $regex = self::PARAMETERS_REGEX_MATCH) {
+        $url = rtrim($url, '/');
         $parameters = array();
 
         if($multiple) {
