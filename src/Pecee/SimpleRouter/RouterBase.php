@@ -102,6 +102,9 @@ class RouterBase {
 
         // Make sure the urls is in the right order when comparing
         usort($this->controllerUrlMap, function($a, $b) {
+            if(stripos($b->getUrl(), '{') !== false) {
+                return $a->getUrl();
+            }
             return strcmp($b->getUrl(), $a->getUrl());
         });
 
