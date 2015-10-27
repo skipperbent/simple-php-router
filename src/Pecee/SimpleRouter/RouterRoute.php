@@ -49,7 +49,7 @@ class RouterRoute extends RouterEntry {
         // Check if url parameter count matches
         if(stripos($url, $routeMatch) === 0) {
 
-            $matches = true;
+            $matches = (count(explode('/', rtrim($url, '/'))) == count(explode('/', rtrim($route, '/'))));
 
             if($this->regexMatch) {
                 $parameters = $this->parseParameters($url, true, $this->regexMatch);
@@ -62,7 +62,7 @@ class RouterRoute extends RouterEntry {
             } else {
 
                 $url = explode('/', $url);
-                $route = explode('/', $route);
+                $route = explode('/', rtrim($route, '/'));
 
                 $parameters = array();
 
