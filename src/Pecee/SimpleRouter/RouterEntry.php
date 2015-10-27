@@ -243,7 +243,7 @@ abstract class RouterEntry {
         return new $name();
     }
 
-    protected function loadMiddleware(Request $request) {
+    public function loadMiddleware(Request $request) {
         if($this->getMiddleware()) {
             $middleware = $this->loadClass($this->getMiddleware());
             if (!($middleware instanceof Middleware)) {
@@ -256,8 +256,6 @@ abstract class RouterEntry {
     }
 
     public function renderRoute(Request $request) {
-        // Load middleware
-        $this->loadMiddleware($request);
 
         if(is_object($this->getCallback()) && is_callable($this->getCallback())) {
 
