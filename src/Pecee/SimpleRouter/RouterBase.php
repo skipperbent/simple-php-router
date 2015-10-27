@@ -102,7 +102,7 @@ class RouterBase {
 
         // Make sure the urls is in the right order when comparing
         usort($this->controllerUrlMap, function($a, $b) {
-            return strcmp($b->getUrl(), $a->getUrl());
+            return strcmp($a->getUrl(), $b->getUrl());
         });
 
         $routeNotAllowed = false;
