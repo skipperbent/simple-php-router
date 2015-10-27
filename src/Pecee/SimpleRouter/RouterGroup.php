@@ -10,7 +10,7 @@ class RouterGroup extends RouterEntry {
         parent::__construct();
     }
 
-    public function matchRoute(Request $request) {
+    public function renderRoute(Request $request) {
         // Check if request method is allowed
 
         if(strtolower($request->getUri()) == strtolower($this->prefix) || stripos($request->getUri(), $this->prefix) === 0) {
@@ -29,10 +29,16 @@ class RouterGroup extends RouterEntry {
                 throw new RouterException('Method not allowed');
             }
 
-            return $this;
+            $this->loadMiddleware($request);
+
+            return parent::renderRoute($request);
         }
 
         // No match here, move on...
+        return null;
+    }
+
+    public function matchRoute(Request $request) {
         return null;
     }
 

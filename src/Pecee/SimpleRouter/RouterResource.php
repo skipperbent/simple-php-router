@@ -20,9 +20,6 @@ class RouterResource extends RouterEntry {
     }
 
     public function renderRoute(Request $request) {
-        // Load middleware
-        $this->loadMiddleware($request);
-
         if(is_object($this->getCallback()) && is_callable($this->getCallback())) {
             // When the callback is a function
             call_user_func_array($this->getCallback(), $this->getParameters());

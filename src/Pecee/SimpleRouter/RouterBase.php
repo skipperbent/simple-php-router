@@ -116,6 +116,7 @@ class RouterBase {
                 $routeNotAllowed = false;
 
                 $this->loadedRoute = $routeMatch;
+                $routeMatch->loadMiddleware($this->request);
                 $routeMatch->renderRoute($this->request);
                 break;
             }
