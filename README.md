@@ -1,5 +1,5 @@
 # Simple PHP router
-Simple, fast PHP router that is easy to get integrated and in almost any project. Heavily inspired by the Laravel router.
+Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. Heavily inspired by the Laravel router.
 
 ## Installation
 Add the latest version pf Simple PHP Router to your ```composer.json```
@@ -33,7 +33,7 @@ Add the latest version pf Simple PHP Router to your ```composer.json```
 
 - Global Constraints
 - Sub-Domain Routing
-- Required parameters
+- Optional parameters
 
 ## Initialising the router
 
