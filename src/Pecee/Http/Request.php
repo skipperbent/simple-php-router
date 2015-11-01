@@ -3,12 +3,27 @@ namespace Pecee\Http;
 
 class Request {
 
+    protected static $instance;
+
+    protected $data;
     protected $uri;
     protected $host;
     protected $method;
     protected $headers;
 
+    /**
+     * Return new instance
+     * @return static
+     */
+    public static function getInstance() {
+        if(self::$instance === null) {
+            self::$instance = new static();
+        }
+        return self::$instance;
+    }
+
     public function __construct() {
+        $this->data = array();
         $this->host = $_SERVER['HTTP_HOST'];
         $this->uri = $_SERVER['REQUEST_URI'];
         $this->method = (isset($_POST['_method'])) ? strtolower($_POST['_method']) : strtolower($_SERVER['REQUEST_METHOD']);
@@ -101,6 +116,14 @@ class Request {
      */
     public function getInput($name, $defaultValue) {
         return (isset($_REQUEST[$name]) ? $_REQUEST[$name] : $defaultValue);
+    }
+
+    public function __set($name, $value = null) {
+        $this->data[$name] = $value;
+    }
+
+    public function __get($name) {
+        return isset($this->data[$name]) ? $this->data[$name] : null;
     }
 
 }

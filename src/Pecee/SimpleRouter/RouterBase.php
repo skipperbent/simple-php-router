@@ -27,7 +27,7 @@ class RouterBase {
         $this->routes = array();
         $this->backstack = array();
         $this->controllerUrlMap = array();
-        $this->request = new Request();
+        $this->request = Request::getInstance();
         $this->baseCsrfVerifier = new BaseCsrfVerifier();
     }
 
@@ -253,7 +253,7 @@ class RouterBase {
             throw new \InvalidArgumentException('Invalid type for getParams. Must be array or null');
         }
 
-        if($controller === null && $parameters === null && $this->loadedRoute !== null) {
+        if($controller === null && $parameters === null) {
             return $this->processUrl($this->loadedRoute, null, $getParams);
         }
 
@@ -295,7 +295,7 @@ class RouterBase {
                 $method = $tmp[1];
             }
 
-            if($controller === $c && $route !== null) {
+            if($controller === $c) {
                 return $this->processUrl($route, $method, $parameters, $getParams);
             }
         }
@@ -307,7 +307,13 @@ class RouterBase {
             ArrayUtil::append($url, $parameters);
         }
 
-        return '/' . join('/', $url);
+        $url = '/' . trim(join('/', $url), '/') . '/';
+
+        if(is_array($getParams)) {
+            $url .= '?' . Url::arrayToParams($getParams);
+        }
+
+        return $url;
     }
 
     public static function getInstance() {
