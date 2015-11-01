@@ -57,7 +57,7 @@ class SimpleRouter {
     public static function put($url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
         $route->addSettings($settings);
-        $route->setRequestMethods(array(RouterRoute::REQUEST_TYPE_PUT));
+        $route->setRequestMethods(array(RouterRoute::REQUEST_TYPE_PUT, RouterRoute::REQUEST_TYPE_PATCH));
 
         $router = RouterBase::getInstance();
         $router->addRoute($route);
