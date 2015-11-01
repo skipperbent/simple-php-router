@@ -10,13 +10,15 @@ abstract class RouterEntry {
     const REQUEST_TYPE_POST = 'post';
     const REQUEST_TYPE_GET = 'get';
     const REQUEST_TYPE_PUT = 'put';
+    const REQUEST_TYPE_PATCH = 'patch';
     const REQUEST_TYPE_DELETE = 'delete';
 
     public static $allowedRequestTypes = array(
         self::REQUEST_TYPE_DELETE,
         self::REQUEST_TYPE_GET,
         self::REQUEST_TYPE_POST,
-        self::REQUEST_TYPE_PUT
+        self::REQUEST_TYPE_PUT,
+        self::REQUEST_TYPE_PATCH
     );
 
     protected $settings;
