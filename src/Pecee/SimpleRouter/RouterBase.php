@@ -27,7 +27,7 @@ class RouterBase {
         $this->routes = array();
         $this->backstack = array();
         $this->controllerUrlMap = array();
-        $this->request = new Request();
+        $this->request = Request::getInstance();
         $this->baseCsrfVerifier = new BaseCsrfVerifier();
     }
 
