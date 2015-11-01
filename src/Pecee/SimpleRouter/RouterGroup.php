@@ -29,8 +29,6 @@ class RouterGroup extends RouterEntry {
                 throw new RouterException('Method not allowed');
             }
 
-            $this->loadMiddleware($request);
-
             return parent::renderRoute($request);
         }
 
