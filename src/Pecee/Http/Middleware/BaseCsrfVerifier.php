@@ -5,7 +5,7 @@ use Pecee\CsrfToken;
 use Pecee\Exception\TokenMismatchException;
 use Pecee\Http\Request;
 
-class BaseCsrfVerifier extends Middleware {
+class BaseCsrfVerifier implements IMiddleware {
 
     const POST_KEY = 'csrf-token';
     const HEADER_KEY = 'X-CSRF-TOKEN';

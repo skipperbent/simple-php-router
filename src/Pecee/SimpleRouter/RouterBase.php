@@ -253,7 +253,7 @@ class RouterBase {
             throw new \InvalidArgumentException('Invalid type for getParams. Must be array or null');
         }
 
-        if($controller === null && $parameters === null) {
+        if($controller === null && $parameters === null && $this->loadedRoute !== null) {
             return $this->processUrl($this->loadedRoute, null, $getParams);
         }
 

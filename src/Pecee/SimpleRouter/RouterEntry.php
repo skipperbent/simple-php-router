@@ -2,7 +2,7 @@
 
 namespace Pecee\SimpleRouter;
 
-use Pecee\Http\Middleware\Middleware;
+use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 
 abstract class RouterEntry {
@@ -208,7 +208,7 @@ abstract class RouterEntry {
     public function setSettings($settings) {
         $this->settings = $settings;
 
-        if($settings['prefix']) {
+        if(isset($settings['prefix'])) {
             $this->setPrefix($settings['prefix']);
         }
 
@@ -246,7 +246,7 @@ abstract class RouterEntry {
     public function loadMiddleware(Request $request) {
         if($this->getMiddleware()) {
             $middleware = $this->loadClass($this->getMiddleware());
-            if (!($middleware instanceof Middleware)) {
+            if (!($middleware instanceof IMiddleware)) {
                 throw new RouterException($this->getMiddleware() . ' must be instance of Middleware');
             }
 

@@ -17,6 +17,29 @@ class RouterController extends RouterEntry {
         $this->controller = $controller;
     }
 
+    public function renderRoute(Request $request) {
+        if(is_object($this->getCallback()) && is_callable($this->getCallback())) {
+
+            // When the callback is a function
+            call_user_func_array($this->getCallback(), $this->getParameters());
+        } else {
+            // When the callback is a method
+            $controller = explode('@', $this->getCallback());
+            $className = $this->getNamespace() . '\\' . $controller[0];
+
+            $class = $this->loadClass($className);
+            $method = $request->getMethod() . ucfirst($controller[1]);
+
+            if (!method_exists($class, $method)) {
+                throw new RouterException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
+            }
+
+            call_user_func_array(array($class, $method), $this->getParameters());
+
+            return $class;
+        }
+    }
+
     public function matchRoute(Request $request) {
         $url = parse_url($request->getUri());
         $url = rtrim($url['path'], '/') . '/';

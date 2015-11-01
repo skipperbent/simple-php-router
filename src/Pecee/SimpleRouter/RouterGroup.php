@@ -13,7 +13,7 @@ class RouterGroup extends RouterEntry {
     public function renderRoute(Request $request) {
         // Check if request method is allowed
 
-        if(strtolower($request->getUri()) == strtolower($this->prefix) || stripos($request->getUri(), $this->prefix) === 0) {
+        if(trim($this->prefix) === '' || strtolower($request->getUri()) == strtolower($this->prefix) || stripos($request->getUri(), $this->prefix) === 0) {
 
             $hasAccess = (!$this->method);
 
