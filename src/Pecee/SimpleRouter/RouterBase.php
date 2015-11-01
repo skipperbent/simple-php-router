@@ -58,6 +58,7 @@ class RouterBase {
 
             $newPrefixes = $prefixes;
             $mergedSettings = array_merge($settings, $route->getMergeableSettings());
+
             if($route->getPrefix()) {
                 array_push($newPrefixes, rtrim($route->getPrefix(), '/'));
             }

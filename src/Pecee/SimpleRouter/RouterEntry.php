@@ -22,14 +22,12 @@ abstract class RouterEntry {
     protected $settings;
     protected $callback;
     protected $parameters;
-    protected $parametersRegex;
-    protected $regexMatch;
 
     public function __construct() {
         $this->settings = array();
         $this->settings['requestMethods'] = array();
+        $this->settings['parametersRegex'] = array();
         $this->parameters = array();
-        $this->parametersRegex = array();
     }
 
     /**
@@ -245,13 +243,25 @@ abstract class RouterEntry {
 
     public function loadMiddleware(Request $request) {
         if($this->getMiddleware()) {
-            $middleware = $this->loadClass($this->getMiddleware());
-            if (!($middleware instanceof IMiddleware)) {
-                throw new RouterException($this->getMiddleware() . ' must be instance of Middleware');
-            }
+            if(is_array($this->getMiddleware())) {
+                foreach($this->getMiddleware() as $middleware) {
+                    $middleware = $this->loadClass($middleware);
+                    if (!($middleware instanceof IMiddleware)) {
+                        throw new RouterException($middleware . ' must be instance of Middleware');
+                    }
 
-            /* @var $class Middleware */
-            $middleware->handle($request);
+                    /* @var $class Middleware */
+                    $middleware->handle($request);
+                }
+            } else {
+                $middleware = $this->loadClass($this->getMiddleware());
+                if (!($middleware instanceof IMiddleware)) {
+                    throw new RouterException($this->getMiddleware() . ' must be instance of Middleware');
+                }
+
+                /* @var $class Middleware */
+                $middleware->handle($request);
+            }
         }
     }
 
