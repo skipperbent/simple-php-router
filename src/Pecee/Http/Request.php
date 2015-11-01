@@ -27,7 +27,7 @@ class Request {
         $this->host = $_SERVER['HTTP_HOST'];
         $this->uri = $_SERVER['REQUEST_URI'];
         $this->method = (isset($_POST['_method'])) ? strtolower($_POST['_method']) : strtolower($_SERVER['REQUEST_METHOD']);
-        $this->headers = getallheaders();
+        $this->headers = array_change_key_case(getallheaders(), CASE_LOWER);
     }
 
     /**
@@ -105,7 +105,7 @@ class Request {
      * @return string|null
      */
     public function getHeader($name) {
-        return (isset($this->headers[$name])) ? $this->headers[$name] : null;
+        return (isset($this->headers[strtolower($name)])) ? $this->headers[strtolower($name)] : null;
     }
 
     /**
