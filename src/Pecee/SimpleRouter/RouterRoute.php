@@ -44,7 +44,7 @@ class RouterRoute extends RouterEntry {
 
         $route = $this->url;
 
-        $routeMatch = preg_replace('/'.self::PARAMETERS_REGEX_MATCH.'/is', '', $route);
+        $routeMatch = preg_replace('/\/{0,1}'.self::PARAMETERS_REGEX_MATCH.'\/{0,1}/is', '', $route);
 
         // Check if url parameter count matches
         if(stripos($url, $routeMatch) === 0) {
