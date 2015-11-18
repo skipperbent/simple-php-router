@@ -30,6 +30,10 @@ class Request {
         $this->headers = array_change_key_case(getallheaders(), CASE_LOWER);
     }
 
+    public function getIsSecure() {
+        return isset($_SERVER['HTTPS']) ? true : (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] === 443);
+    }
+
     /**
      * @return string
      */
