@@ -42,12 +42,15 @@ class RouterRoute extends RouterEntry {
         $url = parse_url($request->getUri());
         $url = $url['path'];
 
-        $route = $this->url;
+        $route = rtrim($this->url, '/') . '/';
 
         $routeMatch = preg_replace('/\/{0,1}'.self::PARAMETERS_REGEX_MATCH.'\/{0,1}/is', '', $route);
 
+        $tmp = explode('/', $route);
+        $tmp2 = explode('/', $url);
+
         // Check if url parameter count matches
-        if(stripos($url, $routeMatch) === 0) {
+        if(stripos($url, $routeMatch) === 0 || count($tmp) === count($tmp2)) {
 
             $matches = true;
 
