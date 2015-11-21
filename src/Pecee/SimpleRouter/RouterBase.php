@@ -224,7 +224,7 @@ class RouterBase {
                 $i = 0;
                 foreach($params as $param => $value) {
                     $value = (isset($parameters[$param])) ? $parameters[$param] : $value;
-                    $url = str_ireplace('{' . $param. '}', $value, $url);
+                    $url = str_ireplace(array('{' . $param. '}', '{' . $param. '?}'), $value, $url);
                     $i++;
                 }
             } else {

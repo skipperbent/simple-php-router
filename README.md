@@ -28,12 +28,12 @@ Add the latest version pf Simple PHP Router to your ```composer.json```
 - Namespaces.
 - Route prefixes.
 - CSRF protection.
+- Optional parameters
 
 ### Features currently "in-the-works"
 
 - Global Constraints
-- Sub-Domain Routing
-- Optional parameters
+- Sub-domain routing
 
 ## Initialising the router
 
@@ -74,8 +74,10 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
 
     SimpleRouter::group(['prefix' => 'services'], function() {
 
-        SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show')
-        ->where(['id' => '[0-9]+');
+        SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show')->where(['id' => '[0-9]+');
+        
+        // Optional parameter
+        SimpleRouter::get('/answers/{id?}', 'ControllerAnswers@show');
 
         /**
          * This example will route url when matching the regular expression to the method.
@@ -83,7 +85,7 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
          */
         SimpleRouter::all('/ajax', 'ControllerAjax@process')->match('ajax\\/([A-Za-z0-9\\/]+)');
 
-        // Resetful resource
+        // Restful resource
         SimpleRouter::resource('/rest', 'ControllerRessource');
 
         // Load the entire controller (where url matches method names - getIndex(), postIndex() etc)
@@ -251,7 +253,7 @@ The router can be easily extended to customize your needs.
 
 ## The MIT License (MIT)
 
-Copyright (c) 2015 Simon Sessing� / simple-php-router
+Copyright (c) 2015 Simon Sessingø / simple-php-router
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

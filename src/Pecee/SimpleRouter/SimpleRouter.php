@@ -4,7 +4,7 @@
  * ---------------------------
  * Router helper class
  * ---------------------------
- * This class is added so calls can be made staticly like Router::get() making the code look more pretty.
+ * This class is added so calls can be made statically like Router::get() making the code look more pretty.
  */
 
 namespace Pecee\SimpleRouter;
