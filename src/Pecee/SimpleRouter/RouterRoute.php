@@ -63,7 +63,7 @@ class RouterRoute extends RouterEntry {
                 // Check for optional parameter
                 if($lastCharacter === '?') {
                     $parameter = substr($parameter, 0, strlen($parameter)-1);
-                    $regex .= '(?:(?:\/(?P<'.$parameter.'>[a-z0-9]*?)){0,1}\\/)';
+                    $regex .= '(?:(?:\/{0,1}(?P<'.$parameter.'>[a-z0-9]*?)){0,1}\\/)';
                 } else {
                     // Use custom parameter regex if it exists
                     $parameterRegex = '[a-z0-9]*?';
@@ -72,7 +72,7 @@ class RouterRoute extends RouterEntry {
                         $parameterRegex = $this->parametersRegex[$parameter];
                     }
 
-                    $regex .= '(?:\\/(?P<' . $parameter . '>'. $parameterRegex .')\\/)';
+                    $regex .= '(?:\\/{0,1}(?P<' . $parameter . '>'. $parameterRegex .')\\/)';
                 }
                 $parameterNames[] = $parameter;
                 $parameter = '';
