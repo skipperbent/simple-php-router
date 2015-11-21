@@ -6,7 +6,7 @@ use Pecee\Http\Request;
 
 class RouterRoute extends RouterEntry {
 
-    const PARAMETERS_REGEX_MATCH = '{([A-Za-z\-\_]*?)}';
+    const PARAMETERS_REGEX_MATCH = '{([A-Za-z\-\_]*?\?{0,1})}';
 
     protected $url;
 
