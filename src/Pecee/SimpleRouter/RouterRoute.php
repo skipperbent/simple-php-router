@@ -63,10 +63,10 @@ class RouterRoute extends RouterEntry {
                 // Check for optional parameter
                 if($lastCharacter === '?') {
                     $parameter = substr($parameter, 0, strlen($parameter)-1);
-                    $regex .= '(?:(?:\/(?P<'.$parameter.'>[0-9]*?)){0,1}\\/)';
+                    $regex .= '(?:(?:\/(?P<'.$parameter.'>[a-z0-9]*?)){0,1}\\/)';
                 } else {
                     // Use custom parameter regex if it exists
-                    $parameterRegex = '[0-9]*?';
+                    $parameterRegex = '[a-z0-9]*?';
 
                     if(is_array($this->parametersRegex) && isset($this->parametersRegex[$parameter])) {
                         $parameterRegex = $this->parametersRegex[$parameter];
