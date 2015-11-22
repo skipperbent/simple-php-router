@@ -97,7 +97,7 @@ class RouterRoute extends RouterEntry {
 
             if(count($parameterNames)) {
                 foreach($parameterNames as $name) {
-                    $parameters[$name] = isset($parameterValues[$name]) ? $parameterValues[$name] : null;
+                    $parameters[$name] = (isset($parameterValues[$name]) && !empty($parameterValues[$name])) ? $parameterValues[$name] : null;
                 }
             }
 
