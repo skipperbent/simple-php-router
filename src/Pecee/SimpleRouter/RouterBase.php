@@ -39,11 +39,15 @@ class RouterBase {
         }
     }
 
-    protected function processRoutes(array $routes, array $settings = array(), array $prefixes = array(), $backstack = false) {
+    protected function processRoutes(array $routes, array $settings = array(), array $prefixes = array(), $backstack = false, $group = null) {
         // Loop through each route-request
+
+        $activeGroup = null;
 
         /* @var $route RouterEntry */
         foreach($routes as $route) {
+
+            $route->setGroup($group);
 
             if($this->defaultNamespace && !$route->getNamespace()) {
                 $namespace = null;
@@ -75,6 +79,7 @@ class RouterBase {
             $this->currentRoute = $route;
             if($route instanceof RouterGroup && is_callable($route->getCallback())) {
                 $route->renderRoute($this->request);
+                $activeGroup = $route;
             }
             $this->currentRoute = null;
 
@@ -83,7 +88,7 @@ class RouterBase {
                 $this->backstack = array();
 
                 // Route any routes added to the backstack
-                $this->processRoutes($backstack, $mergedSettings, $newPrefixes, true);
+                $this->processRoutes($backstack, $mergedSettings, $newPrefixes, true, $activeGroup);
             }
         }
     }

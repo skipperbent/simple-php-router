@@ -317,6 +317,15 @@ abstract class RouterEntry {
         return $this->settings['requestMethods'];
     }
 
+    public function getGroup() {
+        return $this->group;
+    }
+
+    public function setGroup($group) {
+        $this->group = $group;
+        return $this;
+    }
+
     abstract function matchRoute(Request $request);
 
 }
