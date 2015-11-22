@@ -6,7 +6,7 @@ use Pecee\Http\Request;
 
 class RouterRoute extends RouterEntry {
 
-    const PARAMETERS_REGEX_MATCH = '{([A-Za-z\-\_]*?\?{0,1})}';
+    const PARAMETERS_REGEX_MATCH = '{([A-Za-z\-\_]*?)\?{0,1}}';
 
     protected $url;
 
@@ -60,12 +60,12 @@ class RouterRoute extends RouterEntry {
 
                 $isParameter = true;
             } elseif($isParameter && $character === '}') {
-                $required = false;
+                $required = true;
                 // Check for optional parameter
                 if($lastCharacter === '?') {
                     $parameter = substr($parameter, 0, strlen($parameter)-1);
                     $regex .= '(?:(?:\/{0,1}(?P<'.$parameter.'>[a-z0-9]*?)){0,1}\\/)';
-                    $required = true;
+                    $required = false;
                 } else {
                     // Use custom parameter regex if it exists
                     $parameterRegex = '[a-z0-9]*?';
@@ -130,12 +130,13 @@ class RouterRoute extends RouterEntry {
     public function setUrl($url) {
 
         $parameters = array();
+        $matches = array();
 
-        preg_match_all('/'.self::PARAMETERS_REGEX_MATCH.'/is', $url, $parameters);
+        if(preg_match_all('/'.self::PARAMETERS_REGEX_MATCH.'/is', $url, $matches)) {
+            $parameters = $matches[1];
+        }
 
-        $parameters = $parameters[1];
-
-        if($parameters !== null) {
+        if(count($parameters)) {
             foreach($parameters as $param) {
                 $this->parameters[$param] = '';
             }

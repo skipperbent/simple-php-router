@@ -33,4 +33,13 @@ class RouterGroup extends RouterEntry {
         return null;
     }
 
+    public function setExceptionHandler($class) {
+        $this->exceptionHandler = $class;
+        return $this;
+    }
+
+    public function getExceptionHandler() {
+        return $this->exceptionHandler;
+    }
+
 }

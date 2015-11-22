@@ -72,7 +72,7 @@ use Pecee\SimpleRouter\SimpleRouter;
 
 SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\SomeMiddlewareClass'], function() {
 
-    SimpleRouter::group(['prefix' => 'services'], function() {
+    SimpleRouter::group(['prefix' => '/services', 'exceptionHandler' => '\MyProject\Handler\CustomExceptionHandler'], function() {
 
         SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show')->where(['id' => '[0-9]+');
         
@@ -131,47 +131,57 @@ The framework has it's own ```Router``` class which inherits from the ```SimpleR
 namespace MyProject;
 
 use Pecee\Handler\ExceptionHandler;
+use Pecee\SimpleRouter\RouterBase;
 use Pecee\SimpleRouter\SimpleRouter;
 
 class Router extends SimpleRouter {
 
-    protected static $exceptionHandlers = array();
+    protected static $defaultExceptionHandler;
 
-    public static function start() {
-
-        Debug::getInstance()->add('Router initialised.');
+    public static function start($defaultNamespace = null) {
 
         // Load routes.php
-        $file = $_ENV['basePath'] . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'routes.php';
+        $file = $_ENV['base_path'] . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'routes.php';
         if(file_exists($file)) {
             require_once $file;
         }
 
-        // Init locale settings
-        Locale::getInstance();
-
-        // Set default namespace for routes
-        $defaultNamespace = '\\'.Registry::getInstance()->get('AppName') . '\\Controller';
-        
-        // Add custom csrf verifier (must extend BaseCsrfVerifier)
-        parent::csrfVerifier('MyProject\Middleware\CustomCsrfVerifier');
+        // Set default namespace
+        $defaultNamespace = '\\'.$_ENV['app_name'] . '\\Controller';
 
         // Handle exceptions
         try {
             parent::start($defaultNamespace);
         } catch(\Exception $e) {
-            /* @var $handler ExceptionHandler */
-            foreach(self::$exceptionHandlers as $handler) {
-                $class = new $handler();
-                $class->handleError($e);
+
+            $route = RouterBase::getInstance()->getLoadedRoute();
+
+            $exceptionHandler = null;
+
+            // Load and use exception-handler defined on group
+            
+            if($route && $route->getGroup()) {
+                $exceptionHandler = $route->getGroup()->getExceptionHandler();
+                
+                if($exceptionHandler !== null) {
+                    $class = new $exceptionHandler();
+                    $class->handleError(RouterBase::getInstance()->getRequest(), $route, $e);
+                }
+            }
+
+            // Otherwise use the fallback default exceptions handler
+           
+            if(self::$defaultExceptionHandler !== null) {
+                $class = new self::$defaultExceptionHandler();
+                $class->handleError(RouterBase::getInstance()->getRequest(), $route, $e);
             }
 
             throw $e;
         }
     }
 
-    public static function addExceptionHandler($handler) {
-        self::$exceptionHandlers[] = $handler;
+    public static function setDefaultExceptionHandler($handler) {
+        self::$defaultExceptionHandler = $handler;
     }
 
 }
