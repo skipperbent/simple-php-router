@@ -60,10 +60,12 @@ class RouterRoute extends RouterEntry {
 
                 $isParameter = true;
             } elseif($isParameter && $character === '}') {
+                $required = false;
                 // Check for optional parameter
                 if($lastCharacter === '?') {
                     $parameter = substr($parameter, 0, strlen($parameter)-1);
                     $regex .= '(?:(?:\/{0,1}(?P<'.$parameter.'>[a-z0-9]*?)){0,1}\\/)';
+                    $required = true;
                 } else {
                     // Use custom parameter regex if it exists
                     $parameterRegex = '[a-z0-9]*?';
@@ -74,7 +76,7 @@ class RouterRoute extends RouterEntry {
 
                     $regex .= '(?:\\/{0,1}(?P<' . $parameter . '>'. $parameterRegex .')\\/)';
                 }
-                $parameterNames[] = $parameter;
+                $parameterNames[] = array('value' => $parameter, 'required' => $required);
                 $parameter = '';
                 $isParameter = false;
 
@@ -97,7 +99,13 @@ class RouterRoute extends RouterEntry {
 
             if(count($parameterNames)) {
                 foreach($parameterNames as $name) {
-                    $parameters[$name] = (isset($parameterValues[$name]) && !empty($parameterValues[$name])) ? $parameterValues[$name] : null;
+                    $parameterValue = (isset($parameterValues[$name['value']]) && !empty($parameterValues[$name['value']])) ? $parameterValues[$name['value']] : null;
+
+                    if($name['required'] && $parameterValue === null) {
+                        throw new RouterException('Missing required parameter ' . $name['name'], 404);
+                    }
+
+                    $parameters[$name] = $parameterValue;
                 }
             }
 
