@@ -42,12 +42,24 @@ class Response {
         return $this;
     }
 
-    public function cache($duration = 2592000) {
+    public function cache($eTag, $lastModified = 2592000) {
+
         $this->headers([
-            'Cache-Control: public,max-age='.$duration.',must-revalidate',
-            'Expires: '.gmdate('D, d M Y H:i:s',(time()+$duration)).' GMT',
-            'Last-modified: '.gmdate('D, d M Y H:i:s',time()).' GMT'
+            'Cache-Control: public',
+            'Last-Modified: ' . gmdate("D, d M Y H:i:s", $lastModified) . ' GMT',
+            'Etag: ' . $eTag
         ]);
+
+        if(isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $lastModified ||
+            isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] === $eTag) {
+
+            $this->headers([
+                'HTTP/1.1 304 Not Modified'
+            ]);
+
+            exit();
+        }
+
         return $this;
     }
 
