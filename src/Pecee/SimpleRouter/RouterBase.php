@@ -28,7 +28,6 @@ class RouterBase {
         $this->backstack = array();
         $this->controllerUrlMap = array();
         $this->request = Request::getInstance();
-        $this->baseCsrfVerifier = new BaseCsrfVerifier();
     }
 
     public function addRoute(RouterEntry $route) {
