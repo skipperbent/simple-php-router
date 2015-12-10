@@ -60,12 +60,12 @@ class RouterBase {
             }
 
             $newPrefixes = $prefixes;
-            $mergedSettings = array_merge($settings, $route->getMergeableSettings());
 
             if($route->getPrefix()) {
                 array_push($newPrefixes, rtrim($route->getPrefix(), '/'));
             }
-            $route->addSettings($mergedSettings);
+
+            $route->addSettings($settings);
 
             if(!($route instanceof RouterGroup)) {
                 if(is_array($newPrefixes) && count($newPrefixes) && $backstack) {
@@ -79,6 +79,7 @@ class RouterBase {
             if($route instanceof RouterGroup && is_callable($route->getCallback())) {
                 $route->renderRoute($this->request);
                 $activeGroup = $route;
+                $mergedSettings = array_merge($settings, $route->getMergeableSettings());
             }
             $this->currentRoute = null;
 

@@ -36,80 +36,16 @@ class RouterRoute extends RouterEntry {
         // Make regular expression based on route
         $route = rtrim($this->url, '/') . '/';
 
-        $parameterNames = array();
-        $regex = '';
-        $lastCharacter = '';
-        $isParameter = false;
-        $parameter = '';
+        $parameters = $this->parseParameters($route, $url);
 
-        for($i = 0; $i < strlen($route); $i++) {
+        if($parameters !== null) {
 
-            $character = $route[$i];
-
-            // Skip "/" if we are at the end of a parameter
-            if($lastCharacter === '}' && $character === '/') {
-                $lastCharacter = $character;
-                continue;
-            }
-
-            if($character === '{') {
-                // Remove "/" and "\" from regex
-                if(substr($regex, strlen($regex)-1) === '/') {
-                    $regex = substr($regex, 0, strlen($regex) - 2);
-                }
-
-                $isParameter = true;
-            } elseif($isParameter && $character === '}') {
-                $required = true;
-                // Check for optional parameter
-                if($lastCharacter === '?') {
-                    $parameter = substr($parameter, 0, strlen($parameter)-1);
-                    $regex .= '(?:(?:\/{0,1}(?P<'.$parameter.'>[a-z0-9]*?)){0,1}\\/)';
-                    $required = false;
-                } else {
-                    // Use custom parameter regex if it exists
-                    $parameterRegex = '[a-z0-9]*?';
-
-                    if(is_array($this->parametersRegex) && isset($this->parametersRegex[$parameter])) {
-                        $parameterRegex = $this->parametersRegex[$parameter];
-                    }
-
-                    $regex .= '(?:\\/{0,1}(?P<' . $parameter . '>'. $parameterRegex .')\\/)';
-                }
-                $parameterNames[] = array('name' => $parameter, 'required' => $required);
-                $parameter = '';
-                $isParameter = false;
-
-            } elseif($isParameter) {
-                $parameter .= $character;
-            } elseif($character === '/') {
-                $regex .= '\\' . $character;
+            if(is_array($this->parameters)) {
+                $this->parameters = array_merge($this->parameters, $parameters);
             } else {
-                $regex .= $character;
+                $this->parameters = $parameters;
             }
 
-            $lastCharacter = $character;
-        }
-
-        $parameterValues = array();
-
-        if(preg_match('/^'.$regex.'$/is', $url, $parameterValues)) {
-
-            $parameters = array();
-
-            if(count($parameterNames)) {
-                foreach($parameterNames as $name) {
-                    $parameterValue = (isset($parameterValues[$name['name']]) && !empty($parameterValues[$name['name']])) ? $parameterValues[$name['name']] : null;
-
-                    if($name['required'] && $parameterValue === null) {
-                        throw new RouterException('Missing required parameter ' . $name['name'], 404);
-                    }
-
-                    $parameters[$name['name']] = $parameterValue;
-                }
-            }
-
-            $this->parameters = $parameters;
             return $this;
         }
 

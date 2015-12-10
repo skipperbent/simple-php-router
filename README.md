@@ -17,6 +17,8 @@ Add the latest version pf Simple PHP Router to your ```composer.json```
 
 ## Notes
 
+The goal of this project is to create a router that is 100% compatible with the Laravel documentation, but as simple as possible and as easy to integrate and change as possible.
+
 ### Features
 
 - Basic routing (get, post, put, delete) with support for custom multiple verbs.
@@ -29,11 +31,11 @@ Add the latest version pf Simple PHP Router to your ```composer.json```
 - Route prefixes.
 - CSRF protection.
 - Optional parameters
+- Sub-domain routing
 
 ### Features currently "in-the-works"
 
 - Global Constraints
-- Sub-domain routing
 
 ## Initialising the router
 
@@ -81,9 +83,9 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
 
         /**
          * This example will route url when matching the regular expression to the method.
-         * For example route: /ajax/music/world -> ControllerAjax@process (parameter: music/world)
+         * For example route: domain.com/ajax/music/world -> ControllerAjax@process (parameter: music/world)
          */
-        SimpleRouter::all('/ajax', 'ControllerAjax@process')->match('ajax\\/([A-Za-z0-9\\/]+)');
+        SimpleRouter::all('/ajax', 'ControllerAjax@process')->match('.*?\\/ajax\\/([A-Za-z0-9\\/]+)');
 
         // Restful resource
         SimpleRouter::resource('/rest', 'ControllerRessource');
@@ -99,6 +101,20 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
     });
 });
 ```
+
+### Sub-domain routing
+
+Route groups may also be used to route wildcard sub-domains. Sub-domains may be assigned route parameters just like route URIs, allowing you to capture a portion of the sub-domain for usage in your route or controller. The sub-domain may be specified using the ```domain``` key on the group attribute array:
+
+```php
+Route::group(['domain' => '{account}.myapp.com'], function () {
+    Route::get('user/{id}', function ($account, $id) {
+        //
+    });
+});
+```
+
+The prefix group array attribute may be used to prefix each route in the group with a given URI. For example, you may want to prefix all route URIs within the group with admin:
 
 ### Doing it the object oriented (hardcore) way
 
