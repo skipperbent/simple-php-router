@@ -38,13 +38,17 @@ class RouterBase {
         }
     }
 
-    protected function processRoutes(array $routes, array $settings = array(), array $prefixes = array(), $backstack = false, $group = null) {
+    protected function processRoutes(array $routes, array $settings = array(), array $prefixes = array(), $backStack = false, $group = null) {
         // Loop through each route-request
 
         $activeGroup = null;
 
+        $routesCount = count($routes);
+
         /* @var $route RouterEntry */
-        foreach($routes as $route) {
+        for($i = 0; $i < $routesCount; $i++) {
+
+            $route = $routes[$i];
 
             $route->setGroup($group);
 
@@ -60,15 +64,15 @@ class RouterBase {
             }
 
             $newPrefixes = $prefixes;
-            $mergedSettings = array_merge($settings, $route->getMergeableSettings());
 
             if($route->getPrefix()) {
                 array_push($newPrefixes, rtrim($route->getPrefix(), '/'));
             }
-            $route->addSettings($mergedSettings);
+
+            $route->addSettings($settings);
 
             if(!($route instanceof RouterGroup)) {
-                if(is_array($newPrefixes) && count($newPrefixes) && $backstack) {
+                if(is_array($newPrefixes) && count($newPrefixes) && $backStack) {
                     $route->setUrl( join('/', $newPrefixes) . $route->getUrl() );
                 }
 
@@ -76,18 +80,21 @@ class RouterBase {
             }
 
             $this->currentRoute = $route;
+
             if($route instanceof RouterGroup && is_callable($route->getCallback())) {
                 $route->renderRoute($this->request);
                 $activeGroup = $route;
+                $mergedSettings = array_merge($route->getMergeableSettings(), $settings);
             }
+
             $this->currentRoute = null;
 
             if(count($this->backstack)) {
-                $backstack = $this->backstack;
+                $backStack = $this->backstack;
                 $this->backstack = array();
 
                 // Route any routes added to the backstack
-                $this->processRoutes($backstack, $mergedSettings, $newPrefixes, true, $activeGroup);
+                $this->processRoutes($backStack, $mergedSettings, $newPrefixes, true, $activeGroup);
             }
         }
     }
@@ -107,8 +114,13 @@ class RouterBase {
 
         $routeNotAllowed = false;
 
+        $max = count($this->controllerUrlMap);
+
         /* @var $route RouterEntry */
-        foreach($this->controllerUrlMap as $route) {
+        for($i = 0; $i < $max; $i++) {
+
+            $route = $this->controllerUrlMap[$i];
+
             $routeMatch = $route->matchRoute($this->request);
 
             if($routeMatch && !($routeMatch instanceof RouterGroup)) {
@@ -265,8 +277,12 @@ class RouterBase {
         $c = '';
         $method = null;
 
+        $max = count($this->controllerUrlMap);
+
         /* @var $route RouterRoute */
-        foreach($this->controllerUrlMap as $route) {
+        for($i = 0; $i < $max; $i++) {
+
+            $route = $this->controllerUrlMap[$i];
 
             // Check an alias exist, if the matches - use it
             if($route instanceof RouterRoute && strtolower($route->getAlias()) === strtolower($controller)) {
@@ -287,7 +303,10 @@ class RouterBase {
         $c = '';
 
         // No match has yet been found, let's try to guess what url that should be returned
-        foreach($this->controllerUrlMap as $route) {
+        for($i = 0; $i < $max; $i++) {
+
+            $route = $this->controllerUrlMap[$i];
+
             if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
                 $c = $route->getClass();
             } else if($route instanceof RouterController || $route instanceof RouterResource) {

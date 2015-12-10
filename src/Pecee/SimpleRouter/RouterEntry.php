@@ -23,13 +23,12 @@ abstract class RouterEntry {
 
     protected $settings;
     protected $callback;
-    protected $parameters;
 
     public function __construct() {
         $this->settings = array();
         $this->settings['requestMethods'] = array();
         $this->settings['parametersRegex'] = array();
-        $this->parameters = array();
+        $this->settings['parameters'] = array();
     }
 
     /**
@@ -137,7 +136,7 @@ abstract class RouterEntry {
      * @return mixed
      */
     public function getParameters(){
-        return $this->parameters;
+        return ($this->parameters === null) ? array() : $this->parameters;
     }
 
     /**
@@ -216,7 +215,7 @@ abstract class RouterEntry {
     }
 
     /**
-     * Dynamicially access settings value
+     * Dynamically access settings value
      *
      * @param $name
      * @return mixed|null
@@ -241,6 +240,87 @@ abstract class RouterEntry {
         }
 
         return new $name();
+    }
+
+    protected function parseParameters($route, $url, $parameterRegex = '[a-z0-9]*?') {
+        $parameterNames = array();
+        $regex = '';
+        $lastCharacter = '';
+        $isParameter = false;
+        $parameter = '';
+
+        // Use custom parameter regex if it exists
+        if(is_array($this->parametersRegex) && isset($this->parametersRegex[$parameter])) {
+            $parameterRegex = $this->parametersRegex[$parameter];
+        }
+
+        $routeLength = strlen($route);
+        for($i = 0; $i < $routeLength; $i++) {
+
+            $character = $route[$i];
+
+            // Skip "/" if we are at the end of a parameter
+            if($lastCharacter === '}' && $character === '/') {
+                $lastCharacter = $character;
+                continue;
+            }
+
+            if($character === '{') {
+                // Remove "/" and "\" from regex
+                if(substr($regex, strlen($regex)-1) === '/') {
+                    $regex = substr($regex, 0, strlen($regex) - 2);
+                }
+
+                $isParameter = true;
+            } elseif($isParameter && $character === '}') {
+                $required = true;
+                // Check for optional parameter
+                if($lastCharacter === '?') {
+                    $parameter = substr($parameter, 0, strlen($parameter)-1);
+                    $regex .= '(?:(?:\/{0,1}(?P<'.$parameter.'>'.$parameterRegex.')){0,1}\\/{0,1})';
+                    $required = false;
+                } else {
+                    $regex .= '(?:\\/{0,1}(?P<' . $parameter . '>'. $parameterRegex .')\\/{0,1})';
+                }
+                $parameterNames[] = array('name' => $parameter, 'required' => $required);
+                $parameter = '';
+                $isParameter = false;
+
+            } elseif($isParameter) {
+                $parameter .= $character;
+            } elseif($character === '/') {
+                $regex .= '\\' . $character;
+            } else {
+                $regex .= str_replace('.', '\\.', $character);
+            }
+
+            $lastCharacter = $character;
+        }
+
+        $parameterValues = array();
+
+        if(preg_match('/^'.$regex.'$/is', $url, $parameterValues)) {
+            $parameters = array();
+
+            $max = count($parameterNames);
+
+            if(count($max)) {
+                for($i = 0; $i < $max; $i++) {
+                    $name = $parameterNames[$i];
+                    $parameterValue = (isset($parameterValues[$name['name']]) && !empty($parameterValues[$name['name']])) ? $parameterValues[$name['name']] : null;
+
+                    if($name['required'] && $parameterValue === null) {
+                        throw new RouterException('Missing required parameter ' . $name['name'], 404);
+                    }
+
+                    $parameters[$name['name']] = $parameterValue;
+                }
+            }
+
+            return $parameters;
+        }
+
+        return null;
     }
 
     public function loadMiddleware(Request $request) {

@@ -10,6 +10,17 @@ class RouterGroup extends RouterEntry {
         parent::__construct();
     }
 
+    protected function matchDomain() {
+        if($this->domain !== null) {
+
+            $parameters = $this->parseParameters($this->domain, request()->getHost(), '[^.]*');
+
+            if($parameters !== null) {
+                $this->parameters = $parameters;
+            }
+        }
+    }
+
     public function renderRoute(Request $request) {
         // Check if request method is allowed
         $hasAccess = (!$this->method);
@@ -25,6 +36,8 @@ class RouterGroup extends RouterEntry {
         if(!$hasAccess) {
             throw new RouterException('Method not allowed');
         }
+
+        $this->matchDomain();
 
         return parent::renderRoute($request);
     }
