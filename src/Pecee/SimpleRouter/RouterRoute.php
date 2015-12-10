@@ -26,14 +26,14 @@ class RouterRoute extends RouterEntry {
         // Match on custom defined regular expression
         if($this->regexMatch) {
             $parameters = array();
-            if(preg_match('/('.$this->regexMatch.')/is', $url, $parameters)) {
+            if(preg_match('/('.$this->regexMatch.')/is', request()->getHost() . $url, $parameters)) {
                 $this->parameters = (!is_array($parameters[0]) ? array($parameters[0]) : $parameters[0]);
                 return $this;
             }
+            return null;
         }
 
         // Make regular expression based on route
-
         $route = rtrim($this->url, '/') . '/';
 
         $parameterNames = array();
