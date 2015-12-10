@@ -37,9 +37,11 @@ class RouterGroup extends RouterEntry {
                 $this->parameters = $parameters;
                 return true;
             }
+
+            return null;
         }
 
-        return null;
+        return false;
     }
 
     public function renderRoute(Request $request) {
