@@ -38,6 +38,8 @@ class RouterController extends RouterEntry {
 
             return $class;
         }
+
+        return null;
     }
 
     public function matchRoute(Request $request) {
