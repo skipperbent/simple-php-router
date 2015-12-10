@@ -13,12 +13,33 @@ class RouterGroup extends RouterEntry {
     protected function matchDomain() {
         if($this->domain !== null) {
 
+            if(is_array($this->domain)) {
+
+                $max = count($this->domain);
+
+                for($i = 0; $i < $max; $i++) {
+                    $domain = $this->domain[$i];
+
+                    $parameters = $this->parseParameters($domain, request()->getHost(), '[^.]*');
+
+                    if($parameters !== null) {
+                        $this->parameters = $parameters;
+                        return true;
+                    }
+                }
+
+                return null;
+            }
+
             $parameters = $this->parseParameters($this->domain, request()->getHost(), '[^.]*');
 
-            if($parameters !== null) {
+            if ($parameters !== null) {
                 $this->parameters = $parameters;
+                return true;
             }
         }
+
+        return null;
     }
 
     public function renderRoute(Request $request) {
@@ -37,7 +58,9 @@ class RouterGroup extends RouterEntry {
             throw new RouterException('Method not allowed');
         }
 
-        $this->matchDomain();
+        if($this->matchDomain() === null) {
+            return null;
+        }
 
         return parent::renderRoute($request);
     }
