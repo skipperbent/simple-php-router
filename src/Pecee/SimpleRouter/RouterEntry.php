@@ -136,7 +136,7 @@ abstract class RouterEntry {
      * @return mixed
      */
     public function getParameters(){
-        return $this->parameters;
+        return ($this->parameters === null) ? array() : $this->parameters;
     }
 
     /**
@@ -254,7 +254,8 @@ abstract class RouterEntry {
             $parameterRegex = $this->parametersRegex[$parameter];
         }
 
-        for($i = 0; $i < strlen($route); $i++) {
+        $routeLength = strlen($route);
+        for($i = 0; $i < $routeLength; $i++) {
 
             $character = $route[$i];
 

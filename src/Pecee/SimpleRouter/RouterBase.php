@@ -80,11 +80,13 @@ class RouterBase {
             }
 
             $this->currentRoute = $route;
+
             if($route instanceof RouterGroup && is_callable($route->getCallback())) {
                 $route->renderRoute($this->request);
                 $activeGroup = $route;
-                $mergedSettings = array_merge($settings, $route->getMergeableSettings());
+                $mergedSettings = array_merge($route->getMergeableSettings(), $settings);
             }
+
             $this->currentRoute = null;
 
             if(count($this->backstack)) {

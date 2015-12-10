@@ -64,7 +64,6 @@ class RouterRoute extends RouterEntry {
      * @return self
      */
     public function setUrl($url) {
-
         $parameters = array();
         $matches = array();
 
@@ -72,12 +71,12 @@ class RouterRoute extends RouterEntry {
             $parameters = $matches[1];
         }
 
-        $max = count($parameters);
-        if($max) {
-            for($i = 0; $i < $max; $i++) {
-                $param = $parameters[$i];
-                $this->parameters[$param] = '';
+        if(count($parameters)) {
+            $tmp = array();
+            foreach($parameters as $param) {
+                $tmp[$param] = '';
             }
+            $this->parameters = $tmp;
         }
 
         $this->url = $url;
