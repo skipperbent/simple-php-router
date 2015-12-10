@@ -72,8 +72,10 @@ class RouterRoute extends RouterEntry {
             $parameters = $matches[1];
         }
 
-        if(count($parameters)) {
-            foreach($parameters as $param) {
+        $max = count($parameters);
+        if($max) {
+            for($i = 0; $i < $max; $i++) {
+                $param = $parameters[$i];
                 $this->parameters[$param] = '';
             }
         }

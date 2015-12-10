@@ -301,8 +301,11 @@ abstract class RouterEntry {
         if(preg_match('/^'.$regex.'$/is', $url, $parameterValues)) {
             $parameters = array();
 
-            if(count($parameterNames)) {
-                foreach($parameterNames as $name) {
+            $max = count($parameterNames);
+
+            if(count($max)) {
+                for($i = 0; $i < $max; $i++) {
+                    $name = $parameterNames[$i];
                     $parameterValue = (isset($parameterValues[$name['name']]) && !empty($parameterValues[$name['name']])) ? $parameterValues[$name['name']] : null;
 
                     if($name['required'] && $parameterValue === null) {

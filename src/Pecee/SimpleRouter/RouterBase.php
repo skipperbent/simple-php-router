@@ -112,8 +112,13 @@ class RouterBase {
 
         $routeNotAllowed = false;
 
+        $max = count($this->controllerUrlMap);
+
         /* @var $route RouterEntry */
-        foreach($this->controllerUrlMap as $route) {
+        for($i = 0; $i < $max; $i++) {
+
+            $route = $this->controllerUrlMap[$i];
+
             $routeMatch = $route->matchRoute($this->request);
 
             if($routeMatch && !($routeMatch instanceof RouterGroup)) {
@@ -270,8 +275,12 @@ class RouterBase {
         $c = '';
         $method = null;
 
+        $max = count($this->controllerUrlMap);
+
         /* @var $route RouterRoute */
-        foreach($this->controllerUrlMap as $route) {
+        for($i = 0; $i < $max; $i++) {
+
+            $route = $this->controllerUrlMap[$i];
 
             // Check an alias exist, if the matches - use it
             if($route instanceof RouterRoute && strtolower($route->getAlias()) === strtolower($controller)) {
@@ -292,7 +301,10 @@ class RouterBase {
         $c = '';
 
         // No match has yet been found, let's try to guess what url that should be returned
-        foreach($this->controllerUrlMap as $route) {
+        for($i = 0; $i < $max; $i++) {
+
+            $route = $this->controllerUrlMap[$i];
+
             if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
                 $c = $route->getClass();
             } else if($route instanceof RouterController || $route instanceof RouterResource) {
