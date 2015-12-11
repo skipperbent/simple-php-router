@@ -19,7 +19,7 @@ class SimpleRouter {
      * @throws RouterException
      */
     public static function start($defaultNamespace = null) {
-        $router = RouterBase::GetInstance();
+        $router = RouterBase::getInstance();
         $router->setDefaultNamespace($defaultNamespace);
         $router->routeRequest();
     }

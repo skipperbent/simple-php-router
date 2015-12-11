@@ -220,10 +220,10 @@ class RouterBase {
     }
 
     public function arrayToParams(array $getParams = null, $includeEmpty = true) {
-        if(is_array($getParams) && count($getParams) > 0) {
-            foreach($getParams as $key=>$val) {
-                if(!empty($val) || empty($val) && $includeEmpty) {
-                    $getParams[$key] = $key.'='.$val;
+        if (is_array($getParams) && count($getParams) > 0) {
+            foreach ($getParams as $key => $val) {
+                if (!empty($val) || empty($val) && $includeEmpty) {
+                    $getParams[$key] = $key . '=' . $val;
                 }
             }
             return join('&', $getParams);
@@ -344,6 +344,7 @@ class RouterBase {
         }
 
         $url = '/' . trim(join('/', $url), '/') . '/';
+
 
         if($getParams !== null && count($getParams)) {
             $url .= '?' . $this->arrayToParams($getParams);
