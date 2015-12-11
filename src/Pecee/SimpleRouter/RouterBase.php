@@ -1,10 +1,8 @@
 <?php
 namespace Pecee\SimpleRouter;
 
-use Pecee\ArrayUtil;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
-use Pecee\Url;
 
 class RouterBase {
 
@@ -42,8 +40,8 @@ class RouterBase {
         // Loop through each route-request
 
         $activeGroup = null;
-
         $routesCount = count($routes);
+        $mergedSettings = array();
 
         /* @var $route RouterEntry */
         for($i = 0; $i < $routesCount; $i++) {
@@ -123,7 +121,7 @@ class RouterBase {
 
             $routeMatch = $route->matchRoute($this->request);
 
-            if($routeMatch && !($routeMatch instanceof RouterGroup)) {
+            if($routeMatch) {
 
                 if(count($route->getRequestMethods()) && !in_array($this->request->getMethod(), $route->getRequestMethods())) {
                     $routeNotAllowed = true;
@@ -132,9 +130,9 @@ class RouterBase {
 
                 $routeNotAllowed = false;
 
-                $this->loadedRoute = $routeMatch;
-                $routeMatch->loadMiddleware($this->request);
-                $routeMatch->renderRoute($this->request);
+                $this->loadedRoute = $route;
+                $route->loadMiddleware($this->request);
+                $route->renderRoute($this->request);
                 break;
             }
         }
@@ -221,6 +219,18 @@ class RouterBase {
         return $this;
     }
 
+    public function arrayToParams(array $getParams = null, $includeEmpty = true) {
+        if(is_array($getParams) && count($getParams) > 0) {
+            foreach($getParams as $key=>$val) {
+                if(!empty($val) || empty($val) && $includeEmpty) {
+                    $getParams[$key] = $key.'='.$val;
+                }
+            }
+            return join('&', $getParams);
+        }
+        return '';
+    }
+
     protected function processUrl($route, $method = null, $parameters = null, $getParams = null) {
 
         $url = '/' . trim($route->getUrl(), '/');
@@ -254,7 +264,7 @@ class RouterBase {
         $url = rtrim($url, '/') . '/';
 
         if($getParams !== null && count($getParams)) {
-            $url .= '?'.Url::arrayToParams($getParams);
+            $url .= '?' . $this->arrayToParams($getParams);
         }
 
         return $url;
@@ -328,13 +338,15 @@ class RouterBase {
         $url = array($controller);
 
         if(is_array($parameters)) {
-            ArrayUtil::append($url, $parameters);
+            foreach($parameters as $key => $value) {
+                array_push($url,$value);
+            }
         }
 
         $url = '/' . trim(join('/', $url), '/') . '/';
 
-        if(is_array($getParams)) {
-            $url .= '?' . Url::arrayToParams($getParams);
+        if($getParams !== null && count($getParams)) {
+            $url .= '?' . $this->arrayToParams($getParams);
         }
 
         return $url;
