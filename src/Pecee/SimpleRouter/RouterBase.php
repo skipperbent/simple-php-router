@@ -219,13 +219,16 @@ class RouterBase {
         return $this;
     }
 
-    protected function getParamsToArray($query) {
-        $output = array();
-        if($query[0] === '?') {
-            $query = substr($query, 1);
+    public function arrayToParams(array $getParams = null, $includeEmpty = true) {
+        if (is_array($getParams) && count($getParams) > 0) {
+            foreach ($getParams as $key => $val) {
+                if (!empty($val) || empty($val) && $includeEmpty) {
+                    $getParams[$key] = $key . '=' . $val;
+                }
+            }
+            return join('&', $getParams);
         }
-        parse_str($query, $output);
-        return $output;
+        return '';
     }
 
     protected function processUrl($route, $method = null, $parameters = null, $getParams = null) {
@@ -261,7 +264,7 @@ class RouterBase {
         $url = rtrim($url, '/') . '/';
 
         if($getParams !== null && count($getParams)) {
-            $url .= '?' . $this->getParamsToArray($getParams);
+            $url .= '?' . $this->arrayToParams($getParams);
         }
 
         return $url;
@@ -342,8 +345,9 @@ class RouterBase {
 
         $url = '/' . trim(join('/', $url), '/') . '/';
 
-        if(is_array($getParams)) {
-            $url .= '?' . $this->getParamsToArray($getParams);
+
+        if($getParams !== null && count($getParams)) {
+            $url .= '?' . $this->arrayToParams($getParams);
         }
 
         return $url;
