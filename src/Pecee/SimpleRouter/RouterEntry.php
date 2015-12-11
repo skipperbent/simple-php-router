@@ -304,7 +304,7 @@ abstract class RouterEntry {
 
             $max = count($parameterNames);
 
-            if(count($max)) {
+            if($max) {
                 for($i = 0; $i < $max; $i++) {
                     $name = $parameterNames[$i];
                     $parameterValue = (isset($parameterValues[$name['name']]) && !empty($parameterValues[$name['name']])) ? $parameterValues[$name['name']] : null;
@@ -332,7 +332,7 @@ abstract class RouterEntry {
                         throw new RouterException($middleware . ' must be instance of Middleware');
                     }
 
-                    /* @var $class Middleware */
+                    /* @var $class IMiddleware */
                     $middleware->handle($request);
                 }
             } else {
@@ -341,7 +341,7 @@ abstract class RouterEntry {
                     throw new RouterException($this->getMiddleware() . ' must be instance of Middleware');
                 }
 
-                /* @var $class Middleware */
+                /* @var $class IMiddleware */
                 $middleware->handle($request);
             }
         }

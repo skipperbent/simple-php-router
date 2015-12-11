@@ -45,7 +45,7 @@ class RouterResource extends RouterEntry {
     protected function call($method, $parameters) {
         $this->setCallback($this->controller . '@' . $method);
         $this->parameters = $parameters;
-        return $this;
+        return true;
     }
 
     public function matchRoute(Request $request) {

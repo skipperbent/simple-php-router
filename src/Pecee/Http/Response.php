@@ -26,7 +26,7 @@ class Response {
     }
 
     public function refresh() {
-        $this->redirect(url());
+        $this->redirect(Request::getInstance()->getUri());
     }
 
     /**
