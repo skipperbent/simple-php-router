@@ -10,7 +10,7 @@ class RouterGroup extends RouterEntry {
         parent::__construct();
     }
 
-    protected function matchDomain() {
+    protected function matchDomain(Request $request) {
         if($this->domain !== null) {
 
             if(is_array($this->domain)) {
@@ -20,7 +20,7 @@ class RouterGroup extends RouterEntry {
                 for($i = 0; $i < $max; $i++) {
                     $domain = $this->domain[$i];
 
-                    $parameters = $this->parseParameters($domain, request()->getHost(), '[^.]*');
+                    $parameters = $this->parseParameters($domain, $request->getHost(), '[^.]*');
 
                     if($parameters !== null) {
                         $this->parameters = $parameters;
@@ -31,7 +31,7 @@ class RouterGroup extends RouterEntry {
                 return null;
             }
 
-            $parameters = $this->parseParameters($this->domain, request()->getHost(), '[^.]*');
+            $parameters = $this->parseParameters($this->domain, $request->getHost(), '[^.]*');
 
             if ($parameters !== null) {
                 $this->parameters = $parameters;
@@ -60,7 +60,7 @@ class RouterGroup extends RouterEntry {
             throw new RouterException('Method not allowed');
         }
 
-        if($this->matchDomain() === null) {
+        if($this->matchDomain($request) === null) {
             return null;
         }
 

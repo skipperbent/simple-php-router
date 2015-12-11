@@ -63,7 +63,7 @@ class RouterController extends RouterEntry {
                 // Set callback
                 $this->setCallback($this->controller . '@' . $this->method);
 
-                return $this;
+                return true;
             }
         }
         return null;
