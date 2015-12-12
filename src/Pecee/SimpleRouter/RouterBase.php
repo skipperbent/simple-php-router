@@ -281,6 +281,7 @@ class RouterBase {
         }
 
         if($controller === null && $parameters === null && $this->loadedRoute !== null) {
+            $getParams = (is_array($getParams)) ? array_merge($_GET, $getParams) : $_GET;
             return $this->processUrl($this->loadedRoute, null, null, $getParams);
         }
 
