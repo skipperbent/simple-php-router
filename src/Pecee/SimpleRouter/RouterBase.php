@@ -281,7 +281,7 @@ class RouterBase {
         }
 
         if($controller === null && $parameters === null && $this->loadedRoute !== null) {
-            return $this->processUrl($this->loadedRoute, null, $getParams);
+            return $this->processUrl($this->loadedRoute, null, null, $getParams);
         }
 
         $c = '';
