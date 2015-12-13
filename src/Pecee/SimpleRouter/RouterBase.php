@@ -280,8 +280,18 @@ class RouterBase {
             throw new \InvalidArgumentException('Invalid type for getParams. Must be array or null');
         }
 
+        // Return current route if no options has been specified
         if($controller === null && $parameters === null && $this->loadedRoute !== null) {
-            return $this->processUrl($this->loadedRoute, null, $getParams);
+            $getParams = (is_array($getParams)) ? array_merge($_GET, $getParams) : $_GET;
+
+            $url = parse_url(Request::getInstance()->getUri());
+            $url = $url['path'];
+
+            if(count($getParams)) {
+                $url .= '?' . $this->arrayToParams($getParams);
+            }
+
+            return $url;
         }
 
         $c = '';
