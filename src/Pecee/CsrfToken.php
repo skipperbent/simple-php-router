@@ -7,12 +7,6 @@ class CsrfToken {
 
     protected $token;
 
-    public function __construct() {
-        if($this->getToken() === null) {
-            $this->setToken($this->generateToken());
-        }
-    }
-
     /**
      * Generate random identifier for CSRF token
      * @return string
@@ -51,10 +45,18 @@ class CsrfToken {
      * @return string|null
      */
     public function getToken(){
-        if(isset($_COOKIE[self::CSRF_KEY])) {
+        if($this->hasToken()) {
             return $_COOKIE[self::CSRF_KEY];
         }
         return null;
+    }
+
+    /**
+     * Returns whether the csrf token has been defined
+     * @return bool
+     */
+    public function hasToken() {
+        return isset($_COOKIE[self::CSRF_KEY]);
     }
 
 }
