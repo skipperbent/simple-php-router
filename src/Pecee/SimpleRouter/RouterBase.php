@@ -1,6 +1,7 @@
 <?php
 namespace Pecee\SimpleRouter;
 
+use Pecee\CsrfToken;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
 
@@ -13,7 +14,7 @@ class RouterBase {
     protected $routes;
     protected $processedRoutes;
     protected $controllerUrlMap;
-    protected $backstack;
+    protected $backStack;
     protected $loadedRoute;
     protected $defaultNamespace;
     protected $baseCsrfVerifier;
@@ -23,14 +24,19 @@ class RouterBase {
 
     public function __construct() {
         $this->routes = array();
-        $this->backstack = array();
+        $this->backStack = array();
         $this->controllerUrlMap = array();
+        $this->baseCsrfVerifier = new BaseCsrfVerifier();
         $this->request = Request::getInstance();
+
+        $csrf = new CsrfToken();
+        $token = ($csrf->hasToken()) ? $csrf->getToken() : $csrf->generateToken();
+        $csrf->setToken($token);
     }
 
     public function addRoute(RouterEntry $route) {
         if($this->currentRoute !== null) {
-            $this->backstack[] = $route;
+            $this->backStack[] = $route;
         } else {
             $this->routes[] = $route;
         }
@@ -87,9 +93,9 @@ class RouterBase {
 
             $this->currentRoute = null;
 
-            if(count($this->backstack)) {
-                $backStack = $this->backstack;
-                $this->backstack = array();
+            if(count($this->backStack)) {
+                $backStack = $this->backStack;
+                $this->backStack = array();
 
                 // Route any routes added to the backstack
                 $this->processRoutes($backStack, $mergedSettings, $newPrefixes, true, $activeGroup);
@@ -174,7 +180,7 @@ class RouterBase {
      * @return array
      */
     public function getBackstack() {
-        return $this->backstack;
+        return $this->backStack;
     }
 
     /**
