@@ -5,11 +5,8 @@ use Pecee\Http\Request;
 
 class RouterResource extends RouterEntry {
 
-    const DEFAULT_METHOD = 'index';
-
     protected $url;
     protected $controller;
-    protected $method;
     protected $postMethod;
 
     public function __construct($url, $controller) {
@@ -52,55 +49,51 @@ class RouterResource extends RouterEntry {
         $url = parse_url($request->getUri());
         $url = rtrim($url['path'], '/') . '/';
 
-        if(strtolower($url) == strtolower($this->url) || stripos($url, $this->url) === 0) {
-            $url = rtrim($url, '/');
+        $route = rtrim($this->url, '/') . '/{id?}/{action?}';
 
-            $strippedUrl = trim(substr($url, strlen($this->url)), '/');
-            $path = explode('/', $strippedUrl);
+        $parameters = $this->parseParameters($route, $url, '[0-9]*?');
 
-            $args = $path;
-            $action = '';
+        if($parameters !== null) {
 
-            if(count($args)) {
-                $action = $args[0];
-                array_shift($args);
+            if(is_array($parameters)) {
+                $parameters = array_merge($this->parameters, $parameters);
             }
 
-            if (count($path)) {
+            $action = $parameters['action'];
+            unset($parameters['action']);
 
-                // Delete
-                if($request->getMethod() === self::REQUEST_TYPE_DELETE && $this->postMethod === self::REQUEST_TYPE_POST) {
-                    return $this->call('destroy', $args);
-                }
-
-                // Update
-                if(in_array($request->getMethod(), array('put', 'patch')) && $this->postMethod === self::REQUEST_TYPE_POST) {
-                    return $this->call('update', array_merge(array($action), $args));
-                }
-
-                // Edit
-                if(isset($args[0]) && strtolower($args[0]) === 'edit' && $this->postMethod === self::REQUEST_TYPE_GET) {
-                    return $this->call('edit', array_merge(array($action), array_slice($args, 1)));
-                }
-
-                // Create
-                if(strtolower($action) === 'create' && $request->getMethod() === self::REQUEST_TYPE_GET) {
-                    return $this->call('create', $args);
-                }
-
-                // Save
-                if($this->postMethod === self::REQUEST_TYPE_POST) {
-                    return $this->call('store', $args);
-                }
-
-                // Show
-                if($action && $this->postMethod === self::REQUEST_TYPE_GET) {
-                    return $this->call('show', array_merge(array($action), $args));
-                }
-
-                // Index
-                return $this->call('index', $args);
+            // Delete
+            if($request->getMethod() === self::REQUEST_TYPE_DELETE && $this->postMethod === self::REQUEST_TYPE_POST) {
+                return $this->call('destroy', $parameters);
             }
+
+            // Update
+            if(in_array($request->getMethod(), array(self::REQUEST_TYPE_PATCH, self::REQUEST_TYPE_PUT)) && $this->postMethod === self::REQUEST_TYPE_POST) {
+                return $this->call('update', $parameters);
+            }
+
+            // Edit
+            if(isset($action) && strtolower($action) === 'edit' && $this->postMethod === self::REQUEST_TYPE_GET) {
+                return $this->call('edit', $parameters);
+            }
+
+            // Create
+            if(strtolower($action) === 'create' && $request->getMethod() === self::REQUEST_TYPE_GET) {
+                return $this->call('create', $parameters);
+            }
+
+            // Save
+            if($this->postMethod === self::REQUEST_TYPE_POST) {
+                return $this->call('store', $parameters);
+            }
+
+            // Show
+            if($action && $this->postMethod === self::REQUEST_TYPE_GET) {
+                return $this->call('show', $parameters);
+            }
+
+            // Index
+            return $this->call('index', $parameters);
         }
 
         return null;
@@ -133,20 +126,6 @@ class RouterResource extends RouterEntry {
      */
     public function setController($controller) {
         $this->controller = $controller;
-    }
-
-    /**
-     * @return string
-     */
-    public function getMethod() {
-        return $this->method;
-    }
-
-    /**
-     * @param string $method
-     */
-    public function setMethod($method) {
-        $this->method = $method;
     }
 
 }

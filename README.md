@@ -1,8 +1,8 @@
 # Simple PHP router
-Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. Heavily inspired by the Laravel router.
+Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. Heavily inspired by the way Laravel handles routing.
 
 ## Installation
-Add the latest version pf Simple PHP Router to your ```composer.json```
+Add the latest version of Simple PHP Router to your ```composer.json```
 
 ```json
 {
@@ -203,7 +203,8 @@ class Router extends SimpleRouter {
 }
 ```
 
-This is a basic example of a helper function for generating urls.
+#### Helper functions examples
+**This is a basic example of a helper function for generating urls.**
 
 ```php
 use Pecee\SimpleRouter\RouterBase;
@@ -212,7 +213,7 @@ function url($controller, $parameters = null, $getParams = null) {
 }
 ```
 
-This is a basic example for getting the current csrf token
+**This is a basic example for getting the current csrf token**
 
 ```php
 /**
