@@ -60,9 +60,7 @@ class RouterGroup extends RouterEntry {
             throw new RouterException('Method not allowed');
         }
 
-        if($this->matchDomain($request) === null) {
-            return null;
-        }
+        $this->matchDomain($request);
 
         return parent::renderRoute($request);
     }
@@ -78,6 +76,10 @@ class RouterGroup extends RouterEntry {
 
     public function getExceptionHandler() {
         return $this->exceptionHandler;
+    }
+
+    public function getDomain() {
+        return $this->domain;
     }
 
 }

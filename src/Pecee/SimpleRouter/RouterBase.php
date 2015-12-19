@@ -45,7 +45,6 @@ class RouterBase {
     protected function processRoutes(array $routes, array $settings = array(), array $prefixes = array(), $backStack = false, $group = null) {
         // Loop through each route-request
 
-        $activeGroup = null;
         $routesCount = count($routes);
         $mergedSettings = array();
 
@@ -54,6 +53,7 @@ class RouterBase {
 
             $route = $routes[$i];
 
+            $route->addSettings($settings);
             $route->setGroup($group);
 
             if($this->defaultNamespace && !$route->getNamespace()) {
@@ -73,21 +73,20 @@ class RouterBase {
                 array_push($newPrefixes, rtrim($route->getPrefix(), '/'));
             }
 
-            $route->addSettings($settings);
-
             if(!($route instanceof RouterGroup)) {
                 if(is_array($newPrefixes) && count($newPrefixes) && $backStack) {
                     $route->setUrl( join('/', $newPrefixes) . $route->getUrl() );
                 }
 
+                $group = null;
                 $this->controllerUrlMap[] = $route;
             }
 
             $this->currentRoute = $route;
 
             if($route instanceof RouterGroup && is_callable($route->getCallback())) {
+                $group = $route;
                 $route->renderRoute($this->request);
-                $activeGroup = $route;
                 $mergedSettings = array_merge($route->getMergeableSettings(), $settings);
             }
 
@@ -98,7 +97,7 @@ class RouterBase {
                 $this->backStack = array();
 
                 // Route any routes added to the backstack
-                $this->processRoutes($backStack, $mergedSettings, $newPrefixes, true, $activeGroup);
+                $this->processRoutes($backStack, $mergedSettings, $newPrefixes, true, $group);
             }
         }
     }
@@ -239,7 +238,20 @@ class RouterBase {
 
     protected function processUrl($route, $method = null, $parameters = null, $getParams = null) {
 
-        $url = '/' . trim($route->getUrl(), '/');
+        $domain = '';
+
+        if($route->getGroup() !== null && $route->getGroup()->getDomain() !== null) {
+            if(is_array($route->getGroup()->getDomain())) {
+                $domains = $route->getGroup()->getDomain();
+                $domain = array_shift($domains);
+            } else {
+                $domain = $route->getGroup()->getDomain();
+            }
+
+            $domain = '//' . $domain;
+        }
+
+        $url = $domain . '/' . trim($route->getUrl(), '/');
 
         if(($route instanceof RouterController || $route instanceof RouterResource) && $method !== null) {
             $url .= $method;
@@ -251,20 +263,26 @@ class RouterBase {
             }
         } else {
             /* @var $route RouterEntry */
-            $params = $route->getParameters();
-            if(count($params)) {
-                $i = 0;
-                foreach($params as $param => $value) {
-                    $value = (isset($parameters[$param])) ? $parameters[$param] : $value;
-                    $url = str_ireplace(array('{' . $param. '}', '{' . $param. '?}'), $value, $url);
-                    $i++;
-                }
+            if(is_array($parameters)) {
+                $params = array_merge($route->getParameters(), $parameters);
             } else {
-                // If no parameters are specified in the route, assume that the provided parameters should be used.
-                if(count($parameters)) {
-                    $url = rtrim($url, '/') . '/' . join('/', $parameters);
-                }
+                $params = $route->getParameters();
             }
+
+            $otherParams = [];
+
+            $i = 0;
+            foreach($params as $param => $value) {
+                $value = (isset($parameters[$param])) ? $parameters[$param] : $value;
+                if(stripos($url, '{' . $param. '}') !== false || stripos($url, '{' . $param . '?}') !== false) {
+                    $url = str_ireplace(array('{' . $param . '}', '{' . $param . '?}'), $value, $url);
+                } else {
+                    $otherParams[$param] = $value;
+                }
+                $i++;
+            }
+
+            $url = rtrim($url, '/') . '/' . join('/', $otherParams);
         }
 
         $url = rtrim($url, '/') . '/';
@@ -287,7 +305,7 @@ class RouterBase {
         }
 
         // Return current route if no options has been specified
-        if($controller === null && $parameters === null && $this->loadedRoute !== null) {
+        if($controller === null && $parameters === null) {
             $getParams = (is_array($getParams)) ? array_merge($_GET, $getParams) : $_GET;
 
             $url = parse_url(Request::getInstance()->getUri());
