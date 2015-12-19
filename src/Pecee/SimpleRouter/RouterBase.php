@@ -134,7 +134,7 @@ class RouterBase {
                 }
 
                 if($route->getGroup() !== null) {
-                    if($route->getGroup()->matchDomain($this->request) === false) {
+                    if($route->getGroup()->matchDomain($this->request) === null) {
                         continue;
                     }
                 }
