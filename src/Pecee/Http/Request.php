@@ -27,7 +27,17 @@ class Request {
         $this->host = $_SERVER['HTTP_HOST'];
         $this->uri = $_SERVER['REQUEST_URI'];
         $this->method = (isset($_POST['_method'])) ? strtolower($_POST['_method']) : strtolower($_SERVER['REQUEST_METHOD']);
-        $this->headers = array_change_key_case(getallheaders(), CASE_LOWER);
+        $this->headers = $this->getAllHeaders();
+    }
+
+    protected function getAllHeaders() {
+        $headers = array();
+        foreach ($_SERVER as $name => $value) {
+            if (substr($name, 0, 5) === 'HTTP_') {
+                $headers[strtolower(str_replace('_', '-', substr($name, 5)))] = $value;
+            }
+        }
+        return $headers;
     }
 
     public function getIsSecure() {
