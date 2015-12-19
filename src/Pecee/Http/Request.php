@@ -30,7 +30,7 @@ class Request {
         $this->headers = $this->getAllHeaders();
     }
 
-    public function getAllHeaders() {
+    protected function getAllHeaders() {
         $headers = array();
         foreach ($_SERVER as $name => $value) {
             if (substr($name, 0, 5) === 'HTTP_') {
