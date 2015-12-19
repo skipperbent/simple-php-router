@@ -90,6 +90,18 @@ class SimpleRouter {
         return $group;
     }
 
+    /**
+     * Adds get + post route
+     *
+     * @param string $url
+     * @param function $callback
+     * @param array|null $settings
+     * @return RouterRoute
+     */
+    public static function basic($url, $callback, array $settings = null) {
+        return self::match(['get', 'post'], $url, $callback, $settings);
+    }
+
     public static function match(array $requestMethods, $url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
         $route->setRequestMethods($requestMethods);

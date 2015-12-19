@@ -10,7 +10,7 @@ class RouterGroup extends RouterEntry {
         parent::__construct();
     }
 
-    protected function matchDomain(Request $request) {
+    public function matchDomain(Request $request) {
         if($this->domain !== null) {
 
             if(is_array($this->domain)) {
