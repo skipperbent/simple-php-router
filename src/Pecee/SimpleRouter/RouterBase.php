@@ -133,6 +133,12 @@ class RouterBase {
                     continue;
                 }
 
+                if($route->getGroup() !== null) {
+                    if($route->getGroup()->matchDomain($this->request) === false) {
+                        continue;
+                    }
+                }
+
                 $routeNotAllowed = false;
 
                 $this->loadedRoute = $route;
