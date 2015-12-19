@@ -277,7 +277,7 @@ abstract class RouterEntry {
                 // Check for optional parameter
                 if($lastCharacter === '?') {
                     $parameter = substr($parameter, 0, strlen($parameter)-1);
-                    $regex .= '(?:(?:\/{0,1}(?P<'.$parameter.'>'.$parameterRegex.')){0,1}\\/{0,1})';
+                    $regex .= '(?:(?:\/{0,1}(?P<'.$parameter.'>[^\/]*)))\\/{0,1}';
                     $required = false;
                 } else {
                     $regex .= '(?:\\/{0,1}(?P<' . $parameter . '>'. $parameterRegex .')\\/{0,1})';
