@@ -28,7 +28,7 @@ class RouterGroup extends RouterEntry {
                     }
                 }
 
-                return null;
+                return false;
             }
 
             $parameters = $this->parseParameters($this->domain, $request->getHost(), '[^.]*');
@@ -38,10 +38,10 @@ class RouterGroup extends RouterEntry {
                 return true;
             }
 
-            return null;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public function renderRoute(Request $request) {

@@ -54,7 +54,10 @@ class RouterBase {
             $route = $routes[$i];
 
             $route->addSettings($settings);
-            $route->setGroup($group);
+
+            if($backStack) {
+                $route->setGroup($group);
+            }
 
             if($this->defaultNamespace && !$route->getNamespace()) {
                 $namespace = null;
@@ -124,6 +127,12 @@ class RouterBase {
 
             $route = $this->controllerUrlMap[$i];
 
+            if($route->getGroup() !== null) {
+                if($route->getGroup()->matchDomain($this->request) === false) {
+                    continue;
+                }
+            }
+
             $routeMatch = $route->matchRoute($this->request);
 
             if($routeMatch) {
@@ -131,12 +140,6 @@ class RouterBase {
                 if(count($route->getRequestMethods()) && !in_array($this->request->getMethod(), $route->getRequestMethods())) {
                     $routeNotAllowed = true;
                     continue;
-                }
-
-                if($route->getGroup() !== null) {
-                    if($route->getGroup()->matchDomain($this->request) === null) {
-                        continue;
-                    }
                 }
 
                 $routeNotAllowed = false;
