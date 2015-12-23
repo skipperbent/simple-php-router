@@ -27,7 +27,7 @@ abstract class RouterEntry {
     public function __construct() {
         $this->settings = array();
         $this->settings['requestMethods'] = array();
-        $this->settings['parametersRegex'] = array();
+        $this->settings['where'] = array();
         $this->settings['parameters'] = array();
     }
 
@@ -155,7 +155,7 @@ abstract class RouterEntry {
      * @return self
      */
     public function where(array $options) {
-        $this->parametersRegex = array_merge($this->parametersRegex, $options);
+        $this->where = array_merge($this->where, $options);
         return $this;
     }
 
@@ -249,11 +249,6 @@ abstract class RouterEntry {
         $isParameter = false;
         $parameter = '';
 
-        // Use custom parameter regex if it exists
-        if(is_array($this->parametersRegex) && isset($this->parametersRegex[$parameter])) {
-            $parameterRegex = $this->parametersRegex[$parameter];
-        }
-
         $routeLength = strlen($route);
         for($i = 0; $i < $routeLength; $i++) {
 
@@ -275,6 +270,12 @@ abstract class RouterEntry {
             } elseif($isParameter && $character === '}') {
                 $required = true;
                 // Check for optional parameter
+
+                // Use custom parameter regex if it exists
+                if(is_array($this->where) && isset($this->where[$parameter])) {
+                    $parameterRegex = $this->where[$parameter];
+                }
+
                 if($lastCharacter === '?') {
                     $parameter = substr($parameter, 0, strlen($parameter)-1);
                     $regex .= '(?:(?:\/{0,1}(?P<'.$parameter.'>[^\/]*)))\\/{0,1}';
