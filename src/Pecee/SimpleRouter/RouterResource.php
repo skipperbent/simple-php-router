@@ -88,7 +88,7 @@ class RouterResource extends RouterEntry {
             }
 
             // Show
-            if($action && $this->postMethod === self::REQUEST_TYPE_GET) {
+            if(isset($parameters['id']) && $this->postMethod === self::REQUEST_TYPE_GET) {
                 return $this->call('show', $parameters);
             }
 
