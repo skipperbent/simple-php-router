@@ -327,6 +327,10 @@ class RouterBase {
             return $url;
         }
 
+        if($controller === null && $this->loadedRoute !== null) {
+            return $this->processUrl($this->loadedRoute, $this->loadedRoute->getMethod(), $parameters, $getParams);
+        }
+
         $c = '';
         $method = null;
 

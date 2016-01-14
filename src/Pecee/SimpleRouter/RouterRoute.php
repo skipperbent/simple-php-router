@@ -2,6 +2,7 @@
 
 namespace Pecee\SimpleRouter;
 
+use Pecee\ArrayUtil;
 use Pecee\Http\Request;
 
 class RouterRoute extends RouterEntry {
@@ -40,11 +41,11 @@ class RouterRoute extends RouterEntry {
 
         if($parameters !== null) {
 
-            if(is_array($this->parameters)) {
-                $this->parameters = array_merge($this->parameters, $parameters);
-            } else {
+            //if(is_array($this->parameters)) {
+            //    $this->parameters = array_merge($this->parameters, $parameters);
+            //} else {
                 $this->parameters = $parameters;
-            }
+            //}
 
             return true;
         }
@@ -74,7 +75,7 @@ class RouterRoute extends RouterEntry {
         if(count($parameters)) {
             $tmp = array();
             foreach($parameters as $param) {
-                $tmp[$param] = '';
+                $tmp[$param] = null;
             }
             $this->parameters = $tmp;
         }
