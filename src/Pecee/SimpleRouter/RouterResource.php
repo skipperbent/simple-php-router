@@ -53,50 +53,45 @@ class RouterResource extends RouterEntry {
 
         $parameters = $this->parseParameters($route, $url, '[0-9]*?');
 
-        if($parameters !== null) {
-
-            if(is_array($parameters)) {
-                $parameters = array_merge($this->parameters, $parameters);
-            }
-
-            $action = $parameters['action'];
-            unset($parameters['action']);
-
-            // Delete
-            if($request->getMethod() === self::REQUEST_TYPE_DELETE && $this->postMethod === self::REQUEST_TYPE_POST) {
-                return $this->call('destroy', $parameters);
-            }
-
-            // Update
-            if(in_array($request->getMethod(), array(self::REQUEST_TYPE_PATCH, self::REQUEST_TYPE_PUT)) && $this->postMethod === self::REQUEST_TYPE_POST) {
-                return $this->call('update', $parameters);
-            }
-
-            // Edit
-            if(isset($action) && strtolower($action) === 'edit' && $this->postMethod === self::REQUEST_TYPE_GET) {
-                return $this->call('edit', $parameters);
-            }
-
-            // Create
-            if(strtolower($action) === 'create' && $request->getMethod() === self::REQUEST_TYPE_GET) {
-                return $this->call('create', $parameters);
-            }
-
-            // Save
-            if($this->postMethod === self::REQUEST_TYPE_POST) {
-                return $this->call('store', $parameters);
-            }
-
-            // Show
-            if(isset($parameters['id']) && $this->postMethod === self::REQUEST_TYPE_GET) {
-                return $this->call('show', $parameters);
-            }
-
-            // Index
-            return $this->call('index', $parameters);
+        if(is_array($parameters)) {
+            $parameters = array_merge($this->parameters, $parameters);
         }
 
-        return null;
+        $action = $parameters['action'];
+        unset($parameters['action']);
+
+        // Delete
+        if($request->getMethod() === self::REQUEST_TYPE_DELETE && $this->postMethod === self::REQUEST_TYPE_POST) {
+            return $this->call('destroy', $parameters);
+        }
+
+        // Update
+        if(in_array($request->getMethod(), array(self::REQUEST_TYPE_PATCH, self::REQUEST_TYPE_PUT)) && $this->postMethod === self::REQUEST_TYPE_POST) {
+            return $this->call('update', $parameters);
+        }
+
+        // Edit
+        if(isset($action) && strtolower($action) === 'edit' && $this->postMethod === self::REQUEST_TYPE_GET) {
+            return $this->call('edit', $parameters);
+        }
+
+        // Create
+        if(strtolower($action) === 'create' && $request->getMethod() === self::REQUEST_TYPE_GET) {
+            return $this->call('create', $parameters);
+        }
+
+        // Save
+        if($this->postMethod === self::REQUEST_TYPE_POST) {
+            return $this->call('store', $parameters);
+        }
+
+        // Show
+        if(isset($parameters['id']) && $this->postMethod === self::REQUEST_TYPE_GET) {
+            return $this->call('show', $parameters);
+        }
+
+        // Index
+        return $this->call('index', $parameters);
     }
 
     /**

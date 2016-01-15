@@ -178,10 +178,6 @@ abstract class RouterEntry {
     public function getMergeableSettings() {
         $settings = $this->settings;
 
-        /*if(isset($settings['middleware'])) {
-            unset($settings['middleware']);
-        }*/
-
         if(isset($settings['prefix'])) {
             unset($settings['prefix']);
         }
