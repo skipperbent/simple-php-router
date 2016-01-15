@@ -270,6 +270,24 @@ Register the new class in your ```routes.php```, custom ```Router``` class or wh
 SimpleRouter::csrfVerifier(new \Demo\Middleware\CsrfVerifier());
 ```
 
+## Easily overwrite route about to be loaded
+Sometimes it can be useful to manipulate the route that's about to be loaded, for instance if a user is not authenticated or if an error occurred within your Middleware that requires 
+some other route to be initialised. Simple PHP Router allows you to easily change the route about to be executed. All information about the current route is stored in 
+the ```\Pecee\SimpleRouter\Http\Request``` object.
+
+**Note:** Please note that it's only possible to change the route BEFORE any route has initially been loaded, so doing this in your custom ExceptionHandler or Middleware is highly recommended.
+
+```php
+$route = Request::getInstance()->getLoadedRoute();
+
+$route->setCallback('Example\MyCustomClass@hello');
+
+// -- or --
+
+$route->setClass('Example\MyCustomClass');
+$route->setMethod('hello');
+```
+
 ## Documentation
 While I work on a better documentation, please refer to the Laravel 5 routing documentation here:
 
@@ -277,6 +295,9 @@ http://laravel.com/docs/5.1/routing
 
 ## Easily extendable
 The router can be easily extended to customize your needs.
+
+## Ideas and issues
+If you want a great new feature or experience any issues what-so-ever, please feel free to leave an issue and i'll look into it whenever possible. 
 
 ## The MIT License (MIT)
 
