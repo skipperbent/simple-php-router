@@ -274,7 +274,7 @@ abstract class RouterEntry {
 
                 if($lastCharacter === '?') {
                     $parameter = substr($parameter, 0, strlen($parameter)-1);
-                    $regex .= '\\/(?:(?P<'.$parameter.'>[^\/]*)\\/?)';
+                    $regex .= '(?:\\/?(?P<'.$parameter.'>[^\/]*)?\\/?)';
                     $required = false;
                 } else {
                     $regex .= '\\/(?P<' . $parameter . '>'. $parameterRegex .')\\/';
