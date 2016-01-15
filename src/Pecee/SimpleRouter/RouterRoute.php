@@ -40,13 +40,7 @@ class RouterRoute extends RouterEntry {
         $parameters = $this->parseParameters($route, $url);
 
         if($parameters !== null) {
-
-            //if(is_array($this->parameters)) {
-            //    $this->parameters = array_merge($this->parameters, $parameters);
-            //} else {
-                $this->parameters = $parameters;
-            //}
-
+            $this->parameters = $parameters;
             return true;
         }
 
