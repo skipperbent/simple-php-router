@@ -59,7 +59,7 @@ class RouterResource extends RouterEntry {
                 $parameters = array_merge($this->parameters, $parameters);
             }
 
-            $action = $parameters['action'];
+            $action = isset($parameters['action']) ? $parameters['action'] : null;
             unset($parameters['action']);
 
             // Delete
