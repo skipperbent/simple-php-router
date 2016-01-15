@@ -77,6 +77,16 @@ abstract class RouterEntry {
         return null;
     }
 
+    public function setMethod($method) {
+        $this->callback = sprintf('%s@%s', $this->getClass(), $method);
+        return $this;
+    }
+
+    public function setClass($class) {
+        $this->callback = sprintf('%s@%s', $class, $this->getMethod());
+        return $this;
+    }
+
     /**
      * @param string $prefix
      * @return self

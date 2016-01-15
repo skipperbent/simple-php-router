@@ -1,6 +1,8 @@
 <?php
 namespace Pecee\Http;
 
+use Pecee\SimpleRouter\RouterBase;
+
 class Request {
 
     protected static $instance;
@@ -10,6 +12,7 @@ class Request {
     protected $host;
     protected $method;
     protected $headers;
+    protected $loadedRoute;
 
     /**
      * Return new instance
@@ -138,6 +141,14 @@ class Request {
 
     public function __get($name) {
         return isset($this->data[$name]) ? $this->data[$name] : null;
+    }
+
+    /**
+     * Get the currently loaded route.
+     * @return \Pecee\SimpleRouter\RouterEntry
+     */
+    public function getLoadedRoute() {
+        return $this->loadedRoute;
     }
 
 }
