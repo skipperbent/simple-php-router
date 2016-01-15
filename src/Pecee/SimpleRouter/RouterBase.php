@@ -15,7 +15,6 @@ class RouterBase {
     protected $processedRoutes;
     protected $controllerUrlMap;
     protected $backStack;
-    protected $loadedRoute;
     protected $defaultNamespace;
     protected $baseCsrfVerifier;
 
@@ -144,9 +143,10 @@ class RouterBase {
 
                 $routeNotAllowed = false;
 
-                $this->loadedRoute = $route;
+                $this->request->loadedRoute = $route;
                 $route->loadMiddleware($this->request);
-                $route->renderRoute($this->request);
+
+                $this->request->loadedRoute->renderRoute($this->request);
                 break;
             }
         }
@@ -155,7 +155,7 @@ class RouterBase {
             throw new RouterException('Route or method not allowed', 403);
         }
 
-        if(!$this->loadedRoute) {
+        if(!$this->request->loadedRoute) {
             throw new RouterException(sprintf('Route not found: %s', $this->request->getUri()), 404);
         }
     }
@@ -178,8 +178,8 @@ class RouterBase {
      * @return RouterEntry
      */
     public function getLoadedRoute() {
-        if(!($this->loadedRoute instanceof RouterGroup)) {
-            return $this->loadedRoute;
+        if(!($this->request->loadedRoute instanceof RouterGroup)) {
+            return $this->request->loadedRoute;
         }
         return null;
     }
@@ -327,8 +327,8 @@ class RouterBase {
             return $url;
         }
 
-        if($controller === null && $this->loadedRoute !== null) {
-            return $this->processUrl($this->loadedRoute, $this->loadedRoute->getMethod(), $parameters, $getParams);
+        if($controller === null && $this->request->loadedRoute !== null) {
+            return $this->processUrl($this->request->loadedRoute, $this->request->loadedRoute->getMethod(), $parameters, $getParams);
         }
 
         $c = '';
