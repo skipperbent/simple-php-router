@@ -376,7 +376,11 @@ abstract class RouterEntry {
                 throw new RouterException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
             }
 
-            call_user_func_array(array($class, $method), $this->getParameters());
+            $parameters = array_filter($this->getParameters(), function($var){
+                return !is_null($var);
+            });
+
+            call_user_func_array(array($class, $method), $parameters);
 
             return $class;
         }
