@@ -21,7 +21,7 @@ class RouterRoute extends RouterEntry {
 
     public function matchRoute(Request $request) {
 
-        $url = parse_url($request->getUri());
+        $url = parse_url(urldecode($request->getUri()));
         $url = rtrim($url['path'], '/') . '/';
 
         // Match on custom defined regular expression
