@@ -46,7 +46,7 @@ class RouterResource extends RouterEntry {
     }
 
     public function matchRoute(Request $request) {
-        $url = parse_url($request->getUri());
+        $url = parse_url(urldecode($request->getUri()));
         $url = rtrim($url['path'], '/') . '/';
 
         $route = rtrim($this->url, '/') . '/{id?}/{action?}';
