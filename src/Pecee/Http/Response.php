@@ -19,8 +19,13 @@ class Response {
      * Redirect the response
      *
      * @param string $url
+     * @param int $httpCode
      */
-    public function redirect($url) {
+    public function redirect($url, $httpCode = null) {
+        if($httpCode !== null) {
+            $this->httpCode($httpCode);
+        }
+        
         $this->header('Location: ' . $url);
         die();
     }
