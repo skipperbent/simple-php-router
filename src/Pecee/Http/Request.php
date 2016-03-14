@@ -44,6 +44,9 @@ class Request {
     }
 
     public function getIsSecure() {
+        if(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') {
+            return true;
+        }
         return isset($_SERVER['HTTPS']) ? true : (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] === 443);
     }
 
