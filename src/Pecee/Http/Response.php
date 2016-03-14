@@ -25,7 +25,7 @@ class Response {
         if($httpCode !== null) {
             $this->httpCode($httpCode);
         }
-        
+
         $this->header('Location: ' . $url);
         die();
     }
