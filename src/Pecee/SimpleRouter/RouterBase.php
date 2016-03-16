@@ -86,7 +86,7 @@ class RouterBase {
 
             $this->currentRoute = $route;
 
-            if($route instanceof RouterGroup && is_callable($route->getCallback())) {
+            if($route instanceof RouterGroup && $route->matchRoute($this->request) && is_callable($route->getCallback())) {
                 $group = $route;
                 $route->renderRoute($this->request);
                 $mergedSettings = array_merge($route->getMergeableSettings(), $settings);
@@ -125,12 +125,6 @@ class RouterBase {
         for($i = 0; $i < $max; $i++) {
 
             $route = $this->controllerUrlMap[$i];
-
-            if($route->getGroup() !== null) {
-                if($route->getGroup()->matchDomain($this->request) === false) {
-                    continue;
-                }
-            }
 
             $routeMatch = $route->matchRoute($this->request);
 
