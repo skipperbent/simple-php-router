@@ -66,7 +66,12 @@ class RouterGroup extends RouterEntry {
     }
 
     public function matchRoute(Request $request) {
-        return null;
+        // Skip if prefix doesn't match
+        if($this->getPrefix() !== null && stripos($request->getUri(), $this->getPrefix()) === false) {
+            return false;
+        }
+
+        return $this->matchDomain($request);
     }
 
     public function setExceptionHandler($class) {
