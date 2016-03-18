@@ -154,4 +154,16 @@ class Request {
         return $this->loadedRoute;
     }
 
+    public function isFormatAccepted($format) {
+        return (isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], $format) > -1);
+    }
+
+    public function getAcceptFormats() {
+        if(isset($_SERVER['HTTP_ACCEPT'])) {
+            return explode(',', $_SERVER['HTTP_ACCEPT']);
+        }
+
+        return array();
+    }
+
 }

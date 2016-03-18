@@ -192,10 +192,6 @@ abstract class RouterEntry {
             unset($settings['prefix']);
         }
 
-        if(isset($settings['regexMatch'])) {
-            unset($settings['regexMatch']);
-        }
-
         return $settings;
     }
 
@@ -205,7 +201,7 @@ abstract class RouterEntry {
      */
     public function addSettings(array $settings = null) {
         if(is_array($settings)) {
-            $this->settings = array_merge($this->settings, $settings);
+            $this->settings = array_merge($settings, $this->settings);
         }
         return $this;
     }
