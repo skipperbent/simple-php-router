@@ -192,6 +192,10 @@ abstract class RouterEntry {
             unset($settings['prefix']);
         }
 
+        if(isset($settings['regexMatch'])) {
+            unset($settings['regexMatch']);
+        }
+
         return $settings;
     }
 
