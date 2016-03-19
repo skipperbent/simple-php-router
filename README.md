@@ -345,7 +345,7 @@ If you want a great new feature or experience any issues what-so-ever, please fe
 
 ## The MIT License (MIT)
 
-Copyright (c) 2015 Simon Sessingø / simple-php-router
+Copyright (c) 2016 Simon Sessingø / simple-php-router
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
