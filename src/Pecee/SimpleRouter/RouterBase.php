@@ -27,7 +27,7 @@ class RouterBase {
         $this->backStack = array();
         $this->controllerUrlMap = array();
         $this->baseCsrfVerifier = new BaseCsrfVerifier();
-        $this->request = new Request();
+        $this->request = Request::getInstance();
         $this->bootManagers = array();
 
         $csrf = new CsrfToken();
@@ -88,7 +88,7 @@ class RouterBase {
 
             $this->currentRoute = $route;
 
-            if($route instanceof RouterGroup && $route->matchRoute($this->request) && is_callable($route->getCallback())) {
+            if($route instanceof RouterGroup && is_callable($route->getCallback())) {
                 $group = $route;
                 $route->renderRoute($this->request);
                 $mergedSettings = array_merge($route->getMergeableSettings(), $settings);
@@ -107,6 +107,8 @@ class RouterBase {
     }
 
     public function routeRequest() {
+
+        $originalUri = $this->request->getUri();
 
         // Initialize boot-managers
         if(count($this->bootManagers)) {
@@ -150,6 +152,9 @@ class RouterBase {
                 }
 
                 $routeNotAllowed = false;
+
+                $this->request->rewrite_uri = $this->request->uri;
+                $this->request->setUri($originalUri);
 
                 $this->request->loadedRoute = $route;
                 $route->loadMiddleware($this->request);
@@ -372,7 +377,7 @@ class RouterBase {
                 return $this->processUrl($route, $route->getMethod(), $parameters, $getParams);
             }
 
-            if($route instanceof RouterRoute && stripos($route->getCallback(), '@') !== false) {
+            if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
                 $c = $route->getCallback();
             } else if($route instanceof RouterController || $route instanceof RouterResource) {
                 $c = $route->getController();
