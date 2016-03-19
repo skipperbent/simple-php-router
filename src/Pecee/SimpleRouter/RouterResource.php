@@ -1,6 +1,7 @@
 <?php
 namespace Pecee\SimpleRouter;
 
+use Pecee\Exception\RouterException;
 use Pecee\Http\Request;
 
 class RouterResource extends RouterEntry {

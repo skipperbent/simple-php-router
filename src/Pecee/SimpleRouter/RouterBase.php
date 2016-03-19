@@ -2,6 +2,7 @@
 namespace Pecee\SimpleRouter;
 
 use Pecee\CsrfToken;
+use Pecee\Exception\RouterException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
 
@@ -18,7 +19,7 @@ class RouterBase {
     protected $defaultNamespace;
     protected $bootManagers;
     protected $baseCsrfVerifier;
-    
+
     // TODO: clean up - cut some of the methods down to smaller pieces
 
     public function __construct() {

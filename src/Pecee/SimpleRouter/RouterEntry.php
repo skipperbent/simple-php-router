@@ -2,6 +2,7 @@
 
 namespace Pecee\SimpleRouter;
 
+use Pecee\Exception\RouterException;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 

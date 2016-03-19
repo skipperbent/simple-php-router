@@ -6,11 +6,6 @@ class Request {
     protected static $instance;
 
     protected $data;
-    protected $uri;
-    protected $host;
-    protected $method;
-    protected $headers;
-    protected $loadedRoute;
 
     /**
      * Return new instance
@@ -134,6 +129,17 @@ class Request {
      */
     public function getInput($name, $defaultValue) {
         return (isset($_REQUEST[$name]) ? $_REQUEST[$name] : $defaultValue);
+    }
+
+    public function isFormatAccepted($format) {
+        return (isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], $format) > -1);
+    }
+
+    public function getAcceptFormats() {
+        if(isset($_SERVER['HTTP_ACCEPT'])) {
+            return explode(',', $_SERVER['HTTP_ACCEPT']);
+        }
+        return array();
     }
 
     public function __set($name, $value = null) {

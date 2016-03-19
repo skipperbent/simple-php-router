@@ -1,3 +1,3 @@
 <?php
-namespace Pecee\SimpleRouter;
+namespace Pecee\Exception;
 class RouterException extends \Exception { }
