@@ -372,7 +372,7 @@ class RouterBase {
                 return $this->processUrl($route, $route->getMethod(), $parameters, $getParams);
             }
 
-            if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
+            if($route instanceof RouterRoute && stripos($route->getCallback(), '@') !== false) {
                 $c = $route->getCallback();
             } else if($route instanceof RouterController || $route instanceof RouterResource) {
                 $c = $route->getController();
