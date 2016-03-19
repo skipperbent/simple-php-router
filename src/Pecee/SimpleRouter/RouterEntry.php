@@ -202,7 +202,7 @@ abstract class RouterEntry {
      */
     public function addSettings(array $settings = null) {
         if(is_array($settings)) {
-            $this->settings = array_merge($settings, $this->settings);
+            $this->settings = array_merge($this->settings, $settings);
         }
         return $this;
     }
