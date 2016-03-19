@@ -1,18 +1,11 @@
 <?php
 namespace Pecee\Http;
 
-use Pecee\SimpleRouter\RouterBase;
-
 class Request {
 
     protected static $instance;
 
     protected $data;
-    protected $uri;
-    protected $host;
-    protected $method;
-    protected $headers;
-    protected $loadedRoute;
 
     /**
      * Return new instance
@@ -138,6 +131,17 @@ class Request {
         return (isset($_REQUEST[$name]) ? $_REQUEST[$name] : $defaultValue);
     }
 
+    public function isFormatAccepted($format) {
+        return (isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], $format) > -1);
+    }
+
+    public function getAcceptFormats() {
+        if(isset($_SERVER['HTTP_ACCEPT'])) {
+            return explode(',', $_SERVER['HTTP_ACCEPT']);
+        }
+        return array();
+    }
+
     public function __set($name, $value = null) {
         $this->data[$name] = $value;
     }
@@ -154,16 +158,25 @@ class Request {
         return $this->loadedRoute;
     }
 
-    public function isFormatAccepted($format) {
-        return (isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], $format) > -1);
+    /**
+     * @param mixed $uri
+     */
+    public function setUri($uri) {
+        $this->uri = $uri;
     }
 
-    public function getAcceptFormats() {
-        if(isset($_SERVER['HTTP_ACCEPT'])) {
-            return explode(',', $_SERVER['HTTP_ACCEPT']);
-        }
+    /**
+     * @param mixed $host
+     */
+    public function setHost($host) {
+        $this->host = $host;
+    }
 
-        return array();
+    /**
+     * @param mixed $method
+     */
+    public function setMethod($method) {
+        $this->method = $method;
     }
 
 }

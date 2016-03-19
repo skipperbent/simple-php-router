@@ -2,6 +2,7 @@
 
 namespace Pecee\SimpleRouter;
 
+use Pecee\Exception\RouterException;
 use Pecee\Http\Request;
 
 class RouterGroup extends RouterEntry {

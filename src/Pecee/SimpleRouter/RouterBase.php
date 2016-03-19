@@ -2,6 +2,7 @@
 namespace Pecee\SimpleRouter;
 
 use Pecee\CsrfToken;
+use Pecee\Exception\RouterException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
 
@@ -16,9 +17,9 @@ class RouterBase {
     protected $controllerUrlMap;
     protected $backStack;
     protected $defaultNamespace;
+    protected $bootManagers;
     protected $baseCsrfVerifier;
 
-    // TODO: make interface for controller routers, so they can be easily detected
     // TODO: clean up - cut some of the methods down to smaller pieces
 
     public function __construct() {
@@ -26,7 +27,8 @@ class RouterBase {
         $this->backStack = array();
         $this->controllerUrlMap = array();
         $this->baseCsrfVerifier = new BaseCsrfVerifier();
-        $this->request = Request::getInstance();
+        $this->request = new Request();
+        $this->bootManagers = array();
 
         $csrf = new CsrfToken();
         $token = ($csrf->hasToken()) ? $csrf->getToken() : $csrf->generateToken();
@@ -106,6 +108,18 @@ class RouterBase {
 
     public function routeRequest() {
 
+        // Initialize boot-managers
+        if(count($this->bootManagers)) {
+            /* @var $manager RouterBootManager */
+            foreach($this->bootManagers as $manager) {
+                $this->request = $manager->boot($this->request);
+
+                if(!($this->request instanceof Request)) {
+                    throw new RouterException('Custom router bootmanager "'. get_class($manager) .'" must return instance of Request.');
+                }
+            }
+        }
+
         // Verify csrf token for request
         if($this->baseCsrfVerifier !== null) {
             /* @var $csrfVerifier BaseCsrfVerifier */
@@ -166,6 +180,24 @@ class RouterBase {
      */
     public function setDefaultNamespace($defaultNamespace) {
         $this->defaultNamespace = $defaultNamespace;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBootManagers() {
+        return $this->bootManagers;
+    }
+
+    /**
+     * @param array $bootManagers
+     */
+    public function setBootManagers(array $bootManagers) {
+        $this->bootManagers = $bootManagers;
+    }
+
+    public function addBootManager(RouterBootManager $bootManager) {
+        $this->bootManagers[] = $bootManager;
     }
 
     /**
