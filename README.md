@@ -296,11 +296,11 @@ class CustomRouterRules extends RouterBootManager{
 
 ```
 
-The above should be pretty selvexplanatory and can easily be changed to loop through urls store in the database, file or cache.
+The above should be pretty self-explanatory and can easily be changed to loop through urls store in the database, file or cache.
 
-Basicly what happens if that if the current route matches the route defined in the index of our array, we set the route to the array value instead.
+What happens is that if the current route matches the route defined in the index of our ```$rewriteRules``` array, we set the route to the array value instead.
 
-By doing this the route will now goto the url ```/article/view/1``` instead of ```/my-cat-is-beatiful```.
+By doing this the route will now load the url ```/article/view/1``` instead of ```/my-cat-is-beatiful```.
 
 The last thing we need to do, is to add our custom boot-manager to the ```routes.php``` file. You can create as many bootmanagers as you like and easily add them in your ```routes.php``` file.
 
