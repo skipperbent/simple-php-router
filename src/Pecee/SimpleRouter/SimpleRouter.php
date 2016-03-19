@@ -32,6 +32,10 @@ class SimpleRouter {
         RouterBase::getInstance()->setBaseCsrfVerifier($baseCsrfVerifier);
     }
 
+    public static function addBootManager(RouterBootManager $bootManager) {
+        RouterBase::getInstance()->addBootManager($bootManager);
+    }
+
     public static function get($url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
         $route->addSettings($settings);

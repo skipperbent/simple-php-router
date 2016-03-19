@@ -26,7 +26,7 @@ class Response {
             $this->httpCode($httpCode);
         }
 
-        $this->header('Location: ' . $url);
+        $this->header('location: ' . $url);
         die();
     }
 

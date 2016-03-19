@@ -1,18 +1,11 @@
 # Simple PHP router
-Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. Heavily inspired by the way Laravel handles routing.
+Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. Heavily inspired by the way Laravel handles routing, with both simplicity and expandability in mind.
 
 ## Installation
-Add the latest version of Simple PHP Router to your ```composer.json```
+Add the latest version of Simple PHP Router running this command.
 
-```json
-{
-    "require": {
-        "pecee/simple-php-router": "1.*"
-    },
-    "require-dev": {
-        "pecee/simple-php-router": "1.*"
-    }
-}
+```
+composer require pecee/framework
 ```
 
 ## Notes
@@ -32,10 +25,7 @@ The goal of this project is to create a router that is 100% compatible with the 
 - CSRF protection.
 - Optional parameters
 - Sub-domain routing
-
-### Features currently "in-the-works"
-
-- Global Constraints
+- Custom boot managers to redirect urls to other routes
 
 ## Initialising the router
 
@@ -77,7 +67,7 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
     SimpleRouter::group(['prefix' => '/services', 'exceptionHandler' => '\MyProject\Handler\CustomExceptionHandler'], function() {
 
         SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show')->where(['id' => '[0-9]+');
-        
+
         // Optional parameter
         SimpleRouter::get('/answers/{id?}', 'ControllerAnswers@show');
 
@@ -175,10 +165,10 @@ class Router extends SimpleRouter {
             $exceptionHandler = null;
 
             // Load and use exception-handler defined on group
-            
+
             if($route && $route->getGroup()) {
                 $exceptionHandler = $route->getGroup()->getExceptionHandler();
-                
+
                 if($exceptionHandler !== null) {
                     $class = new $exceptionHandler();
                     $class->handleError(RouterBase::getInstance()->getRequest(), $route, $e);
@@ -186,7 +176,7 @@ class Router extends SimpleRouter {
             }
 
             // Otherwise use the fallback default exceptions handler
-           
+
             if(self::$defaultExceptionHandler !== null) {
                 $class = new self::$defaultExceptionHandler();
                 $class->handleError(RouterBase::getInstance()->getRequest(), $route, $e);
@@ -270,9 +260,63 @@ Register the new class in your ```routes.php```, custom ```Router``` class or wh
 SimpleRouter::csrfVerifier(new \Demo\Middleware\CsrfVerifier());
 ```
 
+## Using router bootmanager to make custom rewrite rules
+
+Sometimes it can be necessary to keep urls stored in the database, file or similar. In this example, we want the url ```/my-cat-is-beatiful``` to load the route ```/article/view/1``` which the router knows, because it's defined in the ```routes.php``` file.
+
+To interfere with the router, we create a class that inherits from ```RouterBootManager```. This class will be loaded before any other rules in ```routes.php``` and allow us to "change" the current route, if any of our criteria are fulfilled (like comming from the url ```/my-cat-is-beatiful```).
+
+```php
+
+use Pecee\Http\Request;
+use Pecee\SimpleRouter\RouterBootManager;
+
+class CustomRouterRules extends RouterBootManager{
+
+    public function boot(Request $request) {
+
+        $rewriteRules = [
+            '/my-cat-is-beatiful' => '/article/view/1',
+            '/horses-are-great' => '/article/view/2'
+        ];
+
+        foreach($rewriteRules as $url => $rule) {
+
+            // If the current uri matches the url, we use our custom route
+
+            if($request->getUri() === $url) {
+                $request->setUri($rule);
+            }
+        }
+
+        return $request;
+    }
+
+}
+
+```
+
+The above should be pretty selvexplanatory and can easily be changed to loop through urls store in the database, file or cache.
+
+Basicly what happens if that if the current route matches the route defined in the index of our array, we set the route to the array value instead.
+
+By doing this the route will now goto the url ```/article/view/1``` instead of ```/my-cat-is-beatiful```.
+
+The last thing we need to do, is to add our custom boot-manager to the ```routes.php``` file. You can create as many bootmanagers as you like and easily add them in your ```routes.php``` file.
+
+**routes.php example:**
+
+```php
+// Add new bootmanager
+SimpleRouter::addBootManager(new CustomRouterRules());
+
+// This rule is what our custom bootmanager will use.
+SimpleRouter::get('/article/view/{id}', 'ControllerArticle@view');
+```
+
 ## Easily overwrite route about to be loaded
-Sometimes it can be useful to manipulate the route that's about to be loaded, for instance if a user is not authenticated or if an error occurred within your Middleware that requires 
-some other route to be initialised. Simple PHP Router allows you to easily change the route about to be executed. All information about the current route is stored in 
+Sometimes it can be useful to manipulate the route that's about to be loaded, for instance if a user is not authenticated or if an error occurred within your Middleware that requires
+some other route to be initialised. Simple PHP Router allows you to easily change the route about to be executed. All information about the current route is stored in
 the ```\Pecee\SimpleRouter\Http\Request``` object.
 
 **Note:** Please note that it's only possible to change the route BEFORE any route has initially been loaded, so doing this in your custom ExceptionHandler or Middleware is highly recommended.
@@ -297,7 +341,7 @@ http://laravel.com/docs/5.1/routing
 The router can be easily extended to customize your needs.
 
 ## Ideas and issues
-If you want a great new feature or experience any issues what-so-ever, please feel free to leave an issue and i'll look into it whenever possible. 
+If you want a great new feature or experience any issues what-so-ever, please feel free to leave an issue and i'll look into it whenever possible.
 
 ## The MIT License (MIT)
 

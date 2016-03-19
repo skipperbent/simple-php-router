@@ -1,8 +1,6 @@
 <?php
 namespace Pecee\Http;
 
-use Pecee\SimpleRouter\RouterBase;
-
 class Request {
 
     protected static $instance;
@@ -154,16 +152,25 @@ class Request {
         return $this->loadedRoute;
     }
 
-    public function isFormatAccepted($format) {
-        return (isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], $format) > -1);
+    /**
+     * @param mixed $uri
+     */
+    public function setUri($uri) {
+        $this->uri = $uri;
     }
 
-    public function getAcceptFormats() {
-        if(isset($_SERVER['HTTP_ACCEPT'])) {
-            return explode(',', $_SERVER['HTTP_ACCEPT']);
-        }
+    /**
+     * @param mixed $host
+     */
+    public function setHost($host) {
+        $this->host = $host;
+    }
 
-        return array();
+    /**
+     * @param mixed $method
+     */
+    public function setMethod($method) {
+        $this->method = $method;
     }
 
 }
