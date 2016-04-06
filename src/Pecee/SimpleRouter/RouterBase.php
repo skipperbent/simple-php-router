@@ -91,7 +91,7 @@ class RouterBase {
             if($route instanceof RouterGroup && is_callable($route->getCallback())) {
                 $group = $route;
                 $route->renderRoute($this->request);
-                $mergedSettings = array_merge($route->getMergeableSettings(), $settings);
+                $mergedSettings = array_merge($settings, $route->getMergeableSettings());
             }
 
             $this->currentRoute = null;
