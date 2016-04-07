@@ -373,7 +373,7 @@ class RouterBase {
             $route = $this->controllerUrlMap[$i];
 
             // Check an alias exist, if the matches - use it
-            if($route instanceof RouterRoute && strtolower($route->getAlias()) === strtolower($controller)) {
+            if($route instanceof RouterRoute && $route->hasAlias($controller)) {
                 return $this->processUrl($route, $route->getMethod(), $parameters, $getParams);
             }
 

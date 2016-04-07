@@ -15,8 +15,6 @@ class RouterRoute extends RouterEntry {
         parent::__construct();
         $this->setUrl($url);
         $this->setCallback($callback);
-
-        $this->settings['aliases'] = array();
     }
 
     public function matchRoute(Request $request) {
@@ -49,8 +47,6 @@ class RouterRoute extends RouterEntry {
 
             return true;
         }
-
-
 
         return null;
     }
@@ -88,15 +84,37 @@ class RouterRoute extends RouterEntry {
 
     /**
      * Get alias for the url which can be used when getting the url route.
-     * @return string
+     * @return string|array
      */
     public function getAlias(){
         return $this->alias;
     }
 
     /**
+     * Check if route has given alias.
+     *
+     * @param $name
+     * @return bool
+     */
+    public function hasAlias($name) {
+        if(is_array($this->alias)) {
+            foreach($this->alias as $alias) {
+                if(strtolower($alias) === strtolower($name)) {
+                    return true;
+                }
+            }
+        } else {
+            if(strtolower($this->getAlias()) === strtolower($name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Set the url alias for easier getting the url route.
-     * @param string $alias
+     * @param string|array $alias
      * @return self
      */
     public function setAlias($alias){
