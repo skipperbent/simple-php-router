@@ -91,7 +91,7 @@ class RouterBase {
             if($route instanceof RouterGroup && is_callable($route->getCallback())) {
                 $group = $route;
                 $route->renderRoute($this->request);
-                $mergedSettings = array_merge($route->getMergeableSettings(), $settings);
+                $mergedSettings = array_merge($settings, $route->getMergeableSettings());
             }
 
             $this->currentRoute = null;
@@ -373,7 +373,7 @@ class RouterBase {
             $route = $this->controllerUrlMap[$i];
 
             // Check an alias exist, if the matches - use it
-            if($route instanceof RouterRoute && strtolower($route->getAlias()) === strtolower($controller)) {
+            if($route instanceof RouterRoute && $route->hasAlias($controller)) {
                 return $this->processUrl($route, $route->getMethod(), $parameters, $getParams);
             }
 

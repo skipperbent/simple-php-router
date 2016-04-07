@@ -88,4 +88,18 @@ class RouterGroup extends RouterEntry {
         return $this->domain;
     }
 
+    /**
+     * @param array $settings
+     * @return self
+     */
+    public function addSettings(array $settings = null) {
+        if(isset($settings['namespace'])) {
+            unset($settings['namespace']);
+        }
+        if(is_array($settings)) {
+            $this->settings = array_merge($this->settings, $settings);
+        }
+        return $this;
+    }
+
 }
