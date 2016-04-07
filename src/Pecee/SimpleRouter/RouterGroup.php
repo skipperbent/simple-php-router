@@ -93,7 +93,7 @@ class RouterGroup extends RouterEntry {
      * @return self
      */
     public function addSettings(array $settings = null) {
-        if(isset($settings['namespace'])) {
+        if($this->getNamespace() !== null && isset($settings['namespace'])) {
             unset($settings['namespace']);
         }
         if(is_array($settings)) {
