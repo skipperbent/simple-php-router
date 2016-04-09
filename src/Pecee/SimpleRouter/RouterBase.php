@@ -2,7 +2,7 @@
 namespace Pecee\SimpleRouter;
 
 use Pecee\Exception\RouterException;
-use Pecee\Handler\ExceptionHandler;
+use Pecee\Handler\IExceptionHandler;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
 
@@ -187,8 +187,8 @@ class RouterBase {
     protected function handleException(\Exception $e) {
         if($this->request->loadedRoute !== null && $this->request->loadedRoute->exceptionHandler !== null) {
             $handler = new $this->request->loadedRoute->exceptionHandler();
-            if(!($handler instanceof ExceptionHandler)) {
-                throw new RouterException('Exception handler must be instanceof ExceptionHandler.');
+            if(!($handler instanceof IExceptionHandler)) {
+                throw new RouterException('Exception handler must be instanceof IExceptionHandler.');
             }
 
             $handler->handleError($this->request, $this->request->loadedRoute, $e);

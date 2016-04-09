@@ -55,6 +55,9 @@ This router is heavily inspired by the Laravel 5.* router, so anything you find 
 
 ### Basic example
 
+- ExceptionsHandlers must implement the `IExceptionHandler` interface.
+- Middlewares must implement the `IMiddleware` interface.
+
 ```php
 use Pecee\SimpleRouter\SimpleRouter;
 
