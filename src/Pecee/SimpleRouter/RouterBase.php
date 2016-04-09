@@ -188,7 +188,7 @@ class RouterBase {
         if($this->request->loadedRoute !== null && $this->request->loadedRoute->exceptionHandler !== null) {
             $handler = new $this->request->loadedRoute->exceptionHandler();
             if(!($handler instanceof IExceptionHandler)) {
-                throw new RouterException('Exception handler must be instanceof IExceptionHandler.');
+                throw new RouterException('Exception handler must implement the IExceptionHandler interface.');
             }
 
             $handler->handleError($this->request, $this->request->loadedRoute, $e);
