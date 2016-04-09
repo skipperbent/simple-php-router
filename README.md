@@ -8,6 +8,10 @@ Add the latest version of Simple PHP Router running this command.
 composer require pecee/simple-router
 ```
 
+## Requirements
+
+- PHP 5.4 or greater
+
 ## Notes
 
 The goal of this project is to create a router that is 100% compatible with the Laravel documentation, but as simple as possible and as easy to integrate and change as possible.
@@ -61,6 +65,9 @@ use Pecee\SimpleRouter\SimpleRouter;
  * Controller or callback is loaded. This is useful for stopping
  * the request, for instance if a user is not authenticated.
  */
+
+// Add CSRF support (if needed)
+SimpleRouter::csrfVerifier(new \Pecee\Http\Middleware\BaseCsrfVerifier());
 
 SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\SomeMiddlewareClass'], function() {
 
