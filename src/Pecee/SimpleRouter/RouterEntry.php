@@ -93,7 +93,7 @@ abstract class RouterEntry {
      * @return self
      */
     public function setPrefix($prefix) {
-        $this->prefix = '/' . trim($prefix, '/') . '/';
+        $this->prefix = '/' . ltrim($prefix, '/');
         return $this;
     }
 

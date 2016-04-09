@@ -68,7 +68,7 @@ class RouterBase {
 
             $newPrefixes = $prefixes;
 
-            if($route->getPrefix()) {
+            if($route->getPrefix() && trim($route->getPrefix(), '/') !== '') {
                 array_push($newPrefixes, trim($route->getPrefix(), '/'));
             }
 
@@ -85,6 +85,12 @@ class RouterBase {
 
             if($route instanceof RouterGroup && is_callable($route->getCallback())) {
                 $group = $route;
+
+                // Load middleware on group if route matches
+                if($route->matchRoute($this->request)) {
+                    $route->loadMiddleware($this->request);
+                }
+
                 $route->renderRoute($this->request);
                 $mergedSettings = array_merge($settings, $route->getMergeableSettings());
             }
