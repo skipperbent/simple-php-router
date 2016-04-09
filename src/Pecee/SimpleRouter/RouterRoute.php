@@ -102,8 +102,11 @@ class RouterRoute extends RouterEntry {
                     return true;
                 }
             }
+        } else {
+            return strtolower($this->getAlias()) === strtolower($name);
         }
-        return strtolower($this->getAlias()) === strtolower($name);
+        
+        return false;
     }
 
     /**
