@@ -12,10 +12,13 @@ class BaseCsrfVerifier implements IMiddleware {
 
     protected $except;
     protected $csrfToken;
-
+    protected $token;
 
     public function __construct() {
         $this->csrfToken = new CsrfToken();
+
+        // Generate or get the CSRF-Token from Cookie.
+        $this->token = (!$this->hasToken()) ? $this->generateToken() : $this->csrfToken->getToken();
     }
 
     /**
@@ -50,19 +53,37 @@ class BaseCsrfVerifier implements IMiddleware {
 
         if($request->getMethod() != 'get' && !$this->skip($request)) {
 
-            $token = (isset($_POST[self::POST_KEY])) ? $_POST[self::POST_KEY] : null;
+            $token = (isset($_POST[static::POST_KEY])) ? $_POST[static::POST_KEY] : null;
 
             // If the token is not posted, check headers for valid x-csrf-token
             if($token === null) {
-                $token = $request->getHeader(self::HEADER_KEY);
+                $token = $request->getHeader(static::HEADER_KEY);
             }
 
-            if( !$this->csrfToken->validate( $token ) ) {
+            if( !$this->csrfToken->validate($token) ) {
                 throw new TokenMismatchException('Invalid csrf-token.');
             }
 
         }
 
+    }
+
+    public function generateToken() {
+        $token = $this->csrfToken->generateToken();
+        $this->csrfToken->setToken($token);
+        return $token;
+    }
+
+    public function hasToken() {
+        if($this->token != null) {
+            return true;
+        }
+
+        return $this->csrfToken->hasToken();
+    }
+
+    public function getToken() {
+        return $this->token;
     }
 
 }

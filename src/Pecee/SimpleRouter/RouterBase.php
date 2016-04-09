@@ -1,8 +1,8 @@
 <?php
 namespace Pecee\SimpleRouter;
 
-use Pecee\CsrfToken;
 use Pecee\Exception\RouterException;
+use Pecee\Handler\IExceptionHandler;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
 
@@ -26,13 +26,8 @@ class RouterBase {
         $this->routes = array();
         $this->backStack = array();
         $this->controllerUrlMap = array();
-        $this->baseCsrfVerifier = new BaseCsrfVerifier();
         $this->request = Request::getInstance();
         $this->bootManagers = array();
-
-        $csrf = new CsrfToken();
-        $token = ($csrf->hasToken()) ? $csrf->getToken() : $csrf->generateToken();
-        $csrf->setToken($token);
     }
 
     public function addRoute(RouterEntry $route) {
@@ -73,13 +68,13 @@ class RouterBase {
 
             $newPrefixes = $prefixes;
 
-            if($route->getPrefix()) {
-                array_push($newPrefixes, rtrim($route->getPrefix(), '/'));
+            if($route->getPrefix() && trim($route->getPrefix(), '/') !== '') {
+                array_push($newPrefixes, trim($route->getPrefix(), '/'));
             }
 
             if(!($route instanceof RouterGroup)) {
                 if(is_array($newPrefixes) && count($newPrefixes) && $backStack) {
-                    $route->setUrl( join('/', $newPrefixes) . $route->getUrl() );
+                    $route->setUrl( '/' . join('/', $newPrefixes) . $route->getUrl() );
                 }
 
                 $group = null;
@@ -90,6 +85,12 @@ class RouterBase {
 
             if($route instanceof RouterGroup && is_callable($route->getCallback())) {
                 $group = $route;
+
+                // Load middleware on group if route matches
+                if($route->matchRoute($this->request)) {
+                    $route->loadMiddleware($this->request);
+                }
+
                 $route->renderRoute($this->request);
                 $mergedSettings = array_merge($settings, $route->getMergeableSettings());
             }
@@ -124,10 +125,7 @@ class RouterBase {
 
         // Verify csrf token for request
         if($this->baseCsrfVerifier !== null) {
-            /* @var $csrfVerifier BaseCsrfVerifier */
-            $csrfVerifier = $this->baseCsrfVerifier;
-            $csrfVerifier = new $csrfVerifier();
-            $csrfVerifier->handle($this->request);
+            $this->baseCsrfVerifier->handle($this->request);
         }
 
         // Loop through each route-request
@@ -167,18 +165,36 @@ class RouterBase {
                 $this->request->loadedRoute = $route;
                 $route->loadMiddleware($this->request);
 
-                $this->request->loadedRoute->renderRoute($this->request);
+                try {
+                    $this->request->loadedRoute->renderRoute($this->request);
+                } catch(\Exception $e) {
+                    $this->handleException($e);
+                }
+
                 break;
             }
         }
 
         if($routeNotAllowed) {
-            throw new RouterException('Route or method not allowed', 403);
+            $this->handleException(new RouterException('Route or method not allowed', 403));
         }
 
         if(!$this->request->loadedRoute) {
             throw new RouterException(sprintf('Route not found: %s', $this->request->getUri()), 404);
         }
+    }
+
+    protected function handleException(\Exception $e) {
+        if($this->request->loadedRoute !== null && $this->request->loadedRoute->exceptionHandler !== null) {
+            $handler = new $this->request->loadedRoute->exceptionHandler();
+            if(!($handler instanceof IExceptionHandler)) {
+                throw new RouterException('Exception handler must implement the IExceptionHandler interface.');
+            }
+
+            $handler->handleError($this->request, $this->request->loadedRoute, $e);
+        }
+
+        throw $e;
     }
 
     /**
@@ -431,7 +447,6 @@ class RouterBase {
 
         $url = '/' . trim(join('/', $url), '/') . '/';
 
-
         if($getParams !== null && count($getParams)) {
             $url .= '?' . $this->arrayToParams($getParams);
         }
@@ -444,6 +459,10 @@ class RouterBase {
             self::$instance = new static();
         }
         return self::$instance;
+    }
+
+    public static function reset() {
+        self::$instance = null;
     }
 
 }

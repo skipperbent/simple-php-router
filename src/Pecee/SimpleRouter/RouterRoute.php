@@ -2,7 +2,6 @@
 
 namespace Pecee\SimpleRouter;
 
-use Pecee\ArrayUtil;
 use Pecee\Http\Request;
 
 class RouterRoute extends RouterEntry {

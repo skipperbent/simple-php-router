@@ -16,7 +16,7 @@ class SimpleRouter {
     /**
      * Start/route request
      * @param null $defaultNamespace
-     * @throws RouterException
+     * @throws \Pecee\Exception\RouterException
      */
     public static function start($defaultNamespace = null) {
         $router = RouterBase::getInstance();
