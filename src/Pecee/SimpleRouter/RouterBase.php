@@ -2,6 +2,7 @@
 namespace Pecee\SimpleRouter;
 
 use Pecee\Exception\RouterException;
+use Pecee\Handler\ExceptionHandler;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
 
@@ -158,18 +159,36 @@ class RouterBase {
                 $this->request->loadedRoute = $route;
                 $route->loadMiddleware($this->request);
 
-                $this->request->loadedRoute->renderRoute($this->request);
+                try {
+                    $this->request->loadedRoute->renderRoute($this->request);
+                } catch(\Exception $e) {
+                    $this->handleException($e);
+                }
+
                 break;
             }
         }
 
         if($routeNotAllowed) {
-            throw new RouterException('Route or method not allowed', 403);
+            $this->handleException(new RouterException('Route or method not allowed', 403));
         }
 
         if(!$this->request->loadedRoute) {
             throw new RouterException(sprintf('Route not found: %s', $this->request->getUri()), 404);
         }
+    }
+
+    protected function handleException(\Exception $e) {
+        if($this->request->loadedRoute !== null && $this->request->loadedRoute->exceptionHandler !== null) {
+            $handler = new $this->request->loadedRoute->exceptionHandler();
+            if(!($handler instanceof ExceptionHandler)) {
+                throw new RouterException('Exception handler must be instanceof ExceptionHandler.');
+            }
+
+            $handler->handleError($this->request, $this->request->loadedRoute, $e);
+        }
+
+        throw $e;
     }
 
     /**

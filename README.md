@@ -5,7 +5,7 @@ Simple, fast and yet powerful PHP router that is easy to get integrated and in a
 Add the latest version of Simple PHP Router running this command.
 
 ```
-composer require pecee/framework
+composer require pecee/simple-router
 ```
 
 ## Notes
@@ -34,7 +34,7 @@ In your ```index.php``` require your ```routes.php``` and call the ```routeReque
 This is an example of a basic ```index.php``` file:
 
 ```php
-use \Pecee\SimpleRouter;
+use \Pecee\SimpleRouter\SimpleRouter;
 
 require_once 'routes.php'; // change this to whatever makes sense in your project
 
@@ -42,7 +42,7 @@ require_once 'routes.php'; // change this to whatever makes sense in your projec
 $defaultControllerNamespace = 'MyWebsite\\Controller';
 
 // Do the routing
-SimpleRouter::init($defaultControllerNamespace);
+SimpleRouter::start($defaultControllerNamespace);
 ```
 
 ## Adding routes
@@ -159,23 +159,6 @@ class Router extends SimpleRouter {
         try {
             parent::start($defaultNamespace);
         } catch(\Exception $e) {
-
-            $route = RouterBase::getInstance()->getLoadedRoute();
-
-            $exceptionHandler = null;
-
-            // Load and use exception-handler defined on group
-
-            if($route && $route->getGroup()) {
-                $exceptionHandler = $route->getGroup()->getExceptionHandler();
-
-                if($exceptionHandler !== null) {
-                    $class = new $exceptionHandler();
-                    $class->handleError(RouterBase::getInstance()->getRequest(), $route, $e);
-                }
-            }
-
-            // Otherwise use the fallback default exceptions handler
 
             if(self::$defaultExceptionHandler !== null) {
                 $class = new self::$defaultExceptionHandler();
