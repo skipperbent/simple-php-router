@@ -325,6 +325,12 @@ $route->setClass('Example\MyCustomClass');
 $route->setMethod('hello');
 ```
 
+## Sites
+This is some sites that uses the simple-router project in production.
+
+- [holla.dk](http://www.holla.dk)
+- [ninjaimg.com](http://ninjaimg.com)
+
 ## Documentation
 While I work on a better documentation, please refer to the Laravel 5 routing documentation here:
 
