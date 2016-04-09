@@ -79,10 +79,12 @@ class RouterController extends RouterEntry {
 
     /**
      * @param string $url
+     * @return static
      */
     public function setUrl($url) {
         $url = rtrim($url, '/') . '/';
         $this->url = $url;
+        return $this;
     }
 
     /**
@@ -94,9 +96,11 @@ class RouterController extends RouterEntry {
 
     /**
      * @param string $controller
+     * @return static
      */
     public function setController($controller) {
         $this->controller = $controller;
+        return $this;
     }
 
     /**
@@ -108,9 +112,11 @@ class RouterController extends RouterEntry {
 
     /**
      * @param string $method
+     * @return static
      */
     public function setMethod($method) {
         $this->method = $method;
+        return $this;
     }
 
 }

@@ -264,7 +264,7 @@ SimpleRouter::csrfVerifier(new \Demo\Middleware\CsrfVerifier());
 
 Sometimes it can be necessary to keep urls stored in the database, file or similar. In this example, we want the url ```/my-cat-is-beatiful``` to load the route ```/article/view/1``` which the router knows, because it's defined in the ```routes.php``` file.
 
-To interfere with the router, we create a class that inherits from ```RouterBootManager```. This class will be loaded before any other rules in ```routes.php``` and allow us to "change" the current route, if any of our criteria are fulfilled (like comming from the url ```/my-cat-is-beatiful```).
+To interfere with the router, we create a class that inherits from ```RouterBootManager```. This class will be loaded before any other rules in ```routes.php``` and allow us to "change" the current route, if any of our criteria are fulfilled (like coming from the url ```/my-cat-is-beatiful```).
 
 ```php
 

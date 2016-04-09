@@ -123,7 +123,7 @@ abstract class RouterEntry {
     }
 
     /**
-     * @return string
+     * @return string|array
      */
     public function getMiddleware() {
         return $this->middleware;
@@ -360,9 +360,7 @@ abstract class RouterEntry {
     }
 
     public function renderRoute(Request $request) {
-
         if(is_object($this->getCallback()) && is_callable($this->getCallback())) {
-
             // When the callback is a function
             call_user_func_array($this->getCallback(), $this->getParameters());
         } else {
