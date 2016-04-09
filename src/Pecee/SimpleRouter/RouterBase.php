@@ -19,15 +19,17 @@ class RouterBase {
     protected $defaultNamespace;
     protected $bootManagers;
     protected $baseCsrfVerifier;
+    protected $middlewaresToLoad;
 
     // TODO: clean up - cut some of the methods down to smaller pieces
 
     public function __construct() {
+        $this->request = Request::getInstance();
         $this->routes = array();
         $this->backStack = array();
         $this->controllerUrlMap = array();
-        $this->request = Request::getInstance();
         $this->bootManagers = array();
+        $this->middlewaresToLoad = array();
     }
 
     public function addRoute(RouterEntry $route) {
@@ -56,11 +58,9 @@ class RouterBase {
             }
 
             if($this->defaultNamespace && !$route->getNamespace()) {
-                $namespace = null;
+                $namespace = $this->defaultNamespace;
                 if ($route->getNamespace()) {
-                    $namespace = $this->defaultNamespace . '\\' . $route->getNamespace();
-                } else {
-                    $namespace = $this->defaultNamespace;
+                    $namespace .= '\\' . $route->getNamespace();
                 }
 
                 $route->setNamespace($namespace);
@@ -86,13 +86,13 @@ class RouterBase {
             if($route instanceof RouterGroup && is_callable($route->getCallback())) {
                 $group = $route;
 
-                // Load middleware on group if route matches
-                if($route->getPrefix() !== null && $route->matchRoute($this->request)) {
-                    $route->loadMiddleware($this->request);
-                }
-
                 $route->renderRoute($this->request);
                 $mergedSettings = array_merge($settings, $route->getMergeableSettings());
+
+                // Load middleware on group if route matches
+                if($route->getPrefix() !== null && $route->matchRoute($this->request)) {
+                    $this->middlewaresToLoad[] = $route;
+                }
             }
 
             $this->currentRoute = null;
@@ -110,6 +110,13 @@ class RouterBase {
     public function routeRequest() {
 
         $originalUri = $this->request->getUri();
+
+        // Load group middlewares
+
+        /* @var $middleware RouterEntry */
+        foreach($this->middlewaresToLoad as $middleware) {
+            $middleware->loadMiddleware($this->request);
+        }
 
         // Initialize boot-managers
         if(count($this->bootManagers)) {
