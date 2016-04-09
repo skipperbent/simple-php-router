@@ -1,7 +1,6 @@
 <?php
 namespace Pecee\SimpleRouter;
 
-use Pecee\CsrfToken;
 use Pecee\Exception\RouterException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
@@ -26,13 +25,8 @@ class RouterBase {
         $this->routes = array();
         $this->backStack = array();
         $this->controllerUrlMap = array();
-        $this->baseCsrfVerifier = new BaseCsrfVerifier();
         $this->request = Request::getInstance();
         $this->bootManagers = array();
-
-        $csrf = new CsrfToken();
-        $token = ($csrf->hasToken()) ? $csrf->getToken() : $csrf->generateToken();
-        $csrf->setToken($token);
     }
 
     public function addRoute(RouterEntry $route) {
@@ -124,10 +118,7 @@ class RouterBase {
 
         // Verify csrf token for request
         if($this->baseCsrfVerifier !== null) {
-            /* @var $csrfVerifier BaseCsrfVerifier */
-            $csrfVerifier = $this->baseCsrfVerifier;
-            $csrfVerifier = new $csrfVerifier();
-            $csrfVerifier->handle($this->request);
+            $this->baseCsrfVerifier->handle($this->request);
         }
 
         // Loop through each route-request
@@ -430,7 +421,6 @@ class RouterBase {
         }
 
         $url = '/' . trim(join('/', $url), '/') . '/';
-
 
         if($getParams !== null && count($getParams)) {
             $url .= '?' . $this->arrayToParams($getParams);

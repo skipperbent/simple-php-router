@@ -37,7 +37,7 @@ class CsrfToken {
      * @param $token
      */
     public function setToken($token) {
-        setcookie(self::CSRF_KEY, $token, time() + 60 * 120, '/');
+        setcookie(static::CSRF_KEY, $token, time() + 60 * 120, '/');
     }
 
     /**
@@ -46,7 +46,7 @@ class CsrfToken {
      */
     public function getToken(){
         if($this->hasToken()) {
-            return $_COOKIE[self::CSRF_KEY];
+            return $_COOKIE[static::CSRF_KEY];
         }
         return null;
     }
@@ -56,7 +56,7 @@ class CsrfToken {
      * @return bool
      */
     public function hasToken() {
-        return isset($_COOKIE[self::CSRF_KEY]);
+        return isset($_COOKIE[static::CSRF_KEY]);
     }
 
 }
