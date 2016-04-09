@@ -13,60 +13,47 @@ class RouterRouteTest extends PHPUnit_Framework_TestCase  {
     }
 
     public function testGet() {
+
+        \Pecee\SimpleRouter\RouterBase::reset();
+
         \Pecee\Http\Request::getInstance()->setMethod('get');
 
-        $router = new \Pecee\SimpleRouter\RouterBase();
-
-        $route = new \Pecee\SimpleRouter\RouterRoute('/my/test/url', 'DummyController@start');
-        $route->setRequestMethods(array(\Pecee\SimpleRouter\RouterRoute::REQUEST_TYPE_GET));
-
-        $router->addRoute($route);
-        $router->routeRequest();
+        \Pecee\SimpleRouter\SimpleRouter::get('/my/test/url', 'DummyController@start');
+        \Pecee\SimpleRouter\SimpleRouter::start();
     }
 
     public function testPost() {
         \Pecee\Http\Request::getInstance()->setMethod('post');
 
-        $router = new \Pecee\SimpleRouter\RouterBase();
+        \Pecee\SimpleRouter\RouterBase::reset();
 
-        $route = new \Pecee\SimpleRouter\RouterRoute('/my/test/url', 'DummyController@start');
-
-        $route->addSettings(array());
-        $route->setRequestMethods(array(\Pecee\SimpleRouter\RouterRoute::REQUEST_TYPE_POST));
-
-        $router->addRoute($route);
-        $router->routeRequest();
+        \Pecee\SimpleRouter\SimpleRouter::post('/my/test/url', 'DummyController@start');
+        \Pecee\SimpleRouter\SimpleRouter::start();
     }
 
     public function testPut() {
         \Pecee\Http\Request::getInstance()->setMethod('put');
 
-        $router = new \Pecee\SimpleRouter\RouterBase();
+        \Pecee\SimpleRouter\RouterBase::reset();
 
-        $route = new \Pecee\SimpleRouter\RouterRoute('/my/test/url', 'DummyController@start');
-        $route->addSettings(array());
-        $route->setRequestMethods(array(\Pecee\SimpleRouter\RouterRoute::REQUEST_TYPE_PUT));
-
-        $router->addRoute($route);
-        $router->routeRequest();
-
+        \Pecee\SimpleRouter\SimpleRouter::put('/my/test/url', 'DummyController@start');
+        \Pecee\SimpleRouter\SimpleRouter::start();
     }
 
     public function testDelete() {
         \Pecee\Http\Request::getInstance()->setMethod('delete');
 
-        $router = new \Pecee\SimpleRouter\RouterBase();
+        \Pecee\SimpleRouter\RouterBase::reset();
 
-        $route = new \Pecee\SimpleRouter\RouterRoute('/my/test/url', 'DummyController@start');
-        $route->addSettings(array());
-        $route->setRequestMethods(array(\Pecee\SimpleRouter\RouterRoute::REQUEST_TYPE_DELETE));
-
-        $router->addRoute($route);
-        $router->routeRequest();
+        \Pecee\SimpleRouter\SimpleRouter::delete('/my/test/url', 'DummyController@start');
+        \Pecee\SimpleRouter\SimpleRouter::start();
 
     }
 
     public function testMethodNotAllowed() {
+
+        \Pecee\SimpleRouter\RouterBase::reset();
+
         \Pecee\Http\Request::getInstance()->setMethod('post');
 
         \Pecee\SimpleRouter\SimpleRouter::get('/my/test/url', 'DummyController@start');

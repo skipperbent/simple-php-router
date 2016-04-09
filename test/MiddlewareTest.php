@@ -16,15 +16,12 @@ class MiddlewareTest extends PHPUnit_Framework_TestCase  {
 
         \Pecee\Http\Request::getInstance()->setMethod('get');
 
-        $router = new \Pecee\SimpleRouter\RouterBase();
+        \Pecee\SimpleRouter\RouterBase::reset();
 
-        $route = new \Pecee\SimpleRouter\RouterRoute('/my/test/url', 'DummyController@start');
-        $route->setRequestMethods(array(\Pecee\SimpleRouter\RouterRoute::REQUEST_TYPE_GET));
-        $route->addSettings(['middleware' => 'DummyMiddleware']);
-        $router->addRoute($route);
+        \Pecee\SimpleRouter\SimpleRouter::get('/my/test/url', 'DummyController@start', ['middleware' => 'DummyMiddleware']);
 
         try {
-            $router->routeRequest();
+            \Pecee\SimpleRouter\SimpleRouter::start();
         }catch(Exception $e) {
             $this->assertTrue(($e instanceof MiddlewareLoadedException));
             return;

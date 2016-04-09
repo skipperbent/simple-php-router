@@ -69,12 +69,12 @@ class RouterBase {
             $newPrefixes = $prefixes;
 
             if($route->getPrefix()) {
-                array_push($newPrefixes, rtrim($route->getPrefix(), '/'));
+                array_push($newPrefixes, trim($route->getPrefix(), '/'));
             }
 
             if(!($route instanceof RouterGroup)) {
                 if(is_array($newPrefixes) && count($newPrefixes) && $backStack) {
-                    $route->setUrl( join('/', $newPrefixes) . $route->getUrl() );
+                    $route->setUrl( '/' . join('/', $newPrefixes) . $route->getUrl() );
                 }
 
                 $group = null;
@@ -453,6 +453,10 @@ class RouterBase {
             self::$instance = new static();
         }
         return self::$instance;
+    }
+
+    public static function reset() {
+        self::$instance = null;
     }
 
 }
