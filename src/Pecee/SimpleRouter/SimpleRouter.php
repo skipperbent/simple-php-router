@@ -98,7 +98,7 @@ class SimpleRouter {
      * Adds get + post route
      *
      * @param string $url
-     * @param function $callback
+     * @param callable $callback
      * @param array|null $settings
      * @return RouterRoute
      */

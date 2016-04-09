@@ -87,7 +87,7 @@ class RouterBase {
                 $group = $route;
 
                 // Load middleware on group if route matches
-                if($route->matchRoute($this->request)) {
+                if($route->getPrefix() !== null && $route->matchRoute($this->request)) {
                     $route->loadMiddleware($this->request);
                 }
 
