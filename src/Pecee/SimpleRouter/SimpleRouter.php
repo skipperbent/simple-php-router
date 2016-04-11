@@ -19,9 +19,7 @@ class SimpleRouter {
      * @throws \Pecee\Exception\RouterException
      */
     public static function start($defaultNamespace = null) {
-        $router = RouterBase::getInstance();
-        $router->setDefaultNamespace($defaultNamespace);
-        $router->routeRequest();
+        RouterBase::getInstance()->setDefaultNamespace($defaultNamespace)->routeRequest();
     }
 
     /**
@@ -37,47 +35,19 @@ class SimpleRouter {
     }
 
     public static function get($url, $callback, array $settings = null) {
-        $route = new RouterRoute($url, $callback);
-        $route->addSettings($settings);
-        $route->setRequestMethods(array(RouterRoute::REQUEST_TYPE_GET));
-
-        $router = RouterBase::getInstance();
-        $router->addRoute($route);
-
-        return $route;
+        return self::match(['get'], $url, $callback, $settings);
     }
 
     public static function post($url, $callback, array $settings = null) {
-        $route = new RouterRoute($url, $callback);
-        $route->addSettings($settings);
-        $route->setRequestMethods(array(RouterRoute::REQUEST_TYPE_POST));
-
-        $router = RouterBase::getInstance();
-        $router->addRoute($route);
-
-        return $route;
+        return self::match(['post'], $url, $callback, $settings);
     }
 
     public static function put($url, $callback, array $settings = null) {
-        $route = new RouterRoute($url, $callback);
-        $route->addSettings($settings);
-        $route->setRequestMethods(array(RouterRoute::REQUEST_TYPE_PUT, RouterRoute::REQUEST_TYPE_PATCH));
-
-        $router = RouterBase::getInstance();
-        $router->addRoute($route);
-
-        return $route;
+        return self::match(['put'], $url, $callback, $settings);
     }
 
     public static function delete($url, $callback, array $settings = null) {
-        $route = new RouterRoute($url, $callback);
-        $route->addSettings($settings);
-        $route->setRequestMethods(array(RouterRoute::REQUEST_TYPE_DELETE));
-
-        $router = RouterBase::getInstance();
-        $router->addRoute($route);
-
-        return $route;
+        return self::match(['delete'], $url, $callback, $settings);
     }
 
     public static function group($settings = array(), $callback) {
@@ -88,8 +58,7 @@ class SimpleRouter {
             $group->setSettings($settings);
         }
 
-        $router = RouterBase::getInstance();
-        $router->addRoute($group);
+        RouterBase::getInstance()->addRoute($group);
 
         return $group;
     }
@@ -109,37 +78,48 @@ class SimpleRouter {
     public static function match(array $requestMethods, $url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
         $route->setRequestMethods($requestMethods);
-        $route->addSettings($settings);
 
-        $router = RouterBase::getInstance();
-        $router->addRoute($route);
+        if($settings !== null) {
+            $route->addSettings($settings);
+        }
+
+        RouterBase::getInstance()->addRoute($route);
 
         return $route;
     }
 
     public static function all($url, $callback, array $settings = null) {
         $route = new RouterRoute($url, $callback);
-        $route->addSettings($settings);
-        $router = RouterBase::getInstance();
-        $router->addRoute($route);
+
+        if($settings !== null) {
+            $route->addSettings($settings);
+        }
+
+        RouterBase::getInstance()->addRoute($route);
 
         return $route;
     }
 
     public static function controller($url, $controller, array $settings = null) {
         $route = new RouterController($url, $controller);
-        $route->addSettings($settings);
-        $router = RouterBase::getInstance();
-        $router->addRoute($route);
+
+        if($settings !== null) {
+            $route->addSettings($settings);
+        }
+
+        RouterBase::getInstance()->addRoute($route);
 
         return $route;
     }
 
     public static function resource($url, $controller, array $settings = null) {
         $route = new RouterResource($url, $controller);
-        $route->addSettings($settings);
-        $router = RouterBase::getInstance();
-        $router->addRoute($route);
+
+        if($settings !== null) {
+            $route->addSettings($settings);
+        }
+
+        RouterBase::getInstance()->addRoute($route);
 
         return $route;
     }

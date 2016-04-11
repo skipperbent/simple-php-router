@@ -213,9 +213,11 @@ class RouterBase {
 
     /**
      * @param string $defaultNamespace
+     * @return static
      */
     public function setDefaultNamespace($defaultNamespace) {
         $this->defaultNamespace = $defaultNamespace;
+        return $this;
     }
 
     /**
