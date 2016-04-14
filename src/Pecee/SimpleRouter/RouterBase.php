@@ -300,8 +300,8 @@ class RouterBase {
     public function arrayToParams(array $getParams = null, $includeEmpty = true) {
         if (is_array($getParams) && count($getParams) > 0) {
             foreach ($getParams as $key => $val) {
-                if (!empty($val) || empty($val) && $includeEmpty) {
-                    $getParams[$key] = $key . '=' . $val;
+                if (!empty($val) || $includeEmpty) {
+                    $getParams[$key] = (is_array($val) ? $this->arrayToParams($val, $includeEmpty) : $key . '=' . $val);
                 }
             }
             return join('&', $getParams);
