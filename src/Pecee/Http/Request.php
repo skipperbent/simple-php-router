@@ -125,13 +125,11 @@ class Request {
     }
 
     /**
-     * Get request input or default value
-     * @param string $name
-     * @param string $defaultValue
-     * @return mixed
+     * Get input class
+     * @return Input
      */
-    public function getInput($name, $defaultValue) {
-        return (isset($_REQUEST[$name]) ? $_REQUEST[$name] : $defaultValue);
+    public function getInput() {
+        return $this->input;
     }
 
     public function isFormatAccepted($format) {
