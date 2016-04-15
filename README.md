@@ -30,6 +30,7 @@ The goal of this project is to create a router that is 100% compatible with the 
 - Optional parameters
 - Sub-domain routing
 - Custom boot managers to redirect urls to other routes
+- Input manager; to manage `GET`, `POST` params.
 
 ## Initialising the router
 
@@ -323,6 +324,75 @@ $route->setCallback('Example\MyCustomClass@hello');
 
 $route->setClass('Example\MyCustomClass');
 $route->setMethod('hello');
+```
+
+## Using the Input class to manage parameters
+
+We've added the `Input` class to easy access parameters from your Controller-classes.
+
+**Return single parameter value (matches both GET, POST, FILE):**
+```php
+$value = Request::getInstance()->getInput()->get('name');
+```
+
+**Return parameter object (matches both GET, POST, FILE):**
+```php
+$object = Request::getInstance()->getInput()->getObject('name');
+```
+
+**Return specific GET parameter (where name is the name of your parameter):**
+```php
+$object = Request::getInstance()->getInput()->get->name;
+$object = Request::getInstance()->getInput()->post->name;
+$object = Request::getInstance()->getInput()->file->name;
+```
+
+**Return all parameters:**
+```php
+// Get all
+$objects = Request::getInstance()->getInput()->all();
+
+// Only match certain keys
+$objects = Request::getInstance()->getInput()->all([
+    'company_name',
+    'user_id'
+]);
+```
+
+All object inherits from `InputItem` class and will always contain these methods:
+- `getValue()` - returns the value of the input.
+- `getIndex()` - returns the index/key of the input.
+- `getName()` - returns a human friendly name for the input (company_name will be Company Name etc).
+
+`InputFile` has the same methods as above along with some other file-specific methods like:
+- `getTmpName()` - get file temporary name.
+- `getSize()` - get file size.
+- `move($destination)` - move file to destination.
+- `getContents()` - get file content.
+- `getType()` - get mime-type for file.
+- `getError()` - get file upload error.
+
+
+### Easy access your input
+Create a helper function to easily get access to the input elements.
+
+Example:
+
+```php
+/**
+ * Get input class
+ * @return \Pecee\Http\Input\Input
+ */
+function input() {
+    return new \Pecee\Http\Input\Input();
+}
+```
+
+Then you can easily do something like this in your controller:
+
+```php
+// Get parameter site_id or default-value 2
+$value = input()->get('site_id', '2');
 ```
 
 ## Sites
