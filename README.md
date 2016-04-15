@@ -384,7 +384,7 @@ Example:
  * @return \Pecee\Http\Input\Input
  */
 function input() {
-    return new \Pecee\Http\Input\Input();
+    return \Pecee\Http\Request::getInstance()->getInput();
 }
 ```
 
