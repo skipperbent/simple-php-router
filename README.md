@@ -364,7 +364,7 @@ All object inherits from `InputItem` class and will always contain these methods
 - `getIndex()` - returns the index/key of the input.
 - `getName()` - returns a human friendly name for the input (company_name will be Company Name etc).
 
-`InputFile` has some of the same methods as above along with some other file-specific methods like:
+`InputFile` has the same methods as above along with some other file-specific methods like:
 - `getTmpName()` - get file temporary name.
 - `getSize()` - get file size.
 - `move($destination)` - move file to destination.

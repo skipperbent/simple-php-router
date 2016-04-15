@@ -155,8 +155,7 @@ class Input {
                 if(!is_array($value['name'])) {
                     // Strip empty values
                     if($value['error'] != '4') {
-                        $file = new InputFile();
-                        $file->setIndex($key);
+                        $file = new InputFile($key);
                         $file->setName($value['name']);
                         $file->setSize($value['size']);
                         $file->setType($value['type']);
@@ -172,8 +171,7 @@ class Input {
                 foreach($value['name'] as $k=>$val) {
                     // Strip empty values
                     if($value['error'][$k] != '4') {
-                        $file = new InputFile();
-                        $file->setIndex($k);
+                        $file = new InputFile($k);
                         $file->setName($value['name'][$k]);
                         $file->setSize($value['size'][$k]);
                         $file->setType($value['type'][$k]);

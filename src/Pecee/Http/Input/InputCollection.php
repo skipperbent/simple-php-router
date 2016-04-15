@@ -32,7 +32,7 @@ class InputCollection implements \IteratorAggregate {
     /**
      * @param $index
      * @throws \InvalidArgumentException
-     * @return IInputItem
+     * @return InputItem
      */
     public function __get($index) {
         $item = $this->findFirst($index);

@@ -1,25 +1,13 @@
 <?php
 namespace Pecee\Http\Input;
 
-class InputFile {
+class InputFile extends InputItem {
 
-    protected $index;
 	protected $name;
 	protected $size;
 	protected $type;
 	protected $error;
 	protected $tmpName;
-
-    public function getIndex() {
-        return $this->index;
-    }
-
-	/**
-	 * @return string
-	 */
-	public function getName() {
-		return $this->name;
-	}
 
 	/**
 	 * @return string
@@ -60,14 +48,6 @@ class InputFile {
 	public function getContents() {
 		return file_get_contents($this->tmpName);
 	}
-
-    public function setIndex($index) {
-        $this->index = $index;
-    }
-
-    public function setName($name) {
-        $this->name = $name;
-    }
 
     public function setTmpName($name) {
         $this->tmpName = $name;

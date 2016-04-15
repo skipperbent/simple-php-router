@@ -7,7 +7,7 @@ class InputItem {
     protected $name;
     protected $value;
 
-    public function __construct($index, $value) {
+    public function __construct($index, $value = null) {
         $this->index = $index;
         $this->value = $value;
 
