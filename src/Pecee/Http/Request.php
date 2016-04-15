@@ -1,6 +1,8 @@
 <?php
 namespace Pecee\Http;
 
+use Pecee\Http\Input\Input;
+
 class Request {
 
     protected static $instance;
@@ -24,6 +26,7 @@ class Request {
         $this->uri = $_SERVER['REQUEST_URI'];
         $this->method = (isset($_POST['_method'])) ? strtolower($_POST['_method']) : strtolower($_SERVER['REQUEST_METHOD']);
         $this->headers = $this->getAllHeaders();
+        $this->input = new Input();
     }
 
     protected function getAllHeaders() {
@@ -93,7 +96,7 @@ class Request {
      * @return string
      */
     public function getIp() {
-        return isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
+        return ((isset($_SERVER['HTTP_X_FORWARDED_FOR']) && strlen($_SERVER['HTTP_X_FORWARDED_FOR'])) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR']);
     }
 
     /**
