@@ -89,7 +89,7 @@ class Input {
                 return ($key !== null && isset($item->getValue()[$key])) ? $item->getValue()[$key] : $item->getValue();
             }
 
-            return ($item->getValue() === null) ? $default : $item->getValue();
+            return (trim($item->getValue()) === '') ? $default : $item->getValue();
         }
 
         return $default;
