@@ -111,13 +111,6 @@ class RouterBase {
 
         $originalUri = $this->request->getUri();
 
-        // Load group middlewares
-
-        /* @var $middleware RouterEntry */
-        foreach($this->middlewaresToLoad as $middleware) {
-            $middleware->loadMiddleware($this->request);
-        }
-
         // Initialize boot-managers
         if(count($this->bootManagers)) {
             /* @var $manager RouterBootManager */
@@ -137,6 +130,12 @@ class RouterBase {
 
         // Loop through each route-request
         $this->processRoutes($this->routes);
+
+        // Load group middlewares
+        /* @var $route RouterEntry */
+        foreach($this->middlewaresToLoad as $route) {
+            $route->loadMiddleware($this->request);
+        }
 
         $routeNotAllowed = false;
 
@@ -309,7 +308,7 @@ class RouterBase {
         return '';
     }
 
-    protected function processUrl($route, $method = null, $parameters = null, $getParams = null) {
+    protected function processUrl(RouterRoute $route, $method = null, $parameters = null, $getParams = null) {
 
         $domain = '';
 
