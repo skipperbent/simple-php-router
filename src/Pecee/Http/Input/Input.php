@@ -87,6 +87,10 @@ class Input {
 
         if($item !== null) {
 
+            if($item instanceof InputFile) {
+                return $item;
+            }
+
             if (is_array($item->getValue())) {
                 return ($key !== null && isset($item->getValue()[$key])) ? $item->getValue()[$key] : $item->getValue();
             }
