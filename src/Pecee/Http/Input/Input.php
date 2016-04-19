@@ -55,16 +55,18 @@ class Input {
             return $element;
         }
 
-        $element = $this->post->findFirst($index);
+        if(request()->getMethod() !== 'get') {
 
-        if($element !== null) {
-            return $element;
-        }
+            $element = $this->post->findFirst($index);
 
-        $element = $this->file->findFirst($index);
+            if ($element !== null) {
+                return $element;
+            }
 
-        if($element !== null) {
-            return $element;
+            $element = $this->file->findFirst($index);
+            if ($element !== null) {
+                return $element;
+            }
         }
 
         return $default;
