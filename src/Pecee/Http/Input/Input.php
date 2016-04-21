@@ -1,6 +1,8 @@
 <?php
 namespace Pecee\Http\Input;
 
+use Pecee\Http\Request;
+
 class Input {
 
     /**
@@ -55,7 +57,7 @@ class Input {
             return $element;
         }
 
-        if(request()->getMethod() !== 'get') {
+        if(Request::getInstance()->getMethod() !== 'get') {
 
             $element = $this->post->findFirst($index);
 

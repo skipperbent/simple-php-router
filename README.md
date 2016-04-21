@@ -103,6 +103,37 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
 });
 ```
 
+#### ExceptionHandler example
+
+This is a basic example of an ExceptionHandler implementation:
+
+```php
+namespace BB\Handlers;
+
+use Pecee\Http\Request;
+use Pecee\SimpleRouter\RouterEntry;
+
+class CustomExceptionHandler implements IExceptionHandler {
+
+    public function handleError( Request $request, RouterEntry $router = null, \Exception $error) {
+
+        // If the error-code is 404; show another route which contains the page-not-found
+        if($error->getCode() === 404) {
+            // Load your custom 404-page view
+        }
+
+        // Output error as json if on api path.
+        if(stripos($request->getUri(), '/api') !== false) {
+            response()->json(['error' => $error->getMessage()]);
+        }
+
+        // Otherwise default exception will be thrown by the router.
+
+    }
+
+}
+``
+
 ### Sub-domain routing
 
 Route groups may also be used to route wildcard sub-domains. Sub-domains may be assigned route parameters just like route URIs, allowing you to capture a portion of the sub-domain for usage in your route or controller. The sub-domain may be specified using the ```domain``` key on the group attribute array:

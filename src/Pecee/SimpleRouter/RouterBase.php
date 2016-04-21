@@ -20,6 +20,7 @@ class RouterBase {
     protected $bootManagers;
     protected $baseCsrfVerifier;
     protected $middlewaresToLoad;
+    protected $exceptionHandlers;
 
     // TODO: clean up - cut some of the methods down to smaller pieces
 
@@ -30,6 +31,7 @@ class RouterBase {
         $this->controllerUrlMap = array();
         $this->bootManagers = array();
         $this->middlewaresToLoad = array();
+        $this->exceptionHandlers = array();
     }
 
     public function addRoute(RouterEntry $route) {
@@ -91,6 +93,9 @@ class RouterBase {
 
                 // Load middleware on group if route matches
                 if($route->getPrefix() !== null && $route->matchRoute($this->request)) {
+                    if($route->getExceptionHandler() !== null) {
+                        $this->exceptionHandlers[] = $route->getExceptionHandler();
+                    }
                     $this->middlewaresToLoad[] = $route;
                 }
             }
@@ -186,14 +191,15 @@ class RouterBase {
         }
 
         if(!$this->request->loadedRoute) {
-            throw new RouterException(sprintf('Route not found: %s', $this->request->getUri()), 404);
+            $this->handleException(new RouterException(sprintf('Route not found: %s', $this->request->getUri()), 404));
         }
     }
 
     protected function handleException(\Exception $e) {
-        if($this->request->loadedRoute !== null && $this->request->loadedRoute->exceptionHandler !== null) {
-            $handler = new $this->request->loadedRoute->exceptionHandler();
-            if(!($handler instanceof IExceptionHandler)) {
+
+        foreach ($this->exceptionHandlers as $handler) {
+            $handler = new $handler($this->request);
+            if (!($handler instanceof IExceptionHandler)) {
                 throw new RouterException('Exception handler must implement the IExceptionHandler interface.');
             }
 
