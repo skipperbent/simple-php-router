@@ -303,13 +303,17 @@ class RouterBase {
     }
 
     public function arrayToParams(array $getParams = null, $includeEmpty = true) {
-        if (is_array($getParams) && count($getParams) > 0) {
-            foreach ($getParams as $key => $val) {
-                if (!empty($val) || $includeEmpty) {
-                    $getParams[$key] = (is_array($val) ? $this->arrayToParams($val, $includeEmpty) : $key . '=' . $val);
-                }
+
+        if(is_array($getParams)) {
+            if ($includeEmpty === false) {
+                $getParams = array_filter($getParams, function ($item) {
+                    if (!empty($item)) {
+                        return $item;
+                    }
+                });
             }
-            return join('&', $getParams);
+
+            return http_build_query($getParams);
         }
         return '';
     }
@@ -386,8 +390,7 @@ class RouterBase {
         if($controller === null && $parameters === null) {
             $getParams = (is_array($getParams)) ? array_merge($_GET, $getParams) : $_GET;
 
-            $url = parse_url(Request::getInstance()->getUri());
-            $url = $url['path'];
+            $url = parse_url($this->request->getUri(), PHP_URL_PATH);
 
             if(count($getParams)) {
                 $url .= '?' . $this->arrayToParams($getParams);
