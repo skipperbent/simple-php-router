@@ -92,20 +92,11 @@ class RouterGroup extends RouterEntry {
         if($this->getNamespace() !== null && isset($settings['namespace'])) {
             unset($settings['namespace']);
         }
+
         if(is_array($settings)) {
             $this->settings = array_merge($this->settings, $settings);
         }
         return $this;
-    }
-
-    public function getMergeableSettings() {
-        $settings = parent::getMergeableSettings();
-
-        if(isset($settings['middleware'])) {
-            unset($settings['middleware']);
-        }
-
-        return $settings;
     }
 
 }
