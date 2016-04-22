@@ -87,7 +87,7 @@ class Input {
 
         if($item !== null) {
 
-            if($item instanceof InputFile) {
+            if(is_array($item) || $item instanceof InputFile) {
                 return $item;
             }
 
