@@ -98,4 +98,14 @@ class RouterGroup extends RouterEntry {
         return $this;
     }
 
+    public function getMergeableSettings() {
+        $settings = parent::getMergeableSettings();
+
+        if(isset($settings['middleware'])) {
+            unset($settings['middleware']);
+        }
+
+        return $settings;
+    }
+
 }

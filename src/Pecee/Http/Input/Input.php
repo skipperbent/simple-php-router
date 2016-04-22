@@ -49,12 +49,13 @@ class Input {
     }
 
     public function getObject($index, $default = null) {
+        $key = (strpos($index, '[') > -1) ? substr($index, strpos($index, '[')+1, strpos($index, ']') - strlen($index)) : null;
         $index = (strpos($index, '[') > -1) ? substr($index, 0, strpos($index, '[')) : $index;
 
         $element = $this->get->findFirst($index);
 
         if($element !== null) {
-            return $element;
+            return ($key !== null) ? $element[$key] : $element;
         }
 
         if(Request::getInstance()->getMethod() !== 'get') {
@@ -62,12 +63,12 @@ class Input {
             $element = $this->post->findFirst($index);
 
             if ($element !== null) {
-                return $element;
+                return ($key !== null) ? $element[$key] : $element;
             }
 
             $element = $this->file->findFirst($index);
             if ($element !== null) {
-                return $element;
+                return ($key !== null) ? $element[$key] : $element;
             }
         }
 
@@ -82,19 +83,12 @@ class Input {
      */
     public function get($index, $default = null) {
 
-        $key = (strpos($index, '[') > -1) ? substr($index, strpos($index, '[')+1, strpos($index, ']') - strlen($index)) : null;
-        $index = (strpos($index, '[') > -1) ? substr($index, 0, strpos($index, '[')) : $index;
-
         $item = $this->getObject($index);
 
         if($item !== null) {
 
             if($item instanceof InputFile) {
                 return $item;
-            }
-
-            if (is_array($item->getValue())) {
-                return ($key !== null && isset($item->getValue()[$key])) ? $item->getValue()[$key] : $item->getValue();
             }
 
             return (trim($item->getValue()) === '') ? $default : $item->getValue();
@@ -119,7 +113,7 @@ class Input {
                     $output[$k] = new InputItem($k, $g);
                 }
 
-                $this->get->{$key} = new InputItem($key, $output);
+                $this->get->{$key} = $output;
             }
         }
     }
@@ -149,7 +143,7 @@ class Input {
                     $output[$k] = new InputItem($k, $p);
                 }
 
-                $this->post->{strtolower($key)} = new InputItem($key, $output);
+                $this->post->{strtolower($key)} = $output;
             }
         }
     }
@@ -189,7 +183,7 @@ class Input {
                     }
                 }
 
-                $this->file->{strtolower($key)} = new InputItem($key, $output);
+                $this->file->{strtolower($key)} = $output;
             }
         }
     }
