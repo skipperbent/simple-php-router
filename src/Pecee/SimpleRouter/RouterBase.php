@@ -19,7 +19,6 @@ class RouterBase {
     protected $defaultNamespace;
     protected $bootManagers;
     protected $baseCsrfVerifier;
-    protected $middlewaresToLoad;
     protected $exceptionHandlers;
 
     // TODO: clean up - cut some of the methods down to smaller pieces
@@ -30,7 +29,6 @@ class RouterBase {
         $this->backStack = array();
         $this->controllerUrlMap = array();
         $this->bootManagers = array();
-        $this->middlewaresToLoad = array();
         $this->exceptionHandlers = array();
     }
 
@@ -91,12 +89,9 @@ class RouterBase {
                 $route->renderRoute($this->request);
                 $mergedSettings = array_merge($settings, $route->getMergeableSettings());
 
-                // Load middleware on group if route matches
-                if($route->getPrefix() !== null && $route->matchRoute($this->request)) {
-                    if($route->getExceptionHandler() !== null) {
-                        $this->exceptionHandlers[] = $route->getExceptionHandler();
-                    }
-                    $this->middlewaresToLoad[] = $route;
+                // Add exceptionhandler
+                if($route->matchRoute($this->request) && $route->getExceptionHandler() !== null) {
+                    $this->exceptionHandlers[] = $route->getExceptionHandler();
                 }
             }
 
@@ -136,21 +131,7 @@ class RouterBase {
         // Loop through each route-request
         $this->processRoutes($this->routes);
 
-        // Load group middlewares
-        /* @var $route RouterEntry */
-        foreach($this->middlewaresToLoad as $route) {
-            $route->loadMiddleware($this->request);
-        }
-
         $routeNotAllowed = false;
-
-        // Make sure routes with longer urls are rendered first
-        usort($this->controllerUrlMap, function($a, $b) {
-            if(strlen($a->getUrl()) < strlen($b->getUrl())) {
-                return 1;
-            }
-            return -1;
-        });
 
         $max = count($this->controllerUrlMap);
 
