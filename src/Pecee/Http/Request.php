@@ -22,9 +22,9 @@ class Request {
 
     public function __construct() {
         $this->data = array();
-        $this->host = $_SERVER['HTTP_HOST'];
-        $this->uri = $_SERVER['REQUEST_URI'];
-        $this->method = (isset($_POST['_method'])) ? strtolower($_POST['_method']) : strtolower($_SERVER['REQUEST_METHOD']);
+        $this->host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : array();
+        $this->uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : array();
+        $this->method = (isset($_POST['_method'])) ? strtolower($_POST['_method']) : (isset($_SERVER['REQUEST_METHOD']) ? strtolower($_SERVER['REQUEST_METHOD']) : array());
         $this->headers = $this->getAllHeaders();
         $this->input = new Input();
     }
