@@ -123,7 +123,7 @@ class Input {
 
         $postVars = array();
 
-        if(in_array($_SERVER['REQUEST_METHOD'], ['PUT', 'PATCH', 'DELETE'])) {
+        if(isset($_SERVER['REQUEST_METHOD']) && in_array($_SERVER['REQUEST_METHOD'], ['PUT', 'PATCH', 'DELETE'])) {
             parse_str(file_get_contents('php://input'), $postVars);
         } else {
             $postVars = $_POST;
