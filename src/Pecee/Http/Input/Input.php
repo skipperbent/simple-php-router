@@ -97,6 +97,10 @@ class Input {
         return $default;
     }
 
+    public function exists($index) {
+        return ($this->getObject($index) !== null);
+    }
+
     public function setGet() {
         $this->get = new InputCollection();
 
