@@ -46,6 +46,16 @@ class InputItem {
         return $this;
     }
 
+    /**
+     * Set input value
+     * @param string $value
+     * @return static $this
+     */
+    public function setValue($value) {
+        $this->value = $value;
+        return $this;
+    }
+
     public function __toString() {
         return (string)$this->getValue();
     }
