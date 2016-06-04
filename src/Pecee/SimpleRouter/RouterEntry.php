@@ -249,7 +249,7 @@ abstract class RouterEntry {
         return new $name();
     }
 
-    protected function parseParameters($route, $url, $parameterRegex = '[a-z0-9]+') {
+    protected function parseParameters($route, $url, $parameterRegex = '[\w]+') {
         $parameterNames = array();
         $regex = '';
         $lastCharacter = '';
@@ -288,7 +288,7 @@ abstract class RouterEntry {
                     $regex .= '(?:\\/?(?P<'.$parameter.'>[^\/]+)?\\/?)';
                     $required = false;
                 } else {
-                    $regex .= '\\/(?P<' . $parameter . '>'. $parameterRegex .')\\/';
+                    $regex .= '.*?(?P<' . $parameter . '>'. $parameterRegex .').*?';
                 }
                 $parameterNames[] = array('name' => $parameter, 'required' => $required);
                 $parameter = '';
@@ -307,7 +307,7 @@ abstract class RouterEntry {
 
         $parameterValues = array();
 
-        if(preg_match('/^'.$regex.'$/is', $url, $parameterValues)) {
+        if(preg_match('/^'.$regex.'.?$/is', $url, $parameterValues)) {
             $parameters = array();
 
             $max = count($parameterNames);

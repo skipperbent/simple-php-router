@@ -20,17 +20,16 @@ class MiddlewareTest extends PHPUnit_Framework_TestCase  {
 
         \Pecee\SimpleRouter\SimpleRouter::get('/my/test/url', 'DummyController@start', ['middleware' => 'DummyMiddleware']);
 
+        $found = false;
+
         try {
             \Pecee\SimpleRouter\SimpleRouter::start();
         }catch(Exception $e) {
-            $this->assertTrue(($e instanceof MiddlewareLoadedException));
-            return;
+            $found = ($e instanceof MiddlewareLoadedException);
         }
 
-        throw new Exception('Middleware not loaded');
+        $this->assertTrue($found);
 
     }
-
-
 
 }

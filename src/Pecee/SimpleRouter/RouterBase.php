@@ -131,6 +131,14 @@ class RouterBase {
         // Loop through each route-request
         $this->processRoutes($this->routes);
 
+        // Make sure routes with longer urls are rendered first
+        usort($this->controllerUrlMap, function($a, $b) {
+            if(strlen($a->getUrl()) < strlen($b->getUrl())) {
+                return 1;
+            }
+            return -1;
+        });
+
         $routeNotAllowed = false;
 
         $max = count($this->controllerUrlMap);
