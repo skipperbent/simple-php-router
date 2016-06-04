@@ -232,7 +232,7 @@ abstract class RouterEntry {
     }
 
     /**
-     * Dynamicially set settings value
+     * Dynamically set settings value
      *
      * @param string $name
      * @param mixed|null $value
@@ -261,12 +261,6 @@ abstract class RouterEntry {
 
             $character = $route[$i];
 
-            // Skip "/" if we are at the end of a parameter
-            if($lastCharacter === '}' && $character === '/') {
-                $lastCharacter = $character;
-                continue;
-            }
-
             if($character === '{') {
                 // Remove "/" and "\" from regex
                 if(substr($regex, strlen($regex)-1) === '/') {
@@ -285,10 +279,10 @@ abstract class RouterEntry {
 
                 if($lastCharacter === '?') {
                     $parameter = substr($parameter, 0, strlen($parameter)-1);
-                    $regex .= '(?:\\/?(?P<'.$parameter.'>[^\/]+)?\\/?)';
+                    $regex .= '(?:\/?(?P<' . $parameter . '>'. $parameterRegex .')[^\/]?)?';
                     $required = false;
                 } else {
-                    $regex .= '.*?(?P<' . $parameter . '>'. $parameterRegex .').*?';
+                    $regex .= '\/?(?P<' . $parameter . '>'. $parameterRegex .')[^\/]?';
                 }
                 $parameterNames[] = array('name' => $parameter, 'required' => $required);
                 $parameter = '';
@@ -307,7 +301,8 @@ abstract class RouterEntry {
 
         $parameterValues = array();
 
-        if(preg_match('/^'.$regex.'.?$/is', $url, $parameterValues)) {
+        if(preg_match('/^'.$regex.'$/is', $url, $parameterValues)) {
+
             $parameters = array();
 
             $max = count($parameterNames);
@@ -399,7 +394,7 @@ abstract class RouterEntry {
     }
 
     /**
-     * Get allowed requeset methods
+     * Get allowed request methods
      *
      * @return array
      */

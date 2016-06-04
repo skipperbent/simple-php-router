@@ -6,4 +6,9 @@ class DummyController {
         echo static::class . '@' .'start() OK';
     }
 
+    public function param($params = null) {
+        $params = func_get_args();
+        echo 'Params: ' . join(', ', $params);
+    }
+
 }

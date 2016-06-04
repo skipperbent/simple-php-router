@@ -66,4 +66,40 @@ class RouterRouteTest extends PHPUnit_Framework_TestCase  {
 
     }
 
+    public function testSimpleParam() {
+
+        \Pecee\SimpleRouter\RouterBase::reset();
+
+        \Pecee\Http\Request::getInstance()->setMethod('get');
+        \Pecee\Http\Request::getInstance()->setUri('/test-param1');
+
+        \Pecee\SimpleRouter\SimpleRouter::get('/test-{param1}', 'DummyController@param');
+        \Pecee\SimpleRouter\SimpleRouter::start();
+
+    }
+
+    public function testMultiParam() {
+
+        \Pecee\SimpleRouter\RouterBase::reset();
+
+        \Pecee\Http\Request::getInstance()->setMethod('get');
+        \Pecee\Http\Request::getInstance()->setUri('/test-param1-param2');
+
+        \Pecee\SimpleRouter\SimpleRouter::get('/test-{param1}-{param2}', 'DummyController@param');
+        \Pecee\SimpleRouter\SimpleRouter::start();
+
+    }
+
+    public function testPathParam() {
+
+        \Pecee\SimpleRouter\RouterBase::reset();
+
+        \Pecee\Http\Request::getInstance()->setMethod('get');
+        \Pecee\Http\Request::getInstance()->setUri('/test/path/param1');
+
+        \Pecee\SimpleRouter\SimpleRouter::get('/test/path/{param}', 'DummyController@param');
+        \Pecee\SimpleRouter\SimpleRouter::start();
+
+    }
+
 }
