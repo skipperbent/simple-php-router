@@ -72,12 +72,14 @@ class RouterBase {
                 array_push($newPrefixes, trim($route->getPrefix(), '/'));
             }
 
+            /* @var $group RouterGroup */
+            $group = null;
+
             if(!($route instanceof RouterGroup)) {
                 if(is_array($newPrefixes) && count($newPrefixes) && $backStack) {
                     $route->setUrl( '/' . join('/', $newPrefixes) . $route->getUrl() );
                 }
 
-                $group = null;
                 $this->controllerUrlMap[] = $route;
             }
 
@@ -86,11 +88,11 @@ class RouterBase {
             if($route instanceof RouterGroup && is_callable($route->getCallback())) {
                 $group = $route;
 
-                $route->renderRoute($this->request);
-                $mergedSettings = array_merge($settings, $route->getMergeableSettings());
+                $group->renderRoute($this->request);
+                $mergedSettings = array_merge($settings, $group->getMergeableSettings());
 
                 // Add ExceptionHandler
-                if($route->matchRoute($this->request) && $route->getExceptionHandler() !== null) {
+                if($group->matchRoute($this->request) && $group->getExceptionHandler() !== null) {
                     $this->exceptionHandlers[] = $route;
                 }
             }
@@ -130,14 +132,6 @@ class RouterBase {
 
         // Loop through each route-request
         $this->processRoutes($this->routes);
-
-        // Make sure routes with longer urls are rendered first
-        usort($this->controllerUrlMap, function($a, $b) {
-            if(strlen($a->getUrl()) < strlen($b->getUrl())) {
-                return 1;
-            }
-            return -1;
-        });
 
         $routeNotAllowed = false;
 
@@ -186,7 +180,7 @@ class RouterBase {
 
     protected function handleException(\Exception $e) {
 
-        /* @var $route RouterEntry */
+        /* @var $route RouterGroup */
         foreach ($this->exceptionHandlers as $route) {
             $route->loadMiddleware($this->request);
             $handler = $route->getExceptionHandler();
@@ -300,9 +294,7 @@ class RouterBase {
         if(is_array($getParams)) {
             if ($includeEmpty === false) {
                 $getParams = array_filter($getParams, function ($item) {
-                    if (!empty($item)) {
-                        return $item;
-                    }
+                    return (!empty($item));
                 });
             }
 

@@ -105,7 +105,7 @@ class RouterRoute extends RouterEntry {
         } else {
             return strtolower($this->getAlias()) === strtolower($name);
         }
-        
+
         return false;
     }
 
