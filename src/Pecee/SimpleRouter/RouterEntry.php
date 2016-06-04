@@ -301,7 +301,7 @@ abstract class RouterEntry {
 
         $parameterValues = array();
 
-        if(preg_match('/^'.$regex.'$/is', $url, $parameterValues)) {
+        if(preg_match('/^'.$regex.'\/?$/is', $url, $parameterValues)) {
 
             $parameters = array();
 
