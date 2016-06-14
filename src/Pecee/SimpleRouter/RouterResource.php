@@ -52,7 +52,7 @@ class RouterResource extends RouterEntry {
 
         $route = rtrim($this->url, '/') . '/{id?}/{action?}';
 
-        $parameters = $this->parseParameters($route, $url, '[0-9]+?');
+        $parameters = $this->parseParameters($route, $url);
 
         if($parameters !== null) {
 
