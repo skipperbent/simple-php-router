@@ -32,6 +32,14 @@ The goal of this project is to create a router that is 100% compatible with the 
 - Custom boot managers to redirect urls to other routes
 - Input manager; to manage `GET`, `POST` params.
 
+## Installation and demo
+
+We've included a simple demo project for the router which can be found in the `demo-project` folder.
+
+Please refer to the demo-project documentation for further reading on how to setup and install simple-php-router:
+
+[Link to demo documentation](demo-project/README.md)
+
 ## Initialising the router
 
 In your ```index.php``` require your ```routes.php``` and call the ```routeRequest()``` method when all your custom routes has been loaded. This will trigger and do the actual routing of the requests.
@@ -176,8 +184,6 @@ This is a simple example of an integration into a framework.
 The framework has it's own ```Router``` class which inherits from the ```SimpleRouter``` class. This allows the framework to add custom functionality.
 
 ```php
-<?php
-<?php
 namespace Pecee;
 
 use Pecee\Exception\RouterException;
