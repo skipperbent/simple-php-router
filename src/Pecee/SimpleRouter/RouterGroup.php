@@ -102,7 +102,7 @@ class RouterGroup extends RouterEntry {
                 $middlewares = array_push($settings['middleware']);
             }
 
-            $settings['middleware'] = array_unique($middlewares);
+            $settings['middleware'] = array_unique(array_reverse($middlewares));
 
         }
 
