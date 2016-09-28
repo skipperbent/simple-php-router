@@ -93,9 +93,23 @@ class RouterGroup extends RouterEntry {
             unset($settings['namespace']);
         }
 
+        // Push middleware if multiple
+        if($this->getMiddleware() !== null && isset($settings['middleware'])) {
+
+            if(!is_array($this->getMiddleware())) {
+                $middlewares = [$this->getMiddleware(), $settings['middleware']];
+            } else {
+                $middlewares = array_push($settings['middleware']);
+            }
+
+            $settings['middleware'] = array_unique($middlewares);
+
+        }
+
         if(is_array($settings)) {
             $this->settings = array_merge($this->settings, $settings);
         }
+
         return $this;
     }
 
