@@ -140,7 +140,7 @@ class CustomExceptionHandler implements IExceptionHandler {
     }
 
 }
-``
+```
 
 ### Sub-domain routing
 
