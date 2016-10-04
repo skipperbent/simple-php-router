@@ -116,7 +116,7 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
 This is a basic example of an ExceptionHandler implementation:
 
 ```php
-namespace BB\Handlers;
+namespace Demo\Handlers;
 
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\RouterEntry;
@@ -184,7 +184,7 @@ This is a simple example of an integration into a framework.
 The framework has it's own ```Router``` class which inherits from the ```SimpleRouter``` class. This allows the framework to add custom functionality.
 
 ```php
-namespace Pecee;
+namespace Demo;
 
 use Pecee\Exception\RouterException;
 use Pecee\Handler\ExceptionHandler;
@@ -348,7 +348,6 @@ Sometimes it can be necessary to keep urls stored in the database, file or simil
 To interfere with the router, we create a class that inherits from ```RouterBootManager```. This class will be loaded before any other rules in ```routes.php``` and allow us to "change" the current route, if any of our criteria are fulfilled (like coming from the url ```/my-cat-is-beatiful```).
 
 ```php
-
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\RouterBootManager;
 
