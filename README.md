@@ -417,6 +417,7 @@ This is some sites that uses the simple-router project in production.
 - [holla.dk](http://www.holla.dk)
 - [ninjaimg.com](http://ninjaimg.com)
 - [bookandbegin.com](https://bookandbegin.com)
+- [dscuz.com](https://www.dscuz.com)
 
 ## Documentation
 While I work on a better documentation, please refer to the Laravel 5 routing documentation here:
