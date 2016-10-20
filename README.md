@@ -186,49 +186,19 @@ The framework has it's own ```Router``` class which inherits from the ```SimpleR
 ```php
 namespace Demo;
 
-use Pecee\Exception\RouterException;
-use Pecee\Http\Middleware\IMiddleware;
-use Pecee\SimpleRouter\RouterBase;
 use Pecee\SimpleRouter\SimpleRouter;
 
 class Router extends SimpleRouter {
-
-    protected static $defaultMiddlewares = array();
 
     public static function start($defaultNamespace = null) {
 
         // change this to whatever makes sense in your project
         require_once 'routes.php';
 
+        // Do initial stuff
 
-        if(count(static::$defaultMiddlewares)) {
-            /* @var $middleware \Pecee\Http\Middleware\IMiddleware */
-            foreach(static::$defaultMiddlewares as $middleware) {
-                $middleware = new $middleware();
-                if(!($middleware instanceof IMiddleware)) {
-                    throw new RouterException('Middleware must be implement the IMiddleware interface.');
-                }
-                $middleware->handle(RouterBase::getInstance()->getRequest());
-            }
-        }
+        parent::start('\\Demo\\Controllers');
 
-        // Set default namespace
-        $defaultNamespace = '\\Demo\\Controllers';
-
-        parent::start($defaultNamespace);
-
-    }
-
-    /**
-     * Add default middleware that will be loaded before any route
-     * @param string|array $middlewares
-     */
-    public static function defaultMiddleware($middlewares) {
-        if(is_array($middlewares)) {
-            static::$defaultMiddlewares = $middlewares;
-        } else {
-            static::$defaultMiddlewares[] = $middlewares;
-        }
     }
 
 }
@@ -447,6 +417,7 @@ This is some sites that uses the simple-router project in production.
 - [holla.dk](http://www.holla.dk)
 - [ninjaimg.com](http://ninjaimg.com)
 - [bookandbegin.com](https://bookandbegin.com)
+- [dscuz.com](https://www.dscuz.com)
 
 ## Documentation
 While I work on a better documentation, please refer to the Laravel 5 routing documentation here:
