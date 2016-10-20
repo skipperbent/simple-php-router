@@ -11,4 +11,8 @@ class DummyController {
         echo 'Params: ' . join(', ', $params);
     }
 
+    public function notFound() {
+        echo 'not found';
+    }
+
 }

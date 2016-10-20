@@ -109,64 +109,68 @@ class RouterBase {
         }
     }
 
-    public function routeRequest() {
+    public function routeRequest($original = true) {
 
         $originalUri = $this->request->getUri();
 
-        // Initialize boot-managers
-        if(count($this->bootManagers)) {
-            /* @var $manager RouterBootManager */
-            foreach($this->bootManagers as $manager) {
-                $this->request = $manager->boot($this->request);
+        try {
 
-                if(!($this->request instanceof Request)) {
-                    throw new RouterException('Custom router bootmanager "'. get_class($manager) .'" must return instance of Request.');
+            // Initialize boot-managers
+            if(count($this->bootManagers)) {
+                /* @var $manager RouterBootManager */
+                foreach($this->bootManagers as $manager) {
+                    $this->request = $manager->boot($this->request);
+
+                    if(!($this->request instanceof Request)) {
+                        throw new RouterException('Custom router bootmanager "'. get_class($manager) .'" must return instance of Request.');
+                    }
                 }
             }
-        }
 
-        // Verify csrf token for request
-        if($this->baseCsrfVerifier !== null) {
-            $this->baseCsrfVerifier->handle($this->request);
-        }
+            // Loop through each route-request
+            $this->processRoutes($this->routes);
 
-        // Loop through each route-request
-        $this->processRoutes($this->routes);
-
-        $routeNotAllowed = false;
-
-        $max = count($this->controllerUrlMap);
-
-        /* @var $route RouterEntry */
-        for($i = 0; $i < $max; $i++) {
-
-            $route = $this->controllerUrlMap[$i];
-
-            $routeMatch = $route->matchRoute($this->request);
-
-            if($routeMatch) {
-
-                if(count($route->getRequestMethods()) && !in_array($this->request->getMethod(), $route->getRequestMethods())) {
-                    $routeNotAllowed = true;
-                    continue;
+            if($original === true) {
+                // Verify csrf token for request
+                if ($this->baseCsrfVerifier !== null) {
+                    $this->baseCsrfVerifier->handle($this->request);
                 }
+            }
 
-                $routeNotAllowed = false;
+            $routeNotAllowed = false;
 
-                $this->request->rewrite_uri = $this->request->uri;
-                $this->request->setUri($originalUri);
+            $max = count($this->controllerUrlMap);
 
-                $this->request->loadedRoute = $route;
-                $route->loadMiddleware($this->request);
+            /* @var $route RouterEntry */
+            for ($i = 0; $i < $max; $i++) {
 
-                try {
+                $route = $this->controllerUrlMap[$i];
+
+                $routeMatch = $route->matchRoute($this->request);
+
+                if ($routeMatch) {
+
+                    if (count($route->getRequestMethods()) && !in_array($this->request->getMethod(), $route->getRequestMethods())) {
+                        $routeNotAllowed = true;
+                        continue;
+                    }
+
+                    $routeNotAllowed = false;
+
+                    $this->request->rewrite_uri = $this->request->uri;
+                    $this->request->setUri($originalUri);
+
+                    $this->request->loadedRoute = $route;
+                    $route->loadMiddleware($this->request);
+
                     $this->request->loadedRoute->renderRoute($this->request);
-                } catch(\Exception $e) {
-                    $this->handleException($e);
-                }
 
-                break;
+                    break;
+                }
             }
+
+        } catch(\Exception $e) {
+            $this->handleException($e);
         }
 
         if($routeNotAllowed) {
@@ -180,6 +184,8 @@ class RouterBase {
 
     protected function handleException(\Exception $e) {
 
+        $request = null;
+
         /* @var $route RouterGroup */
         foreach ($this->exceptionHandlers as $route) {
             $route->loadMiddleware($this->request);
@@ -190,7 +196,13 @@ class RouterBase {
                 throw new RouterException('Exception handler must implement the IExceptionHandler interface.');
             }
 
-            $handler->handleError($this->request, $this->request->loadedRoute, $e);
+            $request = $handler->handleError($this->request, $this->request->loadedRoute, $e);
+        }
+
+        if($request !== null) {
+            $this->request = $request;
+            $this->routeRequest(false);
+            return;
         }
 
         throw $e;
@@ -457,14 +469,14 @@ class RouterBase {
     }
 
     public static function getInstance() {
-        if(self::$instance === null) {
-            self::$instance = new static();
+        if(static::$instance === null) {
+            static::$instance = new static();
         }
-        return self::$instance;
+        return static::$instance;
     }
 
     public static function reset() {
-        self::$instance = null;
+        static::$instance = null;
     }
 
 }

@@ -2,31 +2,30 @@
 
 This project is here to give you a basic understanding of how to setup and using simple-php-router.
 
-Please note that this demo-project only covers how to integrate simple-php-project in a project without a framework. If you are using some sort of PHP framework in your project 
-the implementation might vary.
+Please note that this demo-project only covers how to integrate the `simple-php-router` in a project without a framework. If you are using some sort of PHP framework in your project the implementation might vary.
 
 **What we won't cover:**
 
 - How to setup a solution that fits your need. This is a basic demo to help you get started.
-- How to add Controllers, Middlewares or ExceptionHandlers with cool functionality.
+- Understanding of MVC; including Controllers, Middlewares or ExceptionHandlers.
 - How to integrate into third party frameworks.
 
 **What we cover:**
 
 - How to get up and running fast - from scratch.
-- How to set ExceptionHandlers, Middlewares and Controllers working.
+- How to get ExceptionHandlers, Middlewares and Controllers working.
 - How to setup your webservers.
 
 ## Installation
 
-- Navigate to the `demo-project` folder and run `composer install`.
+- Navigate to the `demo-project` folder in terminal and run `composer update` to install the latest version.
 - Point your webserver to `demo-project/public`.
 
 ### Setting up Nginx
 
-If you are using Nginx remember to enable url-rewriting.
+If you are using Nginx please make sure that url-rewriting is enabled.
 
-You can easily do this by adding the following configuration for the Nginx configuration for the demo-project.
+You can easily enable url-rewriting by adding the following configuration for the Nginx configuration-file for the demo-project.
 
 ```
 location / {
@@ -36,8 +35,7 @@ location / {
 
 ### Setting up Apache
 
-Nothing special is required for Apache to work. We've include the `.htaccess` file in the `public` folder. If rewriting is not working for you, please 
-check that `.htaccess` support is enabled in the Apache configuration - or add the rules manually.
+Nothing special is required for Apache to work. We've include the `.htaccess` file in the `public` folder. If rewriting is not working for you, please check that the `mod_rewrite` module (htaccess support) is enabled in the Apache configuration.
 
 ## Folder structure
 
@@ -48,26 +46,24 @@ check that `.htaccess` support is enabled in the Apache configuration - or add t
 
 ## Notes
 
-The demo project has it's own `Router` class implemented which extends the `SimpleRouter` class with further functionality such as 
-default exceptionhandlers and middlewares. This class can be useful adding functionality that are required before and after routing 
-occurs or add extra functionality to the router. 
+The demo project has it's own `Router` class implementation which extends the `SimpleRouter` class with further functionality. 
+This class can be useful adding additional functionality that are required before and after routing occurs or any extra functionality belonging to the router itself. 
 
-In this project we also use our custom router-class to autoload the `routes.php` file.
+In this project we also use our custom router-class to autoload the `routes.php` file from our custom location (`app/routes.php`).
 
-Please check the `routes.php` file in `demo-project/app` for all the urls/rules in the project.
+Please check the `routes.php` file in `demo-project/app` for all the urls/rules available in the project.
 
 ### CSRF-verifier
 
-We've added a custom CSRF-verifier middleware called `CsrfVerifier` and disabled CSRF checks for all calls to `/api/*`.
+For the purpose of this demo, we've added a custom CSRF-verifier middleware called `CsrfVerifier` and disabled CSRF checks for all calls to `/api/*`. This will ensure that CSRF form-checks are not applied when calling our demo api url.
 
 ### Exception handlers
 
-The included `CustomExceptionHandler` class returns a json response for errors received on calls to `/api/*` or otherwise just forms a simple formatted error response.
+The included `CustomExceptionHandler` class returns a very basic json response for errors received on calls to `/api/*` or otherwise just a simple formatted error response.
 
 ### Middlewares
 
-`ApiVerification` class is added to all calls to `/api/*`. This simple class just adds some data to the `Request` object, which is returned in one of the methods in the 
-`ApiController` class.
+`ApiVerification` class is added to all calls to `/api/*`. This simple class just adds some data to the `Request` object, which is returned in one of the methods in the `ApiController` class. We've added this class to demonstrate that you can use middlewares to ensure that the user has the correct authentication - before router loads the controller itself.
 
 ### Urls
 

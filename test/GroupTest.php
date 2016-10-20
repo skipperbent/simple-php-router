@@ -7,13 +7,6 @@ class GroupTest extends PHPUnit_Framework_TestCase  {
 
     protected $result;
 
-    public function __construct() {
-        // Initial setup
-        $_SERVER['HTTP_HOST'] = 'example.com';
-        $_SERVER['REQUEST_URI'] = '/api/v1/test';
-        $_SERVER['REQUEST_METHOD'] = 'get';
-    }
-
     protected function group() {
         $this->result = true;
     }

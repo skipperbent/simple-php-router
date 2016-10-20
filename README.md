@@ -116,7 +116,7 @@ SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\So
 This is a basic example of an ExceptionHandler implementation:
 
 ```php
-namespace BB\Handlers;
+namespace Demo\Handlers;
 
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\RouterEntry;
@@ -140,7 +140,7 @@ class CustomExceptionHandler implements IExceptionHandler {
     }
 
 }
-``
+```
 
 ### Sub-domain routing
 
@@ -184,79 +184,39 @@ This is a simple example of an integration into a framework.
 The framework has it's own ```Router``` class which inherits from the ```SimpleRouter``` class. This allows the framework to add custom functionality.
 
 ```php
-namespace Pecee;
+namespace Demo;
 
 use Pecee\Exception\RouterException;
-use Pecee\Handler\ExceptionHandler;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\SimpleRouter\RouterBase;
 use Pecee\SimpleRouter\SimpleRouter;
 
 class Router extends SimpleRouter {
 
-    protected static $defaultExceptionHandler;
     protected static $defaultMiddlewares = array();
 
     public static function start($defaultNamespace = null) {
 
-        // Debug information
-        Debug::getInstance()->add('Router initialised.');
+        // change this to whatever makes sense in your project
+        require_once 'routes.php';
 
-        // Load framework specific controllers
-        static::get('/js-wrap', 'ControllerJs@wrap', ['namespace' => '\Pecee\Controller'])->setAlias('pecee.js.wrap');
-        static::get('/css-wrap', 'ControllerCss@wrap', ['namespace' => '\Pecee\Controller'])->setAlias('pecee.css.wrap');
-        static::get('/captcha', 'ControllerCaptcha@show', ['namespace' => '\Pecee\Controller']);
 
-        // Load routes.php
-        $file = $_ENV['base_path'] . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'routes.php';
-        if(file_exists($file)) {
-            require_once $file;
+        if(count(static::$defaultMiddlewares)) {
+            /* @var $middleware \Pecee\Http\Middleware\IMiddleware */
+            foreach(static::$defaultMiddlewares as $middleware) {
+                $middleware = new $middleware();
+                if(!($middleware instanceof IMiddleware)) {
+                    throw new RouterException('Middleware must be implement the IMiddleware interface.');
+                }
+                $middleware->handle(RouterBase::getInstance()->getRequest());
+            }
         }
 
         // Set default namespace
-        $defaultNamespace = '\\'.$_ENV['app_name'] . '\\Controller';
+        $defaultNamespace = '\\Demo\\Controllers';
 
-        // Handle exceptions
-        try {
+        parent::start($defaultNamespace);
 
-            if(count(static::$defaultMiddlewares)) {
-                /* @var $middleware \Pecee\Http\Middleware\IMiddleware */
-                foreach(static::$defaultMiddlewares as $middleware) {
-                    $middleware = new $middleware();
-                    if(!($middleware instanceof IMiddleware)) {
-                        throw new RouterException('Middleware must be implement the IMiddleware interface.');
-                    }
-                    $middleware->handle(RouterBase::getInstance()->getRequest());
-                }
-            }
-
-            parent::start($defaultNamespace);
-        } catch(\Exception $e) {
-
-            $route = RouterBase::getInstance()->getLoadedRoute();
-
-            // Otherwise use the fallback default exceptions handler
-            if(static::$defaultExceptionHandler !== null) {
-                static::loadExceptionHandler(static::$defaultExceptionHandler, $route, $e);
-            }
-
-            throw $e;
-        }
-
-    }
-
-    protected static function loadExceptionHandler($class, $route, $e) {
-        $class = new $class();
-
-        if(!($class instanceof ExceptionHandler)) {
-            throw new \ErrorException('Exception handler must be an instance of \Pecee\Handler\ExceptionHandler');
-        }
-
-        $class->handleError(RouterBase::getInstance()->getRequest(), $route, $e);
-    }
-
-    public static function defaultExceptionHandler($handler) {
-        static::$defaultExceptionHandler = $handler;
     }
 
     /**
@@ -348,7 +308,6 @@ Sometimes it can be necessary to keep urls stored in the database, file or simil
 To interfere with the router, we create a class that inherits from ```RouterBootManager```. This class will be loaded before any other rules in ```routes.php``` and allow us to "change" the current route, if any of our criteria are fulfilled (like coming from the url ```/my-cat-is-beatiful```).
 
 ```php
-
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\RouterBootManager;
 
