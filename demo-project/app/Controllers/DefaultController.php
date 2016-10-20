@@ -22,4 +22,8 @@ class DefaultController {
 
     }
 
+    public function notFound() {
+        echo 'Page not found';
+    }
+
 }

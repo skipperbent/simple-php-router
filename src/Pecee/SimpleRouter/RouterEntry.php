@@ -310,7 +310,7 @@ abstract class RouterEntry {
             if($max) {
                 for($i = 0; $i < $max; $i++) {
                     $name = $parameterNames[$i];
-                    $parameterValue = (isset($parameterValues[$name['name']]) && !empty($parameterValues[$name['name']])) ? $parameterValues[$name['name']] : null;
+                    $parameterValue = isset($parameterValues[$name['name']]) ? $parameterValues[$name['name']] : null;
 
                     if($name['required'] && $parameterValue === null) {
                         throw new RouterException('Missing required parameter ' . $name['name'], 404);

@@ -21,8 +21,14 @@ class CustomExceptionHandler implements IExceptionHandler {
 
         // else we just throw the error
         if($error->getCode() == 404) {
-            die(sprintf('An error occurred (%s):<br/>%s', $error->getCode(), $error->getMessage()));
+
+            // Return 404 path
+            $request->setUri('/404');
+            return $request;
+
         }
+
+        throw $error;
     }
 
 }

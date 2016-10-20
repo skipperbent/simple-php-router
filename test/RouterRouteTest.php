@@ -2,14 +2,31 @@
 
 require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
+require_once 'Dummy/Handler/ExceptionHandler.php';
 
 class RouterRouteTest extends PHPUnit_Framework_TestCase  {
+  
 
-    public function __construct() {
-        // Initial setup
-        $_SERVER['HTTP_HOST'] = 'example.com';
-        $_SERVER['REQUEST_URI'] = '/my/test/url';
-        $_SERVER['REQUEST_METHOD'] = 'get';
+    public function testNotFound() {
+        \Pecee\SimpleRouter\RouterBase::reset();
+
+        \Pecee\Http\Request::getInstance()->setMethod('get');
+        \Pecee\Http\Request::getInstance()->setUri('/test-param1-param2');
+
+        \Pecee\SimpleRouter\SimpleRouter::group(['exceptionHandler' => 'ExceptionHandler'], function() {
+            \Pecee\SimpleRouter\SimpleRouter::get('/non-existing-path', 'DummyController@start');
+        });
+
+        $found = false;
+
+        try {
+            \Pecee\SimpleRouter\SimpleRouter::start();
+        }catch(\Exception $e) {
+            $found = ($e instanceof \Pecee\Exception\RouterException && $e->getCode() == 404);
+        }
+
+        $this->assertTrue($found);
+
     }
 
     public function testGet() {

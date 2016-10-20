@@ -18,7 +18,7 @@ Please note that this demo-project only covers how to integrate the `simple-php-
 
 ## Installation
 
-- Navigate to the `demo-project` folder in terminal and run `composer install`.
+- Navigate to the `demo-project` folder in terminal and run `composer update` to install the latest version.
 - Point your webserver to `demo-project/public`.
 
 ### Setting up Nginx
@@ -46,7 +46,8 @@ Nothing special is required for Apache to work. We've include the `.htaccess` fi
 
 ## Notes
 
-The demo project has it's own `Router` class implementation which extends the `SimpleRouter` class with further functionality such as default exceptionhandlers and middlewares. This class can be useful adding additional functionality that are required before and after routing occurs or any extra functionality belonging to the router itself. 
+The demo project has it's own `Router` class implementation which extends the `SimpleRouter` class with further functionality. 
+This class can be useful adding additional functionality that are required before and after routing occurs or any extra functionality belonging to the router itself. 
 
 In this project we also use our custom router-class to autoload the `routes.php` file from our custom location (`app/routes.php`).
 

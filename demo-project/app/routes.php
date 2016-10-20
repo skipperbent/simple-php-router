@@ -6,14 +6,18 @@
 use Demo\Router;
 
 Router::csrfVerifier(new \Demo\Middlewares\CsrfVerifier());
-Router::defaultExceptionHandler('\Demo\Handlers\CustomExceptionHandler');
 
-Router::get('/', 'DefaultController@index')->setAlias('home');
-Router::get('/contact', 'DefaultController@contact')->setAlias('contact');
-Router::basic('/companies', 'DefaultController@companies')->setAlias('companies');
-Router::basic('/companies/{id}', 'DefaultController@companies')->setAlias('companies');
+Router::group(['exceptionHandler' => 'Demo\Handlers\CustomExceptionHandler'], function() {
 
-// Api
-Router::group(['prefix' => '/api', 'middleware' => 'Demo\Middlewares\ApiVerification'], function() {
-    Router::resource('/demo', 'ApiController');
+    Router::get('/', 'DefaultController@index')->setAlias('home');
+    Router::get('/contact', 'DefaultController@contact')->setAlias('contact');
+    Router::get('/404', 'DefaultController@notFound')->setAlias('404');
+    Router::basic('/companies', 'DefaultController@companies')->setAlias('companies');
+    Router::basic('/companies/{id}', 'DefaultController@companies')->setAlias('companies');
+
+    // Api
+    Router::group(['prefix' => '/api', 'middleware' => 'Demo\Middlewares\ApiVerification'], function() {
+        Router::resource('/demo', 'ApiController');
+    });
+
 });
