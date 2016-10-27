@@ -301,6 +301,28 @@ class RouterBase {
         return $this;
     }
 
+    public function httpBuildQuery(array $input) {
+
+        $output = '';
+
+        if(count($input)) {
+
+            $output .= '?';
+
+            $i = 0;
+            foreach ($input as $key => $value) {
+                $output .= $key . '=' . urlencode($value);
+                if (($i + 1) < count($input)) {
+                    $output .= '&';
+                }
+                $i++;
+            }
+
+        }
+
+        return $output;
+    }
+
     public function arrayToParams(array $getParams = null, $includeEmpty = true) {
 
         if(is_array($getParams)) {
@@ -310,7 +332,7 @@ class RouterBase {
                 });
             }
 
-            return http_build_query($getParams);
+            return $this->httpBuildQuery($getParams);
         }
         return '';
     }
@@ -461,8 +483,8 @@ class RouterBase {
 
         $url = '/' . trim(join('/', $url), '/') . '/';
 
-        if($getParams !== null && count($getParams)) {
-            $url .= '?' . $this->arrayToParams($getParams);
+        if($getParams !== null) {
+            $url .= $this->arrayToParams($getParams);
         }
 
         return $url;
