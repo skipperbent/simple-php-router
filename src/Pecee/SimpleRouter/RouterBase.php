@@ -303,7 +303,7 @@ class RouterBase {
 
     public function arrayToParams(array $getParams = null, $includeEmpty = true) {
 
-        if(is_array($getParams)) {
+        if(is_array($getParams) && count($getParams)) {
             if ($includeEmpty === false) {
                 $getParams = array_filter($getParams, function ($item) {
                     return (!empty($item));
