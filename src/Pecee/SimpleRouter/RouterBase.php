@@ -113,6 +113,8 @@ class RouterBase {
 
         $originalUri = $this->request->getUri();
 
+        $routeNotAllowed = false;
+
         try {
 
             // Initialize boot-managers
@@ -136,8 +138,6 @@ class RouterBase {
                     $this->baseCsrfVerifier->handle($this->request);
                 }
             }
-
-            $routeNotAllowed = false;
 
             $max = count($this->controllerUrlMap);
 
