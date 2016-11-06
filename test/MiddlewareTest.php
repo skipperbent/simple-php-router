@@ -7,7 +7,6 @@ require_once 'Dummy/Handler/ExceptionHandler.php';
 class MiddlewareTest extends PHPUnit_Framework_TestCase  {
 
     public function testMiddlewareFound() {
-        \Pecee\SimpleRouter\RouterBase::reset();
 
         \Pecee\Http\Request::getInstance()->setMethod('get');
         \Pecee\Http\Request::getInstance()->setUri('/my/test/url');
