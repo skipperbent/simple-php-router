@@ -12,7 +12,6 @@ class GroupTest extends PHPUnit_Framework_TestCase  {
     }
 
     public function testGroup() {
-        \Pecee\SimpleRouter\RouterBase::reset();
 
         $this->result = false;
 
@@ -28,9 +27,9 @@ class GroupTest extends PHPUnit_Framework_TestCase  {
     }
 
     public function testNestedGroup() {
-        \Pecee\SimpleRouter\RouterBase::reset();
 
-        \Pecee\Http\Request::getInstance()->setUri('/api/v1/test');
+        \Pecee\SimpleRouter\RouterBase::getInstance()->getRequest()->setUri('/api/v1/test');
+        \Pecee\SimpleRouter\RouterBase::getInstance()->getRequest()->setMethod('get');
 
         \Pecee\SimpleRouter\SimpleRouter::group(['prefix' => '/api'], function() {
             \Pecee\SimpleRouter\SimpleRouter::group(['prefix' => '/v1'], function() {

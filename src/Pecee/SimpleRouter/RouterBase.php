@@ -85,16 +85,18 @@ class RouterBase {
 
             $this->currentRoute = $route;
 
-            if($route instanceof RouterGroup && is_callable($route->getCallback())) {
+            if($route instanceof RouterGroup && is_callable($route->getCallback()) && $route->matchRoute($this->request)) {
+
                 $group = $route;
 
                 $group->renderRoute($this->request);
                 $mergedSettings = array_merge($settings, $group->getMergeableSettings());
 
                 // Add ExceptionHandler
-                if($group->matchRoute($this->request) && $group->getExceptionHandler() !== null) {
+                if($group->getExceptionHandler() !== null) {
                     $this->exceptionHandlers[] = $route;
                 }
+
             }
 
             $this->currentRoute = null;
@@ -474,10 +476,6 @@ class RouterBase {
             static::$instance = new static();
         }
         return static::$instance;
-    }
-
-    public static function reset() {
-        static::$instance = null;
     }
 
 }
