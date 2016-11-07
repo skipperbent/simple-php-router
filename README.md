@@ -204,8 +204,8 @@ class Router extends SimpleRouter {
 }
 ```
 
-#### Helper functions examples
-**This is a basic example of a helper function for generating urls.**
+### Helper functions
+**This is a basic example of a helper functions.**
 
 ```php
 use Pecee\SimpleRouter\SimpleRouter;
