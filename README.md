@@ -208,15 +208,12 @@ class Router extends SimpleRouter {
 **This is a basic example of a helper function for generating urls.**
 
 ```php
-use Pecee\SimpleRouter\RouterBase;
+use Pecee\SimpleRouter\SimpleRouter;
+
 function url($controller, $parameters = null, $getParams = null) {
-    RouterBase::getInstance()->getRoute($controller, $parameters, $getParams);
+    SimpleRouter::getRoute($controller, $parameters, $getParams);
 }
-```
 
-**This is a basic example for getting the current csrf token**
-
-```php
 /**
  * Get current csrf-token
  * @return null|string
@@ -224,6 +221,22 @@ function url($controller, $parameters = null, $getParams = null) {
 function csrf_token() {
     $token = new \Pecee\CsrfToken();
     return $token->getToken();
+}
+
+/**
+ * Get request object
+ * @return \Pecee\Http\Request
+ */
+function request() {
+    return SimpleRouter::request();
+}
+
+/**
+ * Get response object
+ * @return \Pecee\Http\Response
+ */
+function response() {
+    return SimpleRouter::response();
 }
 ```
 
@@ -327,12 +340,14 @@ SimpleRouter::get('/article/view/{id}', 'ControllerArticle@view');
 ## Easily overwrite route about to be loaded
 Sometimes it can be useful to manipulate the route that's about to be loaded, for instance if a user is not authenticated or if an error occurred within your Middleware that requires
 some other route to be initialised. Simple PHP Router allows you to easily change the route about to be executed. All information about the current route is stored in
-the ```\Pecee\SimpleRouter\Http\Request``` object.
+the ```\Pecee\SimpleRouter\Http\Request``` object. All information about the current route is as a ```\Pecee\SimpleRouter\Http\Request``` object which can always be obtained on 
+the `RouterBase` instance. For easy access you can use the shortcut method `\Pecee\SimpleRouter\SimpleRouter::request()`.
 
 **Note:** Please note that it's only possible to change the route BEFORE any route has initially been loaded, so doing this in your custom ExceptionHandler or Middleware is highly recommended.
 
 ```php
-$route = Request::getInstance()->getLoadedRoute();
+use Pecee\SimpleRouter;
+$route = SimpleRouter::request()->getLoadedRoute();
 
 $route->setCallback('Example\MyCustomClass@hello');
 
@@ -348,28 +363,28 @@ We've added the `Input` class to easy access parameters from your Controller-cla
 
 **Return single parameter value (matches both GET, POST, FILE):**
 ```php
-$value = Request::getInstance()->getInput()->get('name');
+$value = SimpleRouter::request()->getInput()->get('name');
 ```
 
 **Return parameter object (matches both GET, POST, FILE):**
 ```php
-$object = Request::getInstance()->getInput()->getObject('name');
+$object = SimpleRouter::request()->getInput()->getObject('name');
 ```
 
 **Return specific GET parameter (where name is the name of your parameter):**
 ```php
-$object = Request::getInstance()->getInput()->get->name;
-$object = Request::getInstance()->getInput()->post->name;
-$object = Request::getInstance()->getInput()->file->name;
+$object = SimpleRouter::request()->getInput()->get->name;
+$object = SimpleRouter::request()->getInput()->post->name;
+$object = SimpleRouter::request()->getInput()->file->name;
 ```
 
 **Return all parameters:**
 ```php
 // Get all
-$objects = Request::getInstance()->getInput()->all();
+$objects = SimpleRouter::request()->getInput()->all();
 
 // Only match certain keys
-$objects = Request::getInstance()->getInput()->all([
+$objects = SimpleRouter::request()->getInput()->all([
     'company_name',
     'user_id'
 ]);
@@ -400,7 +415,7 @@ Example:
  * @return \Pecee\Http\Input\Input
  */
 function input() {
-    return \Pecee\Http\Request::getInstance()->getInput();
+    return SimpleRouter::request()->getInput();
 }
 ```
 

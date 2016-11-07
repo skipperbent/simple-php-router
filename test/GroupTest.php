@@ -28,8 +28,9 @@ class GroupTest extends PHPUnit_Framework_TestCase  {
 
     public function testNestedGroup() {
 
-        \Pecee\SimpleRouter\RouterBase::getInstance()->getRequest()->setUri('/api/v1/test');
-        \Pecee\SimpleRouter\RouterBase::getInstance()->getRequest()->setMethod('get');
+        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
+        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/api/v1/test');
+        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('get');
 
         \Pecee\SimpleRouter\SimpleRouter::group(['prefix' => '/api'], function() {
             \Pecee\SimpleRouter\SimpleRouter::group(['prefix' => '/v1'], function() {

@@ -1,7 +1,7 @@
 <?php
 namespace Demo\Controllers;
 
-use Pecee\Http\Request;
+use Pecee\SimpleRouter\SimpleRouter;
 
 class ApiController {
 
@@ -9,7 +9,7 @@ class ApiController {
 
         // The variable authenticated is set to true in the ApiVerification middleware class.
 
-        $request = Request::getInstance();
+        $request = SimpleRouter::request();
 
         header('content-type: application/json');
 

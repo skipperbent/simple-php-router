@@ -13,6 +13,10 @@ use Pecee\Http\Middleware\BaseCsrfVerifier;
 
 class SimpleRouter {
 
+    public function __construct() {
+        die('test');
+    }
+
     /**
      * Start/route request
      * @param null $defaultNamespace
@@ -126,6 +130,14 @@ class SimpleRouter {
 
     public static function getRoute($controller = null, $parameters = null, $getParams = null) {
         return RouterBase::getInstance()->getRoute($controller, $parameters, $getParams);
+    }
+
+    public static function request() {
+        return RouterBase::getInstance()->getRequest();
+    }
+
+    public static function response() {
+        return RouterBase::getInstance()->getResponse();
     }
 
 }

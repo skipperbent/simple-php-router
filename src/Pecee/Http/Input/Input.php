@@ -20,7 +20,13 @@ class Input {
      */
     public $file;
 
-    public function __construct() {
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    public function __construct(Request &$request) {
+        $this->request = $request;
         $this->setGet();
         $this->setPost();
         $this->setFile();
@@ -58,7 +64,7 @@ class Input {
             return ($key !== null) ? $element[$key] : $element;
         }
 
-        if(Request::getInstance()->getMethod() !== 'get') {
+        if($this->request->getMethod() !== 'get') {
 
             $element = $this->post->findFirst($index);
 
