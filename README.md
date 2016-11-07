@@ -204,6 +204,51 @@ class Router extends SimpleRouter {
 }
 ```
 
+## Helper functions
+
+To simplify to use of simple-router functionality, we recommend you add these helper functions to your project.
+
+```php
+use Pecee\SimpleRouter\SimpleRouter;
+
+function url($controller, $parameters = null, $getParams = null) {
+    SimpleRouter::getRoute($controller, $parameters, $getParams);
+}
+
+/**
+ * Get current csrf-token
+ * @return null|string
+ */
+function csrf_token() {
+    $token = new \Pecee\CsrfToken();
+    return $token->getToken();
+}
+
+/**
+ * Get request object
+ * @return \Pecee\Http\Request
+ */
+function request() {
+    return SimpleRouter::request();
+}
+
+/**
+ * Get response object
+ * @return \Pecee\Http\Response
+ */
+function response() {
+    return SimpleRouter::response();
+}
+
+/**
+ * Get input class
+ * @return \Pecee\Http\Input\Input
+ */
+function input() {
+    return SimpleRouter::request()->getInput();
+}
+```
+
 ## Getting urls
 
 **In ```routes.php``` we have added this route:**
@@ -359,52 +404,8 @@ All object inherits from `InputItem` class and will always contain these methods
 
 
 ### Easy access to methods
-Create a helper function to easily get access to the input elements.
 
-**This is a basic example of a helper functions.**
-
-```php
-use Pecee\SimpleRouter\SimpleRouter;
-
-function url($controller, $parameters = null, $getParams = null) {
-    SimpleRouter::getRoute($controller, $parameters, $getParams);
-}
-
-/**
- * Get current csrf-token
- * @return null|string
- */
-function csrf_token() {
-    $token = new \Pecee\CsrfToken();
-    return $token->getToken();
-}
-
-/**
- * Get request object
- * @return \Pecee\Http\Request
- */
-function request() {
-    return SimpleRouter::request();
-}
-
-/**
- * Get response object
- * @return \Pecee\Http\Response
- */
-function response() {
-    return SimpleRouter::response();
-}
-
-/**
- * Get input class
- * @return \Pecee\Http\Input\Input
- */
-function input() {
-    return SimpleRouter::request()->getInput();
-}
-```
-
-Then you can easily do something like this in your controller:
+Below example requires you to have the helper functions added. Please refer to the helper functions section in the documentation.
 
 ```php
 // Get parameter site_id or default-value 2
