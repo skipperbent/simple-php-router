@@ -18,7 +18,7 @@ The goal of this project is to create a router that is 100% compatible with the 
 
 ### Features
 
-- Basic routing (get, post, put, delete) with support for custom multiple verbs.
+- Basic routing (`GET`, `POST`, `PUT`, `DELETE`) with support for custom multiple verbs.
 - Regular Expression Constraints for parameters.
 - Named routes.
 - Generating url to routes.
@@ -204,8 +204,9 @@ class Router extends SimpleRouter {
 }
 ```
 
-#### Helper functions examples
-**This is a basic example of a helper function for generating urls.**
+## Helper functions
+
+To simplify to use of simple-router functionality, we recommend you add these helper functions to your project.
 
 ```php
 use Pecee\SimpleRouter\SimpleRouter;
@@ -237,6 +238,14 @@ function request() {
  */
 function response() {
     return SimpleRouter::response();
+}
+
+/**
+ * Get input class
+ * @return \Pecee\Http\Input\Input
+ */
+function input() {
+    return SimpleRouter::request()->getInput();
 }
 ```
 
@@ -327,16 +336,6 @@ By doing this the route will now load the url ```/article/view/1``` instead of `
 
 The last thing we need to do, is to add our custom boot-manager to the ```routes.php``` file. You can create as many bootmanagers as you like and easily add them in your ```routes.php``` file.
 
-**routes.php example:**
-
-```php
-// Add new bootmanager
-SimpleRouter::addBootManager(new CustomRouterRules());
-
-// This rule is what our custom bootmanager will use.
-SimpleRouter::get('/article/view/{id}', 'ControllerArticle@view');
-```
-
 ## Easily overwrite route about to be loaded
 Sometimes it can be useful to manipulate the route that's about to be loaded, for instance if a user is not authenticated or if an error occurred within your Middleware that requires
 some other route to be initialised. Simple PHP Router allows you to easily change the route about to be executed. All information about the current route is stored in
@@ -404,22 +403,9 @@ All object inherits from `InputItem` class and will always contain these methods
 - `getError()` - get file upload error.
 
 
-### Easy access your input
-Create a helper function to easily get access to the input elements.
+### Easy access to methods
 
-Example:
-
-```php
-/**
- * Get input class
- * @return \Pecee\Http\Input\Input
- */
-function input() {
-    return SimpleRouter::request()->getInput();
-}
-```
-
-Then you can easily do something like this in your controller:
+Below example requires you to have the helper functions added. Please refer to the helper functions section in the documentation.
 
 ```php
 // Get parameter site_id or default-value 2
