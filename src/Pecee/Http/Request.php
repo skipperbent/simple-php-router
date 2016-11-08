@@ -26,7 +26,7 @@ class Request {
         $this->uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : array();
         $this->method = (isset($_POST['_method'])) ? strtolower($_POST['_method']) : (isset($_SERVER['REQUEST_METHOD']) ? strtolower($_SERVER['REQUEST_METHOD']) : array());
         $this->headers = $this->getAllHeaders();
-        $this->input = new Input();
+        $this->input = new Input($this);
     }
 
     protected function getAllHeaders() {
