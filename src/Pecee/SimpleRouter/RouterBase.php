@@ -5,12 +5,14 @@ use Pecee\Exception\RouterException;
 use Pecee\Handler\IExceptionHandler;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
+use Pecee\Http\Response;
 
 class RouterBase {
 
     protected static $instance;
 
     protected $request;
+    protected $response;
     protected $currentRoute;
     protected $routes;
     protected $processedRoutes;
@@ -21,10 +23,13 @@ class RouterBase {
     protected $baseCsrfVerifier;
     protected $exceptionHandlers;
 
-    // TODO: clean up - cut some of the methods down to smaller pieces
-
     public function __construct() {
-        $this->request = Request::getInstance();
+        $this->reset();
+    }
+
+    public function reset() {
+        $this->request = new Request();
+        $this->response = new Response($this->request);
         $this->routes = array();
         $this->backStack = array();
         $this->controllerUrlMap = array();
@@ -290,6 +295,14 @@ class RouterBase {
     }
 
     /**
+     * Get response
+     * @return Response
+     */
+    public function getResponse() {
+        return $this->response;
+    }
+
+    /**
      * Get base csrf verifier class
      * @return BaseCsrfVerifier
      */
@@ -341,10 +354,10 @@ class RouterBase {
         $url = $domain . '/' . trim($route->getUrl(), '/');
 
         if(($route instanceof RouterController || $route instanceof RouterResource) && $method !== null) {
-            $url .= $method;
-        }
+            if($method !== null) {
+                $url .= $method;
+            }
 
-        if($route instanceof RouterController || $route instanceof RouterResource) {
             if(count($parameters)) {
                 $url .= join('/', $parameters);
             }
@@ -419,12 +432,15 @@ class RouterBase {
             $route = $this->controllerUrlMap[$i];
 
             // Check an alias exist, if the matches - use it
-            if($route instanceof RouterRoute && $route->hasAlias($controller)) {
-                return $this->processUrl($route, $route->getMethod(), $parameters, $getParams);
-            }
+            if($route instanceof RouterRoute) {
 
-            if($route instanceof RouterRoute && !is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
-                $c = $route->getCallback();
+                if($route->hasAlias($controller)) {
+                    return $this->processUrl($route, $route->getMethod(), $parameters, $getParams);
+                }
+
+                if(!is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
+                    $c = $route->getCallback();
+                }
             } else if($route instanceof RouterController || $route instanceof RouterResource) {
                 $c = $route->getController();
             }
@@ -476,6 +492,10 @@ class RouterBase {
         return $url;
     }
 
+    /**
+     * Get current router instance
+     * @return static
+     */
     public static function getInstance() {
         if(static::$instance === null) {
             static::$instance = new static();

@@ -8,8 +8,9 @@ class MiddlewareTest extends PHPUnit_Framework_TestCase  {
 
     public function testMiddlewareFound() {
 
-        \Pecee\Http\Request::getInstance()->setMethod('get');
-        \Pecee\Http\Request::getInstance()->setUri('/my/test/url');
+        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
+        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('get');
+        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/my/test/url');
 
         \Pecee\SimpleRouter\SimpleRouter::group(['exceptionHandler' => 'ExceptionHandler'], function() {
             \Pecee\SimpleRouter\SimpleRouter::get('/my/test/url', 'DummyController@start', ['middleware' => 'DummyMiddleware']);

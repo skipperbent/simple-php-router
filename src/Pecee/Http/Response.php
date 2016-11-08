@@ -4,6 +4,12 @@ namespace Pecee\Http;
 
 class Response {
 
+    protected $request;
+
+    public function __construct(Request &$request) {
+        $this->request = $request;
+    }
+
     /**
      * Set the http status code
      *
@@ -31,7 +37,7 @@ class Response {
     }
 
     public function refresh() {
-        $this->redirect(Request::getInstance()->getUri());
+        $this->redirect($this->request->getUri());
     }
 
     /**

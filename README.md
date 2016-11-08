@@ -18,7 +18,7 @@ The goal of this project is to create a router that is 100% compatible with the 
 
 ### Features
 
-- Basic routing (get, post, put, delete) with support for custom multiple verbs.
+- Basic routing (`GET`, `POST`, `PUT`, `DELETE`) with support for custom multiple verbs.
 - Regular Expression Constraints for parameters.
 - Named routes.
 - Generating url to routes.
@@ -204,19 +204,17 @@ class Router extends SimpleRouter {
 }
 ```
 
-#### Helper functions examples
-**This is a basic example of a helper function for generating urls.**
+## Helper functions
+
+To simplify to use of simple-router functionality, we recommend you add these helper functions to your project.
 
 ```php
-use Pecee\SimpleRouter\RouterBase;
+use Pecee\SimpleRouter\SimpleRouter;
+
 function url($controller, $parameters = null, $getParams = null) {
-    RouterBase::getInstance()->getRoute($controller, $parameters, $getParams);
+    SimpleRouter::getRoute($controller, $parameters, $getParams);
 }
-```
 
-**This is a basic example for getting the current csrf token**
-
-```php
 /**
  * Get current csrf-token
  * @return null|string
@@ -224,6 +222,30 @@ function url($controller, $parameters = null, $getParams = null) {
 function csrf_token() {
     $token = new \Pecee\CsrfToken();
     return $token->getToken();
+}
+
+/**
+ * Get request object
+ * @return \Pecee\Http\Request
+ */
+function request() {
+    return SimpleRouter::request();
+}
+
+/**
+ * Get response object
+ * @return \Pecee\Http\Response
+ */
+function response() {
+    return SimpleRouter::response();
+}
+
+/**
+ * Get input class
+ * @return \Pecee\Http\Input\Input
+ */
+function input() {
+    return SimpleRouter::request()->getInput();
 }
 ```
 
@@ -314,25 +336,17 @@ By doing this the route will now load the url ```/article/view/1``` instead of `
 
 The last thing we need to do, is to add our custom boot-manager to the ```routes.php``` file. You can create as many bootmanagers as you like and easily add them in your ```routes.php``` file.
 
-**routes.php example:**
-
-```php
-// Add new bootmanager
-SimpleRouter::addBootManager(new CustomRouterRules());
-
-// This rule is what our custom bootmanager will use.
-SimpleRouter::get('/article/view/{id}', 'ControllerArticle@view');
-```
-
 ## Easily overwrite route about to be loaded
 Sometimes it can be useful to manipulate the route that's about to be loaded, for instance if a user is not authenticated or if an error occurred within your Middleware that requires
 some other route to be initialised. Simple PHP Router allows you to easily change the route about to be executed. All information about the current route is stored in
-the ```\Pecee\SimpleRouter\Http\Request``` object.
+the ```\Pecee\SimpleRouter\Http\Request``` object. All information about the current route is as a ```\Pecee\SimpleRouter\Http\Request``` object which can always be obtained on 
+the `RouterBase` instance. For easy access you can use the shortcut method `\Pecee\SimpleRouter\SimpleRouter::request()`.
 
 **Note:** Please note that it's only possible to change the route BEFORE any route has initially been loaded, so doing this in your custom ExceptionHandler or Middleware is highly recommended.
 
 ```php
-$route = Request::getInstance()->getLoadedRoute();
+use Pecee\SimpleRouter;
+$route = SimpleRouter::request()->getLoadedRoute();
 
 $route->setCallback('Example\MyCustomClass@hello');
 
@@ -348,28 +362,28 @@ We've added the `Input` class to easy access parameters from your Controller-cla
 
 **Return single parameter value (matches both GET, POST, FILE):**
 ```php
-$value = Request::getInstance()->getInput()->get('name');
+$value = SimpleRouter::request()->getInput()->get('name');
 ```
 
 **Return parameter object (matches both GET, POST, FILE):**
 ```php
-$object = Request::getInstance()->getInput()->getObject('name');
+$object = SimpleRouter::request()->getInput()->getObject('name');
 ```
 
 **Return specific GET parameter (where name is the name of your parameter):**
 ```php
-$object = Request::getInstance()->getInput()->get->name;
-$object = Request::getInstance()->getInput()->post->name;
-$object = Request::getInstance()->getInput()->file->name;
+$object = SimpleRouter::request()->getInput()->get->name;
+$object = SimpleRouter::request()->getInput()->post->name;
+$object = SimpleRouter::request()->getInput()->file->name;
 ```
 
 **Return all parameters:**
 ```php
 // Get all
-$objects = Request::getInstance()->getInput()->all();
+$objects = SimpleRouter::request()->getInput()->all();
 
 // Only match certain keys
-$objects = Request::getInstance()->getInput()->all([
+$objects = SimpleRouter::request()->getInput()->all([
     'company_name',
     'user_id'
 ]);
@@ -389,22 +403,9 @@ All object inherits from `InputItem` class and will always contain these methods
 - `getError()` - get file upload error.
 
 
-### Easy access your input
-Create a helper function to easily get access to the input elements.
+### Easy access to methods
 
-Example:
-
-```php
-/**
- * Get input class
- * @return \Pecee\Http\Input\Input
- */
-function input() {
-    return \Pecee\Http\Request::getInstance()->getInput();
-}
-```
-
-Then you can easily do something like this in your controller:
+Below example requires you to have the helper functions added. Please refer to the helper functions section in the documentation.
 
 ```php
 // Get parameter site_id or default-value 2

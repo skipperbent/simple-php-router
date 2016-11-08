@@ -97,9 +97,12 @@ class RouterGroup extends RouterEntry {
         if($this->getMiddleware() !== null && isset($settings['middleware'])) {
 
             if(!is_array($this->getMiddleware())) {
-                $middlewares = [$this->getMiddleware(), $settings['middleware']];
+                $middlewares = [
+                    $this->getMiddleware(),
+                    $settings['middleware']
+                ];
             } else {
-                $middlewares = array_push($settings['middleware']);
+                $middlewares = array_push($settings['middleware'], $this->getMiddleware());
             }
 
             $settings['middleware'] = array_unique(array_reverse($middlewares));

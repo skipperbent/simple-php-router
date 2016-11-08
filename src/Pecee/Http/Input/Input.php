@@ -20,7 +20,13 @@ class Input {
      */
     public $file;
 
-    public function __construct() {
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    public function __construct(Request &$request) {
+        $this->request = $request;
         $this->setGet();
         $this->setPost();
         $this->setFile();
@@ -32,17 +38,31 @@ class Input {
      * @return array
      */
     public function all(array $filter = null) {
-        $output = $this->get->getData();
-        $output = array_merge($output, $this->post->getData());
 
-        if($filter !== null) {
-            $tmp = array();
-            foreach($output as $key => $val) {
-                if(in_array($key, $filter)) {
-                    $tmp[$key] = $val;
+        $output = $_POST;
+
+        if($this->request->getMethod() === 'post') {
+
+            $contents = file_get_contents('php://input');
+
+            if (stripos(trim($contents), '{') === 0) {
+                $output = json_decode($contents, true);
+                if($output === false) {
+                    $output = array();
                 }
             }
-            return $tmp;
+        }
+
+        $output = array_merge($_GET, $output);
+
+        if($filter !== null) {
+            $output = array_filter($output, function ($key) use ($filter) {
+                if (in_array($key, $filter)) {
+                    return true;
+                }
+
+                return false;
+            }, ARRAY_FILTER_USE_KEY);
         }
 
         return $output;
@@ -58,7 +78,7 @@ class Input {
             return ($key !== null) ? $element[$key] : $element;
         }
 
-        if(Request::getInstance()->getMethod() !== 'get') {
+        if($this->request->getMethod() !== 'get') {
 
             $element = $this->post->findFirst($index);
 
@@ -87,7 +107,7 @@ class Input {
 
         if($item !== null) {
 
-            if(is_array($item) || $item instanceof InputFile) {
+            if($item instanceof InputCollection || $item instanceof InputFile) {
                 return $item;
             }
 
@@ -111,10 +131,10 @@ class Input {
                     continue;
                 }
 
-                $output = array();
+                $output = new InputCollection();
 
                 foreach($get as $k => $g) {
-                    $output[$k] = new InputItem($k, $g);
+                    $output->{$k} = new InputItem($k, $g);
                 }
 
                 $this->get->{$key} = $output;
@@ -125,12 +145,10 @@ class Input {
     public function setPost() {
         $this->post = new InputCollection();
 
-        $postVars = array();
+        $postVars = $_POST;
 
-        if(isset($_SERVER['REQUEST_METHOD']) && in_array($_SERVER['REQUEST_METHOD'], ['PUT', 'PATCH', 'DELETE'])) {
+        if(in_array($this->request->getMethod(), ['put', 'patch', 'delete'])) {
             parse_str(file_get_contents('php://input'), $postVars);
-        } else {
-            $postVars = $_POST;
         }
 
         if(count($postVars)) {
@@ -141,10 +159,10 @@ class Input {
                     continue;
                 }
 
-                $output = array();
+                $output = new InputCollection();
 
-                foreach($post as $k=>$p) {
-                    $output[$k] = new InputItem($k, $p);
+                foreach($post as $k => $p) {
+                    $output->{$k} = new InputItem($k, $p);
                 }
 
                 $this->post->{strtolower($key)} = $output;
@@ -172,7 +190,7 @@ class Input {
                     continue;
                 }
 
-                $output = array();
+                $output = new InputCollection();
 
                 foreach($value['name'] as $k=>$val) {
                     // Strip empty values
@@ -183,7 +201,7 @@ class Input {
                         $file->setType($value['type'][$k]);
                         $file->setTmpName($value['tmp_name'][$k]);
                         $file->setError($value['error'][$k]);
-                        $output[$k] = $file;
+                        $output->{$k} = $file;
                     }
                 }
 

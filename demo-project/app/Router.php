@@ -13,11 +13,13 @@ class Router extends SimpleRouter {
 
     public static function start($defaultNamespace = null) {
 
-        // change this to whatever makes sense in your project
+        // Load our helpers
+        require_once 'helpers.php';
+
+        // Load our custom routes
         require_once 'routes.php';
 
         // Do initial stuff
-
         parent::start('\\Demo\\Controllers');
 
     }
