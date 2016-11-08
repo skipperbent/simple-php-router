@@ -5,7 +5,20 @@ use Pecee\Http\Input\Input;
 
 class Request {
 
+    protected static $instance;
+
     protected $data;
+
+    /**
+     * Return new instance
+     * @return static
+     */
+    public static function getInstance() {
+        if(self::$instance === null) {
+            self::$instance = new static();
+        }
+        return self::$instance;
+    }
 
     public function __construct() {
         $this->data = array();
