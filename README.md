@@ -81,7 +81,9 @@ use Pecee\SimpleRouter\SimpleRouter;
 // Add CSRF support (if needed)
 SimpleRouter::csrfVerifier(new \Pecee\Http\Middleware\BaseCsrfVerifier());
 
-SimpleRouter::group(['prefix' => 'v1', 'middleware' => '\MyWebsite\Middleware\SomeMiddlewareClass'], function() {
+SimpleRouter::get('/page/404', 'ControllerPage@notFound', ['as' => 'page.notfound']);
+
+SimpleRouter::group(['prefix' => '/v1', 'middleware' => '\MyWebsite\Middleware\SomeMiddlewareClass'], function() {
 
     SimpleRouter::group(['prefix' => '/services', 'exceptionHandler' => '\MyProject\Handler\CustomExceptionHandler'], function() {
 
@@ -127,7 +129,11 @@ class CustomExceptionHandler implements IExceptionHandler {
 
         // If the error-code is 404; show another route which contains the page-not-found
         if($error->getCode() === 404) {
-            // Load your custom 404-page view
+            // Throw your custom 404-page view
+            // - or -
+            // load another route with our 404 page
+            
+            return $request->setUri(url('page.notfound'));
         }
 
         // Output error as json if on api path.
@@ -196,7 +202,6 @@ class Router extends SimpleRouter {
         require_once 'routes.php';
 
         // Do initial stuff
-
         parent::start('\\Demo\\Controllers');
 
     }
@@ -282,7 +287,10 @@ use Pecee\Http\Middleware\BaseCsrfVerifier;
 
 class CsrfVerifier extends BaseCsrfVerifier {
 
-    protected $except = ['/companies/*', '/user/save'];
+    protected $except = [
+        '/companies/*', 
+        '/api'
+    ];
 
 }
 ```
@@ -345,12 +353,11 @@ the `RouterBase` instance. For easy access you can use the shortcut method `\Pec
 **Note:** Please note that it's only possible to change the route BEFORE any route has initially been loaded, so doing this in your custom ExceptionHandler or Middleware is highly recommended.
 
 ```php
-use Pecee\SimpleRouter;
-$route = SimpleRouter::request()->getLoadedRoute();
+$route = request()->getLoadedRoute();
 
 $route->setCallback('Example\MyCustomClass@hello');
 
-// -- or --
+// -- or you can rewrite by doing --
 
 $route->setClass('Example\MyCustomClass');
 $route->setMethod('hello');
@@ -362,28 +369,28 @@ We've added the `Input` class to easy access parameters from your Controller-cla
 
 **Return single parameter value (matches both GET, POST, FILE):**
 ```php
-$value = SimpleRouter::request()->getInput()->get('name');
+$value = input()->get('name');
 ```
 
 **Return parameter object (matches both GET, POST, FILE):**
 ```php
-$object = SimpleRouter::request()->getInput()->getObject('name');
+$object = input()->getObject('name');
 ```
 
 **Return specific GET parameter (where name is the name of your parameter):**
 ```php
-$object = SimpleRouter::request()->getInput()->get->name;
-$object = SimpleRouter::request()->getInput()->post->name;
-$object = SimpleRouter::request()->getInput()->file->name;
+$object = input()->get->name;
+$object = input()->post->name;
+$object = input()->file->name;
 ```
 
 **Return all parameters:**
 ```php
 // Get all
-$objects = SimpleRouter::request()->getInput()->all();
+$values = input()->all();
 
 // Only match certain keys
-$objects = SimpleRouter::request()->getInput()->all([
+$values = input()->all([
     'company_name',
     'user_id'
 ]);
