@@ -204,13 +204,16 @@ class RouterBase {
                 }
             }
 
-            if($newRequest === null && $this->csrfVerifier !== null) {
+            if($newRequest === null) {
 
                 // Loop through each route-request
                 $this->processRoutes($this->routes);
 
-                // Verify csrf token for request
-                $this->csrfVerifier->handle($this->request);
+                if($this->csrfVerifier !== null) {
+
+                    // Verify csrf token for request
+                    $this->csrfVerifier->handle($this->request);
+                }
             }
 
             $request = ($newRequest !== null) ? $newRequest : $request;
