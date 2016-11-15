@@ -30,6 +30,23 @@ class InputCollection implements \IteratorAggregate {
         return $defaultValue;
     }
 
+    public function getValue($index, $defaultValue = null) {
+        if(count($this->data)) {
+
+            if(isset($this->data[$index])) {
+                return $this->data[$index]->getValue();
+            }
+
+            foreach($this->data as $key => $value) {
+                if(strtolower($index) === strtolower($key)) {
+                    return $value->getValue();
+                }
+            }
+        }
+
+        return $defaultValue;
+    }
+
     /**
      * @param $index
      * @throws \InvalidArgumentException
