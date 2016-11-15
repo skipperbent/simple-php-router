@@ -395,6 +395,7 @@ class CustomMiddleware implements Middleware {
     public function handle(Request $request, RouterEntry &$route = null) {
         return $request->setUri('/home');
     }
+    
 }
 
 ```
@@ -418,6 +419,7 @@ class CustomMiddleware implements Middleware {
     public function handle(Request $request, RouterEntry &$route = null) { 
         $route->callback('DefaultController@home');
     }
+    
 }
 ```
 
