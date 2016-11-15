@@ -6,7 +6,7 @@ use Pecee\Http\Request;
 
 class ApiVerification implements IMiddleware {
 
-    public function handle(Request $request) {
+    public function handle(Request &$request) {
 
         // Do authentication
         $request->authenticated = true;

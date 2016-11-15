@@ -113,8 +113,8 @@ class RouterGroup extends RouterEntry {
         // Push middleware if multiple
         if ($this->getMiddleware() !== null && isset($settings['middleware'])) {
 
-            if (!is_array($this->getMiddleware())) {
-                $settings['middleware'] = array($this->getMiddleware(), $settings['middleware']);
+            if (!is_array($settings['middleware'])) {
+                $settings['middleware'] = array_merge($this->getMiddleware(), array($settings['middleware']));
             } else {
                 $settings['middleware'][] = $this->getMiddleware();
             }

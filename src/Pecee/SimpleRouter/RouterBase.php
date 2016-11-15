@@ -71,6 +71,14 @@ class RouterBase {
      */
     protected $exceptionHandlers;
 
+    /**
+     * The current loaded route
+     * @var RouterRoute|null
+     */
+    protected $loadedRoute;
+
+    protected $routeChanges;
+
     public function __construct() {
         $this->reset();
     }
@@ -83,6 +91,7 @@ class RouterBase {
         $this->controllerUrlMap = array();
         $this->bootManagers = array();
         $this->exceptionHandlers = array();
+        $this->routeChanges = array();
     }
 
     /**
@@ -173,10 +182,13 @@ class RouterBase {
         }
     }
 
-    public function routeRequest($original = true) {
+    public function routeRequest(Request $newRequest = null) {
 
-        $originalUri = $this->request->getUri();
+        $this->loadedRoute = null;
         $routeNotAllowed = false;
+
+        // Create a fictive request - so it can be changed in the middleware or exceptionhandler later on...
+        $request = clone $this->request;
 
         try {
 
@@ -184,7 +196,7 @@ class RouterBase {
             if(count($this->bootManagers)) {
                 /* @var $manager RouterBootManager */
                 foreach($this->bootManagers as $manager) {
-                    $this->request = $manager->boot($this->request);
+                    $request = $manager->boot($request);
 
                     if(!($this->request instanceof Request)) {
                         throw new RouterException('Custom router bootmanager "'. get_class($manager) .'" must return instance of Request.');
@@ -192,35 +204,42 @@ class RouterBase {
                 }
             }
 
-            // Loop through each route-request
-            $this->processRoutes($this->routes);
+            if($newRequest === null && $this->csrfVerifier !== null) {
 
-            if($original === true && $this->csrfVerifier !== null) {
+                // Loop through each route-request
+                $this->processRoutes($this->routes);
+
                 // Verify csrf token for request
                 $this->csrfVerifier->handle($this->request);
             }
+
+            $request = ($newRequest !== null) ? $newRequest : $request;
 
             /* @var $route RouterEntry */
             for ($i = 0; $i < count($this->controllerUrlMap); $i++) {
 
                 $route = $this->controllerUrlMap[$i];
 
-                if ($route->matchRoute($this->request)) {
+                if ($route->matchRoute($request)) {
 
-                    if (count($route->getRequestMethods()) && !in_array($this->request->getMethod(), $route->getRequestMethods())) {
+                    if (count($route->getRequestMethods()) && !in_array($request->getMethod(), $route->getRequestMethods())) {
                         $routeNotAllowed = true;
                         continue;
                     }
 
                     $routeNotAllowed = false;
 
-                    $this->request->rewrite_uri = $this->request->getUri();
-                    $this->request->setUri($originalUri);
+                    $this->loadedRoute = $route;
+                    $request = $this->loadedRoute->loadMiddleware($request, $this->loadedRoute);
+                    $request = ($request === null) ? $this->request : $request;
 
-                    $this->request->loadedRoute = $route;
-                    $this->request->loadedRoute->loadMiddleware($this->request);
+                    if($request !== null && $request->getUri() !== $this->request->getUri() && !in_array($request->getUri(), $this->routeChanges)) {
+                        $this->routeChanges[] = $request->getUri();
+                        $this->routeRequest($request);
+                        return;
+                    }
 
-                    $this->request->loadedRoute->renderRoute($this->request);
+                    $this->loadedRoute->renderRoute($request);
 
                     break;
                 }
@@ -234,18 +253,17 @@ class RouterBase {
             $this->handleException(new RouterException('Route or method not allowed', 403));
         }
 
-        if(!$this->request->loadedRoute) {
-            $this->handleException(new RouterException(sprintf('Route not found: %s', $this->request->getUri()), 404));
+        if($this->loadedRoute === null) {
+            $this->handleException(new RouterException(sprintf('Route not found: %s', $request->getUri()), 404));
         }
     }
 
     protected function handleException(\Exception $e) {
 
-        $request = null;
+        $request = clone $this->request;
 
         /* @var $route RouterGroup */
         foreach ($this->exceptionHandlers as $route) {
-            $route->loadMiddleware($this->request);
             $handler = $route->getExceptionHandler();
             $handler = new $handler();
 
@@ -253,13 +271,20 @@ class RouterBase {
                 throw new RouterException('Exception handler must implement the IExceptionHandler interface.');
             }
 
-            $request = $handler->handleError($this->request, $this->request->loadedRoute, $e);
-        }
+            $request = $handler->handleError($request, $this->loadedRoute, $e);
+            $request = ($request === null) ? $this->request : $request;
 
-        if($request !== null) {
-            $this->request = $request;
-            $this->routeRequest(false);
-            return;
+            if(!in_array($request->getUri(), $this->routeChanges)) {
+                $this->routeChanges[] = $request->getUri();
+                if($request->getUri() !== $this->request->getUri()) {
+                    $this->routeRequest($request);
+                } else {
+                    $this->routeChanges[] = $request->getUri();
+                    $this->loadedRoute->renderRoute($request);
+                }
+                return;
+            }
+
         }
 
         throw $e;
@@ -305,14 +330,6 @@ class RouterBase {
      */
     public function addBootManager(RouterBootManager $bootManager) {
         $this->bootManagers[] = $bootManager;
-    }
-
-    /**
-     * Get the loaded route
-     * @return RouterEntry
-     */
-    public function getLoadedRoute() {
-        return $this->request->loadedRoute;
     }
 
     /**
@@ -451,8 +468,8 @@ class RouterBase {
             return $url;
         }
 
-        if($controller === null && $this->request->loadedRoute !== null) {
-            return $this->processUrl($this->request->loadedRoute, $this->request->loadedRoute->getMethod(), $parameters, $getParams);
+        if($controller === null && $this->loadedRoute !== null) {
+            return $this->processUrl($this->loadedRoute, $this->loadedRoute->getMethod(), $parameters, $getParams);
         }
 
         $c = '';

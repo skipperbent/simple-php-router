@@ -354,15 +354,16 @@ By doing this the route will now load the url ```/article/view/1``` instead of `
 The last thing we need to do, is to add our custom boot-manager to the ```routes.php``` file. You can create as many bootmanagers as you like and easily add them in your ```routes.php``` file.
 
 ## Easily overwrite route about to be loaded
-Sometimes it can be useful to manipulate the route that's about to be loaded, for instance if a user is not authenticated or if an error occurred within your Middleware that requires
-some other route to be initialised. Simple PHP Router allows you to easily change the route about to be executed. All information about the current route is stored in
-the ```\Pecee\SimpleRouter\Http\Request``` object. All information about the current route is as a ```\Pecee\SimpleRouter\Http\Request``` object which can always be obtained on 
-the `RouterBase` instance. For easy access you can use the shortcut method `\Pecee\SimpleRouter\SimpleRouter::request()`.
+Sometimes it can be useful to manipulate the route about to be loaded. 
+simple-php-router allows you to easily change the route about to be executed. 
+All information about the current route is stored in the ```\Pecee\SimpleRouter\RouterBase``` instance. 
 
-**Note:** Please note that it's only possible to change the route BEFORE any route has initially been loaded, so doing this in your custom ExceptionHandler or Middleware is highly recommended.
+For easy access you can use the shortcut method `\Pecee\SimpleRouter\SimpleRouter::router()`.
+
 
 ```php
-$route = request()->getLoadedRoute();
+use Pecee\SimpleRouter;
+$route = SimpleRouter::router()->getLoadedRoute();
 
 $route->setCallback('Example\MyCustomClass@hello');
 
@@ -370,6 +371,54 @@ $route->setCallback('Example\MyCustomClass@hello');
 
 $route->setClass('Example\MyCustomClass');
 $route->setMethod('hello');
+```
+
+
+### Examples
+
+#### Faking new route
+It's only possible to change the route BEFORE the route has initially been loaded. If you want to redirect to another route, we highly recommend that you 
+modify the `RouterRoute` object from a `Middleware` or `ExceptionHandler`, for like the examples below.
+
+The example below will cause the router to re-route the request with the "fake" uri. This does require the `$request` object to be returned, 
+otherwise the `request` object will be ignored by the router.
+
+```php
+namespace demo\Middlewares;
+
+use Pecee\Http\Middleware\IMiddleware;
+use Pecee\Http\Request;
+use Pecee\SimpleRouter\RouterEntry;
+
+class CustomMiddleware implements Middleware {
+
+    public function handle(Request $request, RouterEntry &$route = null) {
+        return $request->setUri('/home');
+    }
+}
+
+```
+
+#### Changing callback
+You can also change the callback by modifying the `$route` parameter. This is perfect if you just want to display a view quickly - or change the callback depending
+on some criteria's for the request.
+
+The callback below will fire immediately after the `Middleware` or `ExceptionHandler` has been loaded, as they are loaded before the route is rendered.
+If you wish to change the callback from outside, please have this in mind.
+
+```php
+namespace demo\Middlewares;
+
+use Pecee\Http\Middleware\IMiddleware;
+use Pecee\Http\Request;
+use Pecee\SimpleRouter\RouterEntry;
+
+class CustomMiddleware implements Middleware {
+
+    public function handle(Request $request, RouterEntry &$route = null) { 
+        $route->callback('DefaultController@home');
+    }
+}
 ```
 
 ## Using the Input class to manage parameters
@@ -425,7 +474,7 @@ Below example requires you to have the helper functions added. Please refer to t
 
 ```php
 // Get parameter site_id or default-value 2
-$value = input()->get('site_id', '2');
+$siteId = input()->get('site_id', 2);
 ```
 
 ## Sites
