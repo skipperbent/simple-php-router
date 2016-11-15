@@ -49,12 +49,17 @@ This is an example of a basic ```index.php``` file:
 ```php
 use \Pecee\SimpleRouter\SimpleRouter;
 
-require_once 'routes.php'; // change this to whatever makes sense in your project
+// Load external routes file
+require_once 'routes.php';
 
-// The apps default namespace (so we don't have to specify it each time we use MyController@home)
+/* 
+ * The default namespace for route-callbacks, so we don't have to specify it each time.
+ * Can be overwritten by using the namespace config option.
+ */
+ 
 SimpleRouter::setDefaultNamespace('MyWebsite\Controller');
 
-// Do the routing
+// Start the routing
 SimpleRouter::start();
 ```
 

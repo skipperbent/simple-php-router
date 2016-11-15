@@ -106,7 +106,6 @@ class RouterBase {
         $mergedSettings = array();
 
         /* @var $route RouterEntry */
-        /* @var $group RouterGroup */
         for($i = 0; $i < count($routes); $i++) {
 
             $route = $routes[$i];
@@ -148,6 +147,7 @@ class RouterBase {
 
                     if ($route->matchRoute($this->request)) {
 
+                        /* @var $group RouterGroup */
                         $group = $route;
 
                         $mergedSettings = array_merge($settings, $group->getMergeableSettings());
@@ -214,11 +214,11 @@ class RouterBase {
 
                     $routeNotAllowed = false;
 
-                    $this->request->rewrite_uri = $this->request->uri;
+                    $this->request->rewrite_uri = $this->request->getUri();
                     $this->request->setUri($originalUri);
 
                     $this->request->loadedRoute = $route;
-                    $route->loadMiddleware($this->request);
+                    $this->request->loadedRoute->loadMiddleware($this->request);
 
                     $this->request->loadedRoute->renderRoute($this->request);
 
