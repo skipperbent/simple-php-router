@@ -8,12 +8,10 @@ class RouterResource extends RouterEntry implements ILoadableRoute, IControllerR
 
     protected $url;
     protected $controller;
-    protected $postMethod;
 
     public function __construct($url, $controller) {
         $this->url = $url;
         $this->controller = $controller;
-        $this->postMethod = strtolower(($_SERVER['REQUEST_METHOD']) !== 'get') ? 'post' : 'get';
     }
 
     public function renderRoute(Request $request) {
@@ -46,8 +44,8 @@ class RouterResource extends RouterEntry implements ILoadableRoute, IControllerR
     }
 
     public function matchRoute(Request $request) {
-        $url = parse_url(urldecode($request->getUri()));
-        $url = rtrim($url['path'], '/') . '/';
+        $url = parse_url(urldecode($request->getUri()), PHP_URL_PATH);
+        $url = rtrim($url, '/') . '/';
 
         $route = rtrim($this->url, '/') . '/{id?}/{action?}';
 
@@ -63,17 +61,17 @@ class RouterResource extends RouterEntry implements ILoadableRoute, IControllerR
             unset($parameters['action']);
 
             // Delete
-            if($request->getMethod() === static::REQUEST_TYPE_DELETE && $this->postMethod === static::REQUEST_TYPE_POST) {
+            if($request->getMethod() === static::REQUEST_TYPE_DELETE && $request->getMethod() === static::REQUEST_TYPE_POST) {
                 return $this->call('destroy', $parameters);
             }
 
             // Update
-            if(in_array($request->getMethod(), array(static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT)) && $this->postMethod === static::REQUEST_TYPE_POST) {
+            if(in_array($request->getMethod(), array(static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT)) && $request->getMethod() === static::REQUEST_TYPE_POST) {
                 return $this->call('update', $parameters);
             }
 
             // Edit
-            if(isset($action) && strtolower($action) === 'edit' && $this->postMethod === static::REQUEST_TYPE_GET) {
+            if(isset($action) && strtolower($action) === 'edit' && $request->getMethod() === static::REQUEST_TYPE_GET) {
                 return $this->call('edit', $parameters);
             }
 
@@ -83,12 +81,12 @@ class RouterResource extends RouterEntry implements ILoadableRoute, IControllerR
             }
 
             // Save
-            if($this->postMethod === static::REQUEST_TYPE_POST) {
+            if($request->getMethod() === static::REQUEST_TYPE_POST) {
                 return $this->call('store', $parameters);
             }
 
             // Show
-            if(isset($parameters['id']) && $this->postMethod === static::REQUEST_TYPE_GET) {
+            if(isset($parameters['id']) && $request->getMethod() === static::REQUEST_TYPE_GET) {
                 return $this->call('show', $parameters);
             }
 
@@ -111,8 +109,7 @@ class RouterResource extends RouterEntry implements ILoadableRoute, IControllerR
      * @return static
      */
     public function setUrl($url) {
-        $url = rtrim($url, '/') . '/';
-        $this->url = $url;
+        $this->url = rtrim($url, '/') . '/';
         return $this;
     }
 

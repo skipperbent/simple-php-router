@@ -26,23 +26,10 @@ abstract class RouterEntry {
         'requestMethods' => array(),
         'where' => array(),
         'parameters' => array(),
+        'middleware' => array(),
     ];
 
     protected $callback;
-
-    /**
-     * Returns callback name/identifier for the current route based on the callback.
-     * Useful if you need to get a unique identifier for the loaded route, for instance
-     * when using translations etc.
-     *
-     * @return string
-     */
-    public function getIdentifier() {
-        if(strpos($this->callback, '@') !== false) {
-            return $this->callback;
-        }
-        return 'function_' . md5($this->callback);
-    }
 
     /**
      * @param string $callback
@@ -87,20 +74,11 @@ abstract class RouterEntry {
     }
 
     /**
-     * @param string $prefix
-     * @return static
-     *
-    public function setPrefix($prefix) {
-        $this->settings['prefix'] = '/' . ltrim($prefix, '/');
-        return $this;
-    }*/
-
-    /**
      * @param string $middleware
      * @return static
      */
     public function setMiddleware($middleware) {
-        $this->settings['middleware'] = $middleware;
+        $this->settings['middleware'][] = $middleware;
         return $this;
     }
 

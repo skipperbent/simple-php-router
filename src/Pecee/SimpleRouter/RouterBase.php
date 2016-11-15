@@ -77,6 +77,10 @@ class RouterBase {
      */
     protected $loadedRoute;
 
+    /**
+     * List over route changes (to avoid looping)
+     * @var array
+     */
     protected $routeChanges;
 
     public function __construct() {
@@ -233,6 +237,7 @@ class RouterBase {
                     $routeNotAllowed = false;
 
                     $this->loadedRoute = $route;
+
                     $request = $this->loadedRoute->loadMiddleware($request, $this->loadedRoute);
                     $request = ($request === null) ? $this->request : $request;
 
@@ -278,13 +283,15 @@ class RouterBase {
             $request = ($request === null) ? $this->request : $request;
 
             if(!in_array($request->getUri(), $this->routeChanges)) {
+
                 $this->routeChanges[] = $request->getUri();
+
                 if($request->getUri() !== $this->request->getUri()) {
                     $this->routeRequest($request);
                 } else {
-                    $this->routeChanges[] = $request->getUri();
                     $this->loadedRoute->renderRoute($request);
                 }
+
                 return;
             }
 

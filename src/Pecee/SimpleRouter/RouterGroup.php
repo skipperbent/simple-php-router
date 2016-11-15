@@ -7,8 +7,6 @@ use Pecee\Http\Request;
 
 class RouterGroup extends RouterEntry {
 
-    protected $loadableRoute = false;
-
     public function matchDomain(Request $request) {
         if($this->setting('domain') !== null) {
 
