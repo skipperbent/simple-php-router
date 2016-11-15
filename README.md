@@ -52,10 +52,10 @@ use \Pecee\SimpleRouter\SimpleRouter;
 require_once 'routes.php'; // change this to whatever makes sense in your project
 
 // The apps default namespace (so we don't have to specify it each time we use MyController@home)
-$defaultControllerNamespace = 'MyWebsite\\Controller';
+SimpleRouter::setDefaultNamespace('MyWebsite\Controller');
 
 // Do the routing
-SimpleRouter::start($defaultControllerNamespace);
+SimpleRouter::start();
 ```
 
 ## Adding routes
@@ -129,6 +129,7 @@ class CustomExceptionHandler implements IExceptionHandler {
 
         // If the error-code is 404; show another route which contains the page-not-found
         if($error->getCode() === 404) {
+        
             // Throw your custom 404-page view
             // - or -
             // load another route with our 404 page
@@ -196,13 +197,16 @@ use Pecee\SimpleRouter\SimpleRouter;
 
 class Router extends SimpleRouter {
 
-    public static function start($defaultNamespace = null) {
+    public static function start() {
 
         // change this to whatever makes sense in your project
         require_once 'routes.php';
+        
+        // change default namespace for all routes
+        parent::setDefaultNamespace('\Demo\Controllers');
 
         // Do initial stuff
-        parent::start('\\Demo\\Controllers');
+        parent::start();
 
     }
 

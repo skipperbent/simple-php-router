@@ -15,11 +15,18 @@ class SimpleRouter {
 
     /**
      * Start/route request
-     * @param null $defaultNamespace
      * @throws \Pecee\Exception\RouterException
      */
-    public static function start($defaultNamespace = null) {
-        RouterBase::getInstance()->setDefaultNamespace($defaultNamespace)->routeRequest();
+    public static function start() {
+        RouterBase::getInstance()->routeRequest();
+    }
+
+    /**
+     * Set default namespace for all routes
+     * @param string $defaultNamespace
+     */
+    public static function setDefaultNamespace($defaultNamespace) {
+        RouterBase::getInstance()->setDefaultNamespace($defaultNamespace);
     }
 
     /**
@@ -27,7 +34,7 @@ class SimpleRouter {
      * @param BaseCsrfVerifier $baseCsrfVerifier
      */
     public static function csrfVerifier(BaseCsrfVerifier $baseCsrfVerifier) {
-        RouterBase::getInstance()->setBaseCsrfVerifier($baseCsrfVerifier);
+        RouterBase::getInstance()->setCsrfVerifier($baseCsrfVerifier);
     }
 
     public static function addBootManager(RouterBootManager $bootManager) {
@@ -35,19 +42,19 @@ class SimpleRouter {
     }
 
     public static function get($url, $callback, array $settings = null) {
-        return self::match(['get'], $url, $callback, $settings);
+        return static::match(['get'], $url, $callback, $settings);
     }
 
     public static function post($url, $callback, array $settings = null) {
-        return self::match(['post'], $url, $callback, $settings);
+        return static::match(['post'], $url, $callback, $settings);
     }
 
     public static function put($url, $callback, array $settings = null) {
-        return self::match(['put'], $url, $callback, $settings);
+        return static::match(['put'], $url, $callback, $settings);
     }
 
     public static function delete($url, $callback, array $settings = null) {
-        return self::match(['delete'], $url, $callback, $settings);
+        return static::match(['delete'], $url, $callback, $settings);
     }
 
     public static function group($settings = array(), $callback) {
@@ -72,7 +79,7 @@ class SimpleRouter {
      * @return RouterRoute
      */
     public static function basic($url, $callback, array $settings = null) {
-        return self::match(['get', 'post'], $url, $callback, $settings);
+        return static::match(['get', 'post'], $url, $callback, $settings);
     }
 
     public static function match(array $requestMethods, $url, $callback, array $settings = null) {
@@ -119,21 +126,25 @@ class SimpleRouter {
             $route->addSettings($settings);
         }
 
-        RouterBase::getInstance()->addRoute($route);
+        static::router()->addRoute($route);
 
         return $route;
     }
 
     public static function getRoute($controller = null, $parameters = null, $getParams = null) {
-        return RouterBase::getInstance()->getRoute($controller, $parameters, $getParams);
+        return static::router()->getRoute($controller, $parameters, $getParams);
     }
 
     public static function request() {
-        return RouterBase::getInstance()->getRequest();
+        return static::router()->getRequest();
     }
 
     public static function response() {
-        return RouterBase::getInstance()->getResponse();
+        return static::router()->getResponse();
+    }
+
+    protected static function router() {
+        return RouterBase::getInstance();
     }
 
 }

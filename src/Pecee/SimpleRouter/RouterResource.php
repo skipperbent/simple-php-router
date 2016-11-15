@@ -4,17 +4,16 @@ namespace Pecee\SimpleRouter;
 use Pecee\Exception\RouterException;
 use Pecee\Http\Request;
 
-class RouterResource extends RouterEntry {
+class RouterResource extends RouterEntry implements ILoadableRoute, IControllerRoute {
 
     protected $url;
     protected $controller;
     protected $postMethod;
 
     public function __construct($url, $controller) {
-        parent::__construct();
         $this->url = $url;
         $this->controller = $controller;
-        $this->postMethod = strtolower(($_SERVER['REQUEST_METHOD'] != 'GET') ? 'post' : 'get');
+        $this->postMethod = strtolower(($_SERVER['REQUEST_METHOD']) !== 'get') ? 'post' : 'get';
     }
 
     public function renderRoute(Request $request) {
@@ -42,7 +41,7 @@ class RouterResource extends RouterEntry {
 
     protected function call($method, $parameters) {
         $this->setCallback($this->controller . '@' . $method);
-        $this->parameters = $parameters;
+        $this->settings['parameters'] = $parameters;
         return true;
     }
 
@@ -57,39 +56,39 @@ class RouterResource extends RouterEntry {
         if($parameters !== null) {
 
             if(is_array($parameters)) {
-                $parameters = array_merge($this->parameters, $parameters);
+                $parameters = array_merge($this->settings['parameters'], $parameters);
             }
 
             $action = isset($parameters['action']) ? $parameters['action'] : null;
             unset($parameters['action']);
 
             // Delete
-            if($request->getMethod() === self::REQUEST_TYPE_DELETE && $this->postMethod === self::REQUEST_TYPE_POST) {
+            if($request->getMethod() === static::REQUEST_TYPE_DELETE && $this->postMethod === static::REQUEST_TYPE_POST) {
                 return $this->call('destroy', $parameters);
             }
 
             // Update
-            if(in_array($request->getMethod(), array(self::REQUEST_TYPE_PATCH, self::REQUEST_TYPE_PUT)) && $this->postMethod === self::REQUEST_TYPE_POST) {
+            if(in_array($request->getMethod(), array(static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT)) && $this->postMethod === static::REQUEST_TYPE_POST) {
                 return $this->call('update', $parameters);
             }
 
             // Edit
-            if(isset($action) && strtolower($action) === 'edit' && $this->postMethod === self::REQUEST_TYPE_GET) {
+            if(isset($action) && strtolower($action) === 'edit' && $this->postMethod === static::REQUEST_TYPE_GET) {
                 return $this->call('edit', $parameters);
             }
 
             // Create
-            if(strtolower($action) === 'create' && $request->getMethod() === self::REQUEST_TYPE_GET) {
+            if(strtolower($action) === 'create' && $request->getMethod() === static::REQUEST_TYPE_GET) {
                 return $this->call('create', $parameters);
             }
 
             // Save
-            if($this->postMethod === self::REQUEST_TYPE_POST) {
+            if($this->postMethod === static::REQUEST_TYPE_POST) {
                 return $this->call('store', $parameters);
             }
 
             // Show
-            if(isset($parameters['id']) && $this->postMethod === self::REQUEST_TYPE_GET) {
+            if(isset($parameters['id']) && $this->postMethod === static::REQUEST_TYPE_GET) {
                 return $this->call('show', $parameters);
             }
 

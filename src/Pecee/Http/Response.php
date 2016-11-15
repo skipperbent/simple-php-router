@@ -6,7 +6,7 @@ class Response {
 
     protected $request;
 
-    public function __construct(Request &$request) {
+    public function __construct(Request $request) {
         $this->request = $request;
     }
 
@@ -14,7 +14,7 @@ class Response {
      * Set the http status code
      *
      * @param int $code
-     * @return self $this
+     * @return static
      */
     public function httpCode($code) {
         http_response_code($code);
@@ -43,7 +43,7 @@ class Response {
     /**
      * Add http authorisation
      * @param string $name
-     * @return self $this
+     * @return static
      */
     public function auth($name = '') {
         $this->headers([
@@ -87,7 +87,7 @@ class Response {
     /**
      * Add header to response
      * @param string $value
-     * @return self $this
+     * @return static
      */
     public function header($value) {
         header($value);
@@ -97,7 +97,7 @@ class Response {
     /**
      * Add multiple headers to response
      * @param array $headers
-     * @return self $this
+     * @return static
      */
     public function headers(array $headers) {
         foreach($headers as $header) {

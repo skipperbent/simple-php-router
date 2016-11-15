@@ -7,20 +7,20 @@ use Pecee\Http\Request;
 
 class RouterGroup extends RouterEntry {
 
+    protected $loadableRoute = false;
+
     public function matchDomain(Request $request) {
-        if($this->domain !== null) {
+        if($this->setting('domain') !== null) {
 
-            if(is_array($this->domain)) {
+            if(is_array($this->setting('domain'))) {
 
-                $max = count($this->domain);
-
-                for($i = 0; $i < $max; $i++) {
-                    $domain = $this->domain[$i];
+                for($i = 0; $i < count($this->setting('domain')); $i++) {
+                    $domain = $this->settings['domain'][$i];
 
                     $parameters = $this->parseParameters($domain, $request->getHost(), '[^.]*');
 
                     if($parameters !== null) {
-                        $this->parameters = $parameters;
+                        $this->settings['parameters'] = $parameters;
                         return true;
                     }
                 }
@@ -28,10 +28,10 @@ class RouterGroup extends RouterEntry {
                 return false;
             }
 
-            $parameters = $this->parseParameters($this->domain, $request->getHost(), '[^.]*');
+            $parameters = $this->parseParameters($this->setting('domain'), $request->getHost(), '[^.]*');
 
             if ($parameters !== null) {
-                $this->parameters = $parameters;
+                $this->settings['parameters'] = $parameters;
                 return true;
             }
 
@@ -43,10 +43,10 @@ class RouterGroup extends RouterEntry {
 
     public function renderRoute(Request $request) {
         // Check if request method is allowed
-        $hasAccess = (!$this->method);
+        $hasAccess = true;
 
-        if($this->method) {
-            if(is_array($this->method)) {
+        if($this->setting('method') !== null) {
+            if(is_array($this->setting('method'))) {
                 $hasAccess = (in_array($request->getMethod(), $this->getRequestMethods()));
             } else {
                 $hasAccess = strtolower($this->getRequestMethods()) == strtolower($request->getMethod());
@@ -72,48 +72,69 @@ class RouterGroup extends RouterEntry {
     }
 
     public function setExceptionHandler($class) {
-        $this->exceptionHandler = $class;
+        $this->settings['exceptionHandler'] = $class;
         return $this;
     }
 
     public function getExceptionHandler() {
-        return $this->exceptionHandler;
+        return $this->setting('exceptionHandler');
     }
 
     public function getDomain() {
-        return $this->domain;
+        return $this->setting('domain');
+    }
+
+    /**
+     * @param string $prefix
+     * @return static
+     */
+    public function setPrefix($prefix) {
+        $this->settings['prefix'] = '/' . ltrim($prefix, '/');
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrefix() {
+        return $this->setting('prefix');
     }
 
     /**
      * @param array $settings
-     * @return self
+     * @return static
      */
-    public function addSettings(array $settings = null) {
-        if($this->getNamespace() !== null && isset($settings['namespace'])) {
+    public function addSettings(array $settings) {
+
+        if ($this->getNamespace() !== null && isset($settings['namespace'])) {
             unset($settings['namespace']);
         }
 
         // Push middleware if multiple
-        if($this->getMiddleware() !== null && isset($settings['middleware'])) {
+        if ($this->getMiddleware() !== null && isset($settings['middleware'])) {
 
-            if(!is_array($this->getMiddleware())) {
-                $middlewares = [
-                    $this->getMiddleware(),
-                    $settings['middleware']
-                ];
+            if (!is_array($this->getMiddleware())) {
+                $settings['middleware'] = array($this->getMiddleware(), $settings['middleware']);
             } else {
-                $middlewares = array_push($settings['middleware'], $this->getMiddleware());
+                $settings['middleware'][] = $this->getMiddleware();
             }
 
-            $settings['middleware'] = array_unique(array_reverse($middlewares));
+            $settings['middleware'] = array_unique(array_reverse($settings['middleware']));
 
         }
 
-        if(is_array($settings)) {
-            $this->settings = array_merge($this->settings, $settings);
-        }
-
+        $this->settings = array_merge($this->settings, $settings);
         return $this;
+    }
+
+    public function getMergeableSettings() {
+        $settings = $this->settings;
+
+        if(isset($settings['prefix'])) {
+            unset($settings['prefix']);
+        }
+
+        return $settings;
     }
 
 }
