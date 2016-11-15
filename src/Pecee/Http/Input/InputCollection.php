@@ -10,9 +10,10 @@ class InputCollection implements \IteratorAggregate {
      * Useful for searching for finding items where $index doesn't contain form name.
      *
      * @param string $index
+     * @param string|null $defaultValue
      * @return mixed
      */
-    public function findFirst($index) {
+    public function findFirst($index, $defaultValue = null) {
         if(count($this->data)) {
 
             if(isset($this->data[$index])) {
@@ -26,7 +27,7 @@ class InputCollection implements \IteratorAggregate {
             }
         }
 
-        return null;
+        return $defaultValue;
     }
 
     /**

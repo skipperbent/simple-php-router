@@ -6,7 +6,7 @@ class DefaultController {
     public function index() {
 
         // implement
-        echo 'DefaultController -> index';
+        echo sprintf('DefaultController -> index (?fun=%s)', input()->get('fun'));
 
     }
 

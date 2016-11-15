@@ -7,7 +7,7 @@ use Pecee\SimpleRouter\RouterEntry;
 
 class CustomExceptionHandler implements IExceptionHandler {
 
-    public function handleError( Request $request, RouterEntry $router = null, \Exception $error) {
+    public function handleError( Request $request, RouterEntry &$route = null, \Exception $error) {
 
         // Return json errors if we encounter an error on /api.
         if(stripos($request->getUri(), '/api') !== false) {

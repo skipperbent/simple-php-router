@@ -4,7 +4,7 @@ namespace Pecee\SimpleRouter;
 use Pecee\Exception\RouterException;
 use Pecee\Http\Request;
 
-class RouterController extends RouterEntry {
+class RouterController extends RouterEntry implements ILoadableRoute, IControllerRoute {
 
     const DEFAULT_METHOD = 'index';
 
@@ -13,7 +13,6 @@ class RouterController extends RouterEntry {
     protected $method;
 
     public function __construct($url, $controller) {
-        parent::__construct();
         $this->url = $url;
         $this->controller = $controller;
     }
@@ -44,8 +43,8 @@ class RouterController extends RouterEntry {
     }
 
     public function matchRoute(Request $request) {
-        $url = parse_url(urldecode($request->getUri()));
-        $url = rtrim($url['path'], '/') . '/';
+        $url = parse_url(urldecode($request->getUri()), PHP_URL_PATH);
+        $url = rtrim($url, '/') . '/';
 
         if(strtolower($url) == strtolower($this->url) || stripos($url, $this->url) === 0) {
 
@@ -55,11 +54,11 @@ class RouterController extends RouterEntry {
 
             if(count($path)) {
 
-                $method = (!isset($path[0]) || trim($path[0]) === '') ? self::DEFAULT_METHOD : $path[0];
+                $method = (!isset($path[0]) || trim($path[0]) === '') ? static::DEFAULT_METHOD : $path[0];
                 $this->method = $method;
 
                 array_shift($path);
-                $this->parameters = $path;
+                $this->settings['parameters'] = $path;
 
                 // Set callback
                 $this->setCallback($this->controller . '@' . $this->method);

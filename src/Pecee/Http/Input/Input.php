@@ -25,7 +25,7 @@ class Input {
      */
     protected $request;
 
-    public function __construct(Request &$request) {
+    public function __construct(Request $request) {
         $this->request = $request;
         $this->setGet();
         $this->setPost();

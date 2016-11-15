@@ -5,45 +5,41 @@ use Pecee\Http\Input\Input;
 
 class Request {
 
-    protected static $instance;
+    protected $data = array();
+    protected $headers;
+    protected $host;
+    protected $uri;
+    protected $method;
+    protected $input;
 
-    protected $data;
-
-    /**
-     * Return new instance
-     * @return static
-     */
-    public static function getInstance() {
-        if(self::$instance === null) {
-            self::$instance = new static();
-        }
-        return self::$instance;
-    }
 
     public function __construct() {
-        $this->data = array();
-        $this->host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : array();
-        $this->uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : array();
-        $this->method = (isset($_POST['_method'])) ? strtolower($_POST['_method']) : (isset($_SERVER['REQUEST_METHOD']) ? strtolower($_SERVER['REQUEST_METHOD']) : array());
-        $this->headers = $this->getAllHeaders();
+        $this->parseHeaders();
         $this->input = new Input($this);
+
+        $this->host = $this->getHeader('http_host');;
+        $this->uri = $this->getHeader('request_uri');
+        $this->method = strtolower($this->input->post->findFirst('_method', $this->getHeader('request_method')));
     }
 
-    protected function getAllHeaders() {
-        $headers = array();
+    protected function parseHeaders() {
+        $this->headers = array();
+
         foreach ($_SERVER as $name => $value) {
-            if (substr($name, 0, 5) === 'HTTP_') {
-                $headers[strtolower(str_replace('_', '-', substr($name, 5)))] = $value;
-            }
+            $this->headers[strtolower($name)] = $value;
         }
-        return $headers;
     }
 
-    public function getIsSecure() {
-        if(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') {
+    public function isSecure() {
+        if($this->getHeader('http_x_forwarded_proto') === 'https') {
             return true;
         }
-        return isset($_SERVER['HTTPS']) ? true : (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] === 443);
+
+        if($this->getHeader('https') !== null) {
+            return true;
+        }
+
+        return ($this->getHeader('server_port') === 443);
     }
 
     /**
@@ -72,7 +68,7 @@ class Request {
      * @return string|null
      */
     public function getUser() {
-        return (isset($_SERVER['PHP_AUTH_USER'])) ? $_SERVER['PHP_AUTH_USER']: null;
+        return $this->getHeader('php_auth_user');
     }
 
     /**
@@ -80,11 +76,11 @@ class Request {
      * @return string|null
      */
     public function getPassword() {
-        return (isset($_SERVER['PHP_AUTH_PW'])) ? $_SERVER['PHP_AUTH_PW']: null;
+        return $this->getHeader('php_auth_pw');
     }
 
     /**
-     * Get headers
+     * Get all headers
      * @return array
      */
     public function getHeaders() {
@@ -96,10 +92,15 @@ class Request {
      * @return string
      */
     public function getIp() {
-        if(isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-            return $_SERVER['HTTP_CF_CONNECTING_IP'];
+        if($this->getHeader('http_cf_connecting_ip') !== null) {
+            return $this->getHeader('http_cf_connecting_ip');
         }
-        return ((isset($_SERVER['HTTP_X_FORWARDED_FOR']) && strlen($_SERVER['HTTP_X_FORWARDED_FOR'])) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
+
+        if($this->getHeader('http_x_forwarded_for') !== null && strlen($this->getHeader('http_x_forwarded_for'))) {
+            return $this->getHeader('http_x_forwarded_for');
+        }
+
+        return $this->getHeader('remote_addr');
     }
 
     /**
@@ -107,7 +108,7 @@ class Request {
      * @return string
      */
     public function getReferer() {
-        return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+        return $this->getHeader('http_referer');
     }
 
     /**
@@ -115,16 +116,17 @@ class Request {
      * @return string
      */
     public function getUserAgent() {
-        return isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+        return $this->getHeader('http_user_agent');
     }
 
     /**
      * Get header value by name
      * @param string $name
+     * @param object|null $defaultValue
      * @return string|null
      */
-    public function getHeader($name) {
-        return (isset($this->headers[strtolower($name)])) ? $this->headers[strtolower($name)] : null;
+    public function getHeader($name, $defaultValue = null) {
+        return isset($this->headers[strtolower($name)]) ? $this->headers[strtolower($name)] : $defaultValue;
     }
 
     /**
@@ -135,15 +137,42 @@ class Request {
         return $this->input;
     }
 
+    /**
+     * Is format accepted
+     * @param string $format
+     * @return bool
+     */
     public function isFormatAccepted($format) {
-        return (isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], $format) > -1);
+        return ($this->getHeader('http_accept') !== null && stripos($this->getHeader('http_accept'), $format) > -1);
     }
 
+    /**
+     * Get accept formats
+     * @return array
+     */
     public function getAcceptFormats() {
-        if(isset($_SERVER['HTTP_ACCEPT'])) {
-            return explode(',', $_SERVER['HTTP_ACCEPT']);
-        }
-        return array();
+        return explode(',', $this->getHeader('http_accept'));
+    }
+
+    /**
+     * @param string $uri
+     */
+    public function setUri($uri) {
+        $this->uri = $uri;
+    }
+
+    /**
+     * @param string $host
+     */
+    public function setHost($host) {
+        $this->host = $host;
+    }
+
+    /**
+     * @param string $method
+     */
+    public function setMethod($method) {
+        $this->method = $method;
     }
 
     public function __set($name, $value = null) {
@@ -152,35 +181,6 @@ class Request {
 
     public function __get($name) {
         return isset($this->data[$name]) ? $this->data[$name] : null;
-    }
-
-    /**
-     * Get the currently loaded route.
-     * @return \Pecee\SimpleRouter\RouterEntry
-     */
-    public function getLoadedRoute() {
-        return $this->loadedRoute;
-    }
-
-    /**
-     * @param mixed $uri
-     */
-    public function setUri($uri) {
-        $this->uri = $uri;
-    }
-
-    /**
-     * @param mixed $host
-     */
-    public function setHost($host) {
-        $this->host = $host;
-    }
-
-    /**
-     * @param mixed $method
-     */
-    public function setMethod($method) {
-        $this->method = $method;
     }
 
 }
