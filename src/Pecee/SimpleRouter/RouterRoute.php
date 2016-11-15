@@ -4,28 +4,27 @@ namespace Pecee\SimpleRouter;
 
 use Pecee\Http\Request;
 
-class RouterRoute extends RouterEntry {
+class RouterRoute extends RouterEntry implements ILoadableRoute {
 
     const PARAMETERS_REGEX_MATCH = '{([A-Za-z\-\_]*?)\?{0,1}}';
 
     protected $url;
 
     public function __construct($url, $callback) {
-        parent::__construct();
         $this->setUrl($url);
         $this->setCallback($callback);
     }
 
     public function matchRoute(Request $request) {
 
-        $url = parse_url(urldecode($request->getUri()));
-        $url = rtrim($url['path'], '/') . '/';
+        $url = parse_url(urldecode($request->getUri()), PHP_URL_PATH);
+        $url = rtrim($url, '/') . '/';
 
         // Match on custom defined regular expression
-        if($this->regexMatch) {
+        if($this->setting('regexMatch') !== null) {
             $parameters = array();
-            if(preg_match('/('.$this->regexMatch.')/is', $request->getHost() . $url, $parameters)) {
-                $this->parameters = (!is_array($parameters[0]) ? array($parameters[0]) : $parameters[0]);
+            if(preg_match('/(' . $this->setting('regexMatch') . ')/is', $request->getHost() . $url, $parameters)) {
+                $this->settings['parameters'] = (!is_array($parameters[0]) ? array($parameters[0]) : $parameters[0]);
                 return true;
             }
             return null;
@@ -37,13 +36,7 @@ class RouterRoute extends RouterEntry {
         $parameters = $this->parseParameters($route, $url);
 
         if($parameters !== null) {
-
-            if(is_array($this->parameters)) {
-                $this->parameters = array_merge($this->parameters, $parameters);
-            } else {
-                $this->parameters = $parameters;
-            }
-
+            $this->settings['parameters'] = array_merge($this->settingArray('parameters'), $parameters);
             return true;
         }
 
@@ -59,22 +52,23 @@ class RouterRoute extends RouterEntry {
 
     /**
      * @param string $url
-     * @return self
+     * @return static
      */
     public function setUrl($url) {
         $parameters = array();
         $matches = array();
 
-        if(preg_match_all('/'.self::PARAMETERS_REGEX_MATCH.'/is', $url, $matches)) {
+        if(preg_match_all('/' . static::PARAMETERS_REGEX_MATCH . '/is', $url, $matches)) {
             $parameters = $matches[1];
         }
 
         if(count($parameters)) {
-            $tmp = array();
-            foreach($parameters as $param) {
-                $tmp[$param] = null;
+
+            foreach(array_keys($parameters) as $key) {
+                $parameters[$key] = null;
             }
-            $this->parameters = $tmp;
+
+            $this->settings['parameters'] = $parameters;
         }
 
         $this->url = $url;
@@ -86,23 +80,24 @@ class RouterRoute extends RouterEntry {
      * @return string|array
      */
     public function getAlias(){
-        return $this->alias;
+        return $this->setting('alias');
     }
 
     /**
      * Check if route has given alias.
      *
-     * @param $name
+     * @param string $name
      * @return bool
      */
     public function hasAlias($name) {
-        if(is_array($this->alias)) {
-            foreach($this->alias as $alias) {
-                if(strtolower($alias) === strtolower($name)) {
-                    return true;
+        if ($this->getAlias() !== null) {
+            if (is_array($this->getAlias())) {
+                foreach ($this->setting('alias') as $alias) {
+                    if (strtolower($alias) === strtolower($name)) {
+                        return true;
+                    }
                 }
             }
-        } else {
             return strtolower($this->getAlias()) === strtolower($name);
         }
 
@@ -112,21 +107,21 @@ class RouterRoute extends RouterEntry {
     /**
      * Set the url alias for easier getting the url route.
      * @param string|array $alias
-     * @return self
+     * @return static
      */
     public function setAlias($alias){
-        $this->alias = $alias;
+        $this->settings['alias'] = $alias;
         return $this;
     }
 
-    public function setSettings($settings) {
+    public function addSettings(array $settings) {
 
         // Change as to alias
-        if(isset($settings{'as'})) {
+        if(isset($settings['as'])) {
             $this->setAlias($settings['as']);
         }
 
-        return parent::setSettings($settings);
+        return parent::addSettings($settings);
     }
 
 }

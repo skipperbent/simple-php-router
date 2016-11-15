@@ -1,5 +1,5 @@
 <?php
-use \Pecee\SimpleRouter\SimpleRouter;
+use Pecee\SimpleRouter\SimpleRouter;
 
 function url($controller, $parameters = null, $getParams = null) {
     SimpleRouter::getRoute($controller, $parameters, $getParams);
@@ -28,4 +28,12 @@ function request() {
  */
 function response() {
     return SimpleRouter::response();
+}
+
+/**
+ * Get input class
+ * @return \Pecee\Http\Input\Input
+ */
+function input() {
+    return SimpleRouter::request()->getInput();
 }

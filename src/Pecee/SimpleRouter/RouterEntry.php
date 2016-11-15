@@ -14,41 +14,26 @@ abstract class RouterEntry {
     const REQUEST_TYPE_PATCH = 'patch';
     const REQUEST_TYPE_DELETE = 'delete';
 
-    public static $allowedRequestTypes = array(
+    public static $allowedRequestTypes = [
         self::REQUEST_TYPE_DELETE,
         self::REQUEST_TYPE_GET,
         self::REQUEST_TYPE_POST,
         self::REQUEST_TYPE_PUT,
-        self::REQUEST_TYPE_PATCH
-    );
+        self::REQUEST_TYPE_PATCH,
+    ];
 
-    protected $settings;
+    protected $settings = [
+        'requestMethods' => array(),
+        'where' => array(),
+        'parameters' => array(),
+        'middleware' => array(),
+    ];
+
     protected $callback;
-
-    public function __construct() {
-        $this->settings = array();
-        $this->settings['requestMethods'] = array();
-        $this->settings['where'] = array();
-        $this->settings['parameters'] = array();
-    }
-
-    /**
-     * Returns callback name/identifier for the current route based on the callback.
-     * Useful if you need to get a unique identifier for the loaded route, for instance
-     * when using translations etc.
-     *
-     * @return string
-     */
-    public function getIdentifier() {
-        if(strpos($this->callback, '@') !== false) {
-            return $this->callback;
-        }
-        return 'function_' . md5($this->callback);
-    }
 
     /**
      * @param string $callback
-     * @return self;
+     * @return static
      */
     public function setCallback($callback) {
         $this->callback = $callback;
@@ -89,51 +74,35 @@ abstract class RouterEntry {
     }
 
     /**
-     * @param string $prefix
-     * @return self
-     */
-    public function setPrefix($prefix) {
-        $this->prefix = '/' . ltrim($prefix, '/');
-        return $this;
-    }
-
-    /**
      * @param string $middleware
-     * @return self
+     * @return static
      */
     public function setMiddleware($middleware) {
-        $this->middleware = $middleware;
+        $this->settings['middleware'][] = $middleware;
         return $this;
     }
 
     /**
      * @param string $namespace
-     * @return self
+     * @return static
      */
     public function setNamespace($namespace) {
-        $this->namespace = $namespace;
+        $this->settings['namespace'] = $namespace;
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPrefix() {
-        return $this->prefix;
     }
 
     /**
      * @return string|array
      */
     public function getMiddleware() {
-        return $this->middleware;
+        return $this->settingArray('middleware');
     }
 
     /**
      * @return string
      */
     public function getNamespace() {
-        return $this->namespace;
+        return $this->setting('namespace');
     }
 
     /**
@@ -144,18 +113,18 @@ abstract class RouterEntry {
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getParameters(){
-        return ($this->parameters === null) ? array() : $this->parameters;
+        return $this->setting('parameters', array());
     }
 
     /**
      * @param mixed $parameters
-     * @return self
+     * @return static
      */
     public function setParameters($parameters) {
-        $this->parameters = $parameters;
+        $this->settings['parameters'] = $parameters;
         return $this;
     }
 
@@ -163,10 +132,10 @@ abstract class RouterEntry {
      * Add regular expression parameter match
      *
      * @param array $options
-     * @return self
+     * @return static
      */
     public function where(array $options) {
-        $this->where = array_merge($this->where, $options);
+        $this->settings['where'] = array_merge($this->settings['where'], $options);
         return $this;
     }
 
@@ -174,10 +143,10 @@ abstract class RouterEntry {
      * Add regular expression match for url
      *
      * @param string $regex
-     * @return self
+     * @return static
      */
     public function match($regex) {
-        $this->regexMatch = $regex;
+        $this->settings['regexMatch'] = $regex;
         return $this;
     }
 
@@ -187,58 +156,25 @@ abstract class RouterEntry {
      * @return array
      */
     public function getMergeableSettings() {
-        $settings = $this->settings;
-
-        if(isset($settings['prefix'])) {
-            unset($settings['prefix']);
-        }
-
-        return $settings;
+        return $this->settings;
     }
 
     /**
      * @param array $settings
-     * @return self
+     * @return static
      */
-    public function addSettings(array $settings = null) {
-        if(is_array($settings)) {
-            $this->settings = array_merge($this->settings, $settings);
-        }
+    public function addSettings(array $settings) {
+        $this->settings = array_merge($this->settings, $settings);
         return $this;
     }
 
     /**
      * @param array $settings
-     * @return self
+     * @return static
      */
     public function setSettings($settings) {
         $this->settings = $settings;
-
-        if(isset($settings['prefix'])) {
-            $this->setPrefix($settings['prefix']);
-        }
-
         return $this;
-    }
-
-    /**
-     * Dynamically access settings value
-     *
-     * @param $name
-     * @return mixed|null
-     */
-    public function __get($name) {
-        return (isset($this->settings[$name]) ? $this->settings[$name] : null);
-    }
-
-    /**
-     * Dynamically set settings value
-     *
-     * @param string $name
-     * @param mixed|null $value
-     */
-    public function __set($name, $value = null) {
-        $this->settings[$name] = $value;
     }
 
     protected function loadClass($name) {
@@ -273,8 +209,8 @@ abstract class RouterEntry {
                 // Check for optional parameter
 
                 // Use custom parameter regex if it exists
-                if(is_array($this->where) && isset($this->where[$parameter])) {
-                    $parameterRegex = $this->where[$parameter];
+                if(is_array($this->setting('where')) && isset($this->settings['where'][$parameter])) {
+                    $parameterRegex = $this->settings['where'][$parameter];
                 }
 
                 if($lastCharacter === '?') {
@@ -284,7 +220,12 @@ abstract class RouterEntry {
                 } else {
                     $regex .= '\/?(?P<' . $parameter . '>'. $parameterRegex .')[^\/]?';
                 }
-                $parameterNames[] = array('name' => $parameter, 'required' => $required);
+
+                $parameterNames[] = [
+                    'name' => $parameter,
+                    'required' => $required
+                ];
+
                 $parameter = '';
                 $isParameter = false;
 
@@ -307,21 +248,19 @@ abstract class RouterEntry {
 
             $max = count($parameterNames);
 
-            if($max) {
-                for($i = 0; $i < $max; $i++) {
-                    $name = $parameterNames[$i];
-                    $parameterValue = isset($parameterValues[$name['name']]) ? $parameterValues[$name['name']] : null;
+            for($i = 0; $i < $max; $i++) {
+                $name = $parameterNames[$i];
+                $parameterValue = isset($parameterValues[$name['name']]) ? $parameterValues[$name['name']] : null;
 
-                    if($name['required'] && $parameterValue === null) {
-                        throw new RouterException('Missing required parameter ' . $name['name'], 404);
-                    }
-
-                    if(!$name['required'] && $parameterValue === null) {
-                        continue;
-                    }
-
-                    $parameters[$name['name']] = $parameterValue;
+                if($name['required'] && $parameterValue === null) {
+                    throw new RouterException('Missing required parameter ' . $name['name'], 404);
                 }
+
+                if(!$name['required'] && $parameterValue === null) {
+                    continue;
+                }
+
+                $parameters[$name['name']] = $parameterValue;
             }
 
             return $parameters;
@@ -330,26 +269,16 @@ abstract class RouterEntry {
         return null;
     }
 
-    public function loadMiddleware(Request $request) {
-        if($this->getMiddleware()) {
-            if(is_array($this->getMiddleware())) {
-                foreach($this->getMiddleware() as $middleware) {
-                    $middleware = $this->loadClass($middleware);
-                    if (!($middleware instanceof IMiddleware)) {
-                        throw new RouterException($middleware . ' must be instance of Middleware');
-                    }
-
-                    /* @var $class IMiddleware */
-                    $middleware->handle($request);
-                }
-            } else {
-                $middleware = $this->loadClass($this->getMiddleware());
+    public function loadMiddleware(Request $request, RouterRoute &$route) {
+        if(count($this->getMiddleware())) {
+            foreach($this->getMiddleware() as $middleware) {
+                $middleware = $this->loadClass($middleware);
                 if (!($middleware instanceof IMiddleware)) {
-                    throw new RouterException($this->getMiddleware() . ' must be instance of Middleware');
+                    throw new RouterException($middleware . ' must be instance of Middleware');
                 }
 
                 /* @var $class IMiddleware */
-                $middleware->handle($request);
+                $middleware->handle($request, $route);
             }
         }
     }
@@ -371,7 +300,7 @@ abstract class RouterEntry {
             }
 
             $parameters = array_filter($this->getParameters(), function($var){
-                return !is_null($var);
+                return ($var !== null);
             });
 
             call_user_func_array(array($class, $method), $parameters);
@@ -386,7 +315,7 @@ abstract class RouterEntry {
      * Set allowed request methods
      *
      * @param array $methods
-     * @return self $this
+     * @return static $this
      */
     public function setRequestMethods(array $methods) {
         $this->settings['requestMethods'] = $methods;
@@ -399,20 +328,30 @@ abstract class RouterEntry {
      * @return array
      */
     public function getRequestMethods() {
-        if(!isset($this->settings['requestMethods']) || isset($this->settings['requestMethods']) && !is_array($this->settings['requestMethods'])) {
-            $value = isset($this->settings['requestMethods']) ? $this->settings['requestMethods'] : null;
-            return array($value);
-        }
-        return $this->settings['requestMethods'];
+        return $this->settingArray('requestMethods');
     }
 
     public function getGroup() {
-        return $this->group;
+        return $this->setting('group');
     }
 
     public function setGroup($group) {
-        $this->group = $group;
+        $this->settings['group'] = $group;
         return $this;
+    }
+
+    protected function setting($name, $defaultValue = null) {
+        return isset($this->settings[$name]) ? $this->settings[$name] : $defaultValue;
+    }
+
+    protected function settingArray($name) {
+        $value = $this->setting($name);
+
+        if($value === null) {
+            return [];
+        }
+
+        return (!is_array($value)) ? array($value) : $value;
     }
 
     abstract function matchRoute(Request $request);

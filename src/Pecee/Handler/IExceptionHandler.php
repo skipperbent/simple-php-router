@@ -6,6 +6,12 @@ use Pecee\SimpleRouter\RouterEntry;
 
 interface IExceptionHandler {
 
-	public function handleError(Request $request, RouterEntry $router = null, \Exception $error);
+    /**
+     * @param Request $request
+     * @param RouterEntry|null $route
+     * @param \Exception $error
+     * @return Request|null
+     */
+	public function handleError(Request $request, RouterEntry &$route = null, \Exception $error);
 
 }

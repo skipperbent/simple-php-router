@@ -4,6 +4,7 @@ namespace Pecee\Http\Middleware;
 use Pecee\CsrfToken;
 use Pecee\Exception\TokenMismatchException;
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\RouterEntry;
 
 class BaseCsrfVerifier implements IMiddleware {
 
@@ -49,11 +50,11 @@ class BaseCsrfVerifier implements IMiddleware {
         return false;
     }
 
-    public function handle(Request $request) {
+    public function handle(Request $request, RouterEntry &$route = null) {
 
-        if($request->getMethod() != 'get' && !$this->skip($request)) {
+        if($request->getMethod() !== 'get' && !$this->skip($request)) {
 
-            $token = (isset($_POST[static::POST_KEY])) ? $_POST[static::POST_KEY] : null;
+            $token = $request->getInput()->post->findFirst(static::POST_KEY);
 
             // If the token is not posted, check headers for valid x-csrf-token
             if($token === null) {

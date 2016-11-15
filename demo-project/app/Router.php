@@ -19,8 +19,10 @@ class Router extends SimpleRouter {
         // Load our custom routes
         require_once 'routes.php';
 
+        parent::setDefaultNamespace('\Demo\Controllers');
+
         // Do initial stuff
-        parent::start('\\Demo\\Controllers');
+        parent::start();
 
     }
 
