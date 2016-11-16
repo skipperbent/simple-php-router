@@ -268,8 +268,6 @@ class RouterBase {
 
     protected function handleException(\Exception $e) {
 
-        $request = clone $this->request;
-
         /* @var $route RouterGroup */
         foreach ($this->exceptionHandlers as $route) {
             $handler = $route->getExceptionHandler();
@@ -279,20 +277,11 @@ class RouterBase {
                 throw new RouterException('Exception handler must implement the IExceptionHandler interface.');
             }
 
-            $request = $handler->handleError($request, $this->loadedRoute, $e);
-            $request = ($request === null) ? $this->request : $request;
+            $request = $handler->handleError($this->request, $this->loadedRoute, $e);
 
-            if(!in_array($request->getUri(), $this->routeChanges)) {
-
+            if($request !== null && !in_array($request->getUri(), $this->routeChanges)) {
                 $this->routeChanges[] = $request->getUri();
-
-                if($request->getUri() !== $this->request->getUri()) {
-                    $this->routeRequest($request);
-                } else {
-                    $this->loadedRoute->renderRoute($request);
-                }
-
-                return;
+                $this->routeRequest($request);
             }
 
         }
