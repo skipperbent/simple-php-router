@@ -129,6 +129,9 @@ class RouterBase {
 
             if($backStack && $group !== null) {
                 $route->setGroup($group);
+            } else {
+                $prefixes = [];
+                $group = null;
             }
 
             if($route->getNamespace() === null && $this->defaultNamespace !== null) {
@@ -140,11 +143,6 @@ class RouterBase {
                 $route->setNamespace($namespace);
             }
 
-            if($group !== null && $group->getPrefix() !== null && trim($group->getPrefix(), '/') !== '') {
-                $prefixes[] = trim($group->getPrefix(), '/');
-            }
-
-            $group = null;
             $this->currentRoute = $route;
 
             if($route instanceof ILoadableRoute) {
@@ -154,22 +152,30 @@ class RouterBase {
 
                 $this->controllerUrlMap[] = $route;
             } else {
-                if(is_callable($route->getCallback())) {
 
-                    $route->renderRoute($this->request);
+                if($route instanceof RouterGroup) {
 
-                    if ($route->matchRoute($this->request)) {
+                    if ($route->getPrefix() !== null && trim($route->getPrefix(), '/') !== '') {
+                        $prefixes[] = trim($route->getPrefix(), '/');
+                    }
 
-                        /* @var $group RouterGroup */
-                        $group = $route;
+                    if (is_callable($route->getCallback())) {
 
-                        $mergedSettings = array_merge($settings, $group->getMergeableSettings());
+                        $route->renderRoute($this->request);
 
-                        // Add ExceptionHandler
-                        if ($group->getExceptionHandler() !== null) {
-                            $this->exceptionHandlers[] = $route;
+                        if ($route->matchRoute($this->request)) {
+
+                            /* @var $group RouterGroup */
+                            $group = $route;
+
+                            $mergedSettings = array_merge($settings, $group->getMergeableSettings());
+
+                            // Add ExceptionHandler
+                            if ($group->getExceptionHandler() !== null) {
+                                $this->exceptionHandlers[] = $route;
+                            }
+
                         }
-
                     }
                 }
             }
@@ -191,16 +197,13 @@ class RouterBase {
         $this->loadedRoute = null;
         $routeNotAllowed = false;
 
-        // Create a fictive request - so it can be changed in the middleware or exceptionhandler later on...
-        $request = clone $this->request;
-
         try {
 
             // Initialize boot-managers
             if(count($this->bootManagers)) {
                 /* @var $manager RouterBootManager */
                 foreach($this->bootManagers as $manager) {
-                    $request = $manager->boot($request);
+                    $this->request = $manager->boot($this->request);
 
                     if(!($this->request instanceof Request)) {
                         throw new RouterException('Custom router bootmanager "'. get_class($manager) .'" must return instance of Request.');
@@ -220,16 +223,14 @@ class RouterBase {
                 }
             }
 
-            $request = ($newRequest !== null) ? $newRequest : $request;
-
             /* @var $route RouterEntry */
             for ($i = 0; $i < count($this->controllerUrlMap); $i++) {
 
                 $route = $this->controllerUrlMap[$i];
 
-                if ($route->matchRoute($request)) {
+                if ($route->matchRoute($this->request)) {
 
-                    if (count($route->getRequestMethods()) && !in_array($request->getMethod(), $route->getRequestMethods())) {
+                    if (count($route->getRequestMethods()) && !in_array($this->request->getMethod(), $route->getRequestMethods())) {
                         $routeNotAllowed = true;
                         continue;
                     }
@@ -238,16 +239,16 @@ class RouterBase {
 
                     $this->loadedRoute = $route;
 
-                    $request = $this->loadedRoute->loadMiddleware($request, $this->loadedRoute);
-                    $request = ($request === null) ? $this->request : $request;
+                    $request = clone $this->request;
+                    $this->loadedRoute->loadMiddleware($request, $this->loadedRoute);
 
-                    if($request !== null && $request->getUri() !== $this->request->getUri() && !in_array($request->getUri(), $this->routeChanges)) {
+                    if($request->getUri() !== $this->request->getUri() && !in_array($request->getUri(), $this->routeChanges)) {
                         $this->routeChanges[] = $request->getUri();
                         $this->routeRequest($request);
                         return;
                     }
 
-                    $this->loadedRoute->renderRoute($request);
+                    $this->loadedRoute->renderRoute($this->request);
 
                     break;
                 }
@@ -262,7 +263,7 @@ class RouterBase {
         }
 
         if($this->loadedRoute === null) {
-            $this->handleException(new RouterException(sprintf('Route not found: %s', $request->getUri()), 404));
+            $this->handleException(new RouterException(sprintf('Route not found: %s', $this->request->getUri()), 404));
         }
     }
 
