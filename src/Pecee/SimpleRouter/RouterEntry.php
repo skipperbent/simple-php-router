@@ -269,7 +269,7 @@ abstract class RouterEntry {
         return null;
     }
 
-    public function loadMiddleware(Request $request, RouterRoute &$route) {
+    public function loadMiddleware(Request $request, RouterEntry &$route) {
         if(count($this->getMiddleware())) {
             foreach($this->getMiddleware() as $middleware) {
                 $middleware = $this->loadClass($middleware);
