@@ -138,6 +138,8 @@ class CustomExceptionHandler implements IExceptionHandler {
             // Throw your custom 404-page view
             // - or -
             // load another route with our 404 page
+            // - or -
+            // you can return the $request object to ignore the error and continue on rendering the route.
             
             return $request->setUri(url('page.notfound'));
         }

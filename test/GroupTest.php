@@ -64,6 +64,10 @@ class GroupTest extends PHPUnit_Framework_TestCase  {
 
     public function testUrls() {
 
+        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
+        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/my/fancy/url/1');
+        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('get');
+
         \Pecee\SimpleRouter\SimpleRouter::get('/my/fancy/url/1', 'DummyController@start', ['as' => 'fancy1']);
         \Pecee\SimpleRouter\SimpleRouter::get('/my/fancy/url/2', 'DummyController@start')->setAlias('fancy2');
 
