@@ -7,10 +7,12 @@ use Pecee\SimpleRouter\RouterEntry;
 
 class ApiVerification implements IMiddleware {
 
-    public function handle(Request $request, RouterEntry &$route = null) {
+    public function handle(Request $request, RouterEntry &$route) {
 
         // Do authentication
         $request->authenticated = true;
+
+        return $request;
 
     }
 

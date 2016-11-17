@@ -82,7 +82,9 @@ class RouterBase {
      * List over route changes (to avoid endless-looping)
      * @var array
      */
-    protected $routeChanges = array();
+    protected $routeRewrites = array();
+
+    protected $originalUrl;
 
     public function __construct() {
         $this->reset();
@@ -161,7 +163,7 @@ class RouterBase {
 
                         // Add ExceptionHandler
                         if (count($route->getExceptionHandlers())) {
-                            $this->exceptionHandlers = array_merge($this->exceptionHandlers, $route->getExceptionHandlers());
+                            $this->exceptionHandlers = array_merge($route->getExceptionHandlers(), $this->exceptionHandlers);
                         }
                     }
 
@@ -180,7 +182,7 @@ class RouterBase {
         }
     }
 
-    public function routeRequest(Request $newRequest = null) {
+    public function routeRequest($rewrite = false) {
 
         $this->loadedRoute = null;
         $routeNotAllowed = false;
@@ -199,7 +201,7 @@ class RouterBase {
                 }
             }
 
-            if($newRequest === null) {
+            if($rewrite === false) {
 
                 // Loop through each route-request
                 $this->processRoutes($this->routes);
@@ -209,6 +211,8 @@ class RouterBase {
                     // Verify csrf token for request
                     $this->csrfVerifier->handle($this->request);
                 }
+
+                $this->originalUrl = $this->request->getUri();
             }
 
             /* @var $route RouterEntry */
@@ -218,23 +222,22 @@ class RouterBase {
 
                 if ($route->matchRoute($this->request)) {
 
-                    if (count($route->getRequestMethods()) && !in_array($this->request->getMethod(), $route->getRequestMethods())) {
+                    if (!in_array($this->request->getMethod(), $route->getRequestMethods())) {
                         $routeNotAllowed = true;
                         continue;
                     }
 
-                    $routeNotAllowed = false;
-
                     $this->loadedRoute = $route;
+                    $this->loadedRoute->loadMiddleware($this->request, $this->loadedRoute);
 
-                    $request = $this->loadedRoute->loadMiddleware($this->request, $this->loadedRoute);
-
-                    if($request !== null && $request->getUri() !== $this->request->getUri() && !in_array($request->getUri(), $this->routeChanges)) {
-                        $this->routeChanges[] = $request->getUri();
-                        $this->routeRequest($request);
+                    if($this->request->getUri() !== $this->originalUrl && !in_array($this->request->getUri(), $this->routeRewrites)) {
+                        $this->routeRewrites[] = $this->request->getUri();
+                        $this->routeRequest(true);
                         return;
                     }
 
+                    $routeNotAllowed = false;
+                    $this->request->setUri($this->originalUrl);
                     $this->loadedRoute->renderRoute($this->request);
 
                     break;
@@ -266,9 +269,10 @@ class RouterBase {
 
             $request = $handler->handleError($this->request, $this->loadedRoute, $e);
 
-            if($request !== null && !in_array($request->getUri(), $this->routeChanges)) {
-                $this->routeChanges[] = $request->getUri();
-                $this->routeRequest($request);
+            if($request !== null && $request->getUri() !== $this->originalUrl && !in_array($request->getUri(), $this->routeRewrites)) {
+                $this->routeRewrites[] = $request->getUri();
+                $this->routeRequest(true);
+                return;
             }
 
         }
