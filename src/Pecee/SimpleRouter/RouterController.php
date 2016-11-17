@@ -4,11 +4,10 @@ namespace Pecee\SimpleRouter;
 use Pecee\Exception\RouterException;
 use Pecee\Http\Request;
 
-class RouterController extends RouterEntry implements ILoadableRoute, IControllerRoute {
+class RouterController extends LoadableRoute implements IControllerRoute {
 
     const DEFAULT_METHOD = 'index';
 
-    protected $url;
     protected $controller;
     protected $method;
 
@@ -18,7 +17,7 @@ class RouterController extends RouterEntry implements ILoadableRoute, IControlle
     }
 
     public function renderRoute(Request $request) {
-        if(is_object($this->getCallback()) && is_callable($this->getCallback())) {
+        if($this->getCallback() !== null && is_callable($this->getCallback())) {
 
             // When the callback is a function
             call_user_func_array($this->getCallback(), $this->getParameters());
@@ -67,23 +66,6 @@ class RouterController extends RouterEntry implements ILoadableRoute, IControlle
             }
         }
         return null;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUrl() {
-        return $this->url;
-    }
-
-    /**
-     * @param string $url
-     * @return static
-     */
-    public function setUrl($url) {
-        $url = rtrim($url, '/') . '/';
-        $this->url = $url;
-        return $this;
     }
 
     /**

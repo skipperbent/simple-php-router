@@ -7,12 +7,18 @@ use Pecee\Http\Request;
 
 class RouterGroup extends RouterEntry {
 
+    public function __construct() {
+        $this->settings = array_merge($this->settings, [
+            'exceptionHandlers' => array()
+        ]);
+    }
+
     public function matchDomain(Request $request) {
-        if($this->setting('domain') !== null) {
+        if($this->getSetting('domain') !== null) {
 
-            if(is_array($this->setting('domain'))) {
+            if(is_array($this->getSetting('domain'))) {
 
-                for($i = 0; $i < count($this->setting('domain')); $i++) {
+                for($i = 0; $i < count($this->getSetting('domain')); $i++) {
                     $domain = $this->settings['domain'][$i];
 
                     $parameters = $this->parseParameters($domain, $request->getHost(), '[^.]*');
@@ -26,7 +32,7 @@ class RouterGroup extends RouterEntry {
                 return false;
             }
 
-            $parameters = $this->parseParameters($this->setting('domain'), $request->getHost(), '[^.]*');
+            $parameters = $this->parseParameters($this->getSetting('domain'), $request->getHost(), '[^.]*');
 
             if ($parameters !== null) {
                 $this->settings['parameters'] = $parameters;
@@ -43,8 +49,8 @@ class RouterGroup extends RouterEntry {
         // Check if request method is allowed
         $hasAccess = true;
 
-        if($this->setting('method') !== null) {
-            if(is_array($this->setting('method'))) {
+        if($this->getSetting('method') !== null) {
+            if(is_array($this->getSetting('method'))) {
                 $hasAccess = (in_array($request->getMethod(), $this->getRequestMethods()));
             } else {
                 $hasAccess = strtolower($this->getRequestMethods()) == strtolower($request->getMethod());
@@ -69,17 +75,17 @@ class RouterGroup extends RouterEntry {
         return $this->matchDomain($request);
     }
 
-    public function setExceptionHandler($class) {
-        $this->settings['exceptionHandler'] = $class;
+    public function setExceptionHandlers($class) {
+        $this->settings['exceptionHandlers'][] = $class;
         return $this;
     }
 
-    public function getExceptionHandler() {
-        return $this->setting('exceptionHandler');
+    public function getExceptionHandlers() {
+        return $this->getSetting('exceptionHandlers');
     }
 
     public function getDomain() {
-        return $this->setting('domain');
+        return $this->getSetting('domain');
     }
 
     /**
@@ -87,7 +93,7 @@ class RouterGroup extends RouterEntry {
      * @return static
      */
     public function setPrefix($prefix) {
-        $this->settings['prefix'] = '/' . ltrim($prefix, '/');
+        $this->settings['prefix'] = '/' . trim($prefix, '/');
         return $this;
     }
 
@@ -95,7 +101,7 @@ class RouterGroup extends RouterEntry {
      * @return string
      */
     public function getPrefix() {
-        return $this->setting('prefix');
+        return $this->getSetting('prefix');
     }
 
     /**
@@ -118,7 +124,11 @@ class RouterGroup extends RouterEntry {
             }
 
             $settings['middleware'] = array_unique(array_reverse($settings['middleware']));
+        }
 
+        if(isset($settings['prefix'])) {
+            $this->setPrefix($settings['prefix']);
+            unset($settings['prefix']);
         }
 
         $this->settings = array_merge($this->settings, $settings);

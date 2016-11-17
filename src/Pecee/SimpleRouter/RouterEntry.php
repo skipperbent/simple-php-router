@@ -22,14 +22,15 @@ abstract class RouterEntry {
         self::REQUEST_TYPE_PATCH,
     ];
 
+    protected $parent;
+    protected $callback;
+
     protected $settings = [
         'requestMethods' => array(),
         'where' => array(),
         'parameters' => array(),
         'middleware' => array(),
     ];
-
-    protected $callback;
 
     /**
      * @param string $callback
@@ -95,14 +96,14 @@ abstract class RouterEntry {
      * @return string|array
      */
     public function getMiddleware() {
-        return $this->settingArray('middleware');
+        return $this->getSetting('middleware');
     }
 
     /**
      * @return string
      */
     public function getNamespace() {
-        return $this->setting('namespace');
+        return $this->getSetting('namespace');
     }
 
     /**
@@ -116,7 +117,7 @@ abstract class RouterEntry {
      * @return array
      */
     public function getParameters(){
-        return $this->setting('parameters', array());
+        return $this->getSetting('parameters', array());
     }
 
     /**
@@ -209,7 +210,7 @@ abstract class RouterEntry {
                 // Check for optional parameter
 
                 // Use custom parameter regex if it exists
-                if(is_array($this->setting('where')) && isset($this->settings['where'][$parameter])) {
+                if(is_array($this->getSetting('where')) && isset($this->settings['where'][$parameter])) {
                     $parameterRegex = $this->settings['where'][$parameter];
                 }
 
@@ -284,7 +285,7 @@ abstract class RouterEntry {
     }
 
     public function renderRoute(Request $request) {
-        if(is_object($this->getCallback()) && is_callable($this->getCallback())) {
+        if($this->getCallback() !== null && is_callable($this->getCallback())) {
             // When the callback is a function
             call_user_func_array($this->getCallback(), $this->getParameters());
         } else {
@@ -328,30 +329,23 @@ abstract class RouterEntry {
      * @return array
      */
     public function getRequestMethods() {
-        return $this->settingArray('requestMethods');
+        return $this->getSetting('requestMethods');
     }
 
-    public function getGroup() {
-        return $this->setting('group');
+    /**
+     * @return RouterEntry
+     */
+    public function getParent() {
+        return $this->parent;
     }
 
-    public function setGroup($group) {
-        $this->settings['group'] = $group;
+    public function setParent(RouterEntry $parent) {
+        $this->parent = $parent;
         return $this;
     }
 
-    protected function setting($name, $defaultValue = null) {
+    protected function getSetting($name, $defaultValue = null) {
         return isset($this->settings[$name]) ? $this->settings[$name] : $defaultValue;
-    }
-
-    protected function settingArray($name) {
-        $value = $this->setting($name);
-
-        if($value === null) {
-            return [];
-        }
-
-        return (!is_array($value)) ? array($value) : $value;
     }
 
     abstract function matchRoute(Request $request);
