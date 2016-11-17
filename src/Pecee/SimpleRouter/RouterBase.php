@@ -86,6 +86,18 @@ class RouterBase {
 
     protected $originalUrl;
 
+    /**
+     * Get current router instance
+     * @return static
+     */
+    public static function getInstance() {
+        if(static::$instance === null) {
+            static::$instance = new static();
+        }
+
+        return static::$instance;
+    }
+
     public function __construct() {
         $this->reset();
     }
@@ -280,91 +292,6 @@ class RouterBase {
         throw $e;
     }
 
-    /**
-     * Get default namespace
-     * @return string
-     */
-    public function getDefaultNamespace(){
-        return $this->defaultNamespace;
-    }
-
-    /**
-     * Set the main default namespace that all routes will inherit
-     * @param string $defaultNamespace
-     * @return static
-     */
-    public function setDefaultNamespace($defaultNamespace) {
-        $this->defaultNamespace = $defaultNamespace;
-        return $this;
-    }
-
-    /**
-     * Get bootmanagers
-     * @return array
-     */
-    public function getBootManagers() {
-        return $this->bootManagers;
-    }
-
-    /**
-     * Set bootmanagers
-     * @param array $bootManagers
-     */
-    public function setBootManagers(array $bootManagers) {
-        $this->bootManagers = $bootManagers;
-    }
-
-    /**
-     * Add bootmanager
-     * @param RouterBootManager $bootManager
-     */
-    public function addBootManager(RouterBootManager $bootManager) {
-        $this->bootManagers[] = $bootManager;
-    }
-
-    /**
-     * @return array
-     */
-    public function getRoutes(){
-        return $this->routes;
-    }
-
-    /**
-     * Get current request
-     *
-     * @return Request
-     */
-    public function getRequest() {
-        return $this->request;
-    }
-
-    /**
-     * Get response
-     * @return Response
-     */
-    public function getResponse() {
-        return $this->response;
-    }
-
-    /**
-     * Get csrf verifier class
-     * @return BaseCsrfVerifier
-     */
-    public function getCsrfVerifier() {
-        return $this->csrfVerifier;
-    }
-
-    /**
-     * Set csrf verifier class
-     *
-     * @param BaseCsrfVerifier $csrfVerifier
-     * @return static
-     */
-    public function setCsrfVerifier(BaseCsrfVerifier $csrfVerifier) {
-        $this->csrfVerifier = $csrfVerifier;
-        return $this;
-    }
-
     public function arrayToParams(array $getParams = null, $includeEmpty = true) {
 
         if(is_array($getParams) && count($getParams)) {
@@ -535,15 +462,96 @@ class RouterBase {
     }
 
     /**
-     * Get current router instance
+     * Get default namespace
+     * @return string
+     */
+    public function getDefaultNamespace(){
+        return $this->defaultNamespace;
+    }
+
+    /**
+     * Set the main default namespace that all routes will inherit
+     * @param string $defaultNamespace
      * @return static
      */
-    public static function getInstance() {
-        if(static::$instance === null) {
-            static::$instance = new static();
-        }
+    public function setDefaultNamespace($defaultNamespace) {
+        $this->defaultNamespace = $defaultNamespace;
+        return $this;
+    }
 
-        return static::$instance;
+    /**
+     * Get bootmanagers
+     * @return array
+     */
+    public function getBootManagers() {
+        return $this->bootManagers;
+    }
+
+    /**
+     * Set bootmanagers
+     * @param array $bootManagers
+     */
+    public function setBootManagers(array $bootManagers) {
+        $this->bootManagers = $bootManagers;
+    }
+
+    /**
+     * Add bootmanager
+     * @param RouterBootManager $bootManager
+     */
+    public function addBootManager(RouterBootManager $bootManager) {
+        $this->bootManagers[] = $bootManager;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRoutes(){
+        return $this->routes;
+    }
+
+    /**
+     * Get current request
+     *
+     * @return Request
+     */
+    public function getRequest() {
+        return $this->request;
+    }
+
+    /**
+     * Get response
+     * @return Response
+     */
+    public function getResponse() {
+        return $this->response;
+    }
+
+    /**
+     * Get csrf verifier class
+     * @return BaseCsrfVerifier
+     */
+    public function getCsrfVerifier() {
+        return $this->csrfVerifier;
+    }
+
+    /**
+     * Set csrf verifier class
+     *
+     * @param BaseCsrfVerifier $csrfVerifier
+     * @return static
+     */
+    public function setCsrfVerifier(BaseCsrfVerifier $csrfVerifier) {
+        $this->csrfVerifier = $csrfVerifier;
+        return $this;
+    }
+
+    /**
+     * Get loaded route
+     * @return RouterRoute|null
+     */
+    public function getLoadedRoute() {
+        return $this->loadedRoute;
     }
 
 }
