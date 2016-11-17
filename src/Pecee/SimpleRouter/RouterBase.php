@@ -227,10 +227,9 @@ class RouterBase {
 
                     $this->loadedRoute = $route;
 
-                    $request = clone $this->request;
-                    $this->loadedRoute->loadMiddleware($request, $this->loadedRoute);
+                    $request = $this->loadedRoute->loadMiddleware($this->request, $this->loadedRoute);
 
-                    if($request->getUri() !== $this->request->getUri() && !in_array($request->getUri(), $this->routeChanges)) {
+                    if($request !== null && $request->getUri() !== $this->request->getUri() && !in_array($request->getUri(), $this->routeChanges)) {
                         $this->routeChanges[] = $request->getUri();
                         $this->routeRequest($request);
                         return;
