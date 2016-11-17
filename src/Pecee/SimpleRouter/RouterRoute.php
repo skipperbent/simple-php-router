@@ -17,10 +17,10 @@ class RouterRoute extends LoadableRoute {
         $url = rtrim($url, '/') . '/';
 
         // Match on custom defined regular expression
-        if($this->getSetting('regexMatch') !== null) {
+        if($this->regex !== null) {
             $parameters = array();
-            if(preg_match('/(' . $this->getSetting('regexMatch') . ')/is', $request->getHost() . $url, $parameters)) {
-                $this->settings['parameters'] = (!is_array($parameters[0]) ? array($parameters[0]) : $parameters[0]);
+            if(preg_match('/(' . $this->regex . ')/is', $request->getHost() . $url, $parameters)) {
+                $this->parameters = (!is_array($parameters[0]) ? array($parameters[0]) : $parameters[0]);
                 return true;
             }
             return null;
@@ -32,7 +32,7 @@ class RouterRoute extends LoadableRoute {
         $parameters = $this->parseParameters($route, $url);
 
         if($parameters !== null) {
-            $this->settings['parameters'] = array_merge($this->getSetting('parameters'), $parameters);
+            $this->parameters = array_merge($this->parameters, $parameters);
             return true;
         }
 

@@ -38,7 +38,7 @@ class RouterResource extends LoadableRoute implements IControllerRoute {
 
     protected function call($method, $parameters) {
         $this->setCallback($this->controller . '@' . $method);
-        $this->settings['parameters'] = $parameters;
+        $this->parameters = $parameters;
         return true;
     }
 
@@ -53,7 +53,7 @@ class RouterResource extends LoadableRoute implements IControllerRoute {
         if($parameters !== null) {
 
             if(is_array($parameters)) {
-                $parameters = array_merge($this->settings['parameters'], $parameters);
+                $parameters = array_merge($this->parameters, $parameters);
             }
 
             $action = isset($parameters['action']) ? $parameters['action'] : null;

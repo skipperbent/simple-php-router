@@ -6,6 +6,7 @@ require_once 'Dummy/Handler/ExceptionHandler.php';
 
 class RouterRouteTest extends PHPUnit_Framework_TestCase  {
 
+    protected $result = false;
 
     public function testNotFound() {
         \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
@@ -110,6 +111,27 @@ class RouterRouteTest extends PHPUnit_Framework_TestCase  {
 
         \Pecee\SimpleRouter\SimpleRouter::get('/test/path/{myParam}', 'DummyController@param', ['where' => ['myParam' => '([0-9]+)']]);
         \Pecee\SimpleRouter\SimpleRouter::start();
+
+    }
+
+    public function testDomainRoute() {
+
+        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
+        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('get');
+        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/test');
+        \Pecee\SimpleRouter\SimpleRouter::request()->setHost('hello.world.com');
+
+        $this->result = false;
+
+        \Pecee\SimpleRouter\SimpleRouter::group(['domain' => '{subdomain}.world.com'], function() {
+            \Pecee\SimpleRouter\SimpleRouter::get('test', function($subdomain) {
+                $this->result = ($subdomain === 'hello');
+            });
+        });
+
+        \Pecee\SimpleRouter\SimpleRouter::start();
+
+        $this->assertTrue($this->result);
 
     }
 

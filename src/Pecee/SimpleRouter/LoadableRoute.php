@@ -6,6 +6,7 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute {
     const PARAMETERS_REGEX_MATCH = '{([A-Za-z\-\_]*?)\?{0,1}}';
 
     protected $url;
+    protected $alias;
 
     public function getUrl() {
         return $this->url;
@@ -45,7 +46,7 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute {
      * @return string|array
      */
     public function getAlias(){
-        return $this->getSetting('alias');
+        return $this->alias;
     }
 
     /**
@@ -75,19 +76,18 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute {
      * @return static
      */
     public function setAlias($alias){
-        $this->settings['alias'] = $alias;
+        $this->alias = $alias;
         return $this;
     }
 
-    public function addSettings(array $settings) {
+    public function setData(array $settings) {
 
         // Change as to alias
         if(isset($settings['as'])) {
             $this->setAlias($settings['as']);
-            unset($settings['as']);
         }
 
-        return parent::addSettings($settings);
+        return parent::setData($settings);
     }
 
 }

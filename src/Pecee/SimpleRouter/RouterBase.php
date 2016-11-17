@@ -126,7 +126,7 @@ class RouterBase {
             $route = $routes[$i];
 
             if(count($settings)) {
-                $route->addSettings($settings);
+                $route->setData($settings);
             }
 
             if($parent !== null) {
@@ -134,15 +134,6 @@ class RouterBase {
                 if($parent instanceof RouterGroup) {
                     if ($parent->getPrefix() !== null && trim($parent->getPrefix(), '/') !== '') {
                         $prefixes[] = trim($parent->getPrefix(), '/');
-                    }
-
-                    if ($route->matchRoute($this->request)) {
-                        $mergedSettings = array_merge($settings, $parent->getMergeableSettings());
-
-                        // Add ExceptionHandler
-                        if (count($parent->getExceptionHandlers())) {
-                            $this->exceptionHandlers = array_merge($this->exceptionHandlers, $parent->getExceptionHandler());
-                        }
                     }
                 }
 
@@ -161,11 +152,20 @@ class RouterBase {
             if($route instanceof ILoadableRoute) {
                 $route->setUrl( trim(join('/', $prefixes) . $route->getUrl(), '/') );
                 $this->controllerUrlMap[] = $route;
-            } else {
+            } elseif($route instanceof RouterGroup) {
                 if ($route->getCallback() !== null && is_callable($route->getCallback())) {
                     $this->processingRoute = true;
                     $route->renderRoute($this->request);
                     $this->processingRoute = false;
+
+                    if ($route->matchRoute($this->request)) {
+                        $mergedSettings = array_merge($settings, $route->getMergeableData());
+
+                        // Add ExceptionHandler
+                        if (count($route->getExceptionHandlers())) {
+                            $this->exceptionHandlers = array_merge($this->exceptionHandlers, $route->getExceptionHandlers());
+                        }
+                    }
                 }
             }
 
@@ -384,15 +384,9 @@ class RouterBase {
 
         $parent = $route->getParent();
 
-        if($parent !== null && ($parent instanceof RouterGroup) && $parent->getDomain() !== null) {
-            if(is_array($parent->getDomain())) {
-                $domains = $parent->getDomain();
-                $domain = array_shift($domains);
-            } else {
-                $domain = $parent->getDomain();
-            }
-
-            $domain = '//' . $domain;
+        if($parent !== null && $parent instanceof RouterGroup && count($parent->getDomains())) {
+            $domain = $parent->getDomains();
+            $domain = '//' . $domain[0];
         }
 
         $url = $domain . '/' . trim($route->getUrl(), '/');

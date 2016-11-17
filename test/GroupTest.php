@@ -18,7 +18,7 @@ class GroupTest extends PHPUnit_Framework_TestCase  {
         try {
             \Pecee\SimpleRouter\SimpleRouter::start();
         } catch(Exception $e) {
-            echo $e->getMessage();
+            // ignore RouteNotFound exception
         }
 
         $this->assertTrue($this->result);
