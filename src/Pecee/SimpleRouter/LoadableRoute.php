@@ -19,25 +19,7 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute {
      * @return static
      */
     public function setUrl($url) {
-
         $this->url = '/' . trim($url, '/') . '/';
-        /*$this->originalUrl = $this->url;
-
-        if(preg_match_all('/' . static::PARAMETERS_REGEX_MATCH . '/is', $this->url, $matches)) {
-            $parameters = $matches[1];
-
-
-            if (count($parameters)) {
-
-                foreach (array_keys($parameters) as $key) {
-                    $parameters[$key] = null;
-                }
-
-                $this->settings['parameters'] = $parameters;
-            }
-
-        }*/
-
         return $this;
     }
 
