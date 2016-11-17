@@ -9,7 +9,7 @@ class RouterResource extends LoadableRoute implements IControllerRoute {
     protected $controller;
 
     public function __construct($url, $controller) {
-        $this->url = $url;
+        $this->setUrl($url);
         $this->controller = $controller;
     }
 

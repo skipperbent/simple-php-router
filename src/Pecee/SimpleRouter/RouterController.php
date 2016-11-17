@@ -12,7 +12,7 @@ class RouterController extends LoadableRoute implements IControllerRoute {
     protected $method;
 
     public function __construct($url, $controller) {
-        $this->url = $url;
+        $this->setUrl($url);
         $this->controller = $controller;
     }
 
