@@ -222,7 +222,7 @@ class RouterBase {
 
                 if ($route->matchRoute($this->request)) {
 
-                    if (!in_array($this->request->getMethod(), $route->getRequestMethods())) {
+                    if (count($route->getRequestMethods()) && !in_array($this->request->getMethod(), $route->getRequestMethods())) {
                         $routeNotAllowed = true;
                         continue;
                     }
