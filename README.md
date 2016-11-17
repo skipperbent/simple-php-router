@@ -381,15 +381,11 @@ $route->setMethod('hello');
 It's only possible to change the route BEFORE the route has initially been loaded. If you want to redirect to another route, we highly recommend that you 
 modify the `RouterEntry` object from a `Middleware` or `ExceptionHandler`, like the examples below.
 
-#### Faking new route
+#### Rewriting to new route
 
 The example below will cause the router to re-route the request with another url. We are using the `url()` helper function to get the uri to another route added in the `routes.php` file.
- 
-This does require the `$request` object to be returned, otherwise the `request` object will be ignored by the router.
 
-Using the example below will NOT inherit the rules from the other route. This means that IF you are faking a route that is enabled in `post`.
-
-**NOTE: Use this method if you want to fully load a route (middlewares, request-method etc. will be kept).**
+**NOTE: Use this method if you want to fully load another route using it's settings (request method etc).**
 
 
 ```php
@@ -401,8 +397,8 @@ use Pecee\SimpleRouter\RouterEntry;
 
 class CustomMiddleware implements Middleware {
 
-    public function handle(Request $request, RouterEntry &$route = null) {
-        return $request->setUri(url('home'));
+    public function handle(Request $request, RouterEntry &$route) {
+        $request->setUri(url('home'));
     }
     
 }
@@ -427,7 +423,7 @@ use Pecee\SimpleRouter\RouterEntry;
 
 class CustomMiddleware implements Middleware {
 
-    public function handle(Request $request, RouterEntry &$route = null) { 
+    public function handle(Request $request, RouterEntry &$route) { 
         $route->callback('DefaultController@home');
     }
     
