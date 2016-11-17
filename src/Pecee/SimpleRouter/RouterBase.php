@@ -85,7 +85,6 @@ class RouterBase {
     protected $routeChanges = array();
 
     public function __construct() {
-
         $this->reset();
     }
 
@@ -118,16 +117,12 @@ class RouterBase {
     protected function processRoutes(array $routes, array $settings = array(), array $prefixes = array(), RouterEntry $parent = null) {
         // Loop through each route-request
 
-        $mergedSettings = array();
-
         /* @var $route RouterEntry */
         for($i = 0; $i < count($routes); $i++) {
 
             $route = $routes[$i];
 
-            if(count($settings)) {
-                $route->setData($settings);
-            }
+            $route->setData($settings);
 
             if($parent !== null) {
 
@@ -150,22 +145,26 @@ class RouterBase {
             }
 
             if($route instanceof ILoadableRoute) {
+
                 $route->setUrl( trim(join('/', $prefixes) . $route->getUrl(), '/') );
                 $this->controllerUrlMap[] = $route;
             } elseif($route instanceof RouterGroup) {
+
                 if ($route->getCallback() !== null && is_callable($route->getCallback())) {
                     $this->processingRoute = true;
                     $route->renderRoute($this->request);
                     $this->processingRoute = false;
 
                     if ($route->matchRoute($this->request)) {
-                        $mergedSettings = array_merge($settings, $route->getMergeableData());
+
+                        $settings = array_merge($settings, $route->getMergeableData());
 
                         // Add ExceptionHandler
                         if (count($route->getExceptionHandlers())) {
                             $this->exceptionHandlers = array_merge($this->exceptionHandlers, $route->getExceptionHandlers());
                         }
                     }
+
                 }
             }
 
@@ -174,7 +173,7 @@ class RouterBase {
                 $this->backStack = array();
 
                 // Route any routes added to the backstack
-                $this->processRoutes($backStack, $mergedSettings, $prefixes, $route);
+                $this->processRoutes($backStack, $settings, $prefixes, $route);
             }
 
             $prefixes = [];
