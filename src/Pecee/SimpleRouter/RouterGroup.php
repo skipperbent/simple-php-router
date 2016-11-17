@@ -79,16 +79,15 @@ class RouterGroup extends RouterEntry {
         }
 
         if(isset($settings['exceptionHandler'])) {
-            $handlers = is_array($settings['exceptionHandler']) ? $settings['exceptionHandler'] : array($settings['exceptionHandler']);
-            $this->setExceptionHandlers($handlers);
+            $this->setExceptionHandlers((array)$settings['exceptionHandler']);
         }
 
         if(isset($settings['domain'])) {
-            $domains = is_array($settings['domain']) ? $settings['domain'] : array($settings['domain']);
-            $this->setDomains($domains);
+            $this->setDomains((array)$settings['domain']);
         }
 
         return parent::setData($settings);
+
     }
 
 }

@@ -124,7 +124,7 @@ class RouterRouteTest extends PHPUnit_Framework_TestCase  {
         $this->result = false;
 
         \Pecee\SimpleRouter\SimpleRouter::group(['domain' => '{subdomain}.world.com'], function() {
-            \Pecee\SimpleRouter\SimpleRouter::get('test', function($subdomain) {
+            \Pecee\SimpleRouter\SimpleRouter::get('test', function($subdomain = null) {
                 $this->result = ($subdomain === 'hello');
             });
         });

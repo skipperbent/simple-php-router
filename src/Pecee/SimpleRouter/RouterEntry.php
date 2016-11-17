@@ -329,9 +329,11 @@ abstract class RouterEntry {
      */
     public function getMergeableData() {
 
-        $output = [
-            'namespace' => $this->namespace,
-        ];
+        $output = array();
+
+        if($this->namespace !== null) {
+            $output['namespace'] = $this->namespace;
+        }
 
         if(count($this->middlewares)) {
             $output['middleware'] = $this->middlewares;
@@ -360,27 +362,17 @@ abstract class RouterEntry {
      */
     public function setData(array $settings) {
 
-        if (isset($settings['namespace'])) {
+        if (isset($settings['namespace']) && $this->namespace === null) {
             $this->setNamespace($settings['namespace']);
         }
 
         // Push middleware if multiple
         if (isset($settings['middleware'])) {
-
-            if (!is_array($settings['middleware'])) {
-                $settings['middleware'] = array_merge($this->middlewares, array($settings['middleware']));
-            } else {
-                $settings['middleware'][] = $this->middlewares;
-            }
-
-            $middlewares = is_array($settings['middleware']) ? $settings['middleware'] : array($settings['middleware']);
-            $this->middlewares = array_reverse(array_merge($this->middlewares, $middlewares));
-
+            $this->middlewares = array_merge((array)$settings['middleware'], $this->middlewares);
         }
 
         if(isset($settings['method'])) {
-            $requestMethods = is_array($settings['method']) ? $settings['method'] : array($settings['method']);
-            $this->setRequestMethods($requestMethods);
+            $this->setRequestMethods((array)$settings['method']);
         }
 
         if(isset($settings['where'])) {
