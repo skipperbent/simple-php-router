@@ -4,9 +4,8 @@ namespace Pecee\SimpleRouter;
 use Pecee\Exception\RouterException;
 use Pecee\Http\Request;
 
-class RouterResource extends RouterEntry implements ILoadableRoute, IControllerRoute {
+class RouterResource extends LoadableRoute implements IControllerRoute {
 
-    protected $url;
     protected $controller;
 
     public function __construct($url, $controller) {
@@ -15,7 +14,7 @@ class RouterResource extends RouterEntry implements ILoadableRoute, IControllerR
     }
 
     public function renderRoute(Request $request) {
-        if(is_object($this->getCallback()) && is_callable($this->getCallback())) {
+        if($this->getCallback() !== null && is_callable($this->getCallback())) {
             // When the callback is a function
             call_user_func_array($this->getCallback(), $this->getParameters());
         } else {
@@ -39,7 +38,7 @@ class RouterResource extends RouterEntry implements ILoadableRoute, IControllerR
 
     protected function call($method, $parameters) {
         $this->setCallback($this->controller . '@' . $method);
-        $this->settings['parameters'] = $parameters;
+        $this->parameters = $parameters;
         return true;
     }
 
@@ -54,7 +53,7 @@ class RouterResource extends RouterEntry implements ILoadableRoute, IControllerR
         if($parameters !== null) {
 
             if(is_array($parameters)) {
-                $parameters = array_merge($this->settings['parameters'], $parameters);
+                $parameters = array_merge($this->parameters, $parameters);
             }
 
             $action = isset($parameters['action']) ? $parameters['action'] : null;
@@ -95,22 +94,6 @@ class RouterResource extends RouterEntry implements ILoadableRoute, IControllerR
         }
 
         return null;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUrl() {
-        return $this->url;
-    }
-
-    /**
-     * @param string $url
-     * @return static
-     */
-    public function setUrl($url) {
-        $this->url = rtrim($url, '/') . '/';
-        return $this;
     }
 
     /**

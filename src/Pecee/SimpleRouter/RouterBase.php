@@ -24,10 +24,11 @@ class RouterBase {
     protected $response;
 
     /**
-     * Used to keep track of whether to add routes to stack or not.
-     * @var RouterEntry
+     * Used to keep track of whether or not a should should be added to
+     * the backstack-list for group-processing or not.
+     * @var bool
      */
-    protected $currentRoute;
+    protected $processingRoute;
 
     /**
      * All added routes
@@ -78,24 +79,25 @@ class RouterBase {
     protected $loadedRoute;
 
     /**
-     * List over route changes (to avoid looping)
+     * List over route changes (to avoid endless-looping)
      * @var array
      */
-    protected $routeChanges;
+    protected $routeChanges = array();
 
     public function __construct() {
+
         $this->reset();
     }
 
     public function reset() {
+        $this->processingRoute = false;
         $this->request = new Request();
         $this->response = new Response($this->request);
         $this->routes = array();
+        $this->bootManagers = array();
         $this->backStack = array();
         $this->controllerUrlMap = array();
-        $this->bootManagers = array();
         $this->exceptionHandlers = array();
-        $this->routeChanges = array();
     }
 
     /**
@@ -104,7 +106,7 @@ class RouterBase {
      * @return RouterEntry
      */
     public function addRoute(RouterEntry $route) {
-        if($this->currentRoute !== null) {
+        if($this->processingRoute) {
             $this->backStack[] = $route;
         } else {
             $this->routes[] = $route;
@@ -113,7 +115,7 @@ class RouterBase {
         return $route;
     }
 
-    protected function processRoutes(array $routes, array $settings = array(), array $prefixes = array(), $backStack = false, RouterGroup $group = null) {
+    protected function processRoutes(array $routes, array $settings = array(), array $prefixes = array(), RouterEntry $parent = null) {
         // Loop through each route-request
 
         $mergedSettings = array();
@@ -124,14 +126,18 @@ class RouterBase {
             $route = $routes[$i];
 
             if(count($settings)) {
-                $route->addSettings($settings);
+                $route->setData($settings);
             }
 
-            if($backStack && $group !== null) {
-                $route->setGroup($group);
-            } else {
-                $prefixes = [];
-                $group = null;
+            if($parent !== null) {
+
+                if($parent instanceof RouterGroup) {
+                    if ($parent->getPrefix() !== null && trim($parent->getPrefix(), '/') !== '') {
+                        $prefixes[] = trim($parent->getPrefix(), '/');
+                    }
+                }
+
+                $route->setParent($parent);
             }
 
             if($route->getNamespace() === null && $this->defaultNamespace !== null) {
@@ -143,52 +149,35 @@ class RouterBase {
                 $route->setNamespace($namespace);
             }
 
-            $this->currentRoute = $route;
-
             if($route instanceof ILoadableRoute) {
-                if(is_array($prefixes) && count($prefixes) && $backStack) {
-                    $route->setUrl( '/' . join('/', $prefixes) . $route->getUrl() );
-                }
-
+                $route->setUrl( trim(join('/', $prefixes) . $route->getUrl(), '/') );
                 $this->controllerUrlMap[] = $route;
-            } else {
+            } elseif($route instanceof RouterGroup) {
+                if ($route->getCallback() !== null && is_callable($route->getCallback())) {
+                    $this->processingRoute = true;
+                    $route->renderRoute($this->request);
+                    $this->processingRoute = false;
 
-                if($route instanceof RouterGroup) {
+                    if ($route->matchRoute($this->request)) {
+                        $mergedSettings = array_merge($settings, $route->getMergeableData());
 
-                    if ($route->getPrefix() !== null && trim($route->getPrefix(), '/') !== '') {
-                        $prefixes[] = trim($route->getPrefix(), '/');
-                    }
-
-                    if (is_callable($route->getCallback())) {
-
-                        $route->renderRoute($this->request);
-
-                        if ($route->matchRoute($this->request)) {
-
-                            /* @var $group RouterGroup */
-                            $group = $route;
-
-                            $mergedSettings = array_merge($settings, $group->getMergeableSettings());
-
-                            // Add ExceptionHandler
-                            if ($group->getExceptionHandler() !== null) {
-                                $this->exceptionHandlers[] = $route;
-                            }
-
+                        // Add ExceptionHandler
+                        if (count($route->getExceptionHandlers())) {
+                            $this->exceptionHandlers = array_merge($this->exceptionHandlers, $route->getExceptionHandlers());
                         }
                     }
                 }
             }
-
-            $this->currentRoute = null;
 
             if(count($this->backStack)) {
                 $backStack = $this->backStack;
                 $this->backStack = array();
 
                 // Route any routes added to the backstack
-                $this->processRoutes($backStack, $mergedSettings, $prefixes, true, $group);
+                $this->processRoutes($backStack, $mergedSettings, $prefixes, $route);
             }
+
+            $prefixes = [];
         }
     }
 
@@ -269,9 +258,8 @@ class RouterBase {
 
     protected function handleException(\Exception $e) {
 
-        /* @var $route RouterGroup */
-        foreach ($this->exceptionHandlers as $route) {
-            $handler = $route->getExceptionHandler();
+        /* @var $handler IExceptionHandler */
+        foreach ($this->exceptionHandlers as $handler) {
             $handler = new $handler();
 
             if (!($handler instanceof IExceptionHandler)) {
@@ -394,15 +382,11 @@ class RouterBase {
 
         $domain = '';
 
-        if($route->getGroup() !== null && $route->getGroup()->getDomain() !== null) {
-            if(is_array($route->getGroup()->getDomain())) {
-                $domains = $route->getGroup()->getDomain();
-                $domain = array_shift($domains);
-            } else {
-                $domain = $route->getGroup()->getDomain();
-            }
+        $parent = $route->getParent();
 
-            $domain = '//' . $domain;
+        if($parent !== null && $parent instanceof RouterGroup && count($parent->getDomains())) {
+            $domain = $parent->getDomains();
+            $domain = '//' . $domain[0];
         }
 
         $url = $domain . '/' . trim($route->getUrl(), '/');
@@ -482,16 +466,25 @@ class RouterBase {
             $route = $this->controllerUrlMap[$i];
 
             // Check an alias exist, if the matches - use it
-            if($route instanceof IControllerRoute) {
-                $c = $route->getController();
-            } else {
-                if($route->hasAlias($controller)) {
+            if($route instanceof LoadableRoute) {
+
+                // Check for alias
+                if ($route->hasAlias($controller)) {
                     return $this->processUrl($route, $route->getMethod(), $parameters, $getParams);
                 }
 
-                if(!is_callable($route->getCallback()) && stripos($route->getCallback(), '@') !== false) {
-                    $c = $route->getCallback();
+                // Use controller name
+                if($route instanceof RouterController) {
+                    $c = $route->getController();
+                } else {
+
+                    // Use callback if it's not a function
+                    if (stripos($route->getCallback(), '@') !== false && !is_callable($route->getCallback())) {
+                        $c = $route->getCallback();
+                    }
+
                 }
+
             }
 
             if($c === $controller || strpos($c, $controller) === 0) {
