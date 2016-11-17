@@ -53,6 +53,14 @@ class SimpleRouter {
         return static::match(['put'], $url, $callback, $settings);
     }
 
+    public static function patch($url, $callback, array $settings = null) {
+        return static::match(['patch'], $url, $callback, $settings);
+    }
+
+    public static function options($url, $callback, array $settings = null) {
+        return static::match(['options'], $url, $callback, $settings);
+    }
+
     public static function delete($url, $callback, array $settings = null) {
         return static::match(['delete'], $url, $callback, $settings);
     }
@@ -62,7 +70,7 @@ class SimpleRouter {
         $group->setCallback($callback);
 
         if($settings !== null && is_array($settings)) {
-            $group->setSettings($settings);
+            $group->setData($settings);
         }
 
         RouterBase::getInstance()->addRoute($group);
@@ -87,7 +95,7 @@ class SimpleRouter {
         $route->setRequestMethods($requestMethods);
 
         if($settings !== null) {
-            $route->addSettings($settings);
+            $route->setData($settings);
         }
 
         RouterBase::getInstance()->addRoute($route);
@@ -99,7 +107,7 @@ class SimpleRouter {
         $route = new RouterRoute($url, $callback);
 
         if($settings !== null) {
-            $route->addSettings($settings);
+            $route->setData($settings);
         }
 
         RouterBase::getInstance()->addRoute($route);
@@ -111,7 +119,7 @@ class SimpleRouter {
         $route = new RouterController($url, $controller);
 
         if($settings !== null) {
-            $route->addSettings($settings);
+            $route->setData($settings);
         }
 
         RouterBase::getInstance()->addRoute($route);
@@ -123,7 +131,7 @@ class SimpleRouter {
         $route = new RouterResource($url, $controller);
 
         if($settings !== null) {
-            $route->addSettings($settings);
+            $route->setData($settings);
         }
 
         static::router()->addRoute($route);

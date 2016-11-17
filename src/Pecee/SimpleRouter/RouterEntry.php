@@ -8,174 +8,31 @@ use Pecee\Http\Request;
 
 abstract class RouterEntry {
 
-    const REQUEST_TYPE_POST = 'post';
     const REQUEST_TYPE_GET = 'get';
+    const REQUEST_TYPE_POST = 'post';
     const REQUEST_TYPE_PUT = 'put';
     const REQUEST_TYPE_PATCH = 'patch';
+    const REQUEST_TYPE_OPTIONS = 'options';
     const REQUEST_TYPE_DELETE = 'delete';
 
     public static $allowedRequestTypes = [
-        self::REQUEST_TYPE_DELETE,
         self::REQUEST_TYPE_GET,
         self::REQUEST_TYPE_POST,
         self::REQUEST_TYPE_PUT,
         self::REQUEST_TYPE_PATCH,
+        self::REQUEST_TYPE_OPTIONS,
+        self::REQUEST_TYPE_DELETE,
     ];
 
-    protected $settings = [
-        'requestMethods' => array(),
-        'where' => array(),
-        'parameters' => array(),
-        'middleware' => array(),
-    ];
-
+    protected $parent;
     protected $callback;
 
-    /**
-     * @param string $callback
-     * @return static
-     */
-    public function setCallback($callback) {
-        $this->callback = $callback;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCallback() {
-        return $this->callback;
-    }
-
-    public function getMethod() {
-        if(strpos($this->callback, '@') !== false) {
-            $tmp = explode('@', $this->callback);
-            return $tmp[1];
-        }
-        return null;
-    }
-
-    public function getClass() {
-        if(strpos($this->callback, '@') !== false) {
-            $tmp = explode('@', $this->callback);
-            return $tmp[0];
-        }
-        return null;
-    }
-
-    public function setMethod($method) {
-        $this->callback = sprintf('%s@%s', $this->getClass(), $method);
-        return $this;
-    }
-
-    public function setClass($class) {
-        $this->callback = sprintf('%s@%s', $class, $this->getMethod());
-        return $this;
-    }
-
-    /**
-     * @param string $middleware
-     * @return static
-     */
-    public function setMiddleware($middleware) {
-        $this->settings['middleware'][] = $middleware;
-        return $this;
-    }
-
-    /**
-     * @param string $namespace
-     * @return static
-     */
-    public function setNamespace($namespace) {
-        $this->settings['namespace'] = $namespace;
-        return $this;
-    }
-
-    /**
-     * @return string|array
-     */
-    public function getMiddleware() {
-        return $this->settingArray('middleware');
-    }
-
-    /**
-     * @return string
-     */
-    public function getNamespace() {
-        return $this->setting('namespace');
-    }
-
-    /**
-     * @return array
-     */
-    public function getSettings() {
-        return $this->settings;
-    }
-
-    /**
-     * @return array
-     */
-    public function getParameters(){
-        return $this->setting('parameters', array());
-    }
-
-    /**
-     * @param mixed $parameters
-     * @return static
-     */
-    public function setParameters($parameters) {
-        $this->settings['parameters'] = $parameters;
-        return $this;
-    }
-
-    /**
-     * Add regular expression parameter match
-     *
-     * @param array $options
-     * @return static
-     */
-    public function where(array $options) {
-        $this->settings['where'] = array_merge($this->settings['where'], $options);
-        return $this;
-    }
-
-    /**
-     * Add regular expression match for url
-     *
-     * @param string $regex
-     * @return static
-     */
-    public function match($regex) {
-        $this->settings['regexMatch'] = $regex;
-        return $this;
-    }
-
-    /**
-     * Get settings that are allowed to be inherited by child routes.
-     *
-     * @return array
-     */
-    public function getMergeableSettings() {
-        return $this->settings;
-    }
-
-    /**
-     * @param array $settings
-     * @return static
-     */
-    public function addSettings(array $settings) {
-        $this->settings = array_merge($this->settings, $settings);
-        return $this;
-    }
-
-    /**
-     * @param array $settings
-     * @return static
-     */
-    public function setSettings($settings) {
-        $this->settings = $settings;
-        return $this;
-    }
+    protected $namespace;
+    protected $regex;
+    protected $requestMethods = array();
+    protected $where = array();
+    protected $parameters = array();
+    protected $middlewares = array();
 
     protected function loadClass($name) {
         if(!class_exists($name)) {
@@ -209,8 +66,8 @@ abstract class RouterEntry {
                 // Check for optional parameter
 
                 // Use custom parameter regex if it exists
-                if(is_array($this->setting('where')) && isset($this->settings['where'][$parameter])) {
-                    $parameterRegex = $this->settings['where'][$parameter];
+                if(is_array($this->where) && isset($this->where[$parameter])) {
+                    $parameterRegex = $this->where[$parameter];
                 }
 
                 if($lastCharacter === '?') {
@@ -270,8 +127,8 @@ abstract class RouterEntry {
     }
 
     public function loadMiddleware(Request $request, RouterEntry &$route) {
-        if(count($this->getMiddleware())) {
-            foreach($this->getMiddleware() as $middleware) {
+        if(count($this->getMiddlewares())) {
+            foreach($this->getMiddlewares() as $middleware) {
                 $middleware = $this->loadClass($middleware);
                 if (!($middleware instanceof IMiddleware)) {
                     throw new RouterException($middleware . ' must be instance of Middleware');
@@ -284,7 +141,7 @@ abstract class RouterEntry {
     }
 
     public function renderRoute(Request $request) {
-        if(is_object($this->getCallback()) && is_callable($this->getCallback())) {
+        if($this->getCallback() !== null && is_callable($this->getCallback())) {
             // When the callback is a function
             call_user_func_array($this->getCallback(), $this->getParameters());
         } else {
@@ -318,7 +175,7 @@ abstract class RouterEntry {
      * @return static $this
      */
     public function setRequestMethods(array $methods) {
-        $this->settings['requestMethods'] = $methods;
+        $this->requestMethods = $methods;
         return $this;
     }
 
@@ -328,30 +185,213 @@ abstract class RouterEntry {
      * @return array
      */
     public function getRequestMethods() {
-        return $this->settingArray('requestMethods');
+        return $this->requestMethods;
     }
 
-    public function getGroup() {
-        return $this->setting('group');
+    /**
+     * @return RouterEntry
+     */
+    public function getParent() {
+        return $this->parent;
     }
 
-    public function setGroup($group) {
-        $this->settings['group'] = $group;
+    /**
+     * Set parent route
+     * @param RouterEntry $parent
+     * @return static $this
+     */
+    public function setParent(RouterEntry $parent) {
+        $this->parent = $parent;
         return $this;
     }
 
-    protected function setting($name, $defaultValue = null) {
-        return isset($this->settings[$name]) ? $this->settings[$name] : $defaultValue;
+    /**
+     * @param string $callback
+     * @return static
+     */
+    public function setCallback($callback) {
+        $this->callback = $callback;
+        return $this;
     }
 
-    protected function settingArray($name) {
-        $value = $this->setting($name);
+    /**
+     * @return mixed
+     */
+    public function getCallback() {
+        return $this->callback;
+    }
 
-        if($value === null) {
-            return [];
+    public function getMethod() {
+        if(strpos($this->callback, '@') !== false) {
+            $tmp = explode('@', $this->callback);
+            return $tmp[1];
+        }
+        return null;
+    }
+
+    public function getClass() {
+        if(strpos($this->callback, '@') !== false) {
+            $tmp = explode('@', $this->callback);
+            return $tmp[0];
+        }
+        return null;
+    }
+
+    public function setMethod($method) {
+        $this->callback = sprintf('%s@%s', $this->getClass(), $method);
+        return $this;
+    }
+
+    public function setClass($class) {
+        $this->callback = sprintf('%s@%s', $class, $this->getMethod());
+        return $this;
+    }
+
+    /**
+     * @param string $middleware
+     * @return static
+     */
+    public function setMiddleware($middleware) {
+        $this->middlewares[] = $middleware;
+        return $this;
+    }
+
+    public function setMiddlewares(array $middlewares) {
+        $this->middlewares = $middlewares;
+        return $this;
+    }
+
+    /**
+     * @param string $namespace
+     * @return static
+     */
+    public function setNamespace($namespace) {
+        $this->namespace = $namespace;
+        return $this;
+    }
+
+    /**
+     * @return string|array
+     */
+    public function getMiddlewares() {
+        return $this->middlewares;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNamespace() {
+        return $this->namespace;
+    }
+
+    /**
+     * @return array
+     */
+    public function getParameters(){
+        return $this->parameters;
+    }
+
+    /**
+     * @param mixed $parameters
+     * @return static
+     */
+    public function setParameters($parameters) {
+        $this->parameters = $parameters;
+        return $this;
+    }
+
+    /**
+     * Add regular expression parameter match
+     *
+     * @param array $options
+     * @return static
+     */
+    public function where(array $options) {
+        $this->where = $options;
+        return $this;
+    }
+
+    /**
+     * Add regular expression match for url
+     *
+     * @param string $regex
+     * @return static
+     */
+    public function match($regex) {
+        $this->regex = $regex;
+        return $this;
+    }
+
+    /**
+     * Get arguments that can be inherited by child routes.
+     *
+     * @return array
+     */
+    public function getMergeableData() {
+
+        $output = [
+            'namespace' => $this->namespace,
+        ];
+
+        if(count($this->middlewares)) {
+            $output['middleware'] = $this->middlewares;
         }
 
-        return (!is_array($value)) ? array($value) : $value;
+        if(count($this->where)) {
+            $output['where'] = $this->where;
+        }
+
+        if(count($this->requestMethods)) {
+            $output['method'] = $this->requestMethods;
+        }
+
+        if(count($this->parameters)) {
+            $output['parameters'] = $this->parameters;
+        }
+
+        return $output;
+    }
+
+    /**
+     * Set arguments/data by array
+     *
+     * @param array $settings
+     * @return static
+     */
+    public function setData(array $settings) {
+
+        if (isset($settings['namespace'])) {
+            $this->setNamespace($settings['namespace']);
+        }
+
+        // Push middleware if multiple
+        if (isset($settings['middleware'])) {
+
+            if (!is_array($settings['middleware'])) {
+                $settings['middleware'] = array_merge($this->middlewares, array($settings['middleware']));
+            } else {
+                $settings['middleware'][] = $this->middlewares;
+            }
+
+            $middlewares = is_array($settings['middleware']) ? $settings['middleware'] : array($settings['middleware']);
+            $this->middlewares = array_reverse(array_merge($this->middlewares, $middlewares));
+
+        }
+
+        if(isset($settings['method'])) {
+            $requestMethods = is_array($settings['method']) ? $settings['method'] : array($settings['method']);
+            $this->setRequestMethods($requestMethods);
+        }
+
+        if(isset($settings['where'])) {
+            $this->where($settings['where']);
+        }
+
+        if(isset($settings['parameters'])) {
+            $this->setParameters($settings['parameters']);
+        }
+
+        return $this;
     }
 
     abstract function matchRoute(Request $request);
