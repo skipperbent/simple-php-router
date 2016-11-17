@@ -22,13 +22,11 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute {
         $this->url = '/' . trim($url, '/') . '/';
 
         if(preg_match_all('/' . static::PARAMETERS_REGEX_MATCH . '/is', $this->url, $matches)) {
-
             if (count($matches[1])) {
-                foreach (array_keys($matches[1]) as $key) {
+                foreach ($matches[1] as $key) {
                     $this->parameters[$key] = null;
                 }
             }
-
         }
 
         return $this;
