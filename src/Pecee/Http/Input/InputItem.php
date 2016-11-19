@@ -17,7 +17,7 @@ class InputItem
 	}
 
 	/**
-	 * @return array
+	 * @return string
 	 */
 	public function getName()
 	{
@@ -25,7 +25,7 @@ class InputItem
 	}
 
 	/**
-	 * @return array
+	 * @return string
 	 */
 	public function getValue()
 	{

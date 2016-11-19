@@ -41,15 +41,15 @@ class InputCollection implements \IteratorAggregate
 	{
 		$input = $this->findFirst($index);
 
-		if($input !== null) {
-			if(trim($input->getValue()) === '') {
-				return $default;
-			}
-
-			return $input;
+		if($input !== null && trim($input->getValue()) !== '') {
+			return $input->getValue();
 		}
 
 		return $default;
+	}
+
+	public function getValue($index, $default = null) {
+
 	}
 
 	/**

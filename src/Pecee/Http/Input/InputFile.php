@@ -60,24 +60,48 @@ class InputFile extends InputItem
 		return file_get_contents($this->tmpName);
 	}
 
+	/**
+	 * Set file temp. name
+	 * @param string $name
+	 * @return static $this
+	 */
 	public function setTmpName($name)
 	{
 		$this->tmpName = $name;
+		return $this;
 	}
 
+	/**
+	 * Set file size
+	 * @param int $size
+	 * @return static $this
+	 */
 	public function setSize($size)
 	{
 		$this->size = $size;
+		return $this;
 	}
 
+	/**
+	 * Set type
+	 * @param string $type
+	 * @return static $this
+	 */
 	public function setType($type)
 	{
 		$this->type = $type;
+		return $this;
 	}
 
+	/**
+	 * Set error
+	 * @param int $error
+	 * @return static $this
+	 */
 	public function setError($error)
 	{
 		$this->error = $error;
+		return $this;
 	}
 
 	/**
@@ -101,9 +125,12 @@ class InputFile extends InputItem
 		return $input;
 	}
 
-	public function __toString()
+	/**
+	 * @return string
+	 */
+	public function getValue()
 	{
-		return (string)$this->tmpName;
+		return $this->tmpName;
 	}
 
 }

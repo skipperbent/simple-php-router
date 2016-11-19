@@ -377,7 +377,7 @@ abstract class RouterEntry
 		}
 
 		if (count($this->where) > 0) {
-			$output['where'] = $this->where;
+			//$output['where'] = $this->where;
 		}
 
 		if (count($this->requestMethods) > 0) {
