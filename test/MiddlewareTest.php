@@ -4,28 +4,29 @@ require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
 require_once 'Dummy/Handler/ExceptionHandler.php';
 
-class MiddlewareTest extends PHPUnit_Framework_TestCase  {
+use Pecee\SimpleRouter\SimpleRouter as SimpleRouter;
 
-    public function testMiddlewareFound() {
+class MiddlewareTest extends PHPUnit_Framework_TestCase
+{
+	public function testMiddlewareFound()
+	{
+		SimpleRouter::router()->reset();
+		SimpleRouter::request()->setMethod('get');
+		SimpleRouter::request()->setUri('/my/test/url');
 
-        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
-        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('get');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/my/test/url');
+		SimpleRouter::group(['exceptionHandler' => 'ExceptionHandler'], function () {
+			SimpleRouter::get('/my/test/url', 'DummyController@start', ['middleware' => 'DummyMiddleware']);
+		});
 
-        \Pecee\SimpleRouter\SimpleRouter::group(['exceptionHandler' => 'ExceptionHandler'], function() {
-            \Pecee\SimpleRouter\SimpleRouter::get('/my/test/url', 'DummyController@start', ['middleware' => 'DummyMiddleware']);
-        });
+		$found = false;
 
-        $found = false;
+		try {
+			SimpleRouter::start();
+		} catch (\Exception $e) {
+			$found = ($e instanceof MiddlewareLoadedException);
+		}
 
-        try {
-            \Pecee\SimpleRouter\SimpleRouter::start();
-        }catch(\Exception $e) {
-            $found = ($e instanceof MiddlewareLoadedException);
-        }
-
-        $this->assertTrue($found);
-
-    }
+		$this->assertTrue($found);
+	}
 
 }

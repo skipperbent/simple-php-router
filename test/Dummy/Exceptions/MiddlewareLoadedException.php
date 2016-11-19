@@ -1,2 +1,4 @@
 <?php
-class MiddlewareLoadedException extends \Exception {}
+class MiddlewareLoadedException extends \Exception
+{
+}

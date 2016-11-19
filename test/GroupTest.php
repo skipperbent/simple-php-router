@@ -3,79 +3,90 @@
 require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
 
-class GroupTest extends PHPUnit_Framework_TestCase  {
+use Pecee\SimpleRouter\SimpleRouter as SimpleRouter;
 
-    protected $result;
+class GroupTest extends PHPUnit_Framework_TestCase
+{
+	protected $result;
 
-    public function testGroupLoad() {
+	public function testGroupLoad()
+	{
+		$this->result = false;
 
-        $this->result = false;
+		SimpleRouter::group(['prefix' => '/group'], function () {
+			$this->result = true;
+		});
 
-        \Pecee\SimpleRouter\SimpleRouter::group(['prefix' => '/group'], function() {
-            $this->result = true;
-        });
+		try {
+			SimpleRouter::start();
+		} catch (Exception $e) {
+			// ignore RouteNotFound exception
+		}
 
-        try {
-            \Pecee\SimpleRouter\SimpleRouter::start();
-        } catch(Exception $e) {
-            // ignore RouteNotFound exception
-        }
+		$this->assertTrue($this->result);
+	}
 
-        $this->assertTrue($this->result);
-    }
+	public function testNestedGroup()
+	{
 
-    public function testNestedGroup() {
+		SimpleRouter::router()->reset();
+		SimpleRouter::request()->setUri('/api/v1/test');
+		SimpleRouter::request()->setMethod('get');
 
-        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
-        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/api/v1/test');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('get');
+		SimpleRouter::group(['prefix' => '/api'], function () {
 
-        \Pecee\SimpleRouter\SimpleRouter::group(['prefix' => '/api'], function() {
-            \Pecee\SimpleRouter\SimpleRouter::group(['prefix' => '/v1'], function() {
-                \Pecee\SimpleRouter\SimpleRouter::get('/test', 'DummyController@start');
-            });
-        });
+			SimpleRouter::group(['prefix' => '/v1'], function () {
+				SimpleRouter::get('/test', 'DummyController@start');
+			});
 
-        \Pecee\SimpleRouter\SimpleRouter::start();
-    }
+		});
 
-    public function testManyRoutes() {
+		SimpleRouter::start();
+	}
 
-        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
-        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/my/match');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('get');
+	public function testManyRoutes()
+	{
 
-        \Pecee\SimpleRouter\SimpleRouter::group(['prefix' => '/api'], function() {
-            \Pecee\SimpleRouter\SimpleRouter::group(['prefix' => '/v1'], function() {
-                \Pecee\SimpleRouter\SimpleRouter::get('/test', 'DummyController@start');
-            });
-        });
+		SimpleRouter::router()->reset();
+		SimpleRouter::request()->setUri('/my/match');
+		SimpleRouter::request()->setMethod('get');
 
-        \Pecee\SimpleRouter\SimpleRouter::get('/my/match', 'DummyController@start');
+		SimpleRouter::group(['prefix' => '/api'], function () {
 
-        \Pecee\SimpleRouter\SimpleRouter::group(['prefix' => '/service'], function() {
-            \Pecee\SimpleRouter\SimpleRouter::group(['prefix' => '/v1'], function() {
-                \Pecee\SimpleRouter\SimpleRouter::get('/no-match', 'DummyController@start');
-            });
-        });
+			SimpleRouter::group(['prefix' => '/v1'], function () {
+				SimpleRouter::get('/test', 'DummyController@start');
+			});
 
-        \Pecee\SimpleRouter\SimpleRouter::start();
-    }
+		});
 
-    public function testUrls() {
+		SimpleRouter::get('/my/match', 'DummyController@start');
 
-        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
-        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/my/fancy/url/1');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('get');
+		SimpleRouter::group(['prefix' => '/service'], function () {
 
-        \Pecee\SimpleRouter\SimpleRouter::get('/my/fancy/url/1', 'DummyController@start', ['as' => 'fancy1']);
-        \Pecee\SimpleRouter\SimpleRouter::get('/my/fancy/url/2', 'DummyController@start')->setAlias('fancy2');
+			SimpleRouter::group(['prefix' => '/v1'], function () {
+				SimpleRouter::get('/no-match', 'DummyController@start');
+			});
 
-        \Pecee\SimpleRouter\SimpleRouter::start();
+		});
 
-        $this->assertTrue((\Pecee\SimpleRouter\SimpleRouter::getRoute('fancy1') === '/my/fancy/url/1/'));
-        $this->assertTrue((\Pecee\SimpleRouter\SimpleRouter::getRoute('fancy2') === '/my/fancy/url/2/'));
+		SimpleRouter::start();
+	}
 
-    }
+	public function testUrls()
+	{
+
+		SimpleRouter::router()->reset();
+		SimpleRouter::request()->setUri('/my/fancy/url/1');
+		SimpleRouter::request()->setMethod('get');
+
+		SimpleRouter::get('/my/fancy/url/1', 'DummyController@start', ['as' => 'fancy1']);
+		SimpleRouter::get('/my/fancy/url/2', 'DummyController@start')->setAlias('fancy2');
+
+		SimpleRouter::start();
+
+		$this->assertTrue((SimpleRouter::getRoute('fancy1') === '/my/fancy/url/1/'));
+		$this->assertTrue((SimpleRouter::getRoute('fancy2') === '/my/fancy/url/2/'));
+
+	}
 
 }
