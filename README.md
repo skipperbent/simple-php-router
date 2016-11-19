@@ -357,7 +357,7 @@ Add the property ```except``` with an array of the urls to the routes you would 
 Querystrings are ignored.
 
 ```php
-use Pecee\Http\Middlewares\BaseCsrfVerifier;
+use Pecee\Http\Middleware\BaseCsrfVerifier;
 
 class CsrfVerifier extends BaseCsrfVerifier {
     
