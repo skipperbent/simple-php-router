@@ -29,8 +29,8 @@ The goal of this project is to create a router that is 100% compatible with the 
 - CSRF protection.
 - Optional parameters
 - Sub-domain routing
-- Custom boot managers to redirect urls to other routes
-- Input manager; to manage `GET`, `POST` params.
+- Custom boot managers to rewrite urls to "nicer" ones.
+- Input manager; easily manage `GET`, `POST` and `FILE` values.
 
 ## Installation and demo
 
@@ -71,6 +71,7 @@ This router is heavily inspired by the Laravel 5.* router, so anything you find 
 
 - ExceptionsHandlers must implement the `IExceptionHandler` interface.
 - Middlewares must implement the `IMiddleware` interface.
+- Resource controllers can inherit the `IRestController` interface, but is not required.
 
 ```php
 use Pecee\SimpleRouter\SimpleRouter;
@@ -103,7 +104,7 @@ SimpleRouter::group(['prefix' => '/v1', 'middleware' => '\MyWebsite\Middleware\S
          */
         SimpleRouter::all('/ajax', 'ControllerAjax@process')->match('.*?\\/ajax\\/([A-Za-z0-9\\/]+)');
 
-        // Restful resource
+        // Restful resource (see IRestController interface for available methods)
         SimpleRouter::resource('/rest', 'ControllerRessource');
 
         // Load the entire controller (where url matches method names - getIndex(), postIndex() etc)
@@ -146,11 +147,10 @@ class CustomExceptionHandler implements IExceptionHandler {
 
         // Output error as json if on api path.
         if(stripos($request->getUri(), '/api') !== false) {
-            response()->json(['error' => $error->getMessage()]);
+            response()->json([ 'error' => $error->getMessage() ]);
         }
 
         // Otherwise default exception will be thrown by the router.
-
     }
 
 }
@@ -210,7 +210,7 @@ class Router extends SimpleRouter {
         require_once 'routes.php';
         
         // change default namespace for all routes
-        parent::setDefaultNamespace('\Demo\Controllers');
+        parent::setDefaultNamespace('\Demo');
 
         // Do initial stuff
         parent::start();
@@ -449,6 +449,12 @@ $object = input()->getObject('name');
 $object = input()->get->name;
 $object = input()->post->name;
 $object = input()->file->name;
+
+// -- or --
+
+$object = input()->get->get($key, $defaultValue);
+$object = input()->post->get($key, $defaultValue);
+$object = input()->file->get($key, $defaultValue);
 ```
 
 **Return all parameters:**
@@ -464,6 +470,7 @@ $values = input()->all([
 ```
 
 All object inherits from `InputItem` class and will always contain these methods:
+
 - `getValue()` - returns the value of the input.
 - `getIndex()` - returns the index/key of the input.
 - `getName()` - returns a human friendly name for the input (company_name will be Company Name etc).
@@ -475,9 +482,6 @@ All object inherits from `InputItem` class and will always contain these methods
 - `getContents()` - get file content.
 - `getType()` - get mime-type for file.
 - `getError()` - get file upload error.
-
-
-### Easy access to methods
 
 Below example requires you to have the helper functions added. Please refer to the helper functions section in the documentation.
 

@@ -1,68 +1,136 @@
 <?php
 namespace Pecee\Http\Input;
 
-class InputFile extends InputItem {
-
-	protected $name;
-	protected $size;
-	protected $type;
-	protected $error;
-	protected $tmpName;
+class InputFile extends InputItem
+{
+	public $size;
+	public $type;
+	public $error;
+	public $tmpName;
 
 	/**
 	 * @return string
 	 */
-	public function getSize() {
+	public function getSize()
+	{
 		return $this->size;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getType() {
+	public function getType()
+	{
 		return $this->type;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getError() {
+	public function getError()
+	{
 		return $this->error;
+	}
+
+	public function getMime()
+	{
+		return $this->getType();
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getTmpName() {
+	public function getTmpName()
+	{
 		return $this->tmpName;
 	}
 
-    public function getExtension() {
+	public function getExtension()
+	{
 		return pathinfo($this->getName(), PATHINFO_EXTENSION);
-    }
+	}
 
-	public function move($destination) {
+	public function move($destination)
+	{
 		return move_uploaded_file($this->tmpName, $destination);
 	}
 
-	public function getContents() {
+	public function getContents()
+	{
 		return file_get_contents($this->tmpName);
 	}
 
-    public function setTmpName($name) {
-        $this->tmpName = $name;
-    }
+	/**
+	 * Set file temp. name
+	 * @param string $name
+	 * @return static $this
+	 */
+	public function setTmpName($name)
+	{
+		$this->tmpName = $name;
+		return $this;
+	}
 
-    public function setSize($size) {
-        $this->size = $size;
-    }
+	/**
+	 * Set file size
+	 * @param int $size
+	 * @return static $this
+	 */
+	public function setSize($size)
+	{
+		$this->size = $size;
+		return $this;
+	}
 
-    public function setType($type) {
-        $this->type = $type;
-    }
+	/**
+	 * Set type
+	 * @param string $type
+	 * @return static $this
+	 */
+	public function setType($type)
+	{
+		$this->type = $type;
+		return $this;
+	}
 
-    public function setError($error) {
-        $this->error = $error;
-    }
+	/**
+	 * Set error
+	 * @param int $error
+	 * @return static $this
+	 */
+	public function setError($error)
+	{
+		$this->error = $error;
+		return $this;
+	}
+
+	/**
+	 * Create from array
+	 * @param array $values
+	 * @return static
+	 */
+	public static function createFromArray(array $values)
+	{
+		if(!isset($values['index'])) {
+			throw new \InvalidArgumentException('Index key is required');
+		}
+
+		$input = new static($values['index']);
+		$input->setTmpName((isset($values['error']) ? $values['error'] : null));
+		$input->setName((isset($values['name']) ? $values['name'] : null));
+		$input->setSize((isset($values['size']) ? $values['size'] : null));
+		$input->setType((isset($values['type']) ? $values['type'] : null));
+		$input->setError((isset($values['tmp_name']) ? $values['tmp_name'] : null));
+
+		return $input;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getValue()
+	{
+		return $this->tmpName;
+	}
 
 }
