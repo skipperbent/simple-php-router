@@ -136,7 +136,6 @@ class RouterBase
 
 	protected function processRoutes(array $routes, array $settings = array(), array $prefixes = array(), RouterEntry $parent = null)
 	{
-
 		// Loop through each route-request
 		/* @var $route RouterEntry */
 		foreach ($routes as $route) {
@@ -144,8 +143,12 @@ class RouterBase
 			$newPrefixes = $prefixes;
 			$newSettings = $settings;
 
-			if($parent !== null) {
+			if ($parent !== null) {
 				$route->setParent($parent);
+			}
+
+			if (count($settings)) {
+				$route->merge($settings);
 			}
 
 			if ($route instanceof RouterGroup) {
@@ -163,15 +166,10 @@ class RouterBase
 						}
 					}
 				}
-			}
 
-			if ($route instanceof RouterGroup) {
 				$newPrefixes[] = trim($route->getPrefix(), '/');
 				$newSettings = array_merge($settings, $route->toArray());
-			} else {
-				if (count($settings)) {
-					$route->merge($settings);
-				}
+
 			}
 
 			if ($route instanceof ILoadableRoute) {
@@ -181,7 +179,6 @@ class RouterBase
 				}
 
 				$this->controllerUrlMap[] = $route;
-
 			}
 
 			if (count($this->backStack) > 0) {
