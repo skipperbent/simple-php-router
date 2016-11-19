@@ -360,64 +360,64 @@ abstract class RouterEntry
 	}
 
 	/**
-	 * Get arguments that can be inherited by child routes.
+	 * Export route settings to array so they can be merged with another route.
 	 *
 	 * @return array
 	 */
-	public function getMergeableData()
+	public function toArray()
 	{
-		$output = array();
+		$values = array();
 
 		if ($this->namespace !== null) {
-			$output['namespace'] = $this->namespace;
+			$values['namespace'] = $this->namespace;
 		}
 
 		if (count($this->middlewares) > 0) {
-			$output['middleware'] = $this->middlewares;
+			$values['middleware'] = $this->middlewares;
 		}
 
 		/*if (count($this->where) > 0) {
-			$output['where'] = $this->where;
+			$values['where'] = $this->where;
 		}*/
 
 		if (count($this->requestMethods) > 0) {
-			$output['method'] = $this->requestMethods;
+			$values['method'] = $this->requestMethods;
 		}
 
 		if (count($this->parameters) > 0) {
-			$output['parameters'] = $this->parameters;
+			$values['parameters'] = $this->parameters;
 		}
 
-		return $output;
+		return $values;
 	}
 
 	/**
-	 * Set arguments/data by array
+	 * Merge with information from another route.
 	 *
-	 * @param array $settings
-	 * @return static
+	 * @param array $values
+	 * @return static $this
 	 */
-	public function setData(array $settings)
+	public function merge(array $values)
 	{
-		if (isset($settings['namespace'])) {
-			$this->setNamespace($settings['namespace']);
+		if (isset($values['namespace'])) {
+			$this->setNamespace($values['namespace']);
 		}
 
 		// Push middleware if multiple
-		if (isset($settings['middleware'])) {
-			$this->middlewares = array_merge((array)$settings['middleware'], $this->middlewares);
+		if (isset($values['middleware'])) {
+			$this->middlewares = array_merge((array)$values['middleware'], $this->middlewares);
 		}
 
-		if (isset($settings['method'])) {
-			$this->setRequestMethods((array)$settings['method']);
+		if (isset($values['method'])) {
+			$this->setRequestMethods((array)$values['method']);
 		}
 
-		if (isset($settings['where'])) {
-			$this->where($settings['where']);
+		if (isset($values['where'])) {
+			$this->where($values['where']);
 		}
 
-		if (isset($settings['parameters'])) {
-			$this->setParameters($settings['parameters']);
+		if (isset($values['parameters'])) {
+			$this->setParameters($values['parameters']);
 		}
 
 		return $this;

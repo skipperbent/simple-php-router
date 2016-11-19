@@ -78,21 +78,29 @@ class RouterGroup extends RouterEntry
 		return $this->prefix;
 	}
 
-	public function setData(array $settings)
+	/**
+	 * Merge with information from another route.
+	 *
+	 * @param array $values
+	 * @return static
+	 */
+	public function merge(array $values)
 	{
-		if (isset($settings['prefix'])) {
-			$this->setPrefix($settings['prefix']);
+		if (isset($values['prefix'])) {
+			$this->setPrefix($values['prefix']);
 		}
 
-		if (isset($settings['exceptionHandler'])) {
-			$this->setExceptionHandlers((array)$settings['exceptionHandler']);
+		if (isset($values['exceptionHandler'])) {
+			$this->setExceptionHandlers((array)$values['exceptionHandler']);
 		}
 
-		if (isset($settings['domain'])) {
-			$this->setDomains((array)$settings['domain']);
+		if (isset($values['domain'])) {
+			$this->setDomains((array)$values['domain']);
 		}
 
-		return parent::setData($settings);
+		parent::merge($values);
+
+		return $this;
 	}
 
 }

@@ -77,15 +77,21 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute
 		return $this;
 	}
 
-	public function setData(array $settings)
+	/**
+	 * Merge with information from another route.
+	 *
+	 * @param array $values
+	 * @return static
+	 */
+	public function merge(array $values)
 	{
-
 		// Change as to alias
-		if (isset($settings['as'])) {
-			$this->setAlias($settings['as']);
+		if (isset($values['as'])) {
+			$this->setAlias($values['as']);
 		}
 
-		return parent::setData($settings);
+		parent::merge($values);
+		return $this;
 	}
 
 }

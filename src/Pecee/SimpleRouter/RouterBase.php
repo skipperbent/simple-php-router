@@ -142,7 +142,7 @@ class RouterBase
 		/* @var $route RouterEntry */
 		foreach ($routes as $route) {
 
-			$route->setData($settings);
+			$route->merge($settings);
 
 			if ($parent !== null) {
 				$route->setParent($parent);
@@ -170,7 +170,7 @@ class RouterBase
 
 					if ($route->matchRoute($this->request)) {
 
-						$mergedSettings = array_merge($mergedSettings, $route->getMergeableData());
+						$mergedSettings = array_merge($mergedSettings, $route->toArray());
 
 						// Add ExceptionHandler
 						if (count($route->getExceptionHandlers()) > 0) {
@@ -188,8 +188,6 @@ class RouterBase
 				// Route any routes added to the backstack
 				$this->processRoutes($backStack, $mergedSettings, $prefixes, $route);
 			}
-
-
 		}
 	}
 

@@ -147,7 +147,7 @@ class SimpleRouter
 		$group->setCallback($callback);
 
 		if ($settings !== null && is_array($settings) === true) {
-			$group->setData($settings);
+			$group->merge($settings);
 		}
 
 		if (is_callable($callback) === false) {
@@ -204,7 +204,7 @@ class SimpleRouter
 		$route = static::addDefaultNamespace($route);
 
 		if ($settings !== null) {
-			$route->setData($settings);
+			$route->merge($settings);
 		}
 
 		static::router()->addRoute($route);
@@ -227,7 +227,7 @@ class SimpleRouter
 		$route = static::addDefaultNamespace($route);
 
 		if ($settings !== null) {
-			$route->setData($settings);
+			$route->merge($settings);
 		}
 
 		static::router()->addRoute($route);
@@ -250,7 +250,7 @@ class SimpleRouter
 		$route = static::addDefaultNamespace($route);
 
 		if ($settings !== null) {
-			$route->setData($settings);
+			$route->merge($settings);
 		}
 
 		static::router()->addRoute($route);
@@ -271,7 +271,7 @@ class SimpleRouter
 		$route = new RouterResource($url, $controller);
 
 		if ($settings !== null) {
-			$route->setData($settings);
+			$route->merge($settings);
 		}
 
 		static::router()->addRoute($route);
