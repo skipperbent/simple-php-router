@@ -5,6 +5,7 @@ require_once 'Dummy/DummyController.php';
 require_once 'Dummy/Handler/ExceptionHandler.php';
 
 use Pecee\SimpleRouter\SimpleRouter as SimpleRouter;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException as NotFoundHttpException;
 
 class RouterRouteTest extends PHPUnit_Framework_TestCase
 {
@@ -25,7 +26,7 @@ class RouterRouteTest extends PHPUnit_Framework_TestCase
 		try {
 			SimpleRouter::start();
 		} catch (\Exception $e) {
-			$found = ($e instanceof \Pecee\Exception\RouterException && $e->getCode() == 404);
+			$found = ($e instanceof NotFoundHttpException && $e->getCode() == 404);
 		}
 
 		$this->assertTrue($found);

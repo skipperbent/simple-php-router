@@ -1,5 +1,5 @@
 <?php
-namespace Pecee\Handler;
+namespace Pecee\Handlers;
 
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\RouterEntry;

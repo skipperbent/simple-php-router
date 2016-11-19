@@ -18,7 +18,7 @@ The goal of this project is to create a router that is 100% compatible with the 
 
 ### Features
 
-- Basic routing (`GET`, `POST`, `PUT`, `DELETE`) with support for custom multiple verbs.
+- Basic routing (`GET`, `POST`, `PUT`, `PATCH`, `UPDATE`, `DELETE`) with support for custom multiple verbs.
 - Regular Expression Constraints for parameters.
 - Named routes.
 - Generating url to routes.
@@ -54,10 +54,10 @@ require_once 'routes.php';
 
 /* 
  * The default namespace for route-callbacks, so we don't have to specify it each time.
- * Can be overwritten by using the namespace config option.
+ * Can be overwritten by using the namespace config option on your routes.
  */
  
-SimpleRouter::setDefaultNamespace('MyWebsite\Controller');
+SimpleRouter::setDefaultNamespace('MyWebsite');
 
 // Start the routing
 SimpleRouter::start();
@@ -78,45 +78,74 @@ use Pecee\SimpleRouter\SimpleRouter;
 
 /*
  * This route will match the url /v1/services/answers/1/
-
  * The middleware is just a class that renders before the
- * Controller or callback is loaded. This is useful for stopping
- * the request, for instance if a user is not authenticated.
+ * controller or callback is loaded. 
+ * 
+ * This is useful for stopping the request, for 
+ * instance if a user is not authenticated etc.
  */
 
-// Add CSRF support (if needed)
-SimpleRouter::csrfVerifier(new \Pecee\Http\Middleware\BaseCsrfVerifier());
+
+// Add your csrfVerifier here
+
+SimpleRouter::csrfVerifier(new \Demo\Middlewares\CsrfVerifier());
+
+SimpleRouter::group(['middleware' => 'Middlewares\Site', 'exceptionHandler' => 'Handlers\CustomExceptionHandler'], function() {
+
+
+    SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show', ['where' => ['id' => '[0-9]+']]);
+
+    /**
+     * Using optional parameters
+     */
+    SimpleRouter::get('/answers/{id?}', 'ControllerAnswers@show');
+
+        
+    /**
+     * This example will route url when matching the regular expression to the method.
+     * For example route: domain.com/ajax/music/world -> ControllerAjax@process (parameter: music/world)
+     */ 
+     
+    SimpleRouter::all('/ajax', 'ControllerAjax@process')->setMatch('.*?\\/ajax\\/([A-Za-z0-9\\/]+)');
+
+
+    /**
+     * Restful resource (see IRestController interface for available methods)
+     */
+     
+    SimpleRouter::resource('/rest', 'ControllerRessource');
+
+
+    /**
+     * Load the entire controller (where url matches method names - getIndex(), postIndex(), putIndex()). 
+     * The url paths will determine which method to render.
+     *
+     * For example:
+     *
+     * GET  /animals         => getIndex()
+     * GET  /animals/view    => getView()
+     * POST /animals/save    => postSave()
+     *
+     * etc.
+     */
+     
+    SimpleRouter::controller('/animals', 'ControllerAnimals');
+
+
+    /**
+     * Example of providing callback instead of Controller
+     */
+     
+    SimpleRouter::post('/something', function() {
+    
+        die('Callback example');
+        
+    });
+
+});
 
 SimpleRouter::get('/page/404', 'ControllerPage@notFound', ['as' => 'page.notfound']);
 
-SimpleRouter::group(['prefix' => '/v1', 'middleware' => '\MyWebsite\Middleware\SomeMiddlewareClass'], function() {
-
-    SimpleRouter::group(['prefix' => '/services', 'exceptionHandler' => '\MyProject\Handler\CustomExceptionHandler'], function() {
-
-        SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show')->where(['id' => '[0-9]+');
-
-        // Optional parameter
-        SimpleRouter::get('/answers/{id?}', 'ControllerAnswers@show');
-
-        /**
-         * This example will route url when matching the regular expression to the method.
-         * For example route: domain.com/ajax/music/world -> ControllerAjax@process (parameter: music/world)
-         */
-        SimpleRouter::all('/ajax', 'ControllerAjax@process')->match('.*?\\/ajax\\/([A-Za-z0-9\\/]+)');
-
-        // Restful resource (see IRestController interface for available methods)
-        SimpleRouter::resource('/rest', 'ControllerRessource');
-
-        // Load the entire controller (where url matches method names - getIndex(), postIndex() etc)
-        SimpleRouter::controller('/controller', 'ControllerDefault');
-
-        // Example of providing callback instead of Controller
-        SimpleRouter::get('/something', function() {
-            die('Callback example');
-        });
-
-    });
-});
 ```
 
 #### ExceptionHandler example
@@ -126,32 +155,45 @@ This is a basic example of an ExceptionHandler implementation:
 ```php
 namespace Demo\Handlers;
 
+use Pecee\Handlers\IExceptionHandler;
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\RouterEntry;
 
-class CustomExceptionHandler implements IExceptionHandler {
+class CustomExceptionHandler implements IExceptionHandler
+{
+	public function handleError(Request $request, RouterEntry &$route = null, \Exception $error)
+	{
 
-    public function handleError( Request $request, RouterEntry $router = null, \Exception $error) {
+		/* You can use the exception handler to format errors depending on the request and type. */
 
-        // If the error-code is 404; show another route which contains the page-not-found
-        if($error->getCode() === 404) {
-        
-            // Throw your custom 404-page view
-            // - or -
-            // load another route with our 404 page
-            // - or -
-            // you can return the $request object to ignore the error and continue on rendering the route.
-            
-            return $request->setUri(url('page.notfound'));
-        }
+		if (stripos($request->getUri(), '/api') !== false) {
 
-        // Output error as json if on api path.
-        if(stripos($request->getUri(), '/api') !== false) {
-            response()->json([ 'error' => $error->getMessage() ]);
-        }
+			response()->json([
+				'error' => $error->getMessage(),
+				'code'  => $error->getCode(),
+			]);
 
-        // Otherwise default exception will be thrown by the router.
-    }
+		}
+
+		/* The router will throw the NotFoundHttpException on 404 */
+		if($error instanceof NotFoundHttpException) {
+
+			/*
+			 * Render your own custom 404-view, rewrite the request to another route,
+			 * or simply return the $request object to ignore the error and continue on rendering the route.
+			 *
+			 * The code below will make the router render our page.notfound route.
+			 */
+
+			$request->setUri(url('page.notfound'));
+			return $request;
+
+		}
+
+		throw $error;
+		
+	}
 
 }
 ```
@@ -162,9 +204,11 @@ Route groups may also be used to route wildcard sub-domains. Sub-domains may be 
 
 ```php
 Route::group(['domain' => '{account}.myapp.com'], function () {
+
     Route::get('user/{id}', function ($account, $id) {
-        //
+        // Do stuff...
     });
+    
 });
 ```
 
@@ -182,14 +226,16 @@ use \Pecee\SimpleRouter\RouterRoute;
 $router = RouterBase::getInstance();
 
 $route = new RouterRoute('/answer/1', function() {
+
     die('this callback will match /answer/1');
+    
 });
 
-$route->setMiddleware('\HSWebserviceV1\Middleware\AuthMiddleware');
+$route->setMiddleware('\Demo\Middlewares\AuthMiddleware');
 $route->setNamespace('MyWebsite');
 $route->setPrefix('v1');
 
-// Add the route to the router
+/* Add the route to the router */
 $router->addRoute($route);
 ```
 
@@ -227,8 +273,25 @@ To simplify to use of simple-router functionality, we recommend you add these he
 ```php
 use Pecee\SimpleRouter\SimpleRouter;
 
-function url($controller, $parameters = null, $getParams = null) {
-    SimpleRouter::getRoute($controller, $parameters, $getParams);
+/**
+ * Get url for a route by using either name/alias, class or method name.
+ *
+ * The name parameter supports the following values:
+ * - Route name
+ * - Controller/resource name (with or without method)
+ * - Controller class name
+ *
+ * When searching for controller/resource by name, you can use this syntax "route.name@method".
+ * You can also use the same syntax when searching for a specific controller-class "MyController@home".
+ * If no arguments is specified, it will return the url for the current loaded route.
+ *
+ * @param string|null $name
+ * @param string|array|null $parameters
+ * @param array $getParams
+ * @return string
+ */
+function url($name = null, $parameters = null, array $getParams = array()) {
+    SimpleRouter::getUrl($name, $parameters, $getParams);
 }
 
 /**
@@ -294,13 +357,13 @@ Add the property ```except``` with an array of the urls to the routes you would 
 Querystrings are ignored.
 
 ```php
-use Pecee\Http\Middleware\BaseCsrfVerifier;
+use Pecee\Http\Middlewares\BaseCsrfVerifier;
 
 class CsrfVerifier extends BaseCsrfVerifier {
-
+    
     protected $except = [
         '/companies/*', 
-        '/api'
+        '/api',
     ];
 
 }
@@ -322,7 +385,7 @@ To interfere with the router, we create a class that inherits from ```RouterBoot
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\RouterBootManager;
 
-class CustomRouterRules extends RouterBootManager{
+class CustomRouterRules extends RouterBootManager {
 
     public function boot(Request $request) {
 
@@ -389,7 +452,7 @@ The example below will cause the router to re-route the request with another url
 
 
 ```php
-namespace demo\Middlewares;
+namespace Demo\Middlewares;
 
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
@@ -398,7 +461,9 @@ use Pecee\SimpleRouter\RouterEntry;
 class CustomMiddleware implements Middleware {
 
     public function handle(Request $request, RouterEntry &$route) {
+    
         $request->setUri(url('home'));
+        
     }
     
 }
@@ -415,7 +480,7 @@ If you wish to change the callback from outside, please have this in mind.
 **NOTE: Use this method if you want to load another controller. No additional middlewares or rules will be loaded.**
 
 ```php
-namespace demo\Middlewares;
+namespace Demo\Middlewares;
 
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
@@ -424,7 +489,9 @@ use Pecee\SimpleRouter\RouterEntry;
 class CustomMiddleware implements Middleware {
 
     public function handle(Request $request, RouterEntry &$route) { 
+    
         $route->callback('DefaultController@home');
+        
     }
     
 }
@@ -435,22 +502,25 @@ class CustomMiddleware implements Middleware {
 We've added the `Input` class to easy access parameters from your Controller-classes.
 
 **Return single parameter value (matches both GET, POST, FILE):**
+
 ```php
 $value = input()->get('name');
 ```
 
 **Return parameter object (matches both GET, POST, FILE):**
+
 ```php
 $object = input()->getObject('name');
 ```
 
 **Return specific GET parameter (where name is the name of your parameter):**
+
 ```php
 $object = input()->get->name;
 $object = input()->post->name;
 $object = input()->file->name;
 
-// -- or --
+# -- or --
 
 $object = input()->get->get($key, $defaultValue);
 $object = input()->post->get($key, $defaultValue);
@@ -458,6 +528,7 @@ $object = input()->file->get($key, $defaultValue);
 ```
 
 **Return all parameters:**
+
 ```php
 // Get all
 $values = input()->all();

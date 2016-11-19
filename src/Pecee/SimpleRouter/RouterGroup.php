@@ -87,7 +87,7 @@ class RouterGroup extends RouterEntry
 	public function merge(array $values)
 	{
 		if (isset($values['prefix'])) {
-			$this->setPrefix($values['prefix']);
+			$this->setPrefix($values['prefix'] . $this->prefix);
 		}
 
 		if (isset($values['exceptionHandler'])) {
@@ -101,6 +101,22 @@ class RouterGroup extends RouterEntry
 		parent::merge($values);
 
 		return $this;
+	}
+
+	/**
+	 * Export route settings to array so they can be merged with another route.
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+		$values = array();
+
+		if ($this->prefix !== null) {
+			$values['prefix'] = $this->getPrefix();
+		}
+
+		return array_merge($values, parent::toArray());
 	}
 
 }

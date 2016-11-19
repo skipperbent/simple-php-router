@@ -1,5 +1,5 @@
 <?php
-namespace Pecee\Controller;
+namespace Pecee\Controllers;
 
 interface IRestController {
 

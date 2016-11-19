@@ -1,11 +1,12 @@
 <?php
 namespace Pecee\SimpleRouter;
 
-use Pecee\Exception\RouterException;
-use Pecee\Handler\IExceptionHandler;
+use Pecee\Handlers\IExceptionHandler;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
 use Pecee\Http\Response;
+use Pecee\SimpleRouter\Exceptions\HttpException;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 class RouterBase
 {
@@ -111,11 +112,11 @@ class RouterBase
 		$this->processingRoute = false;
 		$this->request = new Request();
 		$this->response = new Response($this->request);
-		$this->routes = array();
-		$this->bootManagers = array();
-		$this->backStack = array();
-		$this->controllerUrlMap = array();
-		$this->exceptionHandlers = array();
+		$this->routes = [];
+		$this->bootManagers = [];
+		$this->backStack = [];
+		$this->controllerUrlMap = [];
+		$this->exceptionHandlers = [];
 	}
 
 	/**
@@ -134,24 +135,15 @@ class RouterBase
 		return $route;
 	}
 
-	protected function processRoutes(array $routes, array $settings = array(), array $prefixes = array(), RouterEntry $parent = null)
+	protected function processRoutes(array $routes, RouterGroup $group = null, RouterEntry $parent = null)
 	{
 		// Loop through each route-request
 		/* @var $route RouterEntry */
 		foreach ($routes as $route) {
 
-			$newPrefixes = $prefixes;
-			$newSettings = $settings;
-
-			if ($parent !== null) {
-				$route->setParent($parent);
-			}
-
-			if (count($settings)) {
-				$route->merge($settings);
-			}
-
 			if ($route instanceof RouterGroup) {
+
+				$group = $route;
 
 				if ($route->getCallback() !== null && is_callable($route->getCallback())) {
 
@@ -160,33 +152,47 @@ class RouterBase
 					$this->processingRoute = false;
 
 					if ($route->matchRoute($this->request)) {
-						// Add ExceptionHandler
+
+						/* Add exceptionhandlers */
 						if (count($route->getExceptionHandlers()) > 0) {
 							$this->exceptionHandlers = array_merge($route->getExceptionHandlers(), $this->exceptionHandlers);
 						}
+
 					}
 				}
+			}
 
-				$newPrefixes[] = trim($route->getPrefix(), '/');
-				$newSettings = array_merge($settings, $route->toArray());
+			if($group !== null) {
+
+				/* Add the parent group */
+				$route->setGroup($group);
+
+			}
+
+			if ($parent !== null) {
+
+				/* Add the parent route */
+				$route->setParent($parent);
+
+				/* Add/merge parent settings with child */
+				$route->merge($parent->toArray());
 
 			}
 
 			if ($route instanceof ILoadableRoute) {
 
-				if (count($prefixes)) {
-					$route->setUrl(trim(join('/', $prefixes) . $route->getUrl(), '/'));
-				}
-
+				/* Add the route to the map, so we can find the active one when all routes has been loaded */
 				$this->controllerUrlMap[] = $route;
 			}
 
 			if (count($this->backStack) > 0) {
+
+				/* Pop and grap the routes added when executing group callback earlier */
 				$backStack = $this->backStack;
 				$this->backStack = [];
 
-				// Route any routes added to the backstack
-				$this->processRoutes($backStack, $newSettings, $newPrefixes, $route);
+				/* Route any routes added to the backstack */
+				$this->processRoutes($backStack, $route, $group);
 			}
 		}
 	}
@@ -205,7 +211,7 @@ class RouterBase
 					$this->request = $manager->boot($this->request);
 
 					if (!($this->request instanceof Request)) {
-						throw new RouterException('Custom router bootmanager "' . get_class($manager) . '" must return instance of Request.');
+						throw new HttpException('Bootmanager "' . get_class($manager) . '" must return instance of ' . Request::class, 500);
 					}
 				}
 			}
@@ -240,6 +246,7 @@ class RouterBase
 					if ($this->request->getUri() !== $this->originalUrl && !in_array($this->request->getUri(), $this->routeRewrites)) {
 						$this->routeRewrites[] = $this->request->getUri();
 						$this->routeRequest(true);
+
 						return;
 					}
 
@@ -255,12 +262,12 @@ class RouterBase
 			$this->handleException($e);
 		}
 
-		if ($routeNotAllowed) {
-			$this->handleException(new RouterException('Route or method not allowed', 403));
+		if ($routeNotAllowed === true) {
+			$this->handleException(new HttpException('Route or method not allowed', 403));
 		}
 
 		if ($this->loadedRoute === null) {
-			$this->handleException(new RouterException(sprintf('Route not found: %s', $this->request->getUri()), 404));
+			$this->handleException(new NotFoundHttpException('Route not found: ' . $this->request->getUri(), 404));
 		}
 	}
 
@@ -272,7 +279,7 @@ class RouterBase
 			$handler = new $handler();
 
 			if (!($handler instanceof IExceptionHandler)) {
-				throw new RouterException('Exception handler must implement the IExceptionHandler interface.');
+				throw new HttpException('Exception handler must implement the IExceptionHandler interface.', 500);
 			}
 
 			$request = $handler->handleError($this->request, $this->loadedRoute, $e);
@@ -280,17 +287,17 @@ class RouterBase
 			if ($request !== null && $request->getUri() !== $this->originalUrl && !in_array($request->getUri(), $this->routeRewrites)) {
 				$this->routeRewrites[] = $request->getUri();
 				$this->routeRequest(true);
+
 				return;
 			}
-
 		}
 
 		throw $e;
 	}
 
-	public function arrayToParams(array $getParams = null, $includeEmpty = true)
+	public function arrayToParams(array $getParams = [], $includeEmpty = true)
 	{
-		if (is_array($getParams) === true && count($getParams) > 0) {
+		if (count($getParams) > 0) {
 
 			if ($includeEmpty === false) {
 				$getParams = array_filter($getParams, function ($item) {
@@ -304,151 +311,168 @@ class RouterBase
 		return '';
 	}
 
-	protected function processUrl(LoadableRoute $route, $method = null, $parameters = null, $getParams = null)
+	protected function processUrl(LoadableRoute $route, $method = null, $parameters = null, array $getParams = [])
 	{
-		$domain = '';
-		$parent = $route->getParent();
+		$url = '';
 
 		$parameters = (array)$parameters;
 
-		if ($parent !== null && $parent instanceof RouterGroup && count($parent->getDomains()) > 0) {
-			$domain = $parent->getDomains();
-			$domain = '//' . $domain[0];
+		if ($route->getGroup() !== null && count($route->getGroup()->getDomains()) > 0) {
+			$url .= '//' . $route->getGroup()->getDomains()[0];
 		}
 
-		$url = $domain . '/' . trim($route->getUrl(), '/');
+		$url .= '/' . trim($route->getUrl(), '/');
 
 		if ($route instanceof IControllerRoute && $method !== null) {
 
 			$url .= '/' . $method . '/';
 
 			if (count($parameters) > 0) {
-				$url .= join('/', (array)$parameters);
+				$url .= join('/', $parameters);
 			}
 
 		} else {
 
-			if ($parameters !== null && count($parameters) > 0) {
-				$params = array_merge($route->getParameters(), (array)$parameters);
-			} else {
-				$params = $route->getParameters();
-			}
+			$params = array_merge($route->getParameters(), $parameters);
 
-			$otherParams = array();
+			/* Url that contains parameters that aren't recognized */
+			$unknownParams = [];
 
+			/* Let's parse the values of any {} parameter in the url */
 			foreach ($params as $param => $value) {
 				$value = (isset($parameters[$param])) ? $parameters[$param] : $value;
 
+				/* Create the param string - {} */
 				$param1 = LoadableRoute::PARAMETER_MODIFIERS[0] . $param . LoadableRoute::PARAMETER_MODIFIERS[1];
+
+				/* Create the param string with the optional symbol - {?} */
 				$param2 = LoadableRoute::PARAMETER_MODIFIERS[0] . $param . LoadableRoute::PARAMETER_OPTIONAL_SYMBOL . LoadableRoute::PARAMETER_MODIFIERS[1];
 
 				if (stripos($url, $param1) !== false || stripos($url, $param) !== false) {
 					$url = str_ireplace([$param1, $param2], $value, $url);
 				} else {
-					$otherParams[$param] = $value;
+					$unknownParams[$param] = $value;
 				}
 			}
 
-			$url = rtrim($url, '/') . '/' . join('/', $otherParams);
+			$url = rtrim($url, '/') . '/' . join('/', $unknownParams);
 		}
 
-		$url = rtrim($url, '/') . '/';
-
-		if ($getParams !== null) {
-			$url .= $this->arrayToParams($getParams);
-		}
-
-		return $url;
+		return rtrim($url, '/') . '/' . $this->arrayToParams($getParams);
 	}
 
 	/**
 	 * Find route by alias, class, callback or method.
 	 *
-	 * @param string $query
+	 * @param string $name
 	 * @return LoadableRoute|null
 	 */
-	public function findRoute($query)
+	public function findRoute($name)
 	{
 		/* @var $route LoadableRoute */
 		foreach ($this->controllerUrlMap as $route) {
 
-			// Check an alias exist, if the matches - use it
-			// Matches either Router alias or controller alias.
-			if ($route->hasAlias($query)) {
+			/* Check if the name matches with a name on the route. Should match either router alias or controller alias. */
+			if ($route->hasName($name)) {
 				return $route;
 			}
 
-			// Direct match to controller
-			if ($route instanceof IControllerRoute) {
-				if (strtolower($route->getController()) === strtolower($query)) {
-					return $route;
-				}
+			/* Direct match to controller */
+			if ($route instanceof IControllerRoute && strtolower($route->getController()) === strtolower($name)) {
+				return $route;
 			}
 
-			// Using @ is most definitely a controller@method or alias@method
-			if (strpos($query, '@') !== false) {
-				list($controller, $method) = array_map('strtolower', explode('@', $query));
+			/* Using @ is most definitely a controller@method or alias@method */
+			if (strpos($name, '@') !== false) {
+				list($controller, $method) = array_map('strtolower', explode('@', $name));
 
 				if ($controller === strtolower($route->getClass()) && $method === strtolower($route->getMethod())) {
 					return $route;
 				}
 			}
 
-			// Use callback if it's not a function
-			if (strpos($query, '@') !== false && strpos($route->getCallback(), '@') !== false && !is_callable($route->getCallback())) {
+			/* Check if callback matches (if it's not a function) */
+			if (strpos($name, '@') !== false && strpos($route->getCallback(), '@') !== false && !is_callable($route->getCallback())) {
 
-				if (strtolower($query) === strtolower($route->getClass())) {
+				/* Check if the entire callback is matching */
+				if (strtolower($route->getCallback()) === strtolower($name) || strpos($route->getCallback(), $name) === 0) {
 					return $route;
 				}
 
-				if (strtolower($route->getCallback()) === strtolower($query) || strpos($route->getCallback(), $query) === 0) {
+				/* Check if the class part of the callback matches (class@method) */
+				if (strtolower($name) === strtolower($route->getClass())) {
 					return $route;
 				}
-
 			}
 		}
 
 		return null;
 	}
 
-	public function getRoute($controller = null, $parameters = null, $getParams = null)
+	public function getRoute($name = null, $parameters = null, array $getParams = null)
+	{
+		return $this->getUrl($name, $parameters, $getParams);
+	}
+
+	/**
+	 * Get url for a route by using either name/alias, class or method name.
+	 *
+	 * The name parameter supports the following values:
+	 * - Route name
+	 * - Controller/resource name (with or without method)
+	 * - Controller class name
+	 *
+	 * When searching for controller/resource by name, you can use this syntax "route.name@method".
+	 * You can also use the same syntax when searching for a specific controller-class "MyController@home".
+	 * If no arguments is specified, it will return the url for the current loaded route.
+	 *
+	 * @param string|null $name
+	 * @param string|array|null $parameters
+	 * @param array|null $getParams
+	 * @return string
+	 */
+	public function getUrl($name = null, $parameters = null, array $getParams = null)
 	{
 		if ($getParams !== null && is_array($getParams) === false) {
 			throw new \InvalidArgumentException('Invalid type for getParams. Must be array or null');
 		}
 
-		// Return current route if no options has been specified
-		if ($controller === null && $parameters === null) {
-
-			$getParams = ($getParams !== null) ? $getParams : $_GET;
-			$url = parse_url($this->request->getUri(), PHP_URL_PATH) . $this->arrayToParams($getParams);
-
-			return $url;
+		if($getParams === null) {
+			$getParams = $_GET;
 		}
 
-		// If nothing is defined and a route is loaded we use that
-		if ($controller === null && $this->loadedRoute !== null) {
+		/* Return current route if no options has been specified */
+		if ($name === null && $parameters === null) {
+			return '/' . trim(parse_url($this->request->getUri(), PHP_URL_PATH), '/') . '/' . $this->arrayToParams($getParams);
+		}
+
+		/* If nothing is defined and a route is loaded we use that */
+		if ($name === null && $this->loadedRoute !== null) {
 			return $this->processUrl($this->loadedRoute, $this->loadedRoute->getMethod(), $parameters, $getParams);
 		}
 
-		$route = $this->findRoute($controller);
+		/* We try to find a match on the given name */
+		$route = $this->findRoute($name);
 
 		if ($route !== null) {
 			return $this->processUrl($route, $route->getMethod(), $parameters, $getParams);
 		}
 
-		// Using @ is most definitely a controller@method or alias@method
-		if (stripos($controller, '@') !== false) {
-			list($controller, $method) = explode('@', $controller);
+		/* Using @ is most definitely a controller@method or alias@method */
+		if (stripos($name, '@') !== false) {
+			list($controller, $method) = explode('@', $name);
+
+			/* Loop through all the routes to see if we can find a match */
 
 			/* @var $route LoadableRoute */
 			foreach ($this->controllerUrlMap as $route) {
 
-				if ($route->hasAlias($controller)) {
+				/* Check if the route contains the name/alias */
+				if ($route->hasName($controller)) {
 					return $this->processUrl($route, $method, $parameters, $getParams);
 				}
 
-				// Match controllers either by: "alias @ method" or "controller@method"
+				/* Check if the route controller is equal to the name */
 				if ($route instanceof IControllerRoute && strtolower($route->getController()) === strtolower($controller)) {
 					return $this->processUrl($route, $method, $parameters, $getParams);
 				}
@@ -456,19 +480,8 @@ class RouterBase
 			}
 		}
 
-		$url = [($controller === null) ? '/' : $controller];
-
-		if ($parameters !== null && count($parameters) > 0) {
-			$url = array_merge($url, (array)$parameters);
-		}
-
-		$url = '/' . trim(join('/', $url), '/') . '/';
-
-		if ($getParams !== null) {
-			$url .= $this->arrayToParams($getParams);
-		}
-
-		return $url;
+		/* No result so we assume that someone is using a hardcoded url and join everything together. */
+		return '/' . trim(join('/', array_merge((array)$name, (array)$parameters)), '/') . '/' . $this->arrayToParams($getParams);
 	}
 
 	/**
@@ -543,6 +556,7 @@ class RouterBase
 	public function setCsrfVerifier(BaseCsrfVerifier $csrfVerifier)
 	{
 		$this->csrfVerifier = $csrfVerifier;
+
 		return $this;
 	}
 

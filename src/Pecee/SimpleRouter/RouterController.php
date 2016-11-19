@@ -1,8 +1,8 @@
 <?php
 namespace Pecee\SimpleRouter;
 
-use Pecee\Exception\RouterException;
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 class RouterController extends LoadableRoute implements IControllerRoute
 {
@@ -31,7 +31,7 @@ class RouterController extends LoadableRoute implements IControllerRoute
 			$method = $request->getMethod() . ucfirst($controller[1]);
 
 			if (!method_exists($class, $method)) {
-				throw new RouterException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
+				throw new NotFoundHttpException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
 			}
 
 			call_user_func_array(array($class, $method), $this->getParameters());

@@ -1,9 +1,10 @@
 <?php
 namespace Pecee\SimpleRouter;
 
-use Pecee\Exception\RouterException;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\Exceptions\HttpException;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 abstract class RouterEntry
 {
@@ -23,21 +24,23 @@ abstract class RouterEntry
 		self::REQUEST_TYPE_DELETE,
 	];
 
+	protected $group;
 	protected $parent;
 	protected $callback;
-
-	protected $namespace;
 	protected $defaultNamespace;
+
+	/* Default options */
+	protected $namespace;
 	protected $regex;
-	protected $requestMethods = array();
-	protected $where = array();
-	protected $parameters = array();
-	protected $middlewares = array();
+	protected $requestMethods = [];
+	protected $where = [];
+	protected $parameters = [];
+	protected $middlewares = [];
 
 	protected function loadClass($name)
 	{
 		if (!class_exists($name)) {
-			throw new RouterException(sprintf('Class %s does not exist', $name));
+			throw new HttpException(sprintf('Class %s does not exist', $name), 500);
 		}
 
 		return new $name();
@@ -45,19 +48,18 @@ abstract class RouterEntry
 
 	protected function parseParameters($route, $url, $parameterRegex = '[\w]+')
 	{
-		$parameterNames = array();
+		$parameterNames = [];
 		$regex = '';
 		$lastCharacter = '';
 		$isParameter = false;
 		$parameter = '';
 
-		$routeLength = strlen($route);
-		for ($i = 0; $i < $routeLength; $i++) {
+		for ($i = 0; $i < strlen($route); $i++) {
 
 			$character = $route[$i];
 
 			if ($character === '{') {
-				// Remove "/" and "\" from regex
+				/* Remove "/" and "\" from regex */
 				if (substr($regex, strlen($regex) - 1) === '/') {
 					$regex = substr($regex, 0, strlen($regex) - 2);
 				}
@@ -66,7 +68,7 @@ abstract class RouterEntry
 			} elseif ($isParameter && $character === '}') {
 				$required = true;
 
-				// Check for optional parameter and use custom parameter regex if it exists
+				/* Check for optional parameter and use custom parameter regex if it exists */
 				if (is_array($this->where) === true && isset($this->where[$parameter])) {
 					$parameterRegex = $this->where[$parameter];
 				}
@@ -80,8 +82,8 @@ abstract class RouterEntry
 				}
 
 				$parameterNames[] = [
-					'name' => $parameter,
-					'required' => $required
+					'name'     => $parameter,
+					'required' => $required,
 				];
 
 				$parameter = '';
@@ -97,17 +99,17 @@ abstract class RouterEntry
 			$lastCharacter = $character;
 		}
 
-		$parameterValues = array();
+		$parameterValues = [];
 
 		if (preg_match('/^' . $regex . '\/?$/is', $url, $parameterValues)) {
 
-			$parameters = array();
+			$parameters = [];
 
 			foreach ($parameterNames as $name) {
 				$parameterValue = isset($parameterValues[$name['name']]) ? $parameterValues[$name['name']] : null;
 
 				if ($name['required'] && $parameterValue === null) {
-					throw new RouterException('Missing required parameter ' . $name['name'], 404);
+					throw new HttpException('Missing required parameter ' . $name['name'], 404);
 				}
 
 				if ($name['required'] === false && $parameterValue === null) {
@@ -130,12 +132,10 @@ abstract class RouterEntry
 
 				$middleware = $this->loadClass($middleware);
 				if (!($middleware instanceof IMiddleware)) {
-					throw new RouterException($middleware . ' must be instance of Middleware');
+					throw new HttpException($middleware . ' must be instance of Middleware');
 				}
 
-				/* @var $class IMiddleware */
 				$middleware->handle($request, $route);
-
 			}
 		}
 	}
@@ -144,12 +144,12 @@ abstract class RouterEntry
 	{
 		if ($this->getCallback() !== null && is_callable($this->getCallback())) {
 
-			// When the callback is a function
+			/* When the callback is a function */
 			call_user_func_array($this->getCallback(), $this->getParameters());
 
 		} else {
 
-			// When the callback is a method
+			/* When the callback is a method */
 			$controller = explode('@', $this->getCallback());
 			$className = $this->getNamespace() . '\\' . $controller[0];
 
@@ -157,14 +157,14 @@ abstract class RouterEntry
 			$method = $controller[1];
 
 			if (!method_exists($class, $method)) {
-				throw new RouterException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
+				throw new NotFoundHttpException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
 			}
 
 			$parameters = array_filter($this->getParameters(), function ($var) {
 				return ($var !== null);
 			});
 
-			call_user_func_array(array($class, $method), $parameters);
+			call_user_func_array([$class, $method], $parameters);
 
 			return $class;
 		}
@@ -184,6 +184,7 @@ abstract class RouterEntry
 		if (strpos($this->callback, '@') !== false) {
 			return $this->callback;
 		}
+
 		return 'function_' . md5($this->callback);
 	}
 
@@ -209,11 +210,31 @@ abstract class RouterEntry
 	}
 
 	/**
-	 * @return RouterEntry
+	 * @return LoadableRoute
 	 */
 	public function getParent()
 	{
 		return $this->parent;
+	}
+
+	/**
+	 * Get the group for the route.
+	 *
+	 * @return RouterGroup|null
+	 */
+	public function getGroup()
+	{
+		return $this->group;
+	}
+
+	/**
+	 * Set group
+	 *
+	 * @param RouterGroup $group
+	 */
+	public function setGroup(RouterGroup $group)
+	{
+		$this->group = $group;
 	}
 
 	/**
@@ -250,8 +271,10 @@ abstract class RouterEntry
 	{
 		if (strpos($this->callback, '@') !== false) {
 			$tmp = explode('@', $this->callback);
+
 			return $tmp[1];
 		}
+
 		return null;
 	}
 
@@ -259,8 +282,10 @@ abstract class RouterEntry
 	{
 		if (strpos($this->callback, '@') !== false) {
 			$tmp = explode('@', $this->callback);
+
 			return $tmp[0];
 		}
+
 		return null;
 	}
 
@@ -306,12 +331,14 @@ abstract class RouterEntry
 	 * @param string $namespace
 	 * @return static $this
 	 */
-	public function setDefaultNamespace($namespace) {
+	public function setDefaultNamespace($namespace)
+	{
 		$this->defaultNamespace = $namespace;
 		return $this;
 	}
 
-	public function getDefaultNamespace() {
+	public function getDefaultNamespace()
+	{
 		return $this->defaultNamespace;
 	}
 
@@ -355,19 +382,19 @@ abstract class RouterEntry
 	 * @param array $options
 	 * @return static
 	 */
-	public function where(array $options)
+	public function setWhere(array $options)
 	{
 		$this->where = $options;
 		return $this;
 	}
 
 	/**
-	 * Add regular expression match for url
+	 * Add regular expression match for the entire route.
 	 *
 	 * @param string $regex
 	 * @return static
 	 */
-	public function match($regex)
+	public function setMatch($regex)
 	{
 		$this->regex = $regex;
 		return $this;
@@ -380,7 +407,7 @@ abstract class RouterEntry
 	 */
 	public function toArray()
 	{
-		$values = array();
+		$values = [];
 
 		if ($this->namespace !== null) {
 			$values['namespace'] = $this->namespace;
@@ -413,25 +440,25 @@ abstract class RouterEntry
 	 */
 	public function merge(array $values)
 	{
-		if (isset($values['namespace'])) {
+		if (isset($values['namespace']) && $this->namespace === null) {
 			$this->setNamespace($values['namespace']);
 		}
 
 		// Push middleware if multiple
 		if (isset($values['middleware'])) {
-			$this->middlewares = array_merge((array)$values['middleware'], $this->middlewares);
+			$this->setMiddlewares(array_merge((array)$values['middleware'], $this->middlewares));
 		}
 
 		if (isset($values['method'])) {
-			$this->setRequestMethods((array)$values['method']);
+			$this->setRequestMethods(array_merge($this->requestMethods, (array)$values['method']));
 		}
 
 		if (isset($values['where'])) {
-			$this->where($values['where']);
+			$this->setWhere(array_merge($this->where, (array)$values['where']));
 		}
 
 		if (isset($values['parameters'])) {
-			$this->setParameters($values['parameters']);
+			$this->setParameters(array_merge($this->parameters, (array)$values['parameters']));
 		}
 
 		return $this;

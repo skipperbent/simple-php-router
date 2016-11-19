@@ -79,13 +79,22 @@ class GroupTest extends PHPUnit_Framework_TestCase
 		SimpleRouter::request()->setUri('/my/fancy/url/1');
 		SimpleRouter::request()->setMethod('get');
 
+		// Test array name
 		SimpleRouter::get('/my/fancy/url/1', 'DummyController@start', ['as' => 'fancy1']);
-		SimpleRouter::get('/my/fancy/url/2', 'DummyController@start')->setAlias('fancy2');
+
+		// Test method name
+		SimpleRouter::get('/my/fancy/url/2', 'DummyController@start')->setName('fancy2');
+
+		// Test multiple names
+		SimpleRouter::get('/my/fancy/url/3', 'DummyController@start', ['as' => ['fancy3', 'fancy4']]);
 
 		SimpleRouter::start();
 
-		$this->assertTrue((SimpleRouter::getRoute('fancy1') === '/my/fancy/url/1/'));
-		$this->assertTrue((SimpleRouter::getRoute('fancy2') === '/my/fancy/url/2/'));
+		$this->assertEquals('/my/fancy/url/1/', SimpleRouter::getRoute('fancy1'));
+		$this->assertEquals('/my/fancy/url/2/', SimpleRouter::getRoute('fancy2'));
+
+		$this->assertEquals('/my/fancy/url/3/', SimpleRouter::getRoute('fancy3'));
+		$this->assertEquals('/my/fancy/url/3/', SimpleRouter::getRoute('fancy4'));
 
 	}
 
