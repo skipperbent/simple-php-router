@@ -141,14 +141,11 @@ class SimpleRouter
 	 * @throws RouterException
 	 * @return RouterGroup
 	 */
-	public static function group($settings = array(), \Closure $callback)
+	public static function group(array $settings = array(), \Closure $callback)
 	{
 		$group = new RouterGroup();
 		$group->setCallback($callback);
-
-		if ($settings !== null && is_array($settings) === true) {
-			$group->merge($settings);
-		}
+		$group->merge($settings);
 
 		if (is_callable($callback) === false) {
 			throw new RouterException('Invalid callback provided. Only functions or methods supported');
@@ -337,7 +334,7 @@ class SimpleRouter
 				$namespace .= '\\' . $route->getNamespace();
 			}
 
-			$route->setNamespace($namespace);
+			$route->setDefaultNamespace($namespace);
 		}
 
 		return $route;

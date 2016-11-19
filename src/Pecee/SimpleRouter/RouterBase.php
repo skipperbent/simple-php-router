@@ -134,35 +134,21 @@ class RouterBase
 		return $route;
 	}
 
-	protected function processRoutes(array $routes, array $settings = array(), array $prefixes = array(), RouterEntry $parent = null) {
-
-		$mergedSettings = [];
-		$mergedPrefixes = [];
+	protected function processRoutes(array $routes, array $settings = array(), array $prefixes = array(), RouterEntry $parent = null)
+	{
 
 		// Loop through each route-request
 		/* @var $route RouterEntry */
 		foreach ($routes as $route) {
 
-			$route->merge($settings);
+			$newPrefixes = $prefixes;
+			$newSettings = $settings;
 
-			if ($parent !== null) {
+			if($parent !== null) {
 				$route->setParent($parent);
-				$mergedPrefixes = [];
 			}
 
-			if ($route instanceof ILoadableRoute) {
-
-				if($parent !== null && count($prefixes)) {
-					$route->setUrl(trim(join('/', $prefixes) . $route->getUrl(), '/'));
-				}
-
-				$this->controllerUrlMap[] = $route;
-
-			} elseif ($route instanceof RouterGroup) {
-
-				if ($route->getPrefix() !== null && trim($route->getPrefix(), '/') !== '') {
-					$mergedPrefixes[] = trim($route->getPrefix(), '/');
-				}
+			if ($route instanceof RouterGroup) {
 
 				if ($route->getCallback() !== null && is_callable($route->getCallback())) {
 
@@ -171,24 +157,39 @@ class RouterBase
 					$this->processingRoute = false;
 
 					if ($route->matchRoute($this->request)) {
-
-						$mergedSettings = array_merge($mergedSettings, $route->toArray());
-
 						// Add ExceptionHandler
 						if (count($route->getExceptionHandlers()) > 0) {
-							$this->exceptionHandlers = array_merge($route->getExceptionHandlers(),
-								$this->exceptionHandlers);
+							$this->exceptionHandlers = array_merge($route->getExceptionHandlers(), $this->exceptionHandlers);
 						}
 					}
 				}
 			}
 
+			if ($route instanceof RouterGroup) {
+				$newPrefixes[] = trim($route->getPrefix(), '/');
+				$newSettings = array_merge($settings, $route->toArray());
+			} else {
+				if (count($settings)) {
+					$route->merge($settings);
+				}
+			}
+
+			if ($route instanceof ILoadableRoute) {
+
+				if (count($prefixes)) {
+					$route->setUrl(trim(join('/', $prefixes) . $route->getUrl(), '/'));
+				}
+
+				$this->controllerUrlMap[] = $route;
+
+			}
+
 			if (count($this->backStack) > 0) {
 				$backStack = $this->backStack;
-				$this->backStack = array();
+				$this->backStack = [];
 
 				// Route any routes added to the backstack
-				$this->processRoutes($backStack, $mergedSettings, $mergedPrefixes, $route);
+				$this->processRoutes($backStack, $newSettings, $newPrefixes, $route);
 			}
 		}
 	}
