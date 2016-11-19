@@ -8,7 +8,7 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute
 	const PARAMETER_OPTIONAL_SYMBOL = '?';
 
 	protected $url;
-	protected $alias;
+	protected $names = [];
 
 	public function getUrl()
 	{
@@ -36,44 +36,94 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute
 	}
 
 	/**
-	 * Get alias for the url which can be used when getting the url route.
+	 * Returns the provided name of the router (first if multiple).
+	 * Alias for LoadableRoute::getName().
+	 *
+	 * @see LoadableRoute::getName()
 	 * @return string|array
 	 */
 	public function getAlias()
 	{
-		return $this->alias;
+		return $this->getName();
 	}
 
 	/**
-	 * Check if route has given alias.
+	 * Returns the provided name for the router (first if multiple).
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->names[0];
+	}
+
+	/**
+	 * Get route names
+	 * @return array
+	 */
+	public function getNames()
+	{
+		return $this->names;
+	}
+
+	/**
+	 * Check if route has given name.
+	 * Alias for LoadableRoute::hasName();
+	 *
+	 * @see LoadableRoute::hasName()
+	 * @param $name
+	 */
+	public function hasAlias($name)
+	{
+		$this->hasName($name);
+	}
+
+	/**
+	 * Check if route has given name.
 	 *
 	 * @param string $name
 	 * @return bool
 	 */
-	public function hasAlias($name)
+	public function hasName($name)
 	{
-		if ($this->getAlias() !== null) {
-			if (is_array($this->getAlias()) === true) {
-				foreach ($this->getAlias() as $alias) {
-					if (strtolower($alias) === strtolower($name)) {
-						return true;
-					}
-				}
-			}
-			return strtolower($this->getAlias()) === strtolower($name);
-		}
-
-		return false;
+		return (in_array($name, $this->names, false) !== false);
 	}
 
 	/**
-	 * Set the url alias for easier getting the url route.
-	 * @param string|array $alias
+	 * Sets the router name, which makes it easier to obtain the url or router at a later point.
+	 * Alias for LoadableRoute::setName().
+	 *
+	 * @see LoadableRoute::setName()
+	 * @param string|array $name
 	 * @return static
 	 */
-	public function setAlias($alias)
+	public function setAlias($name)
 	{
-		$this->alias = $alias;
+		return $this->setName($name);
+	}
+
+	/**
+	 * Sets the router name, which makes it easier to obtain the url or router at a later point.
+	 *
+	 * @param string $name
+	 * @return static $this
+	 */
+	public function setName($name)
+	{
+		array_push($this->names, $name);
+
+		return $this;
+	}
+
+	/**
+	 * Set multiple names for the route
+	 *
+	 * @param array $names
+	 * @return static $this
+	 */
+	public function setNames(array $names)
+	{
+		$this->names = $names;
+
 		return $this;
 	}
 
@@ -85,12 +135,16 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute
 	 */
 	public function merge(array $values)
 	{
-		// Change as to alias
 		if (isset($values['as'])) {
-			$this->setAlias($values['as']);
+			$this->setNames((array)$values['as']);
+		}
+
+		if (isset($values['prefix'])) {
+			$this->setUrl($values['prefix'] . $this->getUrl());
 		}
 
 		parent::merge($values);
+
 		return $this;
 	}
 

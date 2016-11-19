@@ -7,8 +7,9 @@
  */
 namespace Pecee\SimpleRouter;
 
-use Pecee\Exception\RouterException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
+use Pecee\SimpleRouter\Exceptions\HttpException;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 class SimpleRouter
 {
@@ -17,7 +18,8 @@ class SimpleRouter
 	/**
 	 * Start/route request
 	 *
-	 * @throws \Pecee\Exception\RouterException
+	 * @throws HttpException
+	 * @throws NotFoundHttpException
 	 */
 	public static function start()
 	{
@@ -138,17 +140,17 @@ class SimpleRouter
 	 *
 	 * @param array $settings
 	 * @param \Closure $callback
-	 * @throws RouterException
+	 * @throws \InvalidArgumentException
 	 * @return RouterGroup
 	 */
-	public static function group(array $settings = array(), \Closure $callback)
+	public static function group(array $settings = [], \Closure $callback)
 	{
 		$group = new RouterGroup();
 		$group->setCallback($callback);
 		$group->merge($settings);
 
 		if (is_callable($callback) === false) {
-			throw new RouterException('Invalid callback provided. Only functions or methods supported');
+			throw new \InvalidArgumentException('Invalid callback provided. Only functions or methods supported');
 		}
 
 		static::router()->addRoute($group);
@@ -277,16 +279,50 @@ class SimpleRouter
 	}
 
 	/**
-	 * Get url by controller or alias.
+	 * Get url for a route by using either name/alias, class or method name.
 	 *
-	 * @param string $controller
-	 * @param array|null $parameters
+	 * The name parameter supports the following values:
+	 * - Route name
+	 * - Controller/resource name (with or without method)
+	 * - Controller class name
+	 *
+	 * When searching for controller/resource by name, you can use this syntax "route.name@method".
+	 * You can also use the same syntax when searching for a specific controller-class "MyController@home".
+	 * If no arguments is specified, it will return the url for the current loaded route.
+	 *
+	 * This method is an alias for SimpleRouter::getUrl().
+	 *
+	 * @see SimpleRouter::getUrl()
+	 * @param string|null $name
+	 * @param string|array|null $parameters
 	 * @param array|null $getParams
 	 * @return string
 	 */
-	public static function getRoute($controller = null, $parameters = null, $getParams = null)
+	public static function getRoute($name = null, $parameters = null, array $getParams = [])
 	{
-		return static::router()->getRoute($controller, $parameters, $getParams);
+		return static::getUrl($name, $parameters, $getParams);
+	}
+
+	/**
+	 * Get url for a route by using either name/alias, class or method name.
+	 *
+	 * The name parameter supports the following values:
+	 * - Route name
+	 * - Controller/resource name (with or without method)
+	 * - Controller class name
+	 *
+	 * When searching for controller/resource by name, you can use this syntax "route.name@method".
+	 * You can also use the same syntax when searching for a specific controller-class "MyController@home".
+	 * If no arguments is specified, it will return the url for the current loaded route.
+	 *
+	 * @param string|null $name
+	 * @param string|array|null $parameters
+	 * @param array|null $getParams
+	 * @return string
+	 */
+	public static function getUrl($name = null, $parameters = null, array $getParams = [])
+	{
+		return static::router()->getUrl($name, $parameters, $getParams);
 	}
 
 	/**

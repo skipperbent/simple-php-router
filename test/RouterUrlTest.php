@@ -10,8 +10,8 @@ class RouterUrlTest extends PHPUnit_Framework_TestCase
 {
 	protected $result = false;
 
-	protected function getUrl($controller = null, $parameters = null, $getParams = null) {
-		return SimpleRouter::getRoute($controller, $parameters, $getParams);
+	protected function getUrl($name = null, $parameters = null, array $getParams = []) {
+		return SimpleRouter::getRoute($name, $parameters, $getParams);
 	}
 
 	public function testUrls()
@@ -75,8 +75,8 @@ class RouterUrlTest extends PHPUnit_Framework_TestCase
 		// Should match /funny/man/
 		$this->assertEquals($this->getUrl('/funny/man'), '/funny/man/');
 
-		// Should match /?jackdaniels=true
-		$this->assertEquals($this->getUrl('home', null, ['jackdaniels' => 'true']), '/?jackdaniels=true');
+		// Should match /?jackdaniels=true&cola=yeah
+		$this->assertEquals($this->getUrl('home', null, ['jackdaniels' => 'true', 'cola' => 'yeah']), '/?jackdaniels=true&cola=yeah');
 
 	}
 
