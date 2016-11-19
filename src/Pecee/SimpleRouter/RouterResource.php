@@ -4,112 +4,120 @@ namespace Pecee\SimpleRouter;
 use Pecee\Exception\RouterException;
 use Pecee\Http\Request;
 
-class RouterResource extends LoadableRoute implements IControllerRoute {
+class RouterResource extends LoadableRoute implements IControllerRoute
+{
+	protected $controller;
 
-    protected $controller;
+	public function __construct($url, $controller)
+	{
+		$this->setUrl($url);
+		$this->controller = $controller;
+	}
 
-    public function __construct($url, $controller) {
-        $this->setUrl($url);
-        $this->controller = $controller;
-    }
+	public function renderRoute(Request $request)
+	{
+		if ($this->getCallback() !== null && is_callable($this->getCallback())) {
+			// When the callback is a function
+			call_user_func_array($this->getCallback(), $this->getParameters());
+		} else {
+			// When the callback is a method
+			$controller = explode('@', $this->getCallback());
+			$className = $this->getNamespace() . '\\' . $controller[0];
+			$class = $this->loadClass($className);
+			$method = strtolower($controller[1]);
 
-    public function renderRoute(Request $request) {
-        if($this->getCallback() !== null && is_callable($this->getCallback())) {
-            // When the callback is a function
-            call_user_func_array($this->getCallback(), $this->getParameters());
-        } else {
-            // When the callback is a method
-            $controller = explode('@', $this->getCallback());
-            $className = $this->getNamespace() . '\\' . $controller[0];
-            $class = $this->loadClass($className);
-            $method = strtolower($controller[1]);
+			if (!method_exists($class, $method)) {
+				throw new RouterException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
+			}
 
-            if (!method_exists($class, $method)) {
-                throw new RouterException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
-            }
+			call_user_func_array([$class, $method], $this->getParameters());
 
-            call_user_func_array(array($class, $method), $this->getParameters());
+			return $class;
+		}
 
-            return $class;
-        }
+		return null;
+	}
 
-        return null;
-    }
+	protected function call($method, $parameters)
+	{
+		$this->setCallback($this->controller . '@' . $method);
+		$this->parameters = $parameters;
 
-    protected function call($method, $parameters) {
-        $this->setCallback($this->controller . '@' . $method);
-        $this->parameters = $parameters;
-        return true;
-    }
+		return true;
+	}
 
-    public function matchRoute(Request $request) {
-        $url = parse_url(urldecode($request->getUri()), PHP_URL_PATH);
-        $url = rtrim($url, '/') . '/';
+	public function matchRoute(Request $request)
+	{
+		$url = parse_url(urldecode($request->getUri()), PHP_URL_PATH);
+		$url = rtrim($url, '/') . '/';
 
-        $route = rtrim($this->url, '/') . '/{id?}/{action?}';
+		$route = rtrim($this->url, '/') . '/{id?}/{action?}';
 
-        $parameters = $this->parseParameters($route, $url);
+		$parameters = $this->parseParameters($route, $url);
 
-        if($parameters !== null) {
+		if ($parameters !== null) {
 
-            if(is_array($parameters)) {
-                $parameters = array_merge($this->parameters, $parameters);
-            }
+			$parameters = array_merge($this->parameters, (array)$parameters);
 
-            $action = isset($parameters['action']) ? $parameters['action'] : null;
-            unset($parameters['action']);
+			$action = isset($parameters['action']) ? $parameters['action'] : null;
+			unset($parameters['action']);
 
-            // Delete
-            if($request->getMethod() === static::REQUEST_TYPE_DELETE && $request->getMethod() === static::REQUEST_TYPE_POST) {
-                return $this->call('destroy', $parameters);
-            }
+			$method = request()->getMethod();
 
-            // Update
-            if(in_array($request->getMethod(), array(static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT)) && $request->getMethod() === static::REQUEST_TYPE_POST) {
-                return $this->call('update', $parameters);
-            }
+			// Delete
+			if (isset($parameters['id']) && $method === static::REQUEST_TYPE_DELETE) {
+				return $this->call('destroy', $parameters);
+			}
 
-            // Edit
-            if(isset($action) && strtolower($action) === 'edit' && $request->getMethod() === static::REQUEST_TYPE_GET) {
-                return $this->call('edit', $parameters);
-            }
+			// Update
+			if (isset($parameters['id']) && in_array($method, [static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT])) {
+				return $this->call('update', $parameters);
+			}
 
-            // Create
-            if(strtolower($action) === 'create' && $request->getMethod() === static::REQUEST_TYPE_GET) {
-                return $this->call('create', $parameters);
-            }
+			// Edit
+			if (isset($parameters['id']) && strtolower($action) === 'edit' && $method === static::REQUEST_TYPE_GET) {
+				return $this->call('edit', $parameters);
+			}
 
-            // Save
-            if($request->getMethod() === static::REQUEST_TYPE_POST) {
-                return $this->call('store', $parameters);
-            }
+			// Create
+			if (strtolower($action) === 'create' && $method === static::REQUEST_TYPE_GET) {
+				return $this->call('create', $parameters);
+			}
 
-            // Show
-            if(isset($parameters['id']) && $request->getMethod() === static::REQUEST_TYPE_GET) {
-                return $this->call('show', $parameters);
-            }
+			// Save
+			if ($method === static::REQUEST_TYPE_POST) {
+				return $this->call('store', $parameters);
+			}
 
-            // Index
-            return $this->call('index', $parameters);
-        }
+			// Show
+			if (isset($parameters['id']) && $method === static::REQUEST_TYPE_GET) {
+				return $this->call('show', $parameters);
+			}
 
-        return null;
-    }
+			// Index
+			return $this->call('index', $parameters);
+		}
 
-    /**
-     * @return string
-     */
-    public function getController() {
-        return $this->controller;
-    }
+		return null;
+	}
 
-    /**
-     * @param string $controller
-     * @return static
-     */
-    public function setController($controller) {
-        $this->controller = $controller;
-        return $this;
-    }
+	/**
+	 * @return string
+	 */
+	public function getController()
+	{
+		return $this->controller;
+	}
+
+	/**
+	 * @param string $controller
+	 * @return static
+	 */
+	public function setController($controller)
+	{
+		$this->controller = $controller;
+
+		return $this;
+	}
 
 }

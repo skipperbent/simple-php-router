@@ -4,100 +4,107 @@ namespace Pecee\SimpleRouter;
 use Pecee\Exception\RouterException;
 use Pecee\Http\Request;
 
-class RouterController extends LoadableRoute implements IControllerRoute {
+class RouterController extends LoadableRoute implements IControllerRoute
+{
+	protected $defaultMethod = 'index';
+	protected $controller;
+	protected $method;
 
-    const DEFAULT_METHOD = 'index';
+	public function __construct($url, $controller)
+	{
+		$this->setUrl($url);
+		$this->controller = $controller;
+	}
 
-    protected $controller;
-    protected $method;
+	public function renderRoute(Request $request)
+	{
+		if ($this->getCallback() !== null && is_callable($this->getCallback())) {
 
-    public function __construct($url, $controller) {
-        $this->setUrl($url);
-        $this->controller = $controller;
-    }
+			// When the callback is a function
+			call_user_func_array($this->getCallback(), $this->getParameters());
+		} else {
+			// When the callback is a method
+			$controller = explode('@', $this->getCallback());
+			$className = $this->getNamespace() . '\\' . $controller[0];
 
-    public function renderRoute(Request $request) {
-        if($this->getCallback() !== null && is_callable($this->getCallback())) {
+			$class = $this->loadClass($className);
+			$method = $request->getMethod() . ucfirst($controller[1]);
 
-            // When the callback is a function
-            call_user_func_array($this->getCallback(), $this->getParameters());
-        } else {
-            // When the callback is a method
-            $controller = explode('@', $this->getCallback());
-            $className = $this->getNamespace() . '\\' . $controller[0];
+			if (!method_exists($class, $method)) {
+				throw new RouterException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
+			}
 
-            $class = $this->loadClass($className);
-            $method = $request->getMethod() . ucfirst($controller[1]);
+			call_user_func_array(array($class, $method), $this->getParameters());
 
-            if (!method_exists($class, $method)) {
-                throw new RouterException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
-            }
+			return $class;
+		}
 
-            call_user_func_array(array($class, $method), $this->getParameters());
+		return null;
+	}
 
-            return $class;
-        }
+	public function matchRoute(Request $request)
+	{
+		$url = parse_url(urldecode($request->getUri()), PHP_URL_PATH);
+		$url = rtrim($url, '/') . '/';
 
-        return null;
-    }
+		if (strtolower($url) == strtolower($this->url) || stripos($url, $this->url) === 0) {
 
-    public function matchRoute(Request $request) {
-        $url = parse_url(urldecode($request->getUri()), PHP_URL_PATH);
-        $url = rtrim($url, '/') . '/';
+			$strippedUrl = trim(str_ireplace($this->url, '/', $url), '/');
 
-        if(strtolower($url) == strtolower($this->url) || stripos($url, $this->url) === 0) {
+			$path = explode('/', $strippedUrl);
 
-            $strippedUrl = trim(str_ireplace($this->url, '/', $url), '/');
+			if (count($path) > 0) {
 
-            $path = explode('/', $strippedUrl);
+				$method = (!isset($path[0]) || trim($path[0]) === '') ? $this->defaultMethod : $path[0];
+				$this->method = $method;
 
-            if(count($path)) {
+				array_shift($path);
+				$this->parameters = $path;
 
-                $method = (!isset($path[0]) || trim($path[0]) === '') ? static::DEFAULT_METHOD : $path[0];
-                $this->method = $method;
+				// Set callback
+				$this->setCallback($this->controller . '@' . $this->method);
 
-                array_shift($path);
-                $this->parameters = $path;
+				return true;
+			}
+		}
 
-                // Set callback
-                $this->setCallback($this->controller . '@' . $this->method);
+		return null;
+	}
 
-                return true;
-            }
-        }
-        return null;
-    }
+	/**
+	 * @return string
+	 */
+	public function getController()
+	{
+		return $this->controller;
+	}
 
-    /**
-     * @return string
-     */
-    public function getController() {
-        return $this->controller;
-    }
+	/**
+	 * @param string $controller
+	 * @return static
+	 */
+	public function setController($controller)
+	{
+		$this->controller = $controller;
+		return $this;
+	}
 
-    /**
-     * @param string $controller
-     * @return static
-     */
-    public function setController($controller) {
-        $this->controller = $controller;
-        return $this;
-    }
+	/**
+	 * @return string
+	 */
+	public function getMethod()
+	{
+		return $this->method;
+	}
 
-    /**
-     * @return string
-     */
-    public function getMethod() {
-        return $this->method;
-    }
-
-    /**
-     * @param string $method
-     * @return static
-     */
-    public function setMethod($method) {
-        $this->method = $method;
-        return $this;
-    }
+	/**
+	 * @param string $method
+	 * @return static
+	 */
+	public function setMethod($method)
+	{
+		$this->method = $method;
+		return $this;
+	}
 
 }

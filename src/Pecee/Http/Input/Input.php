@@ -3,211 +3,209 @@ namespace Pecee\Http\Input;
 
 use Pecee\Http\Request;
 
-class Input {
+class Input
+{
+	/**
+	 * @var \Pecee\Http\Input\InputCollection
+	 */
+	public $get;
 
-    /**
-     * @var \Pecee\Http\Input\InputCollection
-     */
-    public $get;
+	/**
+	 * @var \Pecee\Http\Input\InputCollection
+	 */
+	public $post;
 
-    /**
-     * @var \Pecee\Http\Input\InputCollection
-     */
-    public $post;
+	/**
+	 * @var \Pecee\Http\Input\InputCollection
+	 */
+	public $file;
 
-    /**
-     * @var \Pecee\Http\Input\InputCollection
-     */
-    public $file;
+	/**
+	 * @var Request
+	 */
+	protected $request;
 
-    /**
-     * @var Request
-     */
-    protected $request;
+	public function __construct(Request $request)
+	{
+		$this->request = $request;
+		$this->setGet();
+		$this->setPost();
+		$this->setFile();
+	}
 
-    public function __construct(Request $request) {
-        $this->request = $request;
-        $this->setGet();
-        $this->setPost();
-        $this->setFile();
-    }
+	/**
+	 * Get all get/post items
+	 * @param array|null $filter Only take items in filter
+	 * @return array
+	 */
+	public function all(array $filter = null)
+	{
+		$output = $_POST;
 
-    /**
-     * Get all get/post items
-     * @param array|null $filter Only take items in filter
-     * @return array
-     */
-    public function all(array $filter = null) {
+		if ($this->request->getMethod() === 'post') {
 
-        $output = $_POST;
+			$contents = file_get_contents('php://input');
 
-        if($this->request->getMethod() === 'post') {
+			if (stripos(trim($contents), '{') === 0) {
+				$output = json_decode($contents, true);
+				if ($output === false) {
+					$output = array();
+				}
+			}
+		}
 
-            $contents = file_get_contents('php://input');
+		$output = array_merge($_GET, $output);
 
-            if (stripos(trim($contents), '{') === 0) {
-                $output = json_decode($contents, true);
-                if($output === false) {
-                    $output = array();
-                }
-            }
-        }
+		if ($filter !== null) {
+			$output = array_filter($output, function ($key) use ($filter) {
+				if (in_array($key, $filter)) {
+					return true;
+				}
 
-        $output = array_merge($_GET, $output);
+				return false;
+			}, ARRAY_FILTER_USE_KEY);
+		}
 
-        if($filter !== null) {
-            $output = array_filter($output, function ($key) use ($filter) {
-                if (in_array($key, $filter)) {
-                    return true;
-                }
+		return $output;
+	}
 
-                return false;
-            }, ARRAY_FILTER_USE_KEY);
-        }
+	public function getObject($index, $default = null)
+	{
+		$key = (strpos($index, '[') > -1) ? substr($index, strpos($index, '[') + 1, strpos($index, ']') - strlen($index)) : null;
+		$index = (strpos($index, '[') > -1) ? substr($index, 0, strpos($index, '[')) : $index;
 
-        return $output;
-    }
+		$element = $this->get->findFirst($index);
 
-    public function getObject($index, $default = null) {
-        $key = (strpos($index, '[') > -1) ? substr($index, strpos($index, '[')+1, strpos($index, ']') - strlen($index)) : null;
-        $index = (strpos($index, '[') > -1) ? substr($index, 0, strpos($index, '[')) : $index;
+		if ($element !== null) {
+			return ($key !== null) ? $element[$key] : $element;
+		}
 
-        $element = $this->get->findFirst($index);
+		if ($this->request->getMethod() !== 'get') {
 
-        if($element !== null) {
-            return ($key !== null) ? $element[$key] : $element;
-        }
+			$element = $this->post->findFirst($index);
+			if ($element !== null) {
+				return ($key !== null) ? $element[$key] : $element;
+			}
 
-        if($this->request->getMethod() !== 'get') {
+			$element = $this->file->findFirst($index);
+			if ($element !== null) {
+				return ($key !== null) ? $element[$key] : $element;
+			}
+		}
 
-            $element = $this->post->findFirst($index);
+		return $default;
+	}
 
-            if ($element !== null) {
-                return ($key !== null) ? $element[$key] : $element;
-            }
+	/**
+	 * Get input element value matching index
+	 * @param string $index
+	 * @param string|null $default
+	 * @return string|null
+	 */
+	public function get($index, $default = null)
+	{
+		$item = $this->getObject($index);
 
-            $element = $this->file->findFirst($index);
-            if ($element !== null) {
-                return ($key !== null) ? $element[$key] : $element;
-            }
-        }
+		if ($item !== null) {
 
-        return $default;
-    }
+			if ($item instanceof InputCollection || $item instanceof InputFile) {
+				return $item;
+			}
 
-    /**
-     * Get input element value matching index
-     * @param string $index
-     * @param string|null $default
-     * @return string|null
-     */
-    public function get($index, $default = null) {
+			return (trim($item->getValue()) === '') ? $default : $item->getValue();
+		}
 
-        $item = $this->getObject($index);
+		return $default;
+	}
 
-        if($item !== null) {
+	public function exists($index)
+	{
+		return ($this->getObject($index) !== null);
+	}
 
-            if($item instanceof InputCollection || $item instanceof InputFile) {
-                return $item;
-            }
+	public function setGet()
+	{
+		$this->get = new InputCollection();
 
-            return (trim($item->getValue()) === '') ? $default : $item->getValue();
-        }
+		if (count($_GET) > 0) {
+			foreach ($_GET as $key => $get) {
+				if (is_array($get) === false) {
+					$this->get->{$key} = new InputItem($key, $get);
+					continue;
+				}
 
-        return $default;
-    }
+				$output = new InputCollection();
 
-    public function exists($index) {
-        return ($this->getObject($index) !== null);
-    }
+				foreach ($get as $k => $g) {
+					$output->{$k} = new InputItem($k, $g);
+				}
 
-    public function setGet() {
-        $this->get = new InputCollection();
+				$this->get->{$key} = $output;
+			}
+		}
+	}
 
-        if(count($_GET)) {
-            foreach($_GET as $key => $get) {
-                if(!is_array($get)) {
-                    $this->get->{$key} = new InputItem($key, $get);
-                    continue;
-                }
+	public function setPost()
+	{
+		$this->post = new InputCollection();
 
-                $output = new InputCollection();
+		$postVars = $_POST;
 
-                foreach($get as $k => $g) {
-                    $output->{$k} = new InputItem($k, $g);
-                }
+		if (in_array($this->request->getMethod(), ['put', 'patch', 'delete']) === true) {
+			parse_str(file_get_contents('php://input'), $postVars);
+		}
 
-                $this->get->{$key} = $output;
-            }
-        }
-    }
+		if (count($postVars) > 0) {
 
-    public function setPost() {
-        $this->post = new InputCollection();
+			foreach ($postVars as $key => $post) {
+				if (is_array($post) === false) {
+					$this->post->{strtolower($key)} = new InputItem($key, $post);
+					continue;
+				}
 
-        $postVars = $_POST;
+				$output = new InputCollection();
 
-        if(in_array($this->request->getMethod(), ['put', 'patch', 'delete'])) {
-            parse_str(file_get_contents('php://input'), $postVars);
-        }
+				foreach ($post as $k => $p) {
+					$output->{$k} = new InputItem($k, $p);
+				}
 
-        if(count($postVars)) {
+				$this->post->{strtolower($key)} = $output;
+			}
+		}
+	}
 
-            foreach($postVars as $key => $post) {
-                if(!is_array($post)) {
-                    $this->post->{strtolower($key)} = new InputItem($key, $post);
-                    continue;
-                }
+	public function setFile()
+	{
+		$this->file = new InputCollection();
 
-                $output = new InputCollection();
+		if (count($_FILES) > 0) {
+			foreach ($_FILES as $key => $values) {
 
-                foreach($post as $k => $p) {
-                    $output->{$k} = new InputItem($k, $p);
-                }
+				// Handle array input
+				if (is_array($values['name']) === false && trim($values['error']) !== '4') {
+					$values['index'] = $key;
+					$this->file->{strtolower($key)} = InputFile::createFromArray($values);
+					continue;
+				}
 
-                $this->post->{strtolower($key)} = $output;
-            }
-        }
-    }
+				$output = new InputCollection();
 
-    public function setFile() {
-        $this->file = new InputCollection();
+				foreach ($values['name'] as $k => $val) {
+					if (trim($val['error'][$k]) !== '4') {
+						$output->{$k} = InputFile::createFromArray([
+							'index' => $k,
+							'error' => $val['error'][$k],
+							'tmp_name' => $val['tmp_name'][$k],
+							'type' => $val['type'][$k],
+							'size' => $val['size'][$k],
+							'name' => $val['name'][$k]
+						]);
+					}
+				}
 
-        if(count($_FILES)) {
-            foreach($_FILES as $key => $value) {
-                // Multiple files
-                if(!is_array($value['name'])) {
-                    // Strip empty values
-                    if($value['error'] != '4') {
-                        $file = new InputFile($key);
-                        $file->setName($value['name']);
-                        $file->setSize($value['size']);
-                        $file->setType($value['type']);
-                        $file->setTmpName($value['tmp_name']);
-                        $file->setError($value['error']);
-                        $this->file->{strtolower($key)} = $file;
-                    }
-                    continue;
-                }
-
-                $output = new InputCollection();
-
-                foreach($value['name'] as $k=>$val) {
-                    // Strip empty values
-                    if($value['error'][$k] != '4') {
-                        $file = new InputFile($k);
-                        $file->setName($value['name'][$k]);
-                        $file->setSize($value['size'][$k]);
-                        $file->setType($value['type'][$k]);
-                        $file->setTmpName($value['tmp_name'][$k]);
-                        $file->setError($value['error'][$k]);
-                        $output->{$k} = $file;
-                    }
-                }
-
-                $this->file->{strtolower($key)} = $output;
-            }
-        }
-    }
+				$this->file->{strtolower($key)} = $output;
+			}
+		}
+	}
 
 }

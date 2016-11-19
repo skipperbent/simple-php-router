@@ -1,4 +1,6 @@
 <?php
 namespace Pecee\Exception;
 
-class TokenMismatchException extends \Exception {}
+class TokenMismatchException extends \Exception
+{
+}

@@ -4,135 +4,137 @@ require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
 require_once 'Dummy/Handler/ExceptionHandler.php';
 
-class RouterRouteTest extends PHPUnit_Framework_TestCase  {
+use Pecee\SimpleRouter\SimpleRouter as SimpleRouter;
 
-    protected $result = false;
+class RouterRouteTest extends PHPUnit_Framework_TestCase
+{
+	protected $result = false;
 
-    public function testNotFound() {
-        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
-        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('get');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/test-param1-param2');
+	public function testNotFound()
+	{
+		SimpleRouter::router()->reset();
+		SimpleRouter::request()->setMethod('get');
+		SimpleRouter::request()->setUri('/test-param1-param2');
 
-        \Pecee\SimpleRouter\SimpleRouter::group(['exceptionHandler' => 'ExceptionHandler'], function() {
-            \Pecee\SimpleRouter\SimpleRouter::get('/non-existing-path', 'DummyController@start');
-        });
+		SimpleRouter::group(['exceptionHandler' => 'ExceptionHandler'], function () {
+			SimpleRouter::get('/non-existing-path', 'DummyController@start');
+		});
 
-        $found = false;
+		$found = false;
 
-        try {
-            \Pecee\SimpleRouter\SimpleRouter::start();
-        }catch(\Exception $e) {
-            $found = ($e instanceof \Pecee\Exception\RouterException && $e->getCode() == 404);
-        }
+		try {
+			SimpleRouter::start();
+		} catch (\Exception $e) {
+			$found = ($e instanceof \Pecee\Exception\RouterException && $e->getCode() == 404);
+		}
 
-        $this->assertTrue($found);
+		$this->assertTrue($found);
+	}
 
-    }
+	public function testGet()
+	{
+		SimpleRouter::router()->reset();
+		SimpleRouter::request()->setUri('/my/test/url');
+		SimpleRouter::request()->setMethod('get');
 
-    public function testGet() {
-        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
-        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/my/test/url');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('get');
+		SimpleRouter::get('/my/test/url', 'DummyController@start');
+		SimpleRouter::start();
+	}
 
-        \Pecee\SimpleRouter\SimpleRouter::get('/my/test/url', 'DummyController@start');
-        \Pecee\SimpleRouter\SimpleRouter::start();
-    }
+	public function testPost()
+	{
+		SimpleRouter::router()->reset();
+		SimpleRouter::request()->setUri('/my/test/url');
+		SimpleRouter::request()->setMethod('post');
 
-    public function testPost() {
-        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
-        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/my/test/url');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('post');
+		SimpleRouter::post('/my/test/url', 'DummyController@start');
+		SimpleRouter::start();
+	}
 
-        \Pecee\SimpleRouter\SimpleRouter::post('/my/test/url', 'DummyController@start');
-        \Pecee\SimpleRouter\SimpleRouter::start();
-    }
+	public function testPut()
+	{
+		SimpleRouter::router()->reset();
+		SimpleRouter::request()->setUri('/my/test/url');
+		SimpleRouter::request()->setMethod('put');
 
-    public function testPut() {
-        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
-        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/my/test/url');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('put');
+		SimpleRouter::put('/my/test/url', 'DummyController@start');
+		SimpleRouter::start();
+	}
 
-        \Pecee\SimpleRouter\SimpleRouter::put('/my/test/url', 'DummyController@start');
-        \Pecee\SimpleRouter\SimpleRouter::start();
-    }
+	public function testDelete()
+	{
+		SimpleRouter::router()->reset();
+		SimpleRouter::request()->setUri('/my/test/url');
+		SimpleRouter::request()->setMethod('delete');
 
-    public function testDelete() {
-        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
-        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/my/test/url');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('delete');
+		SimpleRouter::delete('/my/test/url', 'DummyController@start');
+		SimpleRouter::start();
+	}
 
-        \Pecee\SimpleRouter\SimpleRouter::delete('/my/test/url', 'DummyController@start');
-        \Pecee\SimpleRouter\SimpleRouter::start();
+	public function testMethodNotAllowed()
+	{
+		SimpleRouter::router()->reset();
+		SimpleRouter::request()->setUri('/my/test/url');
+		SimpleRouter::request()->setMethod('post');
 
-    }
+		SimpleRouter::get('/my/test/url', 'DummyController@start');
 
-    public function testMethodNotAllowed() {
-        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
-        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/my/test/url');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('post');
+		try {
+			SimpleRouter::start();
+		} catch (\Exception $e) {
+			$this->assertEquals(403, $e->getCode());
+		}
+	}
 
-        \Pecee\SimpleRouter\SimpleRouter::get('/my/test/url', 'DummyController@start');
+	public function testSimpleParam()
+	{
+		SimpleRouter::router()->reset();
+		SimpleRouter::request()->setMethod('get');
+		SimpleRouter::request()->setUri('/test-param1');
 
-        try {
-            \Pecee\SimpleRouter\SimpleRouter::start();
-        } catch(\Exception $e) {
-            $this->assertEquals(403, $e->getCode());
-        }
+		SimpleRouter::get('/test-{param1}', 'DummyController@param');
+		SimpleRouter::start();
+	}
 
-    }
+	public function testMultiParam()
+	{
+		SimpleRouter::router()->reset();
+		SimpleRouter::request()->setMethod('get');
+		SimpleRouter::request()->setUri('/test-param1-param2');
 
-    public function testSimpleParam() {
+		SimpleRouter::get('/test-{param1}-{param2}', 'DummyController@param');
+		SimpleRouter::start();
+	}
 
-        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
-        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('get');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/test-param1');
+	public function testPathParamRegex()
+	{
+		SimpleRouter::router()->reset();
+		SimpleRouter::request()->setMethod('get');
+		SimpleRouter::request()->setUri('/test/path/123123');
 
-        \Pecee\SimpleRouter\SimpleRouter::get('/test-{param1}', 'DummyController@param');
-        \Pecee\SimpleRouter\SimpleRouter::start();
+		SimpleRouter::get('/test/path/{myParam}', 'DummyController@param', ['where' => ['myParam' => '([0-9]+)']]);
+		SimpleRouter::start();
+	}
 
-    }
+	public function testDomainRoute()
+	{
+		SimpleRouter::router()->reset();
+		SimpleRouter::request()->setMethod('get');
+		SimpleRouter::request()->setUri('/test');
+		SimpleRouter::request()->setHost('hello.world.com');
 
-    public function testMultiParam() {
+		$this->result = false;
 
-        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
-        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('get');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/test-param1-param2');
+		SimpleRouter::group(['domain' => '{subdomain}.world.com'], function () {
+			SimpleRouter::get('test', function ($subdomain = null) {
+				$this->result = ($subdomain === 'hello');
+			});
+		});
 
-        \Pecee\SimpleRouter\SimpleRouter::get('/test-{param1}-{param2}', 'DummyController@param');
-        \Pecee\SimpleRouter\SimpleRouter::start();
+		SimpleRouter::start();
 
-    }
+		$this->assertTrue($this->result);
 
-    public function testPathParamRegex() {
-
-        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
-        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('get');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/test/path/123123');
-
-        \Pecee\SimpleRouter\SimpleRouter::get('/test/path/{myParam}', 'DummyController@param', ['where' => ['myParam' => '([0-9]+)']]);
-        \Pecee\SimpleRouter\SimpleRouter::start();
-
-    }
-
-    public function testDomainRoute() {
-
-        \Pecee\SimpleRouter\RouterBase::getInstance()->reset();
-        \Pecee\SimpleRouter\SimpleRouter::request()->setMethod('get');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setUri('/test');
-        \Pecee\SimpleRouter\SimpleRouter::request()->setHost('hello.world.com');
-
-        $this->result = false;
-
-        \Pecee\SimpleRouter\SimpleRouter::group(['domain' => '{subdomain}.world.com'], function() {
-            \Pecee\SimpleRouter\SimpleRouter::get('test', function($subdomain = null) {
-                $this->result = ($subdomain === 'hello');
-            });
-        });
-
-        \Pecee\SimpleRouter\SimpleRouter::start();
-
-        $this->assertTrue($this->result);
-
-    }
+	}
 
 }

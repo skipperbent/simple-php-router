@@ -1,29 +1,26 @@
 <?php
-
 /**
  * Custom router which handles default middlewares, default exceptions and things
  * that should be happen before and after the router is initialised.
  */
-
 namespace Demo;
 
 use Pecee\SimpleRouter\SimpleRouter;
 
-class Router extends SimpleRouter {
+class Router extends SimpleRouter
+{
+	public static function start($defaultNamespace = null)
+	{
+		// Load our helpers
+		require_once 'helpers.php';
 
-    public static function start($defaultNamespace = null) {
+		// Load our custom routes
+		require_once 'routes.php';
 
-        // Load our helpers
-        require_once 'helpers.php';
+		parent::setDefaultNamespace('\Demo');
 
-        // Load our custom routes
-        require_once 'routes.php';
-
-        parent::setDefaultNamespace('\Demo\Controllers');
-
-        // Do initial stuff
-        parent::start();
-
-    }
+		// Do initial stuff
+		parent::start();
+	}
 
 }

@@ -1,9 +1,9 @@
 <?php
 namespace Pecee\SimpleRouter;
 
-interface ILoadableRoute {
+interface ILoadableRoute
+{
+	public function getUrl();
 
-    public function getUrl();
-    public function setUrl($url);
-
+	public function setUrl($url);
 }
