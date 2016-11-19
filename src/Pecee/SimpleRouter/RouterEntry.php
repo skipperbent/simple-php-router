@@ -27,6 +27,7 @@ abstract class RouterEntry
 	protected $callback;
 
 	protected $namespace;
+	protected $defaultNamespace;
 	protected $regex;
 	protected $requestMethods = array();
 	protected $where = array();
@@ -293,12 +294,25 @@ abstract class RouterEntry
 
 	/**
 	 * @param string $namespace
-	 * @return static
+	 * @return static $this
 	 */
 	public function setNamespace($namespace)
 	{
 		$this->namespace = $namespace;
 		return $this;
+	}
+
+	/**
+	 * @param string $namespace
+	 * @return static $this
+	 */
+	public function setDefaultNamespace($namespace) {
+		$this->defaultNamespace = $namespace;
+		return $this;
+	}
+
+	public function getDefaultNamespace() {
+		return $this->defaultNamespace;
 	}
 
 	/**
@@ -314,7 +328,7 @@ abstract class RouterEntry
 	 */
 	public function getNamespace()
 	{
-		return $this->namespace;
+		return ($this->namespace === null) ? $this->defaultNamespace : $this->namespace;
 	}
 
 	/**
@@ -376,9 +390,9 @@ abstract class RouterEntry
 			$values['middleware'] = $this->middlewares;
 		}
 
-		/*if (count($this->where) > 0) {
+		if (count($this->where) > 0) {
 			$values['where'] = $this->where;
-		}*/
+		}
 
 		if (count($this->requestMethods) > 0) {
 			$values['method'] = $this->requestMethods;
