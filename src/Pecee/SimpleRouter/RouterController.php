@@ -34,7 +34,7 @@ class RouterController extends LoadableRoute implements IControllerRoute
 				throw new NotFoundHttpException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
 			}
 
-			call_user_func_array(array($class, $method), $this->getParameters());
+			call_user_func_array([$class, $method], $this->getParameters());
 
 			return $class;
 		}
@@ -86,6 +86,7 @@ class RouterController extends LoadableRoute implements IControllerRoute
 	public function setController($controller)
 	{
 		$this->controller = $controller;
+
 		return $this;
 	}
 
@@ -104,6 +105,7 @@ class RouterController extends LoadableRoute implements IControllerRoute
 	public function setMethod($method)
 	{
 		$this->method = $method;
+
 		return $this;
 	}
 

@@ -197,6 +197,7 @@ abstract class RouterEntry
 	public function setRequestMethods(array $methods)
 	{
 		$this->requestMethods = $methods;
+
 		return $this;
 	}
 
@@ -246,6 +247,7 @@ abstract class RouterEntry
 	public function setParent(RouterEntry $parent)
 	{
 		$this->parent = $parent;
+
 		return $this;
 	}
 
@@ -256,6 +258,7 @@ abstract class RouterEntry
 	public function setCallback($callback)
 	{
 		$this->callback = $callback;
+
 		return $this;
 	}
 
@@ -292,12 +295,14 @@ abstract class RouterEntry
 	public function setMethod($method)
 	{
 		$this->callback = sprintf('%s@%s', $this->getClass(), $method);
+
 		return $this;
 	}
 
 	public function setClass($class)
 	{
 		$this->callback = sprintf('%s@%s', $class, $this->getMethod());
+
 		return $this;
 	}
 
@@ -308,12 +313,14 @@ abstract class RouterEntry
 	public function setMiddleware($middleware)
 	{
 		$this->middlewares[] = $middleware;
+
 		return $this;
 	}
 
 	public function setMiddlewares(array $middlewares)
 	{
 		$this->middlewares = $middlewares;
+
 		return $this;
 	}
 
@@ -324,6 +331,7 @@ abstract class RouterEntry
 	public function setNamespace($namespace)
 	{
 		$this->namespace = $namespace;
+
 		return $this;
 	}
 
@@ -334,6 +342,7 @@ abstract class RouterEntry
 	public function setDefaultNamespace($namespace)
 	{
 		$this->defaultNamespace = $namespace;
+
 		return $this;
 	}
 
@@ -373,6 +382,7 @@ abstract class RouterEntry
 	public function setParameters($parameters)
 	{
 		$this->parameters = $parameters;
+
 		return $this;
 	}
 
@@ -385,6 +395,7 @@ abstract class RouterEntry
 	public function setWhere(array $options)
 	{
 		$this->where = $options;
+
 		return $this;
 	}
 
@@ -397,6 +408,7 @@ abstract class RouterEntry
 	public function setMatch($regex)
 	{
 		$this->regex = $regex;
+
 		return $this;
 	}
 

@@ -162,7 +162,7 @@ class RouterBase
 				}
 			}
 
-			if($group !== null) {
+			if ($group !== null) {
 
 				/* Add the parent group */
 				$route->setGroup($group);
@@ -437,7 +437,7 @@ class RouterBase
 			throw new \InvalidArgumentException('Invalid type for getParams. Must be array or null');
 		}
 
-		if($getParams === null) {
+		if ($getParams === null) {
 			$getParams = $_GET;
 		}
 
@@ -481,6 +481,7 @@ class RouterBase
 		}
 
 		/* No result so we assume that someone is using a hardcoded url and join everything together. */
+
 		return '/' . trim(join('/', array_merge((array)$name, (array)$parameters)), '/') . '/' . $this->arrayToParams($getParams);
 	}
 

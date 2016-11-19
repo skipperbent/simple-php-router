@@ -8,7 +8,7 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute
 	const PARAMETER_OPTIONAL_SYMBOL = '?';
 
 	protected $url;
-	protected $names = array();
+	protected $names = [];
 
 	public function getUrl()
 	{
@@ -60,7 +60,8 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute
 	 * Get route names
 	 * @return array
 	 */
-	public function getNames() {
+	public function getNames()
+	{
 		return $this->names;
 	}
 
@@ -109,6 +110,7 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute
 	public function setName($name)
 	{
 		array_push($this->names, $name);
+
 		return $this;
 	}
 
@@ -118,8 +120,10 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute
 	 * @param array $names
 	 * @return static $this
 	 */
-	public function setNames(array $names) {
+	public function setNames(array $names)
+	{
 		$this->names = $names;
+
 		return $this;
 	}
 
