@@ -298,7 +298,7 @@ class SimpleRouter
 	 * @param array|null $getParams
 	 * @return string
 	 */
-	public static function getRoute($name = null, $parameters = null, array $getParams = [])
+	public static function getRoute($name = null, $parameters = null, array $getParams = null)
 	{
 		return static::getUrl($name, $parameters, $getParams);
 	}
@@ -320,7 +320,7 @@ class SimpleRouter
 	 * @param array|null $getParams
 	 * @return string
 	 */
-	public static function getUrl($name = null, $parameters = null, array $getParams = [])
+	public static function getUrl($name = null, $parameters = null, array $getParams = null)
 	{
 		return static::router()->getUrl($name, $parameters, $getParams);
 	}
