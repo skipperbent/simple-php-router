@@ -137,6 +137,7 @@ class RouterBase
 	protected function processRoutes(array $routes, array $settings = array(), array $prefixes = array(), RouterEntry $parent = null) {
 
 		$mergedSettings = [];
+		$mergedPrefixes = [];
 
 		// Loop through each route-request
 		/* @var $route RouterEntry */
@@ -146,6 +147,7 @@ class RouterBase
 
 			if ($parent !== null) {
 				$route->setParent($parent);
+				$mergedPrefixes = [];
 			}
 
 			if ($route instanceof ILoadableRoute) {
@@ -159,7 +161,7 @@ class RouterBase
 			} elseif ($route instanceof RouterGroup) {
 
 				if ($route->getPrefix() !== null && trim($route->getPrefix(), '/') !== '') {
-					$prefixes[] = trim($route->getPrefix(), '/');
+					$mergedPrefixes[] = trim($route->getPrefix(), '/');
 				}
 
 				if ($route->getCallback() !== null && is_callable($route->getCallback())) {
@@ -186,7 +188,7 @@ class RouterBase
 				$this->backStack = array();
 
 				// Route any routes added to the backstack
-				$this->processRoutes($backStack, $mergedSettings, $prefixes, $route);
+				$this->processRoutes($backStack, $mergedSettings, $mergedPrefixes, $route);
 			}
 		}
 	}
