@@ -10,7 +10,7 @@ class InputCollection implements \IteratorAggregate
 	 *
 	 * @param string $index
 	 * @param string|null $default
-	 * @return InputItem
+	 * @return InputItem|mixed
 	 */
 	public function findFirst($index, $default = null)
 	{

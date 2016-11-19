@@ -201,12 +201,11 @@ class SimpleRouter
 	{
 		$route = new RouterRoute($url, $callback);
 		$route->setRequestMethods($requestMethods);
+		$route = static::addDefaultNamespace($route);
 
 		if ($settings !== null) {
 			$route->setData($settings);
 		}
-
-		$route = static::addDefaultNamespace($route);
 
 		static::router()->addRoute($route);
 
@@ -225,11 +224,11 @@ class SimpleRouter
 	{
 		$route = new RouterRoute($url, $callback);
 
+		$route = static::addDefaultNamespace($route);
+
 		if ($settings !== null) {
 			$route->setData($settings);
 		}
-
-		$route = static::addDefaultNamespace($route);
 
 		static::router()->addRoute($route);
 
@@ -248,11 +247,11 @@ class SimpleRouter
 	{
 		$route = new RouterController($url, $controller);
 
+		$route = static::addDefaultNamespace($route);
+
 		if ($settings !== null) {
 			$route->setData($settings);
 		}
-
-		$route = static::addDefaultNamespace($route);
 
 		static::router()->addRoute($route);
 

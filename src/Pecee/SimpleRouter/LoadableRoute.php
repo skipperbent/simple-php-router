@@ -3,7 +3,9 @@ namespace Pecee\SimpleRouter;
 
 abstract class LoadableRoute extends RouterEntry implements ILoadableRoute
 {
-	const PARAMETERS_REGEX_MATCH = '{([A-Za-z\-\_]*?)\?{0,1}}';
+	const PARAMETERS_REGEX_MATCH = '%s([\w\-\_]*?)\%s{0,1}%s';
+	const PARAMETER_MODIFIERS = '{}';
+	const PARAMETER_OPTIONAL_SYMBOL = '?';
 
 	protected $url;
 	protected $alias;
@@ -22,12 +24,11 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute
 	public function setUrl($url)
 	{
 		$this->url = ($url === '/') ? '/' : '/' . trim($url, '/') . '/';
+		$regex = sprintf(static::PARAMETERS_REGEX_MATCH, static::PARAMETER_MODIFIERS[0], static::PARAMETER_OPTIONAL_SYMBOL, static::PARAMETER_MODIFIERS[1]);
 
-		if (preg_match_all('/' . static::PARAMETERS_REGEX_MATCH . '/is', $this->url, $matches)) {
-			if (count($matches[1]) > 0) {
-				foreach ($matches[1] as $key) {
-					$this->parameters[$key] = null;
-				}
+		if (preg_match_all('/' . $regex . '/is', $this->url, $matches)) {
+			foreach ($matches[1] as $key) {
+				$this->parameters[$key] = null;
 			}
 		}
 

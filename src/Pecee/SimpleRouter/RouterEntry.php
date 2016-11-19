@@ -376,9 +376,9 @@ abstract class RouterEntry
 			$output['middleware'] = $this->middlewares;
 		}
 
-		if (count($this->where) > 0) {
-			//$output['where'] = $this->where;
-		}
+		/*if (count($this->where) > 0) {
+			$output['where'] = $this->where;
+		}*/
 
 		if (count($this->requestMethods) > 0) {
 			$output['method'] = $this->requestMethods;
@@ -399,7 +399,7 @@ abstract class RouterEntry
 	 */
 	public function setData(array $settings)
 	{
-		if (isset($settings['namespace']) && $this->namespace === null) {
+		if (isset($settings['namespace'])) {
 			$this->setNamespace($settings['namespace']);
 		}
 

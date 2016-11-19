@@ -10,10 +10,10 @@ use Pecee\Http\Response;
 class RouterBase
 {
 
+	/**
+	 * @var static
+	 */
 	protected static $instance;
-
-	protected $parameterModifiers = '{}';
-	protected $parameterOptionalSymbol = '?';
 
 	/**
 	 * Current request
@@ -341,8 +341,8 @@ class RouterBase
 			foreach ($params as $param => $value) {
 				$value = (isset($parameters[$param])) ? $parameters[$param] : $value;
 
-				$param1 = $this->parameterModifiers[0] . $param . $this->parameterModifiers[1];
-				$param2 = $this->parameterModifiers[0] . $param . $this->parameterOptionalSymbol . $this->parameterModifiers[1];
+				$param1 = LoadableRoute::PARAMETER_MODIFIERS[0] . $param . LoadableRoute::PARAMETER_MODIFIERS[1];
+				$param2 = LoadableRoute::PARAMETER_MODIFIERS[0] . $param . LoadableRoute::PARAMETER_OPTIONAL_SYMBOL . LoadableRoute::PARAMETER_MODIFIERS[1];
 
 				if (stripos($url, $param1) !== false || stripos($url, $param) !== false) {
 					$url = str_ireplace([$param1, $param2], $value, $url);
