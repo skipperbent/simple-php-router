@@ -6,8 +6,8 @@ use Pecee\Http\Request;
 class RouterGroup extends RouterEntry
 {
 	protected $prefix;
-	protected $domains = array();
-	protected $exceptionHandlers = array();
+	protected $domains = [];
+	protected $exceptionHandlers = [];
 
 	public function matchDomain(Request $request)
 	{
@@ -18,6 +18,7 @@ class RouterGroup extends RouterEntry
 
 				if ($parameters !== null) {
 					$this->parameters = $parameters;
+
 					return true;
 				}
 			}
@@ -41,6 +42,7 @@ class RouterGroup extends RouterEntry
 	public function setExceptionHandlers(array $handlers)
 	{
 		$this->exceptionHandlers = $handlers;
+
 		return $this;
 	}
 
@@ -57,6 +59,7 @@ class RouterGroup extends RouterEntry
 	public function setDomains(array $domains)
 	{
 		$this->domains = $domains;
+
 		return $this;
 	}
 
@@ -67,6 +70,7 @@ class RouterGroup extends RouterEntry
 	public function setPrefix($prefix)
 	{
 		$this->prefix = '/' . trim($prefix, '/');
+
 		return $this;
 	}
 
@@ -87,7 +91,7 @@ class RouterGroup extends RouterEntry
 	public function merge(array $values)
 	{
 		if (isset($values['prefix'])) {
-			$this->setPrefix($values['prefix']);
+			$this->setPrefix($values['prefix'] . $this->prefix);
 		}
 
 		if (isset($values['exceptionHandler'])) {
@@ -101,6 +105,22 @@ class RouterGroup extends RouterEntry
 		parent::merge($values);
 
 		return $this;
+	}
+
+	/**
+	 * Export route settings to array so they can be merged with another route.
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+		$values = [];
+
+		if ($this->prefix !== null) {
+			$values['prefix'] = $this->getPrefix();
+		}
+
+		return array_merge($values, parent::toArray());
 	}
 
 }

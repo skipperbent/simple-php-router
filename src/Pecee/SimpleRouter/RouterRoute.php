@@ -18,11 +18,13 @@ class RouterRoute extends LoadableRoute
 
 		// Match on custom defined regular expression
 		if ($this->regex !== null) {
-			$parameters = array();
+			$parameters = [];
 			if (preg_match('/(' . $this->regex . ')/is', $request->getHost() . $url, $parameters)) {
 				$this->parameters = (array)$parameters[0];
+
 				return true;
 			}
+
 			return null;
 		}
 
@@ -33,6 +35,7 @@ class RouterRoute extends LoadableRoute
 
 		if ($parameters !== null) {
 			$this->parameters = array_merge($this->parameters, $parameters);
+
 			return true;
 		}
 
