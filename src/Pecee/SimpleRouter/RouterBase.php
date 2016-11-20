@@ -4,7 +4,6 @@ namespace Pecee\SimpleRouter;
 use Pecee\Handlers\IExceptionHandler;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
-use Pecee\Http\Response;
 use Pecee\SimpleRouter\Exceptions\HttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
@@ -12,6 +11,7 @@ class RouterBase
 {
 
 	/**
+	 * The instance of this class
 	 * @var static
 	 */
 	protected static $instance;
@@ -23,14 +23,7 @@ class RouterBase
 	protected $request;
 
 	/**
-	 * Response
-	 * @var Response
-	 */
-	protected $response;
-
-	/**
-	 * Used to keep track of whether or not a should should be added to
-	 * the backstack-list for group-processing or not.
+	 * Defines if a route is currently being processed.
 	 * @var bool
 	 */
 	protected $processingRoute;
@@ -42,16 +35,17 @@ class RouterBase
 	protected $routes;
 
 	/**
-	 * List of
+	 * List of processed routes
 	 * @var array
 	 */
-	protected $controllerUrlMap;
+	protected $processedRoutes;
 
 	/**
-	 * Backstack array used to keep track of sub-routes
+	 * Stack of routes used to keep track of sub-routes added
+	 * when a route is being processed.
 	 * @var array
 	 */
-	protected $backStack;
+	protected $routeStack;
 
 	/**
 	 * List of added bootmanagers
@@ -111,23 +105,27 @@ class RouterBase
 	{
 		$this->processingRoute = false;
 		$this->request = new Request();
-		$this->response = new Response($this->request);
 		$this->routes = [];
 		$this->bootManagers = [];
-		$this->backStack = [];
-		$this->controllerUrlMap = [];
+		$this->routeStack = [];
+		$this->processedRoutes = [];
 		$this->exceptionHandlers = [];
 	}
 
 	/**
 	 * Add route
-	 * @param RouterEntry $route
-	 * @return RouterEntry
+	 * @param IRoute $route
+	 * @return IRoute
 	 */
-	public function addRoute(RouterEntry $route)
+	public function addRoute(IRoute $route)
 	{
-		if ($this->processingRoute) {
-			$this->backStack[] = $route;
+		/*
+		 * If a route is currently being processed, that means that the
+		 * route being added are rendered from the parent routes callback,
+		 * so we add them to the stack instead.
+		 */
+		if ($this->processingRoute === true) {
+			$this->routeStack[] = $route;
 		} else {
 			$this->routes[] = $route;
 		}
@@ -135,10 +133,10 @@ class RouterBase
 		return $route;
 	}
 
-	protected function processRoutes(array $routes, RouterGroup $group = null, RouterEntry $parent = null)
+	protected function processRoutes(array $routes, RouterGroup $group = null, IRoute $parent = null)
 	{
 		// Loop through each route-request
-		/* @var $route RouterEntry */
+		/* @var $route IRoute */
 		foreach ($routes as $route) {
 
 			if ($route instanceof RouterGroup) {
@@ -175,24 +173,24 @@ class RouterBase
 				$route->setParent($parent);
 
 				/* Add/merge parent settings with child */
-				$route->merge($parent->toArray());
+				$route->setSettings($parent->toArray());
 
 			}
 
 			if ($route instanceof ILoadableRoute) {
 
 				/* Add the route to the map, so we can find the active one when all routes has been loaded */
-				$this->controllerUrlMap[] = $route;
+				$this->processedRoutes[] = $route;
 			}
 
-			if (count($this->backStack) > 0) {
+			if (count($this->routeStack) > 0) {
 
 				/* Pop and grap the routes added when executing group callback earlier */
-				$backStack = $this->backStack;
-				$this->backStack = [];
+				$stack = $this->routeStack;
+				$this->routeStack = [];
 
-				/* Route any routes added to the backstack */
-				$this->processRoutes($backStack, $route, $group);
+				/* Route any routes added to the stack */
+				$this->processRoutes($stack, $route, $group);
 			}
 		}
 	}
@@ -204,7 +202,7 @@ class RouterBase
 
 		try {
 
-			// Initialize boot-managers
+			/* Initialize boot-managers */
 			if (count($this->bootManagers) > 0) {
 				/* @var $manager RouterBootManager */
 				foreach ($this->bootManagers as $manager) {
@@ -218,7 +216,7 @@ class RouterBase
 
 			if ($rewrite === false) {
 
-				// Loop through each route-request
+				/* Loop through each route-request */
 				$this->processRoutes($this->routes);
 
 				if ($this->csrfVerifier !== null) {
@@ -230,11 +228,13 @@ class RouterBase
 				$this->originalUrl = $this->request->getUri();
 			}
 
-			/* @var $route RouterEntry */
-			foreach ($this->controllerUrlMap as $route) {
+			/* @var $route IRoute */
+			foreach ($this->processedRoutes as $route) {
 
+				/* If the route matches */
 				if ($route->matchRoute($this->request)) {
 
+					/* Check if request method matches */
 					if (count($route->getRequestMethods()) > 0 && !in_array($this->request->getMethod(), $route->getRequestMethods())) {
 						$routeNotAllowed = true;
 						continue;
@@ -243,6 +243,7 @@ class RouterBase
 					$this->loadedRoute = $route;
 					$this->loadedRoute->loadMiddleware($this->request, $this->loadedRoute);
 
+					/* If the request has changed, we reinitialize the router */
 					if ($this->request->getUri() !== $this->originalUrl && !in_array($this->request->getUri(), $this->routeRewrites)) {
 						$this->routeRewrites[] = $this->request->getUri();
 						$this->routeRequest(true);
@@ -250,6 +251,7 @@ class RouterBase
 						return;
 					}
 
+					/* Render route */
 					$routeNotAllowed = false;
 					$this->request->setUri($this->originalUrl);
 					$this->loadedRoute->renderRoute($this->request);
@@ -284,7 +286,9 @@ class RouterBase
 
 			$request = $handler->handleError($this->request, $this->loadedRoute, $e);
 
-			if ($request !== null && $request->getUri() !== $this->originalUrl && !in_array($request->getUri(), $this->routeRewrites)) {
+			/* If the request has changed */
+			if ($request !== null && $this->request->getUri() !== $this->originalUrl && !in_array($request->getUri(), $this->routeRewrites)) {
+				$this->request = $request;
 				$this->routeRewrites[] = $request->getUri();
 				$this->routeRequest(true);
 
@@ -370,7 +374,7 @@ class RouterBase
 	public function findRoute($name)
 	{
 		/* @var $route LoadableRoute */
-		foreach ($this->controllerUrlMap as $route) {
+		foreach ($this->processedRoutes as $route) {
 
 			/* Check if the name matches with a name on the route. Should match either router alias or controller alias. */
 			if ($route->hasName($name)) {
@@ -465,7 +469,7 @@ class RouterBase
 			/* Loop through all the routes to see if we can find a match */
 
 			/* @var $route LoadableRoute */
-			foreach ($this->controllerUrlMap as $route) {
+			foreach ($this->processedRoutes as $route) {
 
 				/* Check if the route contains the name/alias */
 				if ($route->hasName($controller)) {
@@ -528,15 +532,6 @@ class RouterBase
 	public function getRequest()
 	{
 		return $this->request;
-	}
-
-	/**
-	 * Get response
-	 * @return Response
-	 */
-	public function getResponse()
-	{
-		return $this->response;
 	}
 
 	/**

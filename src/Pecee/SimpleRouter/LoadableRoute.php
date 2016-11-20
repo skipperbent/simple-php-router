@@ -133,7 +133,7 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute
 	 * @param array $values
 	 * @return static
 	 */
-	public function merge(array $values)
+	public function setSettings(array $values)
 	{
 		if (isset($values['as'])) {
 			$this->setNames((array)$values['as']);
@@ -143,7 +143,7 @@ abstract class LoadableRoute extends RouterEntry implements ILoadableRoute
 			$this->setUrl($values['prefix'] . $this->getUrl());
 		}
 
-		parent::merge($values);
+		parent::setSettings($values);
 
 		return $this;
 	}

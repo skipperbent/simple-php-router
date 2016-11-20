@@ -88,7 +88,7 @@ class RouterGroup extends RouterEntry
 	 * @param array $values
 	 * @return static
 	 */
-	public function merge(array $values)
+	public function setSettings(array $values)
 	{
 		if (isset($values['prefix'])) {
 			$this->setPrefix($values['prefix'] . $this->prefix);
@@ -102,7 +102,7 @@ class RouterGroup extends RouterEntry
 			$this->setDomains((array)$values['domain']);
 		}
 
-		parent::merge($values);
+		parent::setSettings($values);
 
 		return $this;
 	}

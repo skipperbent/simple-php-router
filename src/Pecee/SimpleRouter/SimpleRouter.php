@@ -8,12 +8,23 @@
 namespace Pecee\SimpleRouter;
 
 use Pecee\Http\Middleware\BaseCsrfVerifier;
+use Pecee\Http\Response;
 use Pecee\SimpleRouter\Exceptions\HttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 class SimpleRouter
 {
+	/**
+	 * Default namespace added to all routes
+	 * @var string
+	 */
 	protected static $defaultNamespace;
+
+	/**
+	 * The response object
+	 * @var Response
+	 */
+	protected static $response;
 
 	/**
 	 * Start/route request
@@ -147,7 +158,7 @@ class SimpleRouter
 	{
 		$group = new RouterGroup();
 		$group->setCallback($callback);
-		$group->merge($settings);
+		$group->setSettings($settings);
 
 		if (is_callable($callback) === false) {
 			throw new \InvalidArgumentException('Invalid callback provided. Only functions or methods supported');
@@ -194,7 +205,7 @@ class SimpleRouter
 	 * @param string $url
 	 * @param string|\Closure $callback
 	 * @param array|null $settings
-	 * @return RouterEntry|RouterRoute
+	 * @return RouterRoute
 	 */
 	public static function match(array $requestMethods, $url, $callback, array $settings = null)
 	{
@@ -203,7 +214,7 @@ class SimpleRouter
 		$route = static::addDefaultNamespace($route);
 
 		if ($settings !== null) {
-			$route->merge($settings);
+			$route->setSettings($settings);
 		}
 
 		static::router()->addRoute($route);
@@ -222,11 +233,10 @@ class SimpleRouter
 	public static function all($url, $callback, array $settings = null)
 	{
 		$route = new RouterRoute($url, $callback);
-
 		$route = static::addDefaultNamespace($route);
 
 		if ($settings !== null) {
-			$route->merge($settings);
+			$route->setSettings($settings);
 		}
 
 		static::router()->addRoute($route);
@@ -245,11 +255,10 @@ class SimpleRouter
 	public static function controller($url, $controller, array $settings = null)
 	{
 		$route = new RouterController($url, $controller);
-
 		$route = static::addDefaultNamespace($route);
 
 		if ($settings !== null) {
-			$route->merge($settings);
+			$route->setSettings($settings);
 		}
 
 		static::router()->addRoute($route);
@@ -270,7 +279,7 @@ class SimpleRouter
 		$route = new RouterResource($url, $controller);
 
 		if ($settings !== null) {
-			$route->merge($settings);
+			$route->setSettings($settings);
 		}
 
 		static::router()->addRoute($route);
@@ -338,11 +347,15 @@ class SimpleRouter
 	/**
 	 * Get the response object
 	 *
-	 * @return \Pecee\Http\Response
+	 * @return Response
 	 */
 	public static function response()
 	{
-		return static::router()->getResponse();
+		if(static::$response === null) {
+			static::$response = new Response(static::request());
+		}
+
+		return static::$response;
 	}
 
 	/**
@@ -358,10 +371,10 @@ class SimpleRouter
 	/**
 	 * Prepends the default namespace to all new routes added.
 	 *
-	 * @param RouterEntry $route
-	 * @return RouterEntry
+	 * @param IRoute $route
+	 * @return IRoute
 	 */
-	protected static function addDefaultNamespace(RouterEntry $route)
+	protected static function addDefaultNamespace(IRoute $route)
 	{
 		if (static::$defaultNamespace !== null) {
 			$namespace = static::$defaultNamespace;

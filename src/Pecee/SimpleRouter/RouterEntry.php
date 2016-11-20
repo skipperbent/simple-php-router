@@ -6,7 +6,7 @@ use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\HttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
-abstract class RouterEntry
+abstract class RouterEntry implements IRoute
 {
 	const REQUEST_TYPE_GET = 'get';
 	const REQUEST_TYPE_POST = 'post';
@@ -125,7 +125,7 @@ abstract class RouterEntry
 		return null;
 	}
 
-	public function loadMiddleware(Request $request, RouterEntry &$route)
+	public function loadMiddleware(Request $request, LoadableRoute &$route)
 	{
 		if (count($this->getMiddlewares()) > 0) {
 			foreach ($this->getMiddlewares() as $middleware) {
@@ -241,10 +241,10 @@ abstract class RouterEntry
 	/**
 	 * Set parent route
 	 *
-	 * @param RouterEntry $parent
+	 * @param IRoute $parent
 	 * @return static $this
 	 */
-	public function setParent(RouterEntry $parent)
+	public function setParent(IRoute $parent)
 	{
 		$this->parent = $parent;
 
@@ -450,7 +450,7 @@ abstract class RouterEntry
 	 * @param array $values
 	 * @return static $this
 	 */
-	public function merge(array $values)
+	public function setSettings(array $values)
 	{
 		if (isset($values['namespace']) && $this->namespace === null) {
 			$this->setNamespace($values['namespace']);
@@ -475,7 +475,5 @@ abstract class RouterEntry
 
 		return $this;
 	}
-
-	abstract function matchRoute(Request $request);
 
 }
