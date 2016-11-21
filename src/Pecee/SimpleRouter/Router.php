@@ -384,7 +384,7 @@ class Router
 	 * @param array|null $getParams
 	 * @return string
 	 */
-	public function getUrl($name = null, $parameters = null, array $getParams = null)
+	public function getUrl($name = null, $parameters = null, $getParams = [])
 	{
 		if ($getParams !== null && is_array($getParams) === false) {
 			throw new \InvalidArgumentException('Invalid type for getParams. Must be array or null');
