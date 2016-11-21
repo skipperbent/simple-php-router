@@ -396,7 +396,8 @@ class Router
 
 		/* Return current route if no options has been specified */
 		if ($name === null && $parameters === null) {
-			return '/' . trim(parse_url($this->request->getUri(), PHP_URL_PATH), '/') . $this->arrayToParams($getParams);
+			$url = rtrim(parse_url($this->request->getUri(), PHP_URL_PATH), '/');
+			return (($url === '') ? '/' : $url . '/') . $this->arrayToParams($getParams);
 		}
 
 		/* If nothing is defined and a route is loaded we use that */

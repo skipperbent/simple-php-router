@@ -402,6 +402,11 @@ url('phones.edit');
 # /phones/edit/
 ```
 
+**Return the current url**
+```php
+url();
+```
+
 ## Custom CSRF verifier
 
 Create a new class and extend the ```BaseCsrfVerifier``` middleware class provided with simple-php-router.
