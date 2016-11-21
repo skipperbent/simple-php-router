@@ -3,7 +3,9 @@
  * ---------------------------
  * Router helper class
  * ---------------------------
- * This class is added so calls can be made statically like Router::get() making the code look more pretty.
+ *
+ * This class is added so calls can be made statically like Router::get() making the code look pretty.
+ * It also adds some extra functionality like default-namespace.
  */
 namespace Pecee\SimpleRouter;
 
@@ -11,6 +13,11 @@ use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Response;
 use Pecee\SimpleRouter\Exceptions\HttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
+use Pecee\SimpleRouter\Route\IRoute;
+use Pecee\SimpleRouter\Route\RouteController;
+use Pecee\SimpleRouter\Route\RouteGroup;
+use Pecee\SimpleRouter\Route\RouteResource;
+use Pecee\SimpleRouter\Route\RouteUrl;
 
 class SimpleRouter
 {
@@ -61,9 +68,9 @@ class SimpleRouter
 	 * Boot managers allows you to alter the routes before the routing occurs.
 	 * Perfect if you want to load pretty-urls from a file or database.
 	 *
-	 * @param RouterBootManager $bootManager
+	 * @param IRouterBootManager $bootManager
 	 */
-	public static function addBootManager(RouterBootManager $bootManager)
+	public static function addBootManager(IRouterBootManager $bootManager)
 	{
 		static::router()->addBootManager($bootManager);
 	}
@@ -74,7 +81,7 @@ class SimpleRouter
 	 * @param string $url
 	 * @param string|\Closure $callback
 	 * @param array|null $settings
-	 * @return RouterRoute
+	 * @return RouteUrl
 	 */
 	public static function get($url, $callback, array $settings = null)
 	{
@@ -87,7 +94,7 @@ class SimpleRouter
 	 * @param string $url
 	 * @param string|\Closure $callback
 	 * @param array|null $settings
-	 * @return RouterRoute
+	 * @return RouteUrl
 	 */
 	public static function post($url, $callback, array $settings = null)
 	{
@@ -100,7 +107,7 @@ class SimpleRouter
 	 * @param string $url
 	 * @param string|\Closure $callback
 	 * @param array|null $settings
-	 * @return RouterRoute
+	 * @return RouteUrl
 	 */
 	public static function put($url, $callback, array $settings = null)
 	{
@@ -113,7 +120,7 @@ class SimpleRouter
 	 * @param string $url
 	 * @param string|\Closure $callback
 	 * @param array|null $settings
-	 * @return RouterRoute
+	 * @return RouteUrl
 	 */
 	public static function patch($url, $callback, array $settings = null)
 	{
@@ -126,7 +133,7 @@ class SimpleRouter
 	 * @param string $url
 	 * @param string|\Closure $callback
 	 * @param array|null $settings
-	 * @return RouterRoute
+	 * @return RouteUrl
 	 */
 	public static function options($url, $callback, array $settings = null)
 	{
@@ -139,7 +146,7 @@ class SimpleRouter
 	 * @param string $url
 	 * @param string|\Closure $callback
 	 * @param array|null $settings
-	 * @return RouterRoute
+	 * @return RouteUrl
 	 */
 	public static function delete($url, $callback, array $settings = null)
 	{
@@ -152,11 +159,11 @@ class SimpleRouter
 	 * @param array $settings
 	 * @param \Closure $callback
 	 * @throws \InvalidArgumentException
-	 * @return RouterGroup
+	 * @return RouteGroup
 	 */
 	public static function group(array $settings = [], \Closure $callback)
 	{
-		$group = new RouterGroup();
+		$group = new RouteGroup();
 		$group->setCallback($callback);
 		$group->setSettings($settings);
 
@@ -176,7 +183,7 @@ class SimpleRouter
 	 * @param callable $callback
 	 * @param array|null $settings
 	 * @see SimpleRouter::form
-	 * @return RouterRoute
+	 * @return RouteUrl
 	 */
 	public static function basic($url, $callback, array $settings = null)
 	{
@@ -191,7 +198,7 @@ class SimpleRouter
 	 * @param string|\Closure $callback
 	 * @param array|null $settings
 	 * @see SimpleRouter::form
-	 * @return RouterRoute
+	 * @return RouteUrl
 	 */
 	public static function form($url, $callback, array $settings = null)
 	{
@@ -205,11 +212,11 @@ class SimpleRouter
 	 * @param string $url
 	 * @param string|\Closure $callback
 	 * @param array|null $settings
-	 * @return RouterRoute
+	 * @return RouteUrl
 	 */
 	public static function match(array $requestMethods, $url, $callback, array $settings = null)
 	{
-		$route = new RouterRoute($url, $callback);
+		$route = new RouteUrl($url, $callback);
 		$route->setRequestMethods($requestMethods);
 		$route = static::addDefaultNamespace($route);
 
@@ -228,11 +235,11 @@ class SimpleRouter
 	 * @param string $url
 	 * @param string|\Closure $callback
 	 * @param array|null $settings
-	 * @return RouterRoute
+	 * @return RouteUrl
 	 */
 	public static function all($url, $callback, array $settings = null)
 	{
-		$route = new RouterRoute($url, $callback);
+		$route = new RouteUrl($url, $callback);
 		$route = static::addDefaultNamespace($route);
 
 		if ($settings !== null) {
@@ -250,11 +257,11 @@ class SimpleRouter
 	 * @param string $url
 	 * @param string $controller
 	 * @param array|null $settings
-	 * @return RouterController
+	 * @return RouteController
 	 */
 	public static function controller($url, $controller, array $settings = null)
 	{
-		$route = new RouterController($url, $controller);
+		$route = new RouteController($url, $controller);
 		$route = static::addDefaultNamespace($route);
 
 		if ($settings !== null) {
@@ -272,11 +279,11 @@ class SimpleRouter
 	 * @param string $url
 	 * @param string $controller
 	 * @param array|null $settings
-	 * @return RouterResource
+	 * @return RouteResource
 	 */
 	public static function resource($url, $controller, array $settings = null)
 	{
-		$route = new RouterResource($url, $controller);
+		$route = new RouteResource($url, $controller);
 
 		if ($settings !== null) {
 			$route->setSettings($settings);
@@ -351,7 +358,7 @@ class SimpleRouter
 	 */
 	public static function response()
 	{
-		if(static::$response === null) {
+		if (static::$response === null) {
 			static::$response = new Response(static::request());
 		}
 
@@ -361,11 +368,11 @@ class SimpleRouter
 	/**
 	 * Returns the router instance
 	 *
-	 * @return RouterBase
+	 * @return Router
 	 */
 	public static function router()
 	{
-		return RouterBase::getInstance();
+		return Router::getInstance();
 	}
 
 	/**

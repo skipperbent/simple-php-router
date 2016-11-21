@@ -6,7 +6,7 @@ use Pecee\Http\Request;
 
 class DummyMiddleware implements IMiddleware
 {
-	public function handle(Request $request, \Pecee\SimpleRouter\RouterEntry &$route = null)
+	public function handle(Request $request, \Pecee\SimpleRouter\Route\ILoadableRoute &$route)
 	{
 		throw new MiddlewareLoadedException('Middleware loaded!');
 	}

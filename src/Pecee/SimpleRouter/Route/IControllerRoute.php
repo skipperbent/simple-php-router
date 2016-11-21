@@ -1,7 +1,7 @@
 <?php
-namespace Pecee\SimpleRouter;
+namespace Pecee\SimpleRouter\Route;
 
-interface IControllerRoute
+interface IControllerRoute extends IRoute
 {
 	public function getController();
 

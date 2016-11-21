@@ -6,8 +6,12 @@ use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\HttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
+use Pecee\SimpleRouter\Route\IControllerRoute;
+use Pecee\SimpleRouter\Route\IGroupRoute;
+use Pecee\SimpleRouter\Route\ILoadableRoute;
+use Pecee\SimpleRouter\Route\IRoute;
 
-class RouterBase
+class Router
 {
 
 	/**
@@ -67,7 +71,7 @@ class RouterBase
 
 	/**
 	 * The current loaded route
-	 * @var RouterRoute|null
+	 * @var ILoadableRoute|null
 	 */
 	protected $loadedRoute;
 
@@ -133,13 +137,13 @@ class RouterBase
 		return $route;
 	}
 
-	protected function processRoutes(array $routes, RouterGroup $group = null, IRoute $parent = null)
+	protected function processRoutes(array $routes, IGroupRoute $group = null, IRoute $parent = null)
 	{
 		// Loop through each route-request
 		/* @var $route IRoute */
 		foreach ($routes as $route) {
 
-			if ($route instanceof RouterGroup) {
+			if ($route instanceof IGroupRoute) {
 
 				$group = $route;
 
@@ -173,7 +177,7 @@ class RouterBase
 				$route->setParent($parent);
 
 				/* Add/merge parent settings with child */
-				$route->setSettings($parent->toArray());
+				$route->setSettings($parent->toArray(), true);
 
 			}
 
@@ -204,7 +208,7 @@ class RouterBase
 
 			/* Initialize boot-managers */
 			if (count($this->bootManagers) > 0) {
-				/* @var $manager RouterBootManager */
+				/* @var $manager IRouterBootManager */
 				foreach ($this->bootManagers as $manager) {
 					$this->request = $manager->boot($this->request);
 
@@ -315,65 +319,15 @@ class RouterBase
 		return '';
 	}
 
-	protected function processUrl(LoadableRoute $route, $method = null, $parameters = null, array $getParams = [])
-	{
-		$url = '';
-
-		$parameters = (array)$parameters;
-
-		if ($route->getGroup() !== null && count($route->getGroup()->getDomains()) > 0) {
-			$url .= '//' . $route->getGroup()->getDomains()[0];
-		}
-
-		$url .= '/' . trim($route->getUrl(), '/');
-
-		if ($route instanceof IControllerRoute && $method !== null) {
-
-			$url .= '/' . $method . '/';
-
-			if (count($parameters) > 0) {
-				$url .= join('/', $parameters);
-			}
-
-		} else {
-
-			$params = array_merge($route->getParameters(), $parameters);
-
-			/* Url that contains parameters that aren't recognized */
-			$unknownParams = [];
-
-			/* Let's parse the values of any {} parameter in the url */
-			foreach ($params as $param => $value) {
-				$value = (isset($parameters[$param])) ? $parameters[$param] : $value;
-
-				/* Create the param string - {} */
-				$param1 = LoadableRoute::PARAMETER_MODIFIERS[0] . $param . LoadableRoute::PARAMETER_MODIFIERS[1];
-
-				/* Create the param string with the optional symbol - {?} */
-				$param2 = LoadableRoute::PARAMETER_MODIFIERS[0] . $param . LoadableRoute::PARAMETER_OPTIONAL_SYMBOL . LoadableRoute::PARAMETER_MODIFIERS[1];
-
-				if (stripos($url, $param1) !== false || stripos($url, $param) !== false) {
-					$url = str_ireplace([$param1, $param2], $value, $url);
-				} else {
-					$unknownParams[$param] = $value;
-				}
-			}
-
-			$url = rtrim($url, '/') . '/' . join('/', $unknownParams);
-		}
-
-		return rtrim($url, '/') . '/' . $this->arrayToParams($getParams);
-	}
-
 	/**
 	 * Find route by alias, class, callback or method.
 	 *
 	 * @param string $name
-	 * @return LoadableRoute|null
+	 * @return ILoadableRoute|null
 	 */
 	public function findRoute($name)
 	{
-		/* @var $route LoadableRoute */
+		/* @var $route ILoadableRoute */
 		foreach ($this->processedRoutes as $route) {
 
 			/* Check if the name matches with a name on the route. Should match either router alias or controller alias. */
@@ -452,14 +406,14 @@ class RouterBase
 
 		/* If nothing is defined and a route is loaded we use that */
 		if ($name === null && $this->loadedRoute !== null) {
-			return $this->processUrl($this->loadedRoute, $this->loadedRoute->getMethod(), $parameters, $getParams);
+			return $this->loadedRoute->findUrl($this->loadedRoute->getMethod(), $parameters, $name) . $this->arrayToParams($getParams);
 		}
 
 		/* We try to find a match on the given name */
 		$route = $this->findRoute($name);
 
 		if ($route !== null) {
-			return $this->processUrl($route, $route->getMethod(), $parameters, $getParams);
+			return $route->findUrl($route->getMethod(), $parameters, $name) . $this->arrayToParams($getParams);
 		}
 
 		/* Using @ is most definitely a controller@method or alias@method */
@@ -468,17 +422,17 @@ class RouterBase
 
 			/* Loop through all the routes to see if we can find a match */
 
-			/* @var $route LoadableRoute */
+			/* @var $route ILoadableRoute */
 			foreach ($this->processedRoutes as $route) {
 
 				/* Check if the route contains the name/alias */
 				if ($route->hasName($controller)) {
-					return $this->processUrl($route, $method, $parameters, $getParams);
+					return $route->findUrl($method, $parameters, $name) . $this->arrayToParams($getParams);
 				}
 
 				/* Check if the route controller is equal to the name */
 				if ($route instanceof IControllerRoute && strtolower($route->getController()) === strtolower($controller)) {
-					return $this->processUrl($route, $method, $parameters, $getParams);
+					return $route->findUrl($method, $parameters, $name) . $this->arrayToParams($getParams);
 				}
 
 			}
@@ -509,9 +463,9 @@ class RouterBase
 
 	/**
 	 * Add bootmanager
-	 * @param RouterBootManager $bootManager
+	 * @param IRouterBootManager $bootManager
 	 */
-	public function addBootManager(RouterBootManager $bootManager)
+	public function addBootManager(IRouterBootManager $bootManager)
 	{
 		$this->bootManagers[] = $bootManager;
 	}
@@ -558,7 +512,7 @@ class RouterBase
 
 	/**
 	 * Get loaded route
-	 * @return RouterRoute|null
+	 * @return ILoadableRoute|null
 	 */
 	public function getLoadedRoute()
 	{

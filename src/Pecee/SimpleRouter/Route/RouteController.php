@@ -1,19 +1,80 @@
 <?php
-namespace Pecee\SimpleRouter;
+namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
-class RouterController extends LoadableRoute implements IControllerRoute
+class RouteController extends LoadableRoute implements IControllerRoute
 {
 	protected $defaultMethod = 'index';
 	protected $controller;
 	protected $method;
+	protected $names = [];
 
 	public function __construct($url, $controller)
 	{
 		$this->setUrl($url);
+		$this->setName(trim(str_replace('/', '.', $url), '/'));
 		$this->controller = $controller;
+	}
+
+	/**
+	 * Check if route has given name.
+	 *
+	 * @param string $name
+	 * @return bool
+	 */
+	public function hasName($name)
+	{
+		if ($this->name === null) {
+			return false;
+		}
+
+		/* Remove method/type */
+		if (stripos($name, '.') !== false) {
+			$method = substr($name, strrpos($name, '.') + 1);
+			$newName = substr($name, 0, strrpos($name, '.'));
+
+			if (strtolower($this->name) === strtolower($newName) && in_array($method, $this->names)) {
+				return true;
+			}
+		}
+
+		return parent::hasName($name);
+	}
+
+	public function findUrl($method = null, $parameters = null, $name = null)
+	{
+
+		if (stripos($name, '.') !== false) {
+			$found = array_search(substr($name, strrpos($name, '.') + 1), $this->names);
+			if ($found !== false) {
+				$method = $found;
+			}
+		}
+
+		$url = '';
+
+		$parameters = (array)$parameters;
+
+		/* Remove requestType from method-name, if it exists */
+		if ($method !== null) {
+			foreach (static::$requestTypes as $requestType) {
+				if (stripos($method, $requestType) === 0) {
+					$method = substr($method, strlen($requestType));
+					break;
+				}
+			}
+			$method .= '/';
+		}
+
+		if ($this->getGroup() !== null && count($this->getGroup()->getDomains()) > 0) {
+			$url .= '//' . $this->getGroup()->getDomains()[0];
+		}
+
+		$url .= '/' . trim($this->getUrl(), '/') . '/' . strtolower($method) . join('/', $parameters);
+
+		return '/' . trim($url, '/') . '/';
 	}
 
 	public function renderRoute(Request $request)
@@ -105,6 +166,24 @@ class RouterController extends LoadableRoute implements IControllerRoute
 	public function setMethod($method)
 	{
 		$this->method = $method;
+
+		return $this;
+	}
+
+	/**
+	 * Merge with information from another route.
+	 *
+	 * @param array $values
+	 * @param bool $merge
+	 * @return static
+	 */
+	public function setSettings(array $values, $merge = false)
+	{
+		if (isset($values['names'])) {
+			$this->names = $values['names'];
+		}
+
+		parent::setSettings($values, $merge);
 
 		return $this;
 	}

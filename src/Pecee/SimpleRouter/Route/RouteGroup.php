@@ -1,11 +1,12 @@
 <?php
-namespace Pecee\SimpleRouter;
+namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
 
-class RouterGroup extends RouterEntry
+class RouteGroup extends Route implements IGroupRoute
 {
 	protected $prefix;
+	protected $name;
 	protected $domains = [];
 	protected $exceptionHandlers = [];
 
@@ -86,10 +87,12 @@ class RouterGroup extends RouterEntry
 	 * Merge with information from another route.
 	 *
 	 * @param array $values
+	 * @param bool $merge
 	 * @return static
 	 */
-	public function setSettings(array $values)
+	public function setSettings(array $values, $merge = false)
 	{
+
 		if (isset($values['prefix'])) {
 			$this->setPrefix($values['prefix'] . $this->prefix);
 		}
@@ -102,7 +105,15 @@ class RouterGroup extends RouterEntry
 			$this->setDomains((array)$values['domain']);
 		}
 
-		parent::setSettings($values);
+		if (isset($values['as'])) {
+			if ($this->name !== null && $merge !== false) {
+				$this->name = $values['as'] . '.' . $this->name;
+			} else {
+				$this->name = $values['as'];
+			}
+		}
+
+		parent::setSettings($values, $merge);
 
 		return $this;
 	}
@@ -118,6 +129,10 @@ class RouterGroup extends RouterEntry
 
 		if ($this->prefix !== null) {
 			$values['prefix'] = $this->getPrefix();
+		}
+
+		if ($this->name !== null) {
+			$values['as'] = $this->name;
 		}
 
 		return array_merge($values, parent::toArray());

@@ -4,11 +4,11 @@ namespace Demo\Handlers;
 use Pecee\Handlers\IExceptionHandler;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
-use Pecee\SimpleRouter\RouterEntry;
+use Pecee\SimpleRouter\Route\ILoadableRoute;
 
 class CustomExceptionHandler implements IExceptionHandler
 {
-	public function handleError(Request $request, RouterEntry &$route = null, \Exception $error)
+	public function handleError(Request $request, ILoadableRoute &$route = null, \Exception $error)
 	{
 
 		/* You can use the exception handler to format errors depending on the request and type. */
