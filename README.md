@@ -158,11 +158,11 @@ namespace Demo\Handlers;
 use Pecee\Handlers\IExceptionHandler;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
-use Pecee\SimpleRouter\RouterEntry;
+use Pecee\SimpleRouter\Route\ILoadableRoute;
 
 class CustomExceptionHandler implements IExceptionHandler
 {
-	public function handleError(Request $request, RouterEntry &$route = null, \Exception $error)
+	public function handleError(Request $request, ILoadableRoute &$route = null, \Exception $error)
 	{
 
 		/* You can use the exception handler to format errors depending on the request and type. */
@@ -214,18 +214,19 @@ Route::group(['domain' => '{account}.myapp.com'], function () {
 
 The prefix group array attribute may be used to prefix each route in the group with a given URI. For example, you may want to prefix all route URIs within the group with admin:
 
-### Doing it the object oriented (hardcore) way
+### Adding routes manually (with no helper)
 
-The ```SimpleRouter``` class referenced in the previous example, is just a simple helper class that knows how to communicate with the ```RouterBase``` class.
+The ```SimpleRouter``` class referenced in the previous example, is just a simple helper class that knows how to communicate with the ```Router``` class.
 If you are up for a challenge, want the full control or simply just want to create your own ```Router``` helper class, this example is for you.
 
 ```php
-use \Pecee\SimpleRouter\RouterBase;
-use \Pecee\SimpleRouter\RouterRoute;
+use \Pecee\SimpleRouter\Router;
+use \Pecee\SimpleRouter\Route\RouteUrl;
 
-$router = RouterBase::getInstance();
+/* Grap the router instance */
+$router = Router::getInstance();
 
-$route = new RouterRoute('/answer/1', function() {
+$route = new RouteUrl('/answer/1', function() {
 
     die('this callback will match /answer/1');
     
@@ -239,9 +240,11 @@ $route->setPrefix('v1');
 $router->addRoute($route);
 ```
 
+### Extending
+
 This is a simple example of an integration into a framework.
 
-The framework has it's own ```Router``` class which inherits from the ```SimpleRouter``` class. This allows the framework to add custom functionality.
+The framework has it's own ```Router``` class which inherits from the ```SimpleRouter``` class. This allows the framework to add custom functionality like loading a custom `routes.php` file or add debugging information etc.
 
 ```php
 namespace Demo;
@@ -330,22 +333,73 @@ function input() {
 
 ## Getting urls
 
-**In ```routes.php``` we have added this route:**
+By default all controller and resource routes will use a simplified version of their url as name.
+
+**Get routes using custom name (single route)**
 
 ```php
-SimpleRouter::get('/item/{id}', 'myController@show', ['as' => 'item']);
+SimpleRouter::get('/product-view/{id}', 'ProductsController@show', ['as' => 'product']);
+
+url('product', ['id' => 22], ['category' => 'shoes']);
+
+# output
+# /product-view/22/?category=shoes
 ```
 
-**In the template we then call:**
+**Getting the url using the name (controller route)**
 
 ```php
-url('item', ['id' => 22], ['category' => 'shoes']);
+SimpleRouter::controller('/images', 'ImagesController', ['as' => 'picture']);
+
+url('picture@getView', null, ['category' => 'shoes']);
+url('picture', 'getView', ['category' => 'shoes']);
+
+# output
+# /images/view/?category=shows
+# /images/view/?category=shows
 ```
 
-**Result url is:**
+**Getting the url using class**
 
 ```php
-/item/22/?category=shoes
+SimpleRouter::get('/product-view/{id}', 'ProductsController@show', ['as' => 'product']);
+SimpleRouter::controller('/images', 'ImagesController');
+
+url('ProductsController@show', ['id' => 22], ['category' => 'shoes']);
+url('ImagesController@getImage', null, ['id' => 22]);
+
+# output
+# /product-view/22/?category=shoes
+# /images/image/?category=shows
+```
+
+**Using custom names for methods on a controller/resource route**
+
+```php
+SimpleRouter::controller('gadgets', 'GadgetsController', ['names' => ['getIphoneInfo' => 'iphone']]);
+
+url('gadgets.iphone');
+
+# output
+# /gadgets/iphoneinfo/
+```
+
+**Getting REST/resource controller urls**
+
+```php
+SimpleRouter::resource('/phones', 'PhonesController');
+
+url('phones');
+url('phones.index');
+url('phones.create');
+url('phones.edit');
+
+// etc..
+
+# output
+# /phones/
+# /phones/create/
+# /phones/edit/
 ```
 
 ## Custom CSRF verifier
@@ -379,13 +433,13 @@ SimpleRouter::csrfVerifier(new \Demo\Middleware\CsrfVerifier());
 
 Sometimes it can be necessary to keep urls stored in the database, file or similar. In this example, we want the url ```/my-cat-is-beatiful``` to load the route ```/article/view/1``` which the router knows, because it's defined in the ```routes.php``` file.
 
-To interfere with the router, we create a class that inherits from ```RouterBootManager```. This class will be loaded before any other rules in ```routes.php``` and allow us to "change" the current route, if any of our criteria are fulfilled (like coming from the url ```/my-cat-is-beatiful```).
+To interfere with the router, we create a class that implements the ```IRouterBootManager``` interface. This class will be loaded before any other rules in ```routes.php``` and allow us to "change" the current route, if any of our criteria are fulfilled (like coming from the url ```/my-cat-is-beatiful```).
 
 ```php
 use Pecee\Http\Request;
-use Pecee\SimpleRouter\RouterBootManager;
+use Pecee\SimpleRouter\IRouterBootManager;
 
-class CustomRouterRules extends RouterBootManager {
+class CustomRouterRules implement IRouterBootManager {
 
     public function boot(Request $request) {
 
@@ -421,7 +475,7 @@ The last thing we need to do, is to add our custom boot-manager to the ```routes
 ## Easily overwrite route about to be loaded
 Sometimes it can be useful to manipulate the route about to be loaded. 
 simple-php-router allows you to easily change the route about to be executed. 
-All information about the current route is stored in the ```\Pecee\SimpleRouter\RouterBase``` instance's `loadedRoute` property. 
+All information about the current route is stored in the ```\Pecee\SimpleRouter\Router``` instance's `loadedRoute` property. 
 
 For easy access you can use the shortcut method `\Pecee\SimpleRouter\SimpleRouter::router()`.
 
@@ -442,7 +496,7 @@ $route->setMethod('hello');
 ### Examples
 
 It's only possible to change the route BEFORE the route has initially been loaded. If you want to redirect to another route, we highly recommend that you 
-modify the `RouterEntry` object from a `Middleware` or `ExceptionHandler`, like the examples below.
+modify the `IRoute` object from a `Middleware` or `ExceptionHandler`, like the examples below.
 
 #### Rewriting to new route
 
@@ -456,11 +510,11 @@ namespace Demo\Middlewares;
 
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
-use Pecee\SimpleRouter\RouterEntry;
+use Pecee\SimpleRouter\Route\ILoadableRoute;
 
 class CustomMiddleware implements Middleware {
 
-    public function handle(Request $request, RouterEntry &$route) {
+    public function handle(Request $request, ILoadableRoute &$route) {
     
         $request->setUri(url('home'));
         
@@ -484,11 +538,11 @@ namespace Demo\Middlewares;
 
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
-use Pecee\SimpleRouter\RouterEntry;
+use Pecee\SimpleRouter\Route\ILoadableRoute;
 
 class CustomMiddleware implements Middleware {
 
-    public function handle(Request $request, RouterEntry &$route) { 
+    public function handle(Request $request, ILoadableRoute &$route) { 
     
         $route->callback('DefaultController@home');
         

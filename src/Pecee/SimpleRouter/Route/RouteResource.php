@@ -1,17 +1,62 @@
 <?php
-namespace Pecee\SimpleRouter;
+namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
-class RouterResource extends LoadableRoute implements IControllerRoute
+class RouteResource extends LoadableRoute implements IControllerRoute
 {
+	protected $urls = [
+		'index'   => '',
+		'create'  => 'create',
+		'store'   => '',
+		'show'    => '',
+		'edit'    => 'edit',
+		'update'  => '',
+		'destroy' => '',
+	];
+	protected $names = [];
 	protected $controller;
 
 	public function __construct($url, $controller)
 	{
 		$this->setUrl($url);
 		$this->controller = $controller;
+		$this->setName(trim(str_replace('/', '.', $url), '/'));
+	}
+
+	/**
+	 * Check if route has given name.
+	 *
+	 * @param string $name
+	 * @return bool
+	 */
+	public function hasName($name)
+	{
+		if ($this->name === null) {
+			return false;
+		}
+
+		if (strtolower($this->name) === strtolower($name)) {
+			return true;
+		}
+
+		/* Remove method/type */
+		if (stripos($name, '.') !== false) {
+			$name = substr($name, 0, strrpos($name, '.'));
+		}
+
+		return (strtolower($this->name) === strtolower($name));
+	}
+
+	public function findUrl($method = null, $parameters = null, $name = null)
+	{
+		$method = array_search($name, $this->names);
+		if ($method !== false) {
+			return rtrim($this->url . $this->urls[$method], '/') . '/';
+		}
+
+		return $this->url;
 	}
 
 	public function renderRoute(Request $request)
@@ -116,6 +161,41 @@ class RouterResource extends LoadableRoute implements IControllerRoute
 	public function setController($controller)
 	{
 		$this->controller = $controller;
+
+		return $this;
+	}
+
+	public function setName($name)
+	{
+		$this->name = $name;
+
+		$this->names = [
+			'index'   => $this->name . '.index',
+			'create'  => $this->name . '.create',
+			'store'   => $this->name . '.store',
+			'show'    => $this->name . '.show',
+			'edit'    => $this->name . '.edit',
+			'update'  => $this->name . '.update',
+			'destroy' => $this->name . '.destroy',
+		];
+
+		return $this;
+	}
+
+	/**
+	 * Merge with information from another route.
+	 *
+	 * @param array $values
+	 * @param bool $merge
+	 * @return static
+	 */
+	public function setSettings(array $values, $merge = false)
+	{
+		if (isset($values['names'])) {
+			$this->names = $values['names'];
+		}
+
+		parent::setSettings($values, $merge);
 
 		return $this;
 	}

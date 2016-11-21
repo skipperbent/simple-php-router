@@ -2,16 +2,16 @@
 namespace Pecee\Handlers;
 
 use Pecee\Http\Request;
-use Pecee\SimpleRouter\RouterEntry;
+use Pecee\SimpleRouter\Route\ILoadableRoute;
 
 interface IExceptionHandler
 {
 	/**
 	 * @param Request $request
-	 * @param RouterEntry|null $route
+	 * @param ILoadableRoute $route
 	 * @param \Exception $error
 	 * @return Request|null
 	 */
-	public function handleError(Request $request, RouterEntry &$route = null, \Exception $error);
+	public function handleError(Request $request, ILoadableRoute &$route = null, \Exception $error);
 
 }
