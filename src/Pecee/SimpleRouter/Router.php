@@ -367,11 +367,6 @@ class Router
 		return null;
 	}
 
-	public function getRoute($name = null, $parameters = null, array $getParams = null)
-	{
-		return $this->getUrl($name, $parameters, $getParams);
-	}
-
 	/**
 	 * Get url for a route by using either name/alias, class or method name.
 	 *
