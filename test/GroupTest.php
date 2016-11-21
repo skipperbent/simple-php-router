@@ -87,8 +87,8 @@ class GroupTest extends PHPUnit_Framework_TestCase
 
 		SimpleRouter::start();
 
-		$this->assertEquals('/my/fancy/url/1/', SimpleRouter::getRoute('fancy1'));
-		$this->assertEquals('/my/fancy/url/2/', SimpleRouter::getRoute('fancy2'));
+		$this->assertEquals('/my/fancy/url/1/', SimpleRouter::getUrl('fancy1'));
+		$this->assertEquals('/my/fancy/url/2/', SimpleRouter::getUrl('fancy2'));
 
 	}
 

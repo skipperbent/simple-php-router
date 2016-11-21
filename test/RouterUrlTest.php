@@ -11,7 +11,7 @@ class RouterUrlTest extends PHPUnit_Framework_TestCase
 	protected $result = false;
 
 	protected function getUrl($name = null, $parameters = null, array $getParams = []) {
-		return SimpleRouter::getRoute($name, $parameters, $getParams);
+		return SimpleRouter::getUrl($name, $parameters, $getParams);
 	}
 
 	public function testUrls()
