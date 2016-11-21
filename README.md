@@ -290,10 +290,10 @@ use Pecee\SimpleRouter\SimpleRouter;
  *
  * @param string|null $name
  * @param string|array|null $parameters
- * @param array $getParams
+ * @param array|null $getParams
  * @return string
  */
-function url($name = null, $parameters = null, array $getParams = array()) {
+function url($name = null, $parameters = null, $getParams = null) {
     SimpleRouter::getUrl($name, $parameters, $getParams);
 }
 
