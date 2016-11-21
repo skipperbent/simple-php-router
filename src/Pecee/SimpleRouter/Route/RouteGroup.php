@@ -1,14 +1,21 @@
 <?php
-namespace Pecee\SimpleRouter;
+namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
 
-class RouterGroup extends RouterEntry
+class RouteGroup extends Route implements IGroupRoute
 {
 	protected $prefix;
+	protected $name;
 	protected $domains = [];
 	protected $exceptionHandlers = [];
 
+	/**
+	 * Method called to check if a domain matches
+	 *
+	 * @param Request $request
+	 * @return bool
+	 */
 	public function matchDomain(Request $request)
 	{
 		if (count($this->domains) > 0) {
@@ -29,6 +36,12 @@ class RouterGroup extends RouterEntry
 		return true;
 	}
 
+	/**
+	 * Method called to check if route matches
+	 *
+	 * @param Request $request
+	 * @return bool
+	 */
 	public function matchRoute(Request $request)
 	{
 		// Skip if prefix doesn't match
@@ -39,6 +52,12 @@ class RouterGroup extends RouterEntry
 		return $this->matchDomain($request);
 	}
 
+	/**
+	 * Set exception-handlers for group
+	 *
+	 * @param array $handlers
+	 * @return static $this
+	 */
 	public function setExceptionHandlers(array $handlers)
 	{
 		$this->exceptionHandlers = $handlers;
@@ -46,16 +65,32 @@ class RouterGroup extends RouterEntry
 		return $this;
 	}
 
+	/**
+	 * Get exception-handlers for group
+	 *
+	 * @return array
+	 */
 	public function getExceptionHandlers()
 	{
 		return $this->exceptionHandlers;
 	}
 
+	/**
+	 * Get allowed domains for domain.
+	 *
+	 * @return array
+	 */
 	public function getDomains()
 	{
 		return $this->domains;
 	}
 
+	/**
+	 * Set allowed domains for group.
+	 *
+	 * @param array $domains
+	 * @return $this
+	 */
 	public function setDomains(array $domains)
 	{
 		$this->domains = $domains;
@@ -75,6 +110,8 @@ class RouterGroup extends RouterEntry
 	}
 
 	/**
+	 * Set prefix that child-routes will inherit.
+	 *
 	 * @return string
 	 */
 	public function getPrefix()
@@ -86,10 +123,12 @@ class RouterGroup extends RouterEntry
 	 * Merge with information from another route.
 	 *
 	 * @param array $values
+	 * @param bool $merge
 	 * @return static
 	 */
-	public function merge(array $values)
+	public function setSettings(array $values, $merge = false)
 	{
+
 		if (isset($values['prefix'])) {
 			$this->setPrefix($values['prefix'] . $this->prefix);
 		}
@@ -102,7 +141,15 @@ class RouterGroup extends RouterEntry
 			$this->setDomains((array)$values['domain']);
 		}
 
-		parent::merge($values);
+		if (isset($values['as'])) {
+			if ($this->name !== null && $merge !== false) {
+				$this->name = $values['as'] . '.' . $this->name;
+			} else {
+				$this->name = $values['as'];
+			}
+		}
+
+		parent::setSettings($values, $merge);
 
 		return $this;
 	}
@@ -118,6 +165,10 @@ class RouterGroup extends RouterEntry
 
 		if ($this->prefix !== null) {
 			$values['prefix'] = $this->getPrefix();
+		}
+
+		if ($this->name !== null) {
+			$values['as'] = $this->name;
 		}
 
 		return array_merge($values, parent::toArray());

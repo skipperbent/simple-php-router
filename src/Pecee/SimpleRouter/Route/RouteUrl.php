@@ -1,9 +1,9 @@
 <?php
-namespace Pecee\SimpleRouter;
+namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
 
-class RouterRoute extends LoadableRoute
+class RouteUrl extends LoadableRoute
 {
 	public function __construct($url, $callback)
 	{

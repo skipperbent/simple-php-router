@@ -2,15 +2,15 @@
 namespace Pecee\Http\Middleware;
 
 use Pecee\Http\Request;
-use Pecee\SimpleRouter\RouterEntry;
+use Pecee\SimpleRouter\Route\ILoadableRoute;
 
 interface IMiddleware
 {
 	/**
 	 * @param Request $request
-	 * @param RouterEntry $route
+	 * @param ILoadableRoute $route
 	 * @return Request|null
 	 */
-	public function handle(Request $request, RouterEntry &$route);
+	public function handle(Request $request, ILoadableRoute &$route);
 
 }

@@ -1,12 +1,11 @@
 <?php
-namespace Pecee\SimpleRouter;
+namespace Pecee\SimpleRouter\Route;
 
-use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\HttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
-abstract class RouterEntry
+abstract class Route implements IRoute
 {
 	const REQUEST_TYPE_GET = 'get';
 	const REQUEST_TYPE_POST = 'post';
@@ -24,6 +23,8 @@ abstract class RouterEntry
 		self::REQUEST_TYPE_DELETE,
 	];
 
+	protected $paramModifiers = '{}';
+	protected $paramOptionalSymbol = '?';
 	protected $group;
 	protected $parent;
 	protected $callback;
@@ -35,15 +36,37 @@ abstract class RouterEntry
 	protected $requestMethods = [];
 	protected $where = [];
 	protected $parameters = [];
-	protected $middlewares = [];
 
-	protected function loadClass($name)
+	public function renderRoute(Request $request)
 	{
-		if (!class_exists($name)) {
-			throw new HttpException(sprintf('Class %s does not exist', $name), 500);
+		if ($this->getCallback() !== null && is_callable($this->getCallback())) {
+
+			/* When the callback is a function */
+			call_user_func_array($this->getCallback(), $this->getParameters());
+
+		} else {
+
+			/* When the callback is a method */
+			$controller = explode('@', $this->getCallback());
+			$className = $this->getNamespace() . '\\' . $controller[0];
+
+			$class = $this->loadClass($className);
+			$method = $controller[1];
+
+			if (!method_exists($class, $method)) {
+				throw new NotFoundHttpException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
+			}
+
+			$parameters = array_filter($this->getParameters(), function ($var) {
+				return ($var !== null);
+			});
+
+			call_user_func_array([$class, $method], $parameters);
+
+			return $class;
 		}
 
-		return new $name();
+		return null;
 	}
 
 	protected function parseParameters($route, $url, $parameterRegex = '[\w]+')
@@ -125,51 +148,13 @@ abstract class RouterEntry
 		return null;
 	}
 
-	public function loadMiddleware(Request $request, RouterEntry &$route)
+	protected function loadClass($name)
 	{
-		if (count($this->getMiddlewares()) > 0) {
-			foreach ($this->getMiddlewares() as $middleware) {
-
-				$middleware = $this->loadClass($middleware);
-				if (!($middleware instanceof IMiddleware)) {
-					throw new HttpException($middleware . ' must be instance of Middleware');
-				}
-
-				$middleware->handle($request, $route);
-			}
-		}
-	}
-
-	public function renderRoute(Request $request)
-	{
-		if ($this->getCallback() !== null && is_callable($this->getCallback())) {
-
-			/* When the callback is a function */
-			call_user_func_array($this->getCallback(), $this->getParameters());
-
-		} else {
-
-			/* When the callback is a method */
-			$controller = explode('@', $this->getCallback());
-			$className = $this->getNamespace() . '\\' . $controller[0];
-
-			$class = $this->loadClass($className);
-			$method = $controller[1];
-
-			if (!method_exists($class, $method)) {
-				throw new NotFoundHttpException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
-			}
-
-			$parameters = array_filter($this->getParameters(), function ($var) {
-				return ($var !== null);
-			});
-
-			call_user_func_array([$class, $method], $parameters);
-
-			return $class;
+		if (!class_exists($name)) {
+			throw new HttpException(sprintf('Class %s does not exist', $name), 500);
 		}
 
-		return null;
+		return new $name();
 	}
 
 	/**
@@ -203,6 +188,7 @@ abstract class RouterEntry
 
 	/**
 	 * Get allowed request methods
+	 *
 	 * @return array
 	 */
 	public function getRequestMethods()
@@ -211,7 +197,7 @@ abstract class RouterEntry
 	}
 
 	/**
-	 * @return LoadableRoute
+	 * @return IRoute|null
 	 */
 	public function getParent()
 	{
@@ -221,7 +207,7 @@ abstract class RouterEntry
 	/**
 	 * Get the group for the route.
 	 *
-	 * @return RouterGroup|null
+	 * @return IGroupRoute|null
 	 */
 	public function getGroup()
 	{
@@ -231,20 +217,23 @@ abstract class RouterEntry
 	/**
 	 * Set group
 	 *
-	 * @param RouterGroup $group
+	 * @param IGroupRoute $group
+	 * @return static $this
 	 */
-	public function setGroup(RouterGroup $group)
+	public function setGroup(IGroupRoute $group)
 	{
 		$this->group = $group;
+
+		return $this;
 	}
 
 	/**
 	 * Set parent route
 	 *
-	 * @param RouterEntry $parent
+	 * @param IRoute $parent
 	 * @return static $this
 	 */
-	public function setParent(RouterEntry $parent)
+	public function setParent(IRoute $parent)
 	{
 		$this->parent = $parent;
 
@@ -252,6 +241,8 @@ abstract class RouterEntry
 	}
 
 	/**
+	 * Set callback
+	 *
 	 * @param string $callback
 	 * @return static
 	 */
@@ -263,7 +254,7 @@ abstract class RouterEntry
 	}
 
 	/**
-	 * @return mixed
+	 * @return string
 	 */
 	public function getCallback()
 	{
@@ -307,24 +298,6 @@ abstract class RouterEntry
 	}
 
 	/**
-	 * @param string $middleware
-	 * @return static
-	 */
-	public function setMiddleware($middleware)
-	{
-		$this->middlewares[] = $middleware;
-
-		return $this;
-	}
-
-	public function setMiddlewares(array $middlewares)
-	{
-		$this->middlewares = $middlewares;
-
-		return $this;
-	}
-
-	/**
 	 * @param string $namespace
 	 * @return static $this
 	 */
@@ -352,51 +325,11 @@ abstract class RouterEntry
 	}
 
 	/**
-	 * @return string|array
-	 */
-	public function getMiddlewares()
-	{
-		return $this->middlewares;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getNamespace()
 	{
 		return ($this->namespace === null) ? $this->defaultNamespace : $this->namespace;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getParameters()
-	{
-		return $this->parameters;
-	}
-
-	/**
-	 * @param mixed $parameters
-	 * @return static
-	 */
-	public function setParameters($parameters)
-	{
-		$this->parameters = $parameters;
-
-		return $this;
-	}
-
-	/**
-	 * Add regular expression parameter match
-	 *
-	 * @param array $options
-	 * @return static
-	 */
-	public function setWhere(array $options)
-	{
-		$this->where = $options;
-
-		return $this;
 	}
 
 	/**
@@ -413,6 +346,16 @@ abstract class RouterEntry
 	}
 
 	/**
+	 * Get regular expression match used for matching route (if defined).
+	 *
+	 * @return string
+	 */
+	public function getMatch()
+	{
+		return $this->regex;
+	}
+
+	/**
 	 * Export route settings to array so they can be merged with another route.
 	 *
 	 * @return array
@@ -425,16 +368,12 @@ abstract class RouterEntry
 			$values['namespace'] = $this->namespace;
 		}
 
-		if (count($this->middlewares) > 0) {
-			$values['middleware'] = $this->middlewares;
+		if (count($this->requestMethods) > 0) {
+			$values['method'] = $this->requestMethods;
 		}
 
 		if (count($this->where) > 0) {
 			$values['where'] = $this->where;
-		}
-
-		if (count($this->requestMethods) > 0) {
-			$values['method'] = $this->requestMethods;
 		}
 
 		if (count($this->parameters) > 0) {
@@ -448,17 +387,13 @@ abstract class RouterEntry
 	 * Merge with information from another route.
 	 *
 	 * @param array $values
+	 * @param bool $merge
 	 * @return static $this
 	 */
-	public function merge(array $values)
+	public function setSettings(array $values, $merge = false)
 	{
 		if (isset($values['namespace']) && $this->namespace === null) {
 			$this->setNamespace($values['namespace']);
-		}
-
-		// Push middleware if multiple
-		if (isset($values['middleware'])) {
-			$this->setMiddlewares(array_merge((array)$values['middleware'], $this->middlewares));
 		}
 
 		if (isset($values['method'])) {
@@ -476,6 +411,63 @@ abstract class RouterEntry
 		return $this;
 	}
 
-	abstract function matchRoute(Request $request);
+	/**
+	 * Get parameter names.
+	 *
+	 * @return array
+	 */
+	public function getWhere()
+	{
+		return $this->where;
+	}
+
+	/**
+	 * Set parameter names.
+	 *
+	 * @param array $options
+	 * @return static
+	 */
+	public function setWhere(array $options)
+	{
+		$this->where = $options;
+
+		return $this;
+	}
+
+	/**
+	 * Add regular expression parameter match.
+	 * Alias for LoadableRoute::where()
+	 *
+	 * @see LoadableRoute::where()
+	 * @param array $options
+	 * @return static
+	 */
+	public function where(array $options)
+	{
+		return $this->where($options);
+	}
+
+	/**
+	 * Get parameters
+	 *
+	 * @return array
+	 */
+	public function getParameters()
+	{
+		return $this->parameters;
+	}
+
+	/**
+	 * Get parameters
+	 *
+	 * @param array $parameters
+	 * @return static $this
+	 */
+	public function setParameters(array $parameters)
+	{
+		$this->parameters = $parameters;
+
+		return $this;
+	}
 
 }
