@@ -3,7 +3,7 @@ use Pecee\SimpleRouter\SimpleRouter;
 
 function url($controller, $parameters = null, $getParams = null)
 {
-	SimpleRouter::getRoute($controller, $parameters, $getParams);
+	SimpleRouter::getUrl($controller, $parameters, $getParams);
 }
 
 /**

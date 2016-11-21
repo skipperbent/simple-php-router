@@ -173,4 +173,27 @@ interface IRoute
 	 */
 	public function toArray();
 
+	/**
+	 * Get middlewares array
+	 *
+	 * @return array
+	 */
+	public function getMiddlewares();
+
+	/**
+	 * Set middleware class-name
+	 *
+	 * @param string $middleware
+	 * @return static
+	 */
+	public function setMiddleware($middleware);
+
+	/**
+	 * Set middlewares array
+	 *
+	 * @param array $middlewares
+	 * @return $this
+	 */
+	public function setMiddlewares(array $middlewares);
+
 }

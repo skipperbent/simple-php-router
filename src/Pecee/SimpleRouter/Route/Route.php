@@ -36,6 +36,7 @@ abstract class Route implements IRoute
 	protected $requestMethods = [];
 	protected $where = [];
 	protected $parameters = [];
+	protected $middlewares = [];
 
 	public function renderRoute(Request $request)
 	{
@@ -380,6 +381,10 @@ abstract class Route implements IRoute
 			$values['parameters'] = $this->parameters;
 		}
 
+		if (count($this->middlewares) > 0) {
+			$values['middleware'] = $this->middlewares;
+		}
+
 		return $values;
 	}
 
@@ -406,6 +411,11 @@ abstract class Route implements IRoute
 
 		if (isset($values['parameters'])) {
 			$this->setParameters(array_merge($this->parameters, (array)$values['parameters']));
+		}
+
+		// Push middleware if multiple
+		if (isset($values['middleware'])) {
+			$this->setMiddlewares(array_merge((array)$values['middleware'], $this->middlewares));
 		}
 
 		return $this;
@@ -468,6 +478,40 @@ abstract class Route implements IRoute
 		$this->parameters = $parameters;
 
 		return $this;
+	}
+
+	/**
+	 * Set middleware class-name
+	 *
+	 * @param string $middleware
+	 * @return static
+	 */
+	public function setMiddleware($middleware)
+	{
+		$this->middlewares[] = $middleware;
+
+		return $this;
+	}
+
+	/**
+	 * Set middlewares array
+	 *
+	 * @param array $middlewares
+	 * @return $this
+	 */
+	public function setMiddlewares(array $middlewares)
+	{
+		$this->middlewares = $middlewares;
+
+		return $this;
+	}
+
+	/**
+	 * @return string|array
+	 */
+	public function getMiddlewares()
+	{
+		return $this->middlewares;
 	}
 
 }
