@@ -11,7 +11,6 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
 	protected $url;
 	protected $name;
-	protected $middlewares = [];
 
 	/**
 	 * Loads and renders middlewares-classes
@@ -156,22 +155,6 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 	}
 
 	/**
-	 * Export route settings to array so they can be merged with another route.
-	 *
-	 * @return array
-	 */
-	public function toArray()
-	{
-		$values = [];
-
-		if (count($this->middlewares) > 0) {
-			$values['middleware'] = $this->middlewares;
-		}
-
-		return array_merge(parent::toArray(), $values);
-	}
-
-	/**
 	 * Merge with information from another route.
 	 *
 	 * @param array $values
@@ -192,48 +175,9 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 			$this->setUrl($values['prefix'] . $this->getUrl());
 		}
 
-		// Push middleware if multiple
-		if (isset($values['middleware'])) {
-			$this->setMiddlewares(array_merge((array)$values['middleware'], $this->middlewares));
-		}
-
 		parent::setSettings($values, $merge);
 
 		return $this;
-	}
-
-	/**
-	 * Set middleware class-name
-	 *
-	 * @param string $middleware
-	 * @return static
-	 */
-	public function setMiddleware($middleware)
-	{
-		$this->middlewares[] = $middleware;
-
-		return $this;
-	}
-
-	/**
-	 * Set middlewares array
-	 *
-	 * @param array $middlewares
-	 * @return $this
-	 */
-	public function setMiddlewares(array $middlewares)
-	{
-		$this->middlewares = $middlewares;
-
-		return $this;
-	}
-
-	/**
-	 * @return string|array
-	 */
-	public function getMiddlewares()
-	{
-		return $this->middlewares;
 	}
 
 }
