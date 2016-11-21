@@ -133,6 +133,8 @@ class RouteController extends LoadableRoute implements IControllerRoute
 	}
 
 	/**
+	 * Get controller class-name.
+	 *
 	 * @return string
 	 */
 	public function getController()
@@ -141,6 +143,8 @@ class RouteController extends LoadableRoute implements IControllerRoute
 	}
 
 	/**
+	 * Get controller class-name.
+	 *
 	 * @param string $controller
 	 * @return static
 	 */
@@ -152,6 +156,8 @@ class RouteController extends LoadableRoute implements IControllerRoute
 	}
 
 	/**
+	 * Return active method
+	 *
 	 * @return string
 	 */
 	public function getMethod()
@@ -160,6 +166,8 @@ class RouteController extends LoadableRoute implements IControllerRoute
 	}
 
 	/**
+	 * Set active method
+	 *
 	 * @param string $method
 	 * @return static
 	 */

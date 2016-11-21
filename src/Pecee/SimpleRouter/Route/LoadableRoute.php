@@ -13,6 +13,13 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 	protected $name;
 	protected $middlewares = [];
 
+	/**
+	 * Loads and renders middlewares-classes
+	 *
+	 * @param Request $request
+	 * @param ILoadableRoute $route
+	 * @throws HttpException
+	 */
 	public function loadMiddleware(Request $request, ILoadableRoute &$route)
 	{
 		if (count($this->getMiddlewares()) > 0) {
@@ -53,6 +60,15 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 		return $this->url;
 	}
 
+	/**
+	 * Find url that matches method, parameters or name.
+	 * Used when calling the url() helper.
+	 *
+	 * @param string|null $method
+	 * @param array|null $parameters
+	 * @param string|null $name
+	 * @return string
+	 */
 	public function findUrl($method = null, $parameters = null, $name = null)
 	{
 		$url = '';
@@ -93,7 +109,8 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 	}
 
 	/**
-	 * Returns the provided name for the router (first if multiple).
+	 * Returns the provided name for the router.
+	 *
 	 * @return string
 	 */
 	public function getName()
@@ -186,6 +203,8 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 	}
 
 	/**
+	 * Set middleware class-name
+	 *
 	 * @param string $middleware
 	 * @return static
 	 */
@@ -196,6 +215,12 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 		return $this;
 	}
 
+	/**
+	 * Set middlewares array
+	 *
+	 * @param array $middlewares
+	 * @return $this
+	 */
 	public function setMiddlewares(array $middlewares)
 	{
 		$this->middlewares = $middlewares;

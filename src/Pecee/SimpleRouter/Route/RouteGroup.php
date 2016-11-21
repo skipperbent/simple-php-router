@@ -10,6 +10,12 @@ class RouteGroup extends Route implements IGroupRoute
 	protected $domains = [];
 	protected $exceptionHandlers = [];
 
+	/**
+	 * Method called to check if a domain matches
+	 *
+	 * @param Request $request
+	 * @return bool
+	 */
 	public function matchDomain(Request $request)
 	{
 		if (count($this->domains) > 0) {
@@ -30,6 +36,12 @@ class RouteGroup extends Route implements IGroupRoute
 		return true;
 	}
 
+	/**
+	 * Method called to check if route matches
+	 *
+	 * @param Request $request
+	 * @return bool
+	 */
 	public function matchRoute(Request $request)
 	{
 		// Skip if prefix doesn't match
@@ -40,6 +52,12 @@ class RouteGroup extends Route implements IGroupRoute
 		return $this->matchDomain($request);
 	}
 
+	/**
+	 * Set exception-handlers for group
+	 *
+	 * @param array $handlers
+	 * @return static $this
+	 */
 	public function setExceptionHandlers(array $handlers)
 	{
 		$this->exceptionHandlers = $handlers;
@@ -47,16 +65,32 @@ class RouteGroup extends Route implements IGroupRoute
 		return $this;
 	}
 
+	/**
+	 * Get exception-handlers for group
+	 *
+	 * @return array
+	 */
 	public function getExceptionHandlers()
 	{
 		return $this->exceptionHandlers;
 	}
 
+	/**
+	 * Get allowed domains for domain.
+	 *
+	 * @return array
+	 */
 	public function getDomains()
 	{
 		return $this->domains;
 	}
 
+	/**
+	 * Set allowed domains for group.
+	 *
+	 * @param array $domains
+	 * @return $this
+	 */
 	public function setDomains(array $domains)
 	{
 		$this->domains = $domains;
@@ -76,6 +110,8 @@ class RouteGroup extends Route implements IGroupRoute
 	}
 
 	/**
+	 * Set prefix that child-routes will inherit.
+	 *
 	 * @return string
 	 */
 	public function getPrefix()

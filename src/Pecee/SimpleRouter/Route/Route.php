@@ -188,6 +188,7 @@ abstract class Route implements IRoute
 
 	/**
 	 * Get allowed request methods
+	 *
 	 * @return array
 	 */
 	public function getRequestMethods()
@@ -196,7 +197,7 @@ abstract class Route implements IRoute
 	}
 
 	/**
-	 * @return LoadableRoute
+	 * @return IRoute|null
 	 */
 	public function getParent()
 	{
@@ -240,6 +241,8 @@ abstract class Route implements IRoute
 	}
 
 	/**
+	 * Set callback
+	 *
 	 * @param string $callback
 	 * @return static
 	 */
@@ -251,7 +254,7 @@ abstract class Route implements IRoute
 	}
 
 	/**
-	 * @return mixed
+	 * @return string
 	 */
 	public function getCallback()
 	{
@@ -343,6 +346,16 @@ abstract class Route implements IRoute
 	}
 
 	/**
+	 * Get regular expression match used for matching route (if defined).
+	 *
+	 * @return string
+	 */
+	public function getMatch()
+	{
+		return $this->regex;
+	}
+
+	/**
 	 * Export route settings to array so they can be merged with another route.
 	 *
 	 * @return array
@@ -429,7 +442,8 @@ abstract class Route implements IRoute
 	 * @param array $options
 	 * @return static
 	 */
-	public function where(array $options) {
+	public function where(array $options)
+	{
 		return $this->where($options);
 	}
 
@@ -449,8 +463,10 @@ abstract class Route implements IRoute
 	 * @param array $parameters
 	 * @return static $this
 	 */
-	public function setParameters(array $parameters) {
+	public function setParameters(array $parameters)
+	{
 		$this->parameters = $parameters;
+
 		return $this;
 	}
 
