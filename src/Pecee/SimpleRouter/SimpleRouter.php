@@ -311,7 +311,7 @@ class SimpleRouter
 	 * @param array|null $getParams
 	 * @return string
 	 */
-	public static function getUrl($name = null, $parameters = null, $getParams = [])
+	public static function getUrl($name = null, $parameters = null, $getParams = null)
 	{
 		return static::router()->getUrl($name, $parameters, $getParams);
 	}

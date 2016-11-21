@@ -384,14 +384,17 @@ class Router
 	 * @param array|null $getParams
 	 * @return string
 	 */
-	public function getUrl($name = null, $parameters = null, $getParams = [])
+	public function getUrl($name = null, $parameters = null, $getParams = null)
 	{
 		if ($getParams !== null && is_array($getParams) === false) {
 			throw new \InvalidArgumentException('Invalid type for getParams. Must be array or null');
 		}
 
-		if ($getParams === null) {
+		/* Only merge $_GET when all parameters are null */
+		if ($name === null && $parameters === null && $getParams === null) {
 			$getParams = $_GET;
+		} else {
+			$getParams = (array)$getParams;
 		}
 
 		/* Return current route if no options has been specified */
@@ -435,7 +438,8 @@ class Router
 		}
 
 		/* No result so we assume that someone is using a hardcoded url and join everything together. */
-		return '/' . trim(join('/', array_merge((array)$name, (array)$parameters)), '/') . $this->arrayToParams($getParams);
+		$url = trim(join('/', array_merge((array)$name, (array)$parameters)), '/');
+		return (($url === '') ? '/' : '/' . $url . '/') . $this->arrayToParams($getParams);
 	}
 
 	/**
