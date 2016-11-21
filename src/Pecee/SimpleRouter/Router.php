@@ -396,7 +396,7 @@ class Router
 
 		/* Return current route if no options has been specified */
 		if ($name === null && $parameters === null) {
-			return '/' . trim(parse_url($this->request->getUri(), PHP_URL_PATH), '/') . '/' . $this->arrayToParams($getParams);
+			return '/' . trim(parse_url($this->request->getUri(), PHP_URL_PATH), '/') . $this->arrayToParams($getParams);
 		}
 
 		/* If nothing is defined and a route is loaded we use that */
@@ -434,8 +434,7 @@ class Router
 		}
 
 		/* No result so we assume that someone is using a hardcoded url and join everything together. */
-
-		return '/' . trim(join('/', array_merge((array)$name, (array)$parameters)), '/') . '/' . $this->arrayToParams($getParams);
+		return '/' . trim(join('/', array_merge((array)$name, (array)$parameters)), '/') . $this->arrayToParams($getParams);
 	}
 
 	/**
