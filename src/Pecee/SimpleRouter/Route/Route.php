@@ -157,7 +157,7 @@ abstract class Route implements IRoute
 	protected function loadClass($name)
 	{
 		if (!class_exists($name)) {
-			throw new HttpException(sprintf('Class %s does not exist', $name), 500);
+			throw new NotFoundHttpException(sprintf('Class %s does not exist', $name), 404);
 		}
 
 		return new $name();
