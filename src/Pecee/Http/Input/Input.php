@@ -6,19 +6,19 @@ use Pecee\Http\Request;
 class Input
 {
 	/**
-	 * @var \Pecee\Http\Input\InputCollection
+	 * @var array
 	 */
-	public $get;
+	public $get = [];
 
 	/**
-	 * @var \Pecee\Http\Input\InputCollection
+	 * @var array
 	 */
-	public $post;
+	public $post = [];
 
 	/**
-	 * @var \Pecee\Http\Input\InputCollection
+	 * @var array
 	 */
-	public $file;
+	public $file = [];
 
 	/**
 	 * @var Request
@@ -35,10 +35,6 @@ class Input
 	public function __construct(Request $request)
 	{
 		$this->request = $request;
-
-		$this->post = new InputCollection();
-		$this->get = new InputCollection();
-		$this->file = new InputCollection();
 
 		if ($request->getMethod() !== 'get') {
 
@@ -60,6 +56,7 @@ class Input
 		if ($this->invalidContentType === false) {
 			$this->parseInputs();
 		}
+
 	}
 
 	protected function parseInputs()
@@ -76,7 +73,21 @@ class Input
 				$key = $keys[$i];
 				$value = $_GET[$key];
 
-				$this->get->{$key} = new InputItem($key, $value);
+				// Handle array input
+				if (is_array($value) === false) {
+					$this->get[$key] = new InputItem($key, $value);
+					continue;
+				}
+
+				$subMax = count($value) - 1;
+				$keys = array_keys($value);
+				$output = [];
+
+				for ($i = $subMax; $i >= 0; $i--) {
+					$output[$keys[$i]] = new InputItem($key, $value[$keys[$i]]);
+				}
+
+				$this->get[$key] = $output;
 			}
 
 		}
@@ -99,7 +110,21 @@ class Input
 				$key = $keys[$i];
 				$value = $postVars[$key];
 
-				$this->post->{strtolower($key)} = new InputItem($key, $value);
+				// Handle array input
+				if (is_array($value) === false) {
+					$this->post[$key] = new InputItem($key, $value);
+					continue;
+				}
+
+				$subMax = count($value) - 1;
+				$keys = array_keys($value);
+				$output = [];
+
+				for ($i = $subMax; $i >= 0; $i--) {
+					$output[$keys[$i]] = new InputItem($key, $value[$keys[$i]]);
+				}
+
+				$this->post[$key] = $output;
 			}
 
 		}
@@ -119,56 +144,66 @@ class Input
 				// Handle array input
 				if (is_array($value['name']) === false) {
 					$values['index'] = $key;
-					$this->file->{strtolower($key)} = InputFile::createFromArray($values);
+					$this->file[$key] = InputFile::createFromArray(array_merge($value, $values));
 					continue;
 				}
 
-				$output = new InputCollection();
+				$subMax = count($value['name']) - 1;
+				$keys = array_keys($value['name']);
+				$output = [];
 
-				foreach ($value['name'] as $k => $val) {
+				for ($i = $subMax; $i >= 0; $i--) {
 
-					$output->{$k} = InputFile::createFromArray([
+					$output[$keys[$i]] = InputFile::createFromArray([
 						'index'    => $key,
-						'error'    => $value['error'][$k],
-						'tmp_name' => $value['tmp_name'][$k],
-						'type'     => $value['type'][$k],
-						'size'     => $value['size'][$k],
-						'name'     => $value['name'][$k],
+						'error'    => $value['error'][$keys[$i]],
+						'tmp_name' => $value['tmp_name'][$keys[$i]],
+						'type'     => $value['type'][$keys[$i]],
+						'size'     => $value['size'][$keys[$i]],
+						'name'     => $value['name'][$keys[$i]],
 					]);
 
 				}
 
-				$this->file->{strtolower($key)} = $output;
+				$this->file[$key] = $output;
 			}
 		}
 
 	}
 
-	public function getObject($index, $default = null)
+	public function findPost($index, $default = null)
 	{
-		$key = (strpos($index, '[') > -1) ? substr($index, strpos($index, '[') + 1, strpos($index, ']') - strlen($index)) : null;
-		$index = (strpos($index, '[') > -1) ? substr($index, 0, strpos($index, '[')) : $index;
+		return isset($this->post[$index]) ? $this->post[$index] : $default;
+	}
 
-		$element = $this->get->findFirst($index);
+	public function findFile($index, $default = null)
+	{
+		return isset($this->file[$index]) ? $this->file[$index] : $default;
+	}
 
-		if ($element !== null) {
-			return ($key !== null) ? $element[$key] : $element;
+	public function findGet($index, $default = null)
+	{
+		return isset($this->get[$index]) ? $this->get[$index] : $default;
+	}
+
+	public function getObject($index, $default = null, $method = null)
+	{
+
+		$element = null;
+
+		if ($method === null || strtolower($method) === 'get') {
+			$element = $this->findGet($index);
 		}
 
-		if ($this->request->getMethod() !== 'get') {
-
-			$element = $this->post->findFirst($index);
-			if ($element !== null) {
-				return ($key !== null) ? $element[$key] : $element;
-			}
-
-			$element = $this->file->findFirst($index);
-			if ($element !== null) {
-				return ($key !== null) ? $element[$key] : $element;
-			}
+		if ($element === null && $method === null || strtolower($method) === 'post') {
+			$element = $this->findPost($index);
 		}
 
-		return $default;
+		if ($element === null && $method === null || strtolower($method) === 'file') {
+			$element = $this->findFile($index);
+		}
+
+		return ($element === null) ? $default : $element;
 	}
 
 	/**
@@ -180,18 +215,13 @@ class Input
 	 */
 	public function get($index, $default = null)
 	{
-		$item = $this->getObject($index);
+		$input = $this->getObject($index, $default);
 
-		if ($item !== null) {
-
-			if ($item instanceof InputCollection || $item instanceof InputFile) {
-				return $item;
-			}
-
-			return (!is_array($item->getValue()) && trim($item->getValue()) === '') ? $default : $item;
+		if ($input instanceof InputItem) {
+			return (trim($input->getValue()) === '') ? $default : $input->getValue();
 		}
 
-		return $default;
+		return $input;
 	}
 
 	public function exists($index)

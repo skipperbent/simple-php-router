@@ -1,12 +1,38 @@
 <?php
 namespace Pecee\Http\Input;
 
-class InputFile extends InputItem
+class InputFile implements IInputItem
 {
+	public $index;
+	public $name;
 	public $size;
 	public $type;
 	public $error;
 	public $tmpName;
+
+	public function __construct($index)
+	{
+		$this->index = $index;
+
+		// Make the name human friendly, by replace _ with space
+		$this->name = ucfirst(str_replace('_', ' ', $this->index));
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getIndex()
+	{
+		return $this->index;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->name;
+	}
 
 	/**
 	 * @return string
@@ -60,6 +86,13 @@ class InputFile extends InputItem
 		return file_get_contents($this->tmpName);
 	}
 
+	public function setName($name)
+	{
+		$this->name = $name;
+
+		return $this;
+	}
+
 	/**
 	 * Set file temp. name
 	 * @param string $name
@@ -68,6 +101,7 @@ class InputFile extends InputItem
 	public function setTmpName($name)
 	{
 		$this->tmpName = $name;
+
 		return $this;
 	}
 
@@ -79,6 +113,7 @@ class InputFile extends InputItem
 	public function setSize($size)
 	{
 		$this->size = $size;
+
 		return $this;
 	}
 
@@ -90,6 +125,7 @@ class InputFile extends InputItem
 	public function setType($type)
 	{
 		$this->type = $type;
+
 		return $this;
 	}
 
@@ -101,6 +137,7 @@ class InputFile extends InputItem
 	public function setError($error)
 	{
 		$this->error = (int)$error;
+
 		return $this;
 	}
 
@@ -109,7 +146,8 @@ class InputFile extends InputItem
 		return $this->getTmpName();
 	}
 
-	public function hasError() {
+	public function hasError()
+	{
 		return ($this->getError() !== 0);
 	}
 
@@ -120,28 +158,33 @@ class InputFile extends InputItem
 	 */
 	public static function createFromArray(array $values)
 	{
-		if(!isset($values['index'])) {
+		if (!isset($values['index'])) {
 			throw new \InvalidArgumentException('Index key is required');
 		}
 
 		$input = new static($values['index']);
-		$input->setError((isset($values['error']) ? $values['error'] : null));
-		$input->setName((isset($values['name']) ? $values['name'] : null));
-		$input->setSize((isset($values['size']) ? $values['size'] : null));
-		$input->setType((isset($values['type']) ? $values['type'] : null));
-		$input->setTmpName((isset($values['tmp_name']) ? $values['tmp_name'] : null));
+		$input->setError(isset($values['error']) ? $values['error'] : null);
+		$input->setName(isset($values['name']) ? $values['name'] : null);
+		$input->setSize(isset($values['size']) ? $values['size'] : null);
+		$input->setType(isset($values['type']) ? $values['type'] : null);
+		$input->setTmpName(isset($values['tmp_name']) ? $values['tmp_name'] : null);
 
 		return $input;
 	}
 
-	public function toArray() {
+	public function toArray()
+	{
 		return [
 			'tmp_name' => $this->tmpName,
-			'type' => $this->type,
-			'size' => $this->size,
-			'name' => $this->name,
-			'error' => $this->error,
+			'type'     => $this->type,
+			'size'     => $this->size,
+			'name'     => $this->name,
+			'error'    => $this->error,
 		];
 	}
 
+	public function __toString()
+	{
+		return $this->getValue();
+	}
 }

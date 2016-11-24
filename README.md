@@ -341,9 +341,11 @@ By default all controller and resource routes will use a simplified version of t
 SimpleRouter::get('/product-view/{id}', 'ProductsController@show', ['as' => 'product']);
 
 url('product', ['id' => 22], ['category' => 'shoes']);
+url('product', null, ['category' => 'shoes']);
 
 # output
 # /product-view/22/?category=shoes
+# /product-view/?category=shoes
 ```
 
 **Getting the url using the name (controller route)**
@@ -353,10 +355,12 @@ SimpleRouter::controller('/images', 'ImagesController', ['as' => 'picture']);
 
 url('picture@getView', null, ['category' => 'shoes']);
 url('picture', 'getView', ['category' => 'shoes']);
+url('picture', 'view');
 
 # output
 # /images/view/?category=shows
 # /images/view/?category=shows
+# /images/view/
 ```
 
 **Getting the url using class**
@@ -370,7 +374,7 @@ url('ImagesController@getImage', null, ['id' => 22]);
 
 # output
 # /product-view/22/?category=shoes
-# /images/image/?category=shows
+# /images/image/?id=22
 ```
 
 **Using custom names for methods on a controller/resource route**
@@ -405,6 +409,11 @@ url('phones.edit');
 **Return the current url**
 ```php
 url();
+url(null, null, ['q' => 'cars']);
+
+# output
+# /CURRENT-URL/
+# /CURRENT-URL/?q=cars
 ```
 
 ## Custom CSRF verifier
@@ -466,7 +475,6 @@ class CustomRouterRules implement IRouterBootManager {
     }
 
 }
-
 ```
 
 The above should be pretty self-explanatory and can easily be changed to loop through urls store in the database, file or cache.
@@ -526,7 +534,6 @@ class CustomMiddleware implements Middleware {
     }
 
 }
-
 ```
 
 #### Changing callback
@@ -558,32 +565,78 @@ class CustomMiddleware implements Middleware {
 
 ## Using the Input class to manage parameters
 
-We've added the `Input` class to easy access parameters from your Controller-classes.
+We've added the `Input` class to easy access and manage parameters from your Controller-classes.
 
 **Return single parameter value (matches both GET, POST, FILE):**
 
+If items is grouped in the html, it will return an array of items.
+
+**Note:** `get` will automatically trim the value and ensure that it's not empty. If it's empty the `$defaultValue` will be returned.
+
 ```php
-$value = input()->get('name');
+$value = input()->get($index, $defaultValue);
 ```
 
 **Return parameter object (matches both GET, POST, FILE):**
 
+Will return an instance of `InputItem` or `InputFile` depending on the type.
+
+You can use this in your html as it will render the value of the item.
+However if you want to compare value in your if statements, you have to use
+the `getValue` or use the `input()->get()` instead.
+
+If items is grouped in the html, it will return an array of items.
+
+**Note:** `getObject` will only return `$defaultValue` if the item doesn't exist. If you want `$defaultValue` to be returned if the item is empty, please use `input()->get()` instead.
+
 ```php
-$object = input()->getObject('name');
+$object = input()->getObject($index);
 ```
 
 **Return specific GET parameter (where name is the name of your parameter):**
 
 ```php
-$object = input()->get->name;
-$object = input()->post->name;
-$object = input()->file->name;
+# -- match any (default) --
+
+/*
+ * This is the recommended way to go for normal usage
+ * as it will strip empty values, ensuring that
+ * $defaultValue is returned if the value is empty.
+ */
+
+$id = input()->get($index, $defaultValue);
+
+# -- match specific --
+
+$object = input()->get($index, $defaultValue, 'get');
+$object = input()->get($index, $defaultValue, 'post');
+$object = input()->get($index, $defaultValue, 'file');
 
 # -- or --
 
-$object = input()->get->get($key, $defaultValue);
-$object = input()->post->get($key, $defaultValue);
-$object = input()->file->get($key, $defaultValue);
+$object = input()->findGet($index, $defaultValue);
+$object = input()->findPost($index, $defaultValue);
+$object = input()->findFile($index, $defaultValue);
+
+# -- examples --
+
+/**
+ * In this small example we loop through a collection of files
+ * added on the page like this
+ * <input type="file" name="images[]" />
+ */
+
+/* @var $image \Pecee\Http\Input\InputFile */
+foreach(input()->get('images', []) as $image)
+{
+    if($image->getMime() === 'image/jpeg') {
+
+        $destinationFilname = sprintf('%s.%s', uniqid(), $image->getExtension());
+
+        $image->move('/uploads/' . $destinationFilename);
+
+    }
+}
 ```
 
 **Return all parameters:**
@@ -599,11 +652,11 @@ $values = input()->all([
 ]);
 ```
 
-All object inherits from `InputItem` class and will always contain these methods:
+All object implements the `IInputItem` interface and will always contain these methods:
 
-- `getValue()` - returns the value of the input.
 - `getIndex()` - returns the index/key of the input.
 - `getName()` - returns a human friendly name for the input (company_name will be Company Name etc).
+- `getValue()` - returns the value of the input.
 
 `InputFile` has the same methods as above along with some other file-specific methods like:
 - `getTmpName()` - get file temporary name.
@@ -612,6 +665,8 @@ All object inherits from `InputItem` class and will always contain these methods
 - `getContents()` - get file content.
 - `getType()` - get mime-type for file.
 - `getError()` - get file upload error.
+- `hasError()` - returns `bool` if an error occurred while uploading (if getError is not 0).
+- `toArray()` - returns raw array
 
 Below example requires you to have the helper functions added. Please refer to the helper functions section in the documentation.
 

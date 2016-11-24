@@ -34,7 +34,11 @@ class BaseCsrfVerifier implements IMiddleware
 			return false;
 		}
 
-		foreach ($this->except as $url) {
+		$max = count($this->except) - 1;
+
+		for ($i = $max; $i >= 0; $i--) {
+			$url = $this->except[$i];
+
 			$url = rtrim($url, '/');
 			if ($url[strlen($url) - 1] === '*') {
 				$url = rtrim($url, '*');
@@ -43,7 +47,7 @@ class BaseCsrfVerifier implements IMiddleware
 				$skip = ($url === rtrim($request->getUri(), '/'));
 			}
 
-			if ($skip) {
+			if ($skip === true) {
 				return true;
 			}
 		}
@@ -56,14 +60,14 @@ class BaseCsrfVerifier implements IMiddleware
 
 		if ($request->getMethod() !== 'get' && !$this->skip($request)) {
 
-			$token = $request->getInput()->post->get(static::POST_KEY);
+			$token = $request->getInput()->get(static::POST_KEY, null, 'post');
 
 			// If the token is not posted, check headers for valid x-csrf-token
 			if ($token === null) {
 				$token = $request->getHeader(static::HEADER_KEY);
 			}
 
-			if (!$this->csrfToken->validate($token)) {
+			if ($this->csrfToken->validate($token) === false) {
 				throw new TokenMismatchException('Invalid csrf-token.');
 			}
 

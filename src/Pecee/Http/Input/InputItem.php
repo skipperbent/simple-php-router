@@ -1,7 +1,7 @@
 <?php
 namespace Pecee\Http\Input;
 
-class InputItem
+class InputItem implements IInputItem
 {
 	public $index;
 	public $name;
@@ -19,6 +19,14 @@ class InputItem
 	/**
 	 * @return string
 	 */
+	public function getIndex()
+	{
+		return $this->index;
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getName()
 	{
 		return $this->name;
@@ -30,14 +38,6 @@ class InputItem
 	public function getValue()
 	{
 		return $this->value;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getIndex()
-	{
-		return $this->index;
 	}
 
 	/**

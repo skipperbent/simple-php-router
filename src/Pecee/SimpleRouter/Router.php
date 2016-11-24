@@ -140,8 +140,12 @@ class Router
 	protected function processRoutes(array $routes, IGroupRoute $group = null, IRoute $parent = null)
 	{
 		// Loop through each route-request
+		$max = count($routes) - 1;
+
 		/* @var $route IRoute */
-		foreach ($routes as $route) {
+		for ($i = $max; $i >= 0; $i--) {
+
+			$route = $routes[$i];
 
 			if ($route instanceof IGroupRoute) {
 
@@ -238,10 +242,10 @@ class Router
 				$this->originalUrl = $this->request->getUri();
 			}
 
-			$max = count($this->processedRoutes);
+			$max = count($this->processedRoutes) - 1;
 
 			/* @var $route IRoute */
-			for ($i = 0; $i < $max; $i++) {
+			for ($i = $max; $i >= 0; $i--) {
 
 				$route = $this->processedRoutes[$i];
 
