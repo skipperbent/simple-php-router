@@ -100,7 +100,7 @@ class InputFile extends InputItem
 	 */
 	public function setError($error)
 	{
-		$this->error = $error;
+		$this->error = (int)$error;
 		return $this;
 	}
 
