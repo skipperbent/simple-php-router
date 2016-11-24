@@ -52,12 +52,12 @@ use \Pecee\SimpleRouter\SimpleRouter;
 // Load external routes file
 require_once 'routes.php';
 
-/* 
+/*
  * The default namespace for route-callbacks, so we don't have to specify it each time.
  * Can be overwritten by using the namespace config option on your routes.
  */
- 
-SimpleRouter::setDefaultNamespace('MyWebsite');
+
+SimpleRouter::setDefaultNamespace('Demo\Controllers');
 
 // Start the routing
 SimpleRouter::start();
@@ -79,9 +79,9 @@ use Pecee\SimpleRouter\SimpleRouter;
 /*
  * This route will match the url /v1/services/answers/1/
  * The middleware is just a class that renders before the
- * controller or callback is loaded. 
- * 
- * This is useful for stopping the request, for 
+ * controller or callback is loaded.
+ *
+ * This is useful for stopping the request, for
  * instance if a user is not authenticated etc.
  */
 
@@ -100,24 +100,24 @@ SimpleRouter::group(['middleware' => 'Middlewares\Site', 'exceptionHandler' => '
      */
     SimpleRouter::get('/answers/{id?}', 'ControllerAnswers@show');
 
-        
+
     /**
      * This example will route url when matching the regular expression to the method.
      * For example route: domain.com/ajax/music/world -> ControllerAjax@process (parameter: music/world)
-     */ 
-     
+     */
+
     SimpleRouter::all('/ajax', 'ControllerAjax@process')->setMatch('.*?\\/ajax\\/([A-Za-z0-9\\/]+)');
 
 
     /**
      * Restful resource (see IRestController interface for available methods)
      */
-     
+
     SimpleRouter::resource('/rest', 'ControllerRessource');
 
 
     /**
-     * Load the entire controller (where url matches method names - getIndex(), postIndex(), putIndex()). 
+     * Load the entire controller (where url matches method names - getIndex(), postIndex(), putIndex()).
      * The url paths will determine which method to render.
      *
      * For example:
@@ -128,18 +128,18 @@ SimpleRouter::group(['middleware' => 'Middlewares\Site', 'exceptionHandler' => '
      *
      * etc.
      */
-     
+
     SimpleRouter::controller('/animals', 'ControllerAnimals');
 
 
     /**
      * Example of providing callback instead of Controller
      */
-     
+
     SimpleRouter::post('/something', function() {
-    
+
         die('Callback example');
-        
+
     });
 
 });
@@ -192,7 +192,7 @@ class CustomExceptionHandler implements IExceptionHandler
 		}
 
 		throw $error;
-		
+
 	}
 
 }
@@ -208,7 +208,7 @@ Route::group(['domain' => '{account}.myapp.com'], function () {
     Route::get('user/{id}', function ($account, $id) {
         // Do stuff...
     });
-    
+
 });
 ```
 
@@ -229,11 +229,11 @@ $router = Router::getInstance();
 $route = new RouteUrl('/answer/1', function() {
 
     die('this callback will match /answer/1');
-    
+
 });
 
 $route->setMiddleware('\Demo\Middlewares\AuthMiddleware');
-$route->setNamespace('MyWebsite');
+$route->setNamespace('\Demo\Controllers');
 $route->setPrefix('v1');
 
 /* Add the route to the router */
@@ -257,7 +257,7 @@ class Router extends SimpleRouter {
 
         // change this to whatever makes sense in your project
         require_once 'routes.php';
-        
+
         // change default namespace for all routes
         parent::setDefaultNamespace('\Demo');
 
@@ -419,9 +419,9 @@ Querystrings are ignored.
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 
 class CsrfVerifier extends BaseCsrfVerifier {
-    
+
     protected $except = [
-        '/companies/*', 
+        '/companies/*',
         '/api',
     ];
 
@@ -478,9 +478,9 @@ By doing this the route will now load the url ```/article/view/1``` instead of `
 The last thing we need to do, is to add our custom boot-manager to the ```routes.php``` file. You can create as many bootmanagers as you like and easily add them in your ```routes.php``` file.
 
 ## Easily overwrite route about to be loaded
-Sometimes it can be useful to manipulate the route about to be loaded. 
-simple-php-router allows you to easily change the route about to be executed. 
-All information about the current route is stored in the ```\Pecee\SimpleRouter\Router``` instance's `loadedRoute` property. 
+Sometimes it can be useful to manipulate the route about to be loaded.
+simple-php-router allows you to easily change the route about to be executed.
+All information about the current route is stored in the ```\Pecee\SimpleRouter\Router``` instance's `loadedRoute` property.
 
 For easy access you can use the shortcut method `\Pecee\SimpleRouter\SimpleRouter::router()`.
 
@@ -500,7 +500,7 @@ $route->setMethod('hello');
 
 ### Examples
 
-It's only possible to change the route BEFORE the route has initially been loaded. If you want to redirect to another route, we highly recommend that you 
+It's only possible to change the route BEFORE the route has initially been loaded. If you want to redirect to another route, we highly recommend that you
 modify the `IRoute` object from a `Middleware` or `ExceptionHandler`, like the examples below.
 
 #### Rewriting to new route
@@ -520,11 +520,11 @@ use Pecee\SimpleRouter\Route\ILoadableRoute;
 class CustomMiddleware implements Middleware {
 
     public function handle(Request $request, ILoadableRoute &$route) {
-    
+
         $request->setUri(url('home'));
-        
+
     }
-    
+
 }
 
 ```
@@ -547,12 +547,12 @@ use Pecee\SimpleRouter\Route\ILoadableRoute;
 
 class CustomMiddleware implements Middleware {
 
-    public function handle(Request $request, ILoadableRoute &$route) { 
-    
+    public function handle(Request $request, ILoadableRoute &$route) {
+
         $route->callback('DefaultController@home');
-        
+
     }
-    
+
 }
 ```
 
