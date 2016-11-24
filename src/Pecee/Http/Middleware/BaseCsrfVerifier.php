@@ -2,7 +2,7 @@
 namespace Pecee\Http\Middleware;
 
 use Pecee\CsrfToken;
-use Pecee\Exceptions\TokenMismatchException;
+use Pecee\Http\Middleware\Exceptions\TokenMismatchException;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Route\ILoadableRoute;
 

@@ -208,8 +208,14 @@ class Router
 
 			/* Initialize boot-managers */
 			if (count($this->bootManagers) > 0) {
+
+				$max = count($this->bootManagers) - 1;
+
 				/* @var $manager IRouterBootManager */
-				foreach ($this->bootManagers as $manager) {
+				for ($i = 0; $i < $max; $i++) {
+
+					$manager = $this->bootManagers[$i];
+
 					$this->request = $manager->boot($this->request);
 
 					if (!($this->request instanceof Request)) {
@@ -232,8 +238,12 @@ class Router
 				$this->originalUrl = $this->request->getUri();
 			}
 
+			$max = count($this->processedRoutes);
+
 			/* @var $route IRoute */
-			foreach ($this->processedRoutes as $route) {
+			for ($i = 0; $i < $max; $i++) {
+
+				$route = $this->processedRoutes[$i];
 
 				/* If the route matches */
 				if ($route->matchRoute($this->request)) {
@@ -279,8 +289,12 @@ class Router
 
 	protected function handleException(\Exception $e)
 	{
+		$max = count($this->exceptionHandlers);
+
 		/* @var $handler IExceptionHandler */
-		foreach ($this->exceptionHandlers as $handler) {
+		for ($i = 0; $i < $max; $i++) {
+
+			$handler = $this->exceptionHandlers[$i];
 
 			$handler = new $handler();
 
@@ -327,8 +341,12 @@ class Router
 	 */
 	public function findRoute($name)
 	{
+		$max = count($this->processedRoutes);
+
 		/* @var $route ILoadableRoute */
-		foreach ($this->processedRoutes as $route) {
+		for ($i = 0; $i < $max; $i++) {
+
+			$route = $this->processedRoutes[$i];
 
 			/* Check if the name matches with a name on the route. Should match either router alias or controller alias. */
 			if ($route->hasName($name)) {
@@ -421,8 +439,12 @@ class Router
 
 			/* Loop through all the routes to see if we can find a match */
 
+			$max = count($this->processedRoutes);
+
 			/* @var $route ILoadableRoute */
-			foreach ($this->processedRoutes as $route) {
+			for ($i = 0; $i < $max; $i++) {
+
+				$route = $this->processedRoutes[$i];
 
 				/* Check if the route contains the name/alias */
 				if ($route->hasName($controller)) {
