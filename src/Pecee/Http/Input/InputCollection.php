@@ -3,7 +3,7 @@ namespace Pecee\Http\Input;
 
 class InputCollection implements \IteratorAggregate
 {
-	protected $data = array();
+	protected $data = [];
 
 	/**
 	 * Search for input element matching index.
@@ -41,15 +41,11 @@ class InputCollection implements \IteratorAggregate
 	{
 		$input = $this->findFirst($index);
 
-		if($input !== null && trim($input->getValue()) !== '') {
+		if ($input !== null && trim($input->getValue()) !== '') {
 			return $input->getValue();
 		}
 
 		return $default;
-	}
-
-	public function getValue($index, $default = null) {
-
 	}
 
 	/**
@@ -63,6 +59,7 @@ class InputCollection implements \IteratorAggregate
 		// Ensure that item are always available
 		if ($item === null) {
 			$this->data[$index] = new InputItem($index, null);
+
 			return $this->data[$index];
 		}
 

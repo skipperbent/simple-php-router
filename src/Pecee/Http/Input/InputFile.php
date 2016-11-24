@@ -104,6 +104,15 @@ class InputFile extends InputItem
 		return $this;
 	}
 
+	public function getValue()
+	{
+		return $this->getTmpName();
+	}
+
+	public function hasError() {
+		return ($this->getError() !== 0);
+	}
+
 	/**
 	 * Create from array
 	 * @param array $values
@@ -116,21 +125,23 @@ class InputFile extends InputItem
 		}
 
 		$input = new static($values['index']);
-		$input->setTmpName((isset($values['error']) ? $values['error'] : null));
+		$input->setError((isset($values['error']) ? $values['error'] : null));
 		$input->setName((isset($values['name']) ? $values['name'] : null));
 		$input->setSize((isset($values['size']) ? $values['size'] : null));
 		$input->setType((isset($values['type']) ? $values['type'] : null));
-		$input->setError((isset($values['tmp_name']) ? $values['tmp_name'] : null));
+		$input->setTmpName((isset($values['tmp_name']) ? $values['tmp_name'] : null));
 
 		return $input;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getValue()
-	{
-		return $this->tmpName;
+	public function toArray() {
+		return [
+			'tmp_name' => $this->tmpName,
+			'type' => $this->type,
+			'size' => $this->size,
+			'name' => $this->name,
+			'error' => $this->error,
+		];
 	}
 
 }

@@ -107,7 +107,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
 			$action = isset($parameters['action']) ? $parameters['action'] : null;
 			unset($parameters['action']);
 
-			$method = request()->getMethod();
+			$method = $request->getMethod();
 
 			// Delete
 			if (isset($parameters['id']) && $method === static::REQUEST_TYPE_DELETE) {

@@ -66,13 +66,12 @@ class Response
 			'Etag: ' . $eTag
 		]);
 
-		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $lastModified ||
-			isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] === $eTag
-		) {
+		$httpModified = $this->request->getHeader('http-if-modified-since');
+		$httpIfNoneMatch = $this->request->getHeader('http-if-none-match');
 
-			$this->headers([
-				'HTTP/1.1 304 Not Modified'
-			]);
+		if ($httpModified !== null && strtotime($httpModified) == $lastModified || $httpIfNoneMatch !== null && $httpIfNoneMatch === $eTag) {
+
+			$this->header('HTTP/1.1 304 Not Modified');
 
 			exit();
 		}
@@ -86,7 +85,7 @@ class Response
 	 */
 	public function json(array $value)
 	{
-		$this->header('Content-type: application/json');
+		$this->header('Content-Type: application/json');
 		echo json_encode($value);
 		die();
 	}
@@ -109,8 +108,9 @@ class Response
 	 */
 	public function headers(array $headers)
 	{
-		foreach ($headers as $header) {
-			header($header);
+		$max = count($headers);
+		for($i = 0; $i < $max; $i++) {
+			$this->header($headers[$i]);
 		}
 		return $this;
 	}
