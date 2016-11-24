@@ -48,14 +48,19 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 	public function setUrl($url)
 	{
 		$this->url = ($url === '/') ? '/' : '/' . trim($url, '/') . '/';
-		$regex = sprintf(static::PARAMETERS_REGEX_MATCH, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
-		if (preg_match_all('/' . $regex . '/is', $this->url, $matches)) {
+		if(strpos($this->url, $this->paramModifiers[0]) !== false) {
 
-			$max = count($matches[1]);
+			$regex = sprintf(static::PARAMETERS_REGEX_MATCH, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
-			for($i = 0; $i < $max; $i++) {
-				$this->parameters[$matches[1][$i]] = null;
+			if (preg_match_all('/' . $regex . '/is', $this->url, $matches)) {
+
+				$max = count($matches[1]);
+
+				for ($i = 0; $i < $max; $i++) {
+					$this->parameters[$matches[1][$i]] = null;
+				}
+
 			}
 
 		}
