@@ -62,38 +62,11 @@ class Input
 	protected function parseInputs()
 	{
 		/* Parse get requests */
-
 		if (count($_GET) > 0) {
-
-			$max = count($_GET) - 1;
-			$keys = array_keys($_GET);
-
-			for ($i = $max; $i >= 0; $i--) {
-
-				$key = $keys[$i];
-				$value = $_GET[$key];
-
-				// Handle array input
-				if (is_array($value) === false) {
-					$this->get[$key] = new InputItem($key, $value);
-					continue;
-				}
-
-				$subMax = count($value) - 1;
-				$keys = array_keys($value);
-				$output = [];
-
-				for ($i = $subMax; $i >= 0; $i--) {
-					$output[$keys[$i]] = new InputItem($key, $value[$keys[$i]]);
-				}
-
-				$this->get[$key] = $output;
-			}
-
+			$this->get = $this->handleGetPost($_GET);
 		}
 
 		/* Parse post requests */
-
 		$postVars = $_POST;
 
 		if (in_array($this->request->getMethod(), ['put', 'patch', 'delete']) === true) {
@@ -101,32 +74,7 @@ class Input
 		}
 
 		if (count($postVars) > 0) {
-
-			$max = count($postVars) - 1;
-			$keys = array_keys($postVars);
-
-			for ($i = $max; $i >= 0; $i--) {
-
-				$key = $keys[$i];
-				$value = $postVars[$key];
-
-				// Handle array input
-				if (is_array($value) === false) {
-					$this->post[$key] = new InputItem($key, $value);
-					continue;
-				}
-
-				$subMax = count($value) - 1;
-				$keys = array_keys($value);
-				$output = [];
-
-				for ($i = $subMax; $i >= 0; $i--) {
-					$output[$keys[$i]] = new InputItem($key, $value[$keys[$i]]);
-				}
-
-				$this->post[$key] = $output;
-			}
-
+			$this->post = $this->handleGetPost($postVars);
 		}
 
 		/* Parse get requests */
@@ -168,7 +116,38 @@ class Input
 				$this->file[$key] = $output;
 			}
 		}
+	}
 
+	protected function handleGetPost($array)
+	{
+		$tmp = [];
+
+		$max = count($array) - 1;
+		$keys = array_keys($array);
+
+		for ($i = $max; $i >= 0; $i--) {
+
+			$key = $keys[$i];
+			$value = $array[$key];
+
+			// Handle array input
+			if (is_array($value) === false) {
+				$tmp[$key] = new InputItem($key, $value);
+				continue;
+			}
+
+			$subMax = count($value) - 1;
+			$keys = array_keys($value);
+			$output = [];
+
+			for ($i = $subMax; $i >= 0; $i--) {
+				$output[$keys[$i]] = new InputItem($key, $value[$keys[$i]]);
+			}
+
+			$tmp[$key] = $output;
+		}
+
+		return $tmp;
 	}
 
 	public function findPost($index, $default = null)
@@ -188,7 +167,6 @@ class Input
 
 	public function getObject($index, $default = null, $method = null)
 	{
-
 		$element = null;
 
 		if ($method === null || strtolower($method) === 'get') {
