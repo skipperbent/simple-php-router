@@ -22,7 +22,12 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 	public function loadMiddleware(Request $request, ILoadableRoute &$route)
 	{
 		if (count($this->getMiddlewares()) > 0) {
-			foreach ($this->getMiddlewares() as $middleware) {
+
+			$max = count($this->getMiddlewares());
+
+			for ($i = 0; $i < $max; $i++) {
+
+				$middleware = $this->getMiddlewares()[$i];
 
 				$middleware = $this->loadClass($middleware);
 				if (!($middleware instanceof IMiddleware)) {
@@ -43,12 +48,21 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 	public function setUrl($url)
 	{
 		$this->url = ($url === '/') ? '/' : '/' . trim($url, '/') . '/';
-		$regex = sprintf(static::PARAMETERS_REGEX_MATCH, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
-		if (preg_match_all('/' . $regex . '/is', $this->url, $matches)) {
-			foreach ($matches[1] as $key) {
-				$this->parameters[$key] = null;
+		if(strpos($this->url, $this->paramModifiers[0]) !== false) {
+
+			$regex = sprintf(static::PARAMETERS_REGEX_MATCH, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
+
+			if (preg_match_all('/' . $regex . '/is', $this->url, $matches)) {
+
+				$max = count($matches[1]);
+
+				for ($i = 0; $i < $max; $i++) {
+					$this->parameters[$matches[1][$i]] = null;
+				}
+
 			}
+
 		}
 
 		return $this;
@@ -92,7 +106,14 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 		$param2 = $this->paramModifiers[0] . '%s' . $this->paramOptionalSymbol . $this->paramModifiers[1];
 
 		/* Let's parse the values of any {} parameter in the url */
-		foreach ($params as $param => $value) {
+
+		$max = count($params);
+		$keys = array_keys($params);
+
+		for ($i = 0; $i < $max; $i++) {
+			$param = $keys[$i];
+			$value = $params[$param];
+
 			$value = (isset($parameters[$param])) ? $parameters[$param] : $value;
 
 			if (stripos($url, $param1) !== false || stripos($url, $param) !== false) {

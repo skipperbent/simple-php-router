@@ -129,7 +129,12 @@ abstract class Route implements IRoute
 
 			$parameters = [];
 
-			foreach ($parameterNames as $name) {
+			$max = count($parameterNames);
+
+			for ($i = 0; $i < $max; $i++) {
+
+				$name = $parameterNames[$i];
+
 				$parameterValue = isset($parameterValues[$name['name']]) ? $parameterValues[$name['name']] : null;
 
 				if ($name['required'] && $parameterValue === null) {

@@ -1,5 +1,5 @@
 <?php
-namespace Pecee\Exceptions;
+namespace Pecee\Http\Middleware\Exceptions;
 
 class TokenMismatchException extends \Exception
 {

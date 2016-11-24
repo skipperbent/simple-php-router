@@ -25,48 +25,123 @@ class Input
 	 */
 	protected $request;
 
+	protected $invalidContentType = false;
+
+	protected $invalidContentTypes = [
+		'text/plain',
+		'application/x-www-form-urlencoded',
+	];
+
 	public function __construct(Request $request)
 	{
 		$this->request = $request;
-		$this->setGet();
-		$this->setPost();
-		$this->setFile();
-	}
 
-	/**
-	 * Get all get/post items
-	 * @param array|null $filter Only take items in filter
-	 * @return array
-	 */
-	public function all(array $filter = null)
-	{
-		$output = $_POST;
+		$this->post = new InputCollection();
+		$this->get = new InputCollection();
+		$this->file = new InputCollection();
 
-		if ($this->request->getMethod() === 'post') {
+		if ($request->getMethod() !== 'get') {
 
-			$contents = file_get_contents('php://input');
+			$requestContentType = $request->getHeader('http-content-type');
 
-			if (stripos(trim($contents), '{') === 0) {
-				$output = json_decode($contents, true);
-				if ($output === false) {
-					$output = array();
+			$max = count($this->invalidContentTypes) - 1;
+
+			for ($i = $max; $i >= 0; $i--) {
+
+				$contentType = $this->invalidContentType[$i];
+
+				if (stripos($requestContentType, $contentType) === 0) {
+					$this->invalidContentType = true;
+					break;
 				}
 			}
 		}
 
-		$output = array_merge($_GET, $output);
+		if ($this->invalidContentType === false) {
+			$this->parseInputs();
+		}
+	}
 
-		if ($filter !== null) {
-			$output = array_filter($output, function ($key) use ($filter) {
-				if (in_array($key, $filter)) {
-					return true;
-				}
+	protected function parseInputs()
+	{
+		/* Parse get requests */
 
-				return false;
-			}, ARRAY_FILTER_USE_KEY);
+		if (count($_GET) > 0) {
+
+			$max = count($_GET) - 1;
+			$keys = array_keys($_GET);
+
+			for ($i = $max; $i >= 0; $i--) {
+
+				$key = $keys[$i];
+				$value = $_GET[$key];
+
+				$this->get->{$key} = new InputItem($key, $value);
+			}
+
 		}
 
-		return $output;
+		/* Parse post requests */
+
+		$postVars = $_POST;
+
+		if (in_array($this->request->getMethod(), ['put', 'patch', 'delete']) === true) {
+			parse_str(file_get_contents('php://input'), $postVars);
+		}
+
+		if (count($postVars) > 0) {
+
+			$max = count($postVars) - 1;
+			$keys = array_keys($postVars);
+
+			for ($i = $max; $i >= 0; $i--) {
+
+				$key = $keys[$i];
+				$value = $postVars[$key];
+
+				$this->post->{strtolower($key)} = new InputItem($key, $value);
+			}
+
+		}
+
+		/* Parse get requests */
+
+		if (count($_FILES) > 0) {
+
+			$max = count($_FILES) - 1;
+			$keys = array_keys($_FILES);
+
+			for ($i = $max; $i >= 0; $i--) {
+
+				$key = $keys[$i];
+				$value = $_FILES[$key];
+
+				// Handle array input
+				if (is_array($value['name']) === false) {
+					$values['index'] = $key;
+					$this->file->{strtolower($key)} = InputFile::createFromArray($values);
+					continue;
+				}
+
+				$output = new InputCollection();
+
+				foreach ($value['name'] as $k => $val) {
+
+					$output->{$k} = InputFile::createFromArray([
+						'index'    => $key,
+						'error'    => $value['error'][$k],
+						'tmp_name' => $value['tmp_name'][$k],
+						'type'     => $value['type'][$k],
+						'size'     => $value['size'][$k],
+						'name'     => $value['name'][$k],
+					]);
+
+				}
+
+				$this->file->{strtolower($key)} = $output;
+			}
+		}
+
 	}
 
 	public function getObject($index, $default = null)
@@ -98,9 +173,10 @@ class Input
 
 	/**
 	 * Get input element value matching index
+	 *
 	 * @param string $index
 	 * @param string|null $default
-	 * @return string|null
+	 * @return InputItem|string
 	 */
 	public function get($index, $default = null)
 	{
@@ -112,7 +188,7 @@ class Input
 				return $item;
 			}
 
-			return (trim($item->getValue()) === '') ? $default : $item->getValue();
+			return (!is_array($item->getValue()) && trim($item->getValue()) === '') ? $default : $item;
 		}
 
 		return $default;
@@ -123,89 +199,44 @@ class Input
 		return ($this->getObject($index) !== null);
 	}
 
-	public function setGet()
+	/**
+	 * Get all get/post items
+	 * @param array|null $filter Only take items in filter
+	 * @return array
+	 */
+	public function all(array $filter = null)
 	{
-		$this->get = new InputCollection();
+		if ($this->invalidContentType === true) {
+			return [];
+		}
 
-		if (count($_GET) > 0) {
-			foreach ($_GET as $key => $get) {
-				if (is_array($get) === false) {
-					$this->get->{$key} = new InputItem($key, $get);
-					continue;
+		$output = $_POST;
+
+		if ($this->request->getMethod() === 'post') {
+
+			$contents = file_get_contents('php://input');
+
+			if (stripos(trim($contents), '{') === 0) {
+				$output = json_decode($contents, true);
+				if ($output === false) {
+					$output = [];
 				}
-
-				$output = new InputCollection();
-
-				foreach ($get as $k => $g) {
-					$output->{$k} = new InputItem($k, $g);
-				}
-
-				$this->get->{$key} = $output;
 			}
 		}
-	}
 
-	public function setPost()
-	{
-		$this->post = new InputCollection();
+		$output = array_merge($_GET, $output);
 
-		$postVars = $_POST;
+		if ($filter !== null) {
+			$output = array_filter($output, function ($key) use ($filter) {
+				if (in_array($key, $filter)) {
+					return true;
+				}
 
-		if (in_array($this->request->getMethod(), ['put', 'patch', 'delete']) === true) {
-			parse_str(file_get_contents('php://input'), $postVars);
+				return false;
+			}, ARRAY_FILTER_USE_KEY);
 		}
 
-		if (count($postVars) > 0) {
-
-			foreach ($postVars as $key => $post) {
-				if (is_array($post) === false) {
-					$this->post->{strtolower($key)} = new InputItem($key, $post);
-					continue;
-				}
-
-				$output = new InputCollection();
-
-				foreach ($post as $k => $p) {
-					$output->{$k} = new InputItem($k, $p);
-				}
-
-				$this->post->{strtolower($key)} = $output;
-			}
-		}
-	}
-
-	public function setFile()
-	{
-		$this->file = new InputCollection();
-
-		if (count($_FILES) > 0) {
-			foreach ($_FILES as $key => $values) {
-
-				// Handle array input
-				if (is_array($values['name']) === false && trim($values['error']) !== '4') {
-					$values['index'] = $key;
-					$this->file->{strtolower($key)} = InputFile::createFromArray($values);
-					continue;
-				}
-
-				$output = new InputCollection();
-
-				foreach ($values['name'] as $k => $val) {
-					if (trim($val['error'][$k]) !== '4') {
-						$output->{$k} = InputFile::createFromArray([
-							'index' => $k,
-							'error' => $val['error'][$k],
-							'tmp_name' => $val['tmp_name'][$k],
-							'type' => $val['type'][$k],
-							'size' => $val['size'][$k],
-							'name' => $val['name'][$k]
-						]);
-					}
-				}
-
-				$this->file->{strtolower($key)} = $output;
-			}
-		}
+		return $output;
 	}
 
 }

@@ -5,7 +5,7 @@ use Pecee\Http\Input\Input;
 
 class Request
 {
-	protected $data = array();
+	protected $data = [];
 	protected $headers;
 	protected $host;
 	protected $uri;
@@ -15,20 +15,21 @@ class Request
 	public function __construct()
 	{
 		$this->parseHeaders();
-		$this->input = new Input($this);
 		$this->host = $this->getHeader('http-host');;
 		$this->uri = $this->getHeader('request-uri');
-		$this->method = strtolower($this->input->post->findFirst('_method', $this->getHeader('request-method')));
+		$this->method = strtolower($this->getHeader('request-method'));
+		$this->input = new Input($this);
 	}
 
 	protected function parseHeaders()
 	{
-		$this->headers = array();
+		$this->headers = [];
 
 		foreach ($_SERVER as $name => $value) {
 			$this->headers[strtolower($name)] = $value;
 			$this->headers[strtolower(str_replace('_', '-', $name))] = $value;
 		}
+
 	}
 
 	public function isSecure()
@@ -136,7 +137,24 @@ class Request
 	 */
 	public function getHeader($name, $defaultValue = null)
 	{
-		return isset($this->headers[strtolower($name)]) ? $this->headers[strtolower($name)] : $defaultValue;
+		if (isset($this->headers[strtolower($name)])) {
+			return $this->headers[strtolower($name)];
+		}
+
+		$max = count($_SERVER) - 1;
+		$keys = array_keys($_SERVER);
+
+		for ($i = $max; $i >= 0; $i--) {
+
+			$key = $keys[$i];
+			$name = $_SERVER[$key];
+
+			if ($key === $name) {
+				return $name;
+			}
+		}
+
+		return $defaultValue;
 	}
 
 	/**
