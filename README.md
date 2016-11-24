@@ -57,7 +57,7 @@ require_once 'routes.php';
  * Can be overwritten by using the namespace config option on your routes.
  */
 
-SimpleRouter::setDefaultNamespace('Demo\Controllers');
+SimpleRouter::setDefaultNamespace('\Demo\Controllers');
 
 // Start the routing
 SimpleRouter::start();
@@ -150,7 +150,7 @@ SimpleRouter::get('/page/404', 'ControllerPage@notFound', ['as' => 'page.notfoun
 
 #### ExceptionHandler example
 
-This is a basic example of an ExceptionHandler implementation:
+This is a basic example of an ExceptionHandler implementation (please see "[Easily overwrite route about to be loaded](#easily-overwrite-route-about-to-be-loaded)" for examples on how to change callback).
 
 ```php
 namespace Demo\Handlers;
@@ -259,7 +259,7 @@ class Router extends SimpleRouter {
         require_once 'routes.php';
 
         // change default namespace for all routes
-        parent::setDefaultNamespace('\Demo');
+        parent::setDefaultNamespace('\Demo\Controllers');
 
         // Do initial stuff
         parent::start();
