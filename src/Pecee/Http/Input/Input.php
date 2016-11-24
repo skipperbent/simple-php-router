@@ -188,7 +188,7 @@ class Input
 				return $item;
 			}
 
-			return (!is_array($item->getValue()) && trim($item->getValue()) === '') ? $default : $item->getValue();
+			return (!is_array($item->getValue()) && trim($item->getValue()) === '') ? $default : $item;
 		}
 
 		return $default;
