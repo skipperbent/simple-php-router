@@ -17,7 +17,7 @@ class Request
 		$this->parseHeaders();
 		$this->host = $this->getHeader('http-host');;
 		$this->uri = $this->getHeader('request-uri');
-		$this->method = strtolower($this->getHeader('request-method'));
+		$this->method = $this->input->get('_method', strtolower($this->getHeader('request-method')));
 		$this->input = new Input($this);
 	}
 
@@ -25,9 +25,15 @@ class Request
 	{
 		$this->headers = [];
 
-		foreach ($_SERVER as $name => $value) {
-			$this->headers[strtolower($name)] = $value;
-			$this->headers[strtolower(str_replace('_', '-', $name))] = $value;
+		$max = count($_SERVER) - 1;
+		$keys = array_keys($_SERVER);
+
+		for($i = $max; $i >= 0; $i--) {
+			$key = $keys[$i];
+			$value = $_SERVER[$key];
+
+			$this->headers[strtolower($key)] = $value;
+			$this->headers[strtolower(str_replace('_', '-', $key))] = $value;
 		}
 
 	}

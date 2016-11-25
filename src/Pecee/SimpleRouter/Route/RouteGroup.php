@@ -19,8 +19,12 @@ class RouteGroup extends Route implements IGroupRoute
 	public function matchDomain(Request $request)
 	{
 		if (count($this->domains) > 0) {
-			foreach ($this->domains as $domain) {
 
+			$max = count($this->domains);
+
+			for ($i = 0; $i < $max; $i++) {
+
+				$domain = $this->domains[$i];
 				$parameters = $this->parseParameters($domain, $request->getHost(), '.*');
 
 				if ($parameters !== null) {

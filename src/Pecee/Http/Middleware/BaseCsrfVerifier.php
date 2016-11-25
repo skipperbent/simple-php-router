@@ -20,7 +20,7 @@ class BaseCsrfVerifier implements IMiddleware
 		$this->csrfToken = new CsrfToken();
 
 		// Generate or get the CSRF-Token from Cookie.
-		$this->token = (!$this->hasToken()) ? $this->generateToken() : $this->csrfToken->getToken();
+		$this->token = ($this->hasToken() === false) ? $this->generateToken() : $this->csrfToken->getToken();
 	}
 
 	/**
@@ -34,7 +34,11 @@ class BaseCsrfVerifier implements IMiddleware
 			return false;
 		}
 
-		foreach ($this->except as $url) {
+		$max = count($this->except) - 1;
+
+		for ($i = $max; $i >= 0; $i--) {
+			$url = $this->except[$i];
+
 			$url = rtrim($url, '/');
 			if ($url[strlen($url) - 1] === '*') {
 				$url = rtrim($url, '*');
@@ -43,7 +47,7 @@ class BaseCsrfVerifier implements IMiddleware
 				$skip = ($url === rtrim($request->getUri(), '/'));
 			}
 
-			if ($skip) {
+			if ($skip === true) {
 				return true;
 			}
 		}
@@ -54,16 +58,16 @@ class BaseCsrfVerifier implements IMiddleware
 	public function handle(Request $request, ILoadableRoute &$route = null)
 	{
 
-		if ($request->getMethod() !== 'get' && !$this->skip($request)) {
+		if (in_array($request->getMethod(), ['post', 'put', 'delete']) === true && $this->skip($request) === false) {
 
-			$token = $request->getInput()->post->get(static::POST_KEY);
+			$token = $request->getInput()->get(static::POST_KEY, null, 'post');
 
 			// If the token is not posted, check headers for valid x-csrf-token
 			if ($token === null) {
 				$token = $request->getHeader(static::HEADER_KEY);
 			}
 
-			if (!$this->csrfToken->validate($token)) {
+			if ($this->csrfToken->validate($token) === false) {
 				throw new TokenMismatchException('Invalid csrf-token.');
 			}
 

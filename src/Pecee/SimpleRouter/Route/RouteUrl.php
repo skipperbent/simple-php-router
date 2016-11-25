@@ -19,8 +19,12 @@ class RouteUrl extends LoadableRoute
 		// Match on custom defined regular expression
 		if ($this->regex !== null) {
 			$parameters = [];
-			if (preg_match('/(' . $this->regex . ')/is', $request->getHost() . $url, $parameters)) {
-				$this->parameters = (array)$parameters[0];
+			if (preg_match($this->regex, $request->getHost() . $url, $parameters)) {
+				/* Remove global match */
+				if(count($parameters) > 1) {
+					array_shift($parameters);
+					$this->parameters = $parameters;
+				}
 
 				return true;
 			}
