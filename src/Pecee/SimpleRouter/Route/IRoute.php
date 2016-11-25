@@ -5,195 +5,195 @@ use Pecee\Http\Request;
 
 interface IRoute
 {
-	/**
-	 * Method called to check if a domain matches
-	 *
-	 * @param Request $request
-	 * @return bool
-	 */
-	public function matchRoute(Request $request);
+    /**
+     * Method called to check if a domain matches
+     *
+     * @param Request $request
+     * @return bool
+     */
+    public function matchRoute(Request $request);
 
-	/**
-	 * Called when route is matched.
-	 * Returns class to be rendered.
-	 *
-	 * @param Request $request
-	 * @return object
-	 */
-	public function renderRoute(Request $request);
+    /**
+     * Called when route is matched.
+     * Returns class to be rendered.
+     *
+     * @param Request $request
+     * @return object
+     */
+    public function renderRoute(Request $request);
 
-	/**
-	 * Returns callback name/identifier for the current route based on the callback.
-	 * Useful if you need to get a unique identifier for the loaded route, for instance
-	 * when using translations etc.
-	 *
-	 * @return string
-	 */
-	public function getIdentifier();
+    /**
+     * Returns callback name/identifier for the current route based on the callback.
+     * Useful if you need to get a unique identifier for the loaded route, for instance
+     * when using translations etc.
+     *
+     * @return string
+     */
+    public function getIdentifier();
 
-	/**
-	 * Set allowed request methods
-	 *
-	 * @param array $methods
-	 * @return static $this
-	 */
-	public function setRequestMethods(array $methods);
+    /**
+     * Set allowed request methods
+     *
+     * @param array $methods
+     * @return static $this
+     */
+    public function setRequestMethods(array $methods);
 
-	/**
-	 * Get allowed request methods
-	 *
-	 * @return array
-	 */
-	public function getRequestMethods();
+    /**
+     * Get allowed request methods
+     *
+     * @return array
+     */
+    public function getRequestMethods();
 
-	/**
-	 * @return IRoute|null
-	 */
-	public function getParent();
+    /**
+     * @return IRoute|null
+     */
+    public function getParent();
 
-	/**
-	 * Get the group for the route.
-	 *
-	 * @return IGroupRoute|null
-	 */
-	public function getGroup();
+    /**
+     * Get the group for the route.
+     *
+     * @return IGroupRoute|null
+     */
+    public function getGroup();
 
-	/**
-	 * Set group
-	 *
-	 * @param IGroupRoute $group
-	 * @return static $this
-	 */
-	public function setGroup(IGroupRoute $group);
+    /**
+     * Set group
+     *
+     * @param IGroupRoute $group
+     * @return static $this
+     */
+    public function setGroup(IGroupRoute $group);
 
-	/**
-	 * Set parent route
-	 *
-	 * @param IRoute $parent
-	 * @return static $this
-	 */
-	public function setParent(IRoute $parent);
+    /**
+     * Set parent route
+     *
+     * @param IRoute $parent
+     * @return static $this
+     */
+    public function setParent(IRoute $parent);
 
-	/**
-	 * Set callback
-	 *
-	 * @param string $callback
-	 * @return static
-	 */
-	public function setCallback($callback);
+    /**
+     * Set callback
+     *
+     * @param string $callback
+     * @return static
+     */
+    public function setCallback($callback);
 
-	/**
-	 * @return string
-	 */
-	public function getCallback();
+    /**
+     * @return string
+     */
+    public function getCallback();
 
-	public function getMethod();
+    public function getMethod();
 
-	public function getClass();
+    public function getClass();
 
-	public function setMethod($method);
+    public function setMethod($method);
 
-	/**
-	 * @param string $namespace
-	 * @return static $this
-	 */
-	public function setNamespace($namespace);
+    /**
+     * @param string $namespace
+     * @return static $this
+     */
+    public function setNamespace($namespace);
 
-	/**
-	 * @return string
-	 */
-	public function getNamespace();
+    /**
+     * @return string
+     */
+    public function getNamespace();
 
-	/**
-	 * @param string $namespace
-	 * @return static $this
-	 */
-	public function setDefaultNamespace($namespace);
+    /**
+     * @param string $namespace
+     * @return static $this
+     */
+    public function setDefaultNamespace($namespace);
 
-	public function getDefaultNamespace();
+    public function getDefaultNamespace();
 
-	/**
-	 * Get regular expression match used for matching route (if defined).
-	 *
-	 * @return string
-	 */
-	public function getMatch();
+    /**
+     * Get regular expression match used for matching route (if defined).
+     *
+     * @return string
+     */
+    public function getMatch();
 
-	/**
-	 * Add regular expression match for the entire route.
-	 *
-	 * @param string $regex
-	 * @return static
-	 */
-	public function setMatch($regex);
+    /**
+     * Add regular expression match for the entire route.
+     *
+     * @param string $regex
+     * @return static
+     */
+    public function setMatch($regex);
 
-	/**
-	 * Get parameter names.
-	 *
-	 * @return array
-	 */
-	public function getWhere();
+    /**
+     * Get parameter names.
+     *
+     * @return array
+     */
+    public function getWhere();
 
-	/**
-	 * Set parameter names.
-	 *
-	 * @param array $options
-	 * @return static
-	 */
-	public function setWhere(array $options);
+    /**
+     * Set parameter names.
+     *
+     * @param array $options
+     * @return static
+     */
+    public function setWhere(array $options);
 
-	/**
-	 * Get parameters
-	 *
-	 * @return array
-	 */
-	public function getParameters();
+    /**
+     * Get parameters
+     *
+     * @return array
+     */
+    public function getParameters();
 
-	/**
-	 * Get parameters
-	 *
-	 * @param array $parameters
-	 * @return static $this
-	 */
-	public function setParameters(array $parameters);
+    /**
+     * Get parameters
+     *
+     * @param array $parameters
+     * @return static $this
+     */
+    public function setParameters(array $parameters);
 
-	/**
-	 * Merge with information from another route.
-	 *
-	 * @param array $settings
-	 * @param bool $merge
-	 * @return static $this
-	 */
-	public function setSettings(array $settings, $merge = false);
+    /**
+     * Merge with information from another route.
+     *
+     * @param array $settings
+     * @param bool $merge
+     * @return static $this
+     */
+    public function setSettings(array $settings, $merge = false);
 
-	/**
-	 * Export route settings to array so they can be merged with another route.
-	 *
-	 * @return array
-	 */
-	public function toArray();
+    /**
+     * Export route settings to array so they can be merged with another route.
+     *
+     * @return array
+     */
+    public function toArray();
 
-	/**
-	 * Get middlewares array
-	 *
-	 * @return array
-	 */
-	public function getMiddlewares();
+    /**
+     * Get middlewares array
+     *
+     * @return array
+     */
+    public function getMiddlewares();
 
-	/**
-	 * Set middleware class-name
-	 *
-	 * @param string $middleware
-	 * @return static
-	 */
-	public function setMiddleware($middleware);
+    /**
+     * Set middleware class-name
+     *
+     * @param string $middleware
+     * @return static
+     */
+    public function setMiddleware($middleware);
 
-	/**
-	 * Set middlewares array
-	 *
-	 * @param array $middlewares
-	 * @return $this
-	 */
-	public function setMiddlewares(array $middlewares);
+    /**
+     * Set middlewares array
+     *
+     * @param array $middlewares
+     * @return $this
+     */
+    public function setMiddlewares(array $middlewares);
 
 }

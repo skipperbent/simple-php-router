@@ -5,50 +5,50 @@ use Pecee\Http\Request;
 
 interface ILoadableRoute extends IRoute
 {
-	/**
-	 * Find url that matches method, parameters or name.
-	 * Used when calling the url() helper.
-	 *
-	 * @param string|null $method
-	 * @param array|null $parameters
-	 * @param string|null $name
-	 * @return string
-	 */
-	public function findUrl($method = null, $parameters = null, $name = null);
+    /**
+     * Find url that matches method, parameters or name.
+     * Used when calling the url() helper.
+     *
+     * @param string|null $method
+     * @param array|null $parameters
+     * @param string|null $name
+     * @return string
+     */
+    public function findUrl($method = null, $parameters = null, $name = null);
 
-	/**
-	 * Loads and renders middlewares-classes
-	 *
-	 * @param Request $request
-	 * @param ILoadableRoute $route
-	 */
-	public function loadMiddleware(Request $request, ILoadableRoute &$route);
+    /**
+     * Loads and renders middlewares-classes
+     *
+     * @param Request $request
+     * @param ILoadableRoute $route
+     */
+    public function loadMiddleware(Request $request, ILoadableRoute &$route);
 
-	public function getUrl();
+    public function getUrl();
 
-	public function setUrl($url);
+    public function setUrl($url);
 
-	/**
-	 * Returns the provided name for the router.
-	 *
-	 * @return string
-	 */
-	public function getName();
+    /**
+     * Returns the provided name for the router.
+     *
+     * @return string
+     */
+    public function getName();
 
-	/**
-	 * Check if route has given name.
-	 *
-	 * @param string $name
-	 * @return bool
-	 */
-	public function hasName($name);
+    /**
+     * Check if route has given name.
+     *
+     * @param string $name
+     * @return bool
+     */
+    public function hasName($name);
 
-	/**
-	 * Sets the router name, which makes it easier to obtain the url or router at a later point.
-	 *
-	 * @param string $name
-	 * @return static $this
-	 */
-	public function setName($name);
+    /**
+     * Sets the router name, which makes it easier to obtain the url or router at a later point.
+     *
+     * @param string $name
+     * @return static $this
+     */
+    public function setName($name);
 
 }
