@@ -24,7 +24,7 @@ If you want a great new feature or experience any issues what-so-ever, please fe
 		- Setting up Nginx
 		- Setting up simple-php-router
 		- Helper methods
-		
+
 - Routes
 	- Basic routing
 		- Available methods
@@ -57,7 +57,7 @@ If you want a great new feature or experience any issues what-so-ever, please fe
 - Urls
  	- Get by name (single route)
  	- Get by name (controller route)
- 	- Get by class 
+ 	- Get by class
  	- Get by custom names for methods on a controller/resource route
  	- Getting REST/resource controller urls
 
@@ -101,7 +101,7 @@ We've included a simple demo project for the router which can be found in the `d
 
 Please note that the demo-project only covers how to integrate the `simple-php-router` in a project without an existing framework. If you are using a framework in your project, the implementation might vary.
 
-You can find the demo-project here: [https://github.com/skipperbent/simple-router-demo]()
+You can find the demo-project here: [https://github.com/skipperbent/simple-router-demo](https://github.com/skipperbent/simple-router-demo)
 
 **What we won't cover:**
 
@@ -355,7 +355,7 @@ SimpleRouter::get('/user/{id}/{name}', function ($id, $name) {
 })->where(['id' => '[0-9]+', 'name' => '[a-z]+']);
 ```
 
-### Regular expression route-match 
+### Regular expression route-match
 
 You can define a regular-expression match for the entire route if you wish.
 
@@ -367,7 +367,7 @@ The example below is using the following regular expression: `/ajax/([\w]+)/?([0
 
 **Doesn't match:** `/ajax/`
 
-Match groups specified in the regex will be passed on as parameters: 
+Match groups specified in the regex will be passed on as parameters:
 
 ```php
 SimpleRouter::all('/ajax/abc/123', function($param1, $param2) {
@@ -532,7 +532,7 @@ SimpleRouter::get('/page/404', 'ControllerPage@notFound', ['as' => 'page.notfoun
 
 # CSRF Protection
 
-Any forms posting to `POST`, `PUT` or `DELETE` routes should include the CSRF-token. We strongly recommend that you create your enable CSRF-verification on your site. 
+Any forms posting to `POST`, `PUT` or `DELETE` routes should include the CSRF-token. We strongly recommend that you create your enable CSRF-verification on your site.
 
 Create a new class and extend the ```BaseCsrfVerifier``` middleware class provided with simple-php-router.
 
