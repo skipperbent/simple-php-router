@@ -384,7 +384,10 @@ abstract class Route implements IRoute
         }
 
         if (count($this->parameters) > 0) {
-            $values['parameters'] = $this->parameters;
+            /* Ensure the right order + values */
+            $parameters = ($values['parameters'] + $this->parameters);
+            $parameters = array_merge($parameters, $this->parameters);
+            $this->setParameters($parameters);
         }
 
         if (count($this->middlewares) > 0) {
