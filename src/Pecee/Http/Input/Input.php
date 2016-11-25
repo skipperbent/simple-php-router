@@ -188,10 +188,6 @@ class Input
      */
     public function all(array $filter = null)
     {
-        if ($this->invalidContentType === true) {
-            return [];
-        }
-
         $output = $_POST;
 
         if ($this->request->getMethod() === 'post') {

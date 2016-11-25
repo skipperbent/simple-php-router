@@ -24,20 +24,19 @@ class InputItem implements IInputItem
         return $this->index;
     }
 
+    public function setIndex($index)
+    {
+        $this->index = $index;
+
+        return $this;
+    }
+
     /**
      * @return string
      */
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getValue()
-    {
-        return $this->value;
     }
 
     /**
@@ -50,6 +49,14 @@ class InputItem implements IInputItem
         $this->name = $name;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getValue()
+    {
+        return $this->value;
     }
 
     /**
@@ -68,5 +75,4 @@ class InputItem implements IInputItem
     {
         return (string)$this->value;
     }
-
 }
