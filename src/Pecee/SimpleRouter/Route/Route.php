@@ -77,10 +77,11 @@ abstract class Route implements IRoute
 		$lastCharacter = '';
 		$isParameter = false;
 		$parameter = '';
+		$routeLength = strlen($route) - 1;
 
-		for ($i = 0; $i < strlen($route); $i++) {
+		for ($i = $routeLength; $i >= 0; $i--) {
 
-			$character = $route[$i];
+			$character = strrev($route)[$i];
 
 			if ($character === '{') {
 				/* Remove "/" and "\" from regex */
@@ -129,9 +130,9 @@ abstract class Route implements IRoute
 
 			$parameters = [];
 
-			$max = count($parameterNames);
+			$max = count($parameterNames) - 1;
 
-			for ($i = 0; $i < $max; $i++) {
+			for ($i = $max; $i >= 0; $i--) {
 
 				$name = $parameterNames[$i];
 

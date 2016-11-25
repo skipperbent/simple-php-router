@@ -216,7 +216,7 @@ class Router
 				$max = count($this->bootManagers) - 1;
 
 				/* @var $manager IRouterBootManager */
-				for ($i = 0; $i < $max; $i++) {
+				for ($i = $max; $i >= 0; $i--) {
 
 					$manager = $this->bootManagers[$i];
 
@@ -345,10 +345,10 @@ class Router
 	 */
 	public function findRoute($name)
 	{
-		$max = count($this->processedRoutes);
+		$max = count($this->processedRoutes) - 1;
 
 		/* @var $route ILoadableRoute */
-		for ($i = 0; $i < $max; $i++) {
+		for ($i = $max; $i >= 0; $i--) {
 
 			$route = $this->processedRoutes[$i];
 
@@ -443,10 +443,10 @@ class Router
 
 			/* Loop through all the routes to see if we can find a match */
 
-			$max = count($this->processedRoutes);
+			$max = count($this->processedRoutes) - 1;
 
 			/* @var $route ILoadableRoute */
-			for ($i = 0; $i < $max; $i++) {
+			for ($i = $max; $i >= 0; $i--) {
 
 				$route = $this->processedRoutes[$i];
 

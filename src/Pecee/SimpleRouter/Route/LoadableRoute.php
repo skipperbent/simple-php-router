@@ -107,10 +107,10 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
 		/* Let's parse the values of any {} parameter in the url */
 
-		$max = count($params);
+		$max = count($params) - 1;
 		$keys = array_keys($params);
 
-		for ($i = 0; $i < $max; $i++) {
+		for ($i = $max; $i >= 0; $i--) {
 			$param = $keys[$i];
 			$value = $params[$param];
 

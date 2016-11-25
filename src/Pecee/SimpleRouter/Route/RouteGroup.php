@@ -20,9 +20,9 @@ class RouteGroup extends Route implements IGroupRoute
 	{
 		if (count($this->domains) > 0) {
 
-			$max = count($this->domains);
+			$max = count($this->domains) - 1;
 
-			for ($i = 0; $i < $max; $i++) {
+			for ($i = $max; $i >= 0; $i--) {
 
 				$domain = $this->domains[$i];
 				$parameters = $this->parseParameters($domain, $request->getHost(), '.*');
