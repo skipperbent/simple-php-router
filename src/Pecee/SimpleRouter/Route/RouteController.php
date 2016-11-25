@@ -59,7 +59,12 @@ class RouteController extends LoadableRoute implements IControllerRoute
 
 		/* Remove requestType from method-name, if it exists */
 		if ($method !== null) {
-			foreach (static::$requestTypes as $requestType) {
+			$max = count(static::$requestTypes);
+
+			for ($i = 0; $i < $max; $i++) {
+
+				$requestType = static::$requestTypes[$i];
+
 				if (stripos($method, $requestType) === 0) {
 					$method = substr($method, strlen($requestType));
 					break;
