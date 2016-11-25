@@ -6,11 +6,11 @@ use Pecee\SimpleRouter\Route\ILoadableRoute;
 
 interface IMiddleware
 {
-	/**
-	 * @param Request $request
-	 * @param ILoadableRoute $route
-	 * @return Request|null
-	 */
-	public function handle(Request $request, ILoadableRoute &$route);
+    /**
+     * @param Request $request
+     * @param ILoadableRoute $route
+     * @return Request|null
+     */
+    public function handle(Request $request, ILoadableRoute &$route);
 
 }

@@ -4,12 +4,12 @@ namespace Pecee\Http\Input;
 interface IInputItem
 {
 
-	public function getIndex();
+    public function getIndex();
 
-	public function getName();
+    public function getName();
 
-	public function getValue();
+    public function getValue();
 
-	public function __toString();
+    public function __toString();
 
 }
