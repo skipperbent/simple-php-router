@@ -6,201 +6,201 @@ use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 class RouteController extends LoadableRoute implements IControllerRoute
 {
-	protected $defaultMethod = 'index';
-	protected $controller;
-	protected $method;
-	protected $names = [];
+    protected $defaultMethod = 'index';
+    protected $controller;
+    protected $method;
+    protected $names = [];
 
-	public function __construct($url, $controller)
-	{
-		$this->setUrl($url);
-		$this->setName(trim(str_replace('/', '.', $url), '/'));
-		$this->controller = $controller;
-	}
+    public function __construct($url, $controller)
+    {
+        $this->setUrl($url);
+        $this->setName(trim(str_replace('/', '.', $url), '/'));
+        $this->controller = $controller;
+    }
 
-	/**
-	 * Check if route has given name.
-	 *
-	 * @param string $name
-	 * @return bool
-	 */
-	public function hasName($name)
-	{
-		if ($this->name === null) {
-			return false;
-		}
+    /**
+     * Check if route has given name.
+     *
+     * @param string $name
+     * @return bool
+     */
+    public function hasName($name)
+    {
+        if ($this->name === null) {
+            return false;
+        }
 
-		/* Remove method/type */
-		if (stripos($name, '.') !== false) {
-			$method = substr($name, strrpos($name, '.') + 1);
-			$newName = substr($name, 0, strrpos($name, '.'));
+        /* Remove method/type */
+        if (stripos($name, '.') !== false) {
+            $method = substr($name, strrpos($name, '.') + 1);
+            $newName = substr($name, 0, strrpos($name, '.'));
 
-			if (strtolower($this->name) === strtolower($newName) && in_array($method, $this->names)) {
-				return true;
-			}
-		}
+            if (strtolower($this->name) === strtolower($newName) && in_array($method, $this->names)) {
+                return true;
+            }
+        }
 
-		return parent::hasName($name);
-	}
+        return parent::hasName($name);
+    }
 
-	public function findUrl($method = null, $parameters = null, $name = null)
-	{
+    public function findUrl($method = null, $parameters = null, $name = null)
+    {
 
-		if (stripos($name, '.') !== false) {
-			$found = array_search(substr($name, strrpos($name, '.') + 1), $this->names);
-			if ($found !== false) {
-				$method = $found;
-			}
-		}
+        if (stripos($name, '.') !== false) {
+            $found = array_search(substr($name, strrpos($name, '.') + 1), $this->names);
+            if ($found !== false) {
+                $method = $found;
+            }
+        }
 
-		$url = '';
+        $url = '';
 
-		$parameters = (array)$parameters;
+        $parameters = (array)$parameters;
 
-		/* Remove requestType from method-name, if it exists */
-		if ($method !== null) {
+        /* Remove requestType from method-name, if it exists */
+        if ($method !== null) {
 
-			$max = count(static::$requestTypes);
+            $max = count(static::$requestTypes);
 
-			for ($i = 0; $i < $max; $i++) {
+            for ($i = 0; $i < $max; $i++) {
 
-				$requestType = static::$requestTypes[$i];
+                $requestType = static::$requestTypes[$i];
 
-				if (stripos($method, $requestType) === 0) {
-					$method = substr($method, strlen($requestType));
-					break;
-				}
-			}
+                if (stripos($method, $requestType) === 0) {
+                    $method = substr($method, strlen($requestType));
+                    break;
+                }
+            }
 
-			$method .= '/';
-		}
+            $method .= '/';
+        }
 
-		if ($this->getGroup() !== null && count($this->getGroup()->getDomains()) > 0) {
-			$url .= '//' . $this->getGroup()->getDomains()[0];
-		}
+        if ($this->getGroup() !== null && count($this->getGroup()->getDomains()) > 0) {
+            $url .= '//' . $this->getGroup()->getDomains()[0];
+        }
 
-		$url .= '/' . trim($this->getUrl(), '/') . '/' . strtolower($method) . join('/', $parameters);
+        $url .= '/' . trim($this->getUrl(), '/') . '/' . strtolower($method) . join('/', $parameters);
 
-		return '/' . trim($url, '/') . '/';
-	}
+        return '/' . trim($url, '/') . '/';
+    }
 
-	public function renderRoute(Request $request)
-	{
-		if ($this->getCallback() !== null && is_callable($this->getCallback())) {
+    public function renderRoute(Request $request)
+    {
+        if ($this->getCallback() !== null && is_callable($this->getCallback())) {
 
-			// When the callback is a function
-			call_user_func_array($this->getCallback(), $this->getParameters());
-		} else {
-			// When the callback is a method
-			$controller = explode('@', $this->getCallback());
-			$className = $this->getNamespace() . '\\' . $controller[0];
+            // When the callback is a function
+            call_user_func_array($this->getCallback(), $this->getParameters());
+        } else {
+            // When the callback is a method
+            $controller = explode('@', $this->getCallback());
+            $className = $this->getNamespace() . '\\' . $controller[0];
 
-			$class = $this->loadClass($className);
-			$method = $request->getMethod() . ucfirst($controller[1]);
+            $class = $this->loadClass($className);
+            $method = $request->getMethod() . ucfirst($controller[1]);
 
-			if (!method_exists($class, $method)) {
-				throw new NotFoundHttpException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
-			}
+            if (!method_exists($class, $method)) {
+                throw new NotFoundHttpException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
+            }
 
-			call_user_func_array([$class, $method], $this->getParameters());
+            call_user_func_array([$class, $method], $this->getParameters());
 
-			return $class;
-		}
+            return $class;
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	public function matchRoute(Request $request)
-	{
-		$url = parse_url(urldecode($request->getUri()), PHP_URL_PATH);
-		$url = rtrim($url, '/') . '/';
+    public function matchRoute(Request $request)
+    {
+        $url = parse_url(urldecode($request->getUri()), PHP_URL_PATH);
+        $url = rtrim($url, '/') . '/';
 
-		if (strtolower($url) == strtolower($this->url) || stripos($url, $this->url) === 0) {
+        if (strtolower($url) == strtolower($this->url) || stripos($url, $this->url) === 0) {
 
-			$strippedUrl = trim(str_ireplace($this->url, '/', $url), '/');
+            $strippedUrl = trim(str_ireplace($this->url, '/', $url), '/');
 
-			$path = explode('/', $strippedUrl);
+            $path = explode('/', $strippedUrl);
 
-			if (count($path) > 0) {
+            if (count($path) > 0) {
 
-				$method = (!isset($path[0]) || trim($path[0]) === '') ? $this->defaultMethod : $path[0];
-				$this->method = $method;
+                $method = (!isset($path[0]) || trim($path[0]) === '') ? $this->defaultMethod : $path[0];
+                $this->method = $method;
 
-				array_shift($path);
-				$this->parameters = $path;
+                array_shift($path);
+                $this->parameters = $path;
 
-				// Set callback
-				$this->setCallback($this->controller . '@' . $this->method);
+                // Set callback
+                $this->setCallback($this->controller . '@' . $this->method);
 
-				return true;
-			}
-		}
+                return true;
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * Get controller class-name.
-	 *
-	 * @return string
-	 */
-	public function getController()
-	{
-		return $this->controller;
-	}
+    /**
+     * Get controller class-name.
+     *
+     * @return string
+     */
+    public function getController()
+    {
+        return $this->controller;
+    }
 
-	/**
-	 * Get controller class-name.
-	 *
-	 * @param string $controller
-	 * @return static
-	 */
-	public function setController($controller)
-	{
-		$this->controller = $controller;
+    /**
+     * Get controller class-name.
+     *
+     * @param string $controller
+     * @return static
+     */
+    public function setController($controller)
+    {
+        $this->controller = $controller;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Return active method
-	 *
-	 * @return string
-	 */
-	public function getMethod()
-	{
-		return $this->method;
-	}
+    /**
+     * Return active method
+     *
+     * @return string
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
 
-	/**
-	 * Set active method
-	 *
-	 * @param string $method
-	 * @return static
-	 */
-	public function setMethod($method)
-	{
-		$this->method = $method;
+    /**
+     * Set active method
+     *
+     * @param string $method
+     * @return static
+     */
+    public function setMethod($method)
+    {
+        $this->method = $method;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Merge with information from another route.
-	 *
-	 * @param array $values
-	 * @param bool $merge
-	 * @return static
-	 */
-	public function setSettings(array $values, $merge = false)
-	{
-		if (isset($values['names'])) {
-			$this->names = $values['names'];
-		}
+    /**
+     * Merge with information from another route.
+     *
+     * @param array $values
+     * @param bool $merge
+     * @return static
+     */
+    public function setSettings(array $values, $merge = false)
+    {
+        if (isset($values['names'])) {
+            $this->names = $values['names'];
+        }
 
-		parent::setSettings($values, $merge);
+        parent::setSettings($values, $merge);
 
-		return $this;
-	}
+        return $this;
+    }
 
 }

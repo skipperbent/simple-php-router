@@ -1,46 +1,47 @@
 <?php
 namespace Pecee\Controllers;
 
-interface IRestController {
+interface IRestController
+{
 
-	/**
-	 * @return void
-	 */
-	function index();
+    /**
+     * @return void
+     */
+    function index();
 
-	/**
-	 * @param mixed $id
-	 * @return void
-	 */
-	function show($id);
+    /**
+     * @param mixed $id
+     * @return void
+     */
+    function show($id);
 
-	/**
-	 * @return void
-	 */
-	function store();
+    /**
+     * @return void
+     */
+    function store();
 
-	/**
-	 * @return void
-	 */
-	function create();
+    /**
+     * @return void
+     */
+    function create();
 
-	/**
-	 * View
-	 * @param mixed $id
-	 * @return void
-	 */
-	function edit($id);
+    /**
+     * View
+     * @param mixed $id
+     * @return void
+     */
+    function edit($id);
 
-	/**
-	 * @param mixed $id
-	 * @return void
-	 */
-	function update($id);
+    /**
+     * @param mixed $id
+     * @return void
+     */
+    function update($id);
 
-	/**
-	 * @param mixed $id
-	 * @return void
-	 */
-	function destroy($id);
+    /**
+     * @param mixed $id
+     * @return void
+     */
+    function destroy($id);
 
 }
