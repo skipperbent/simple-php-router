@@ -189,11 +189,12 @@ class Input
 	 *
 	 * @param string $index
 	 * @param string|null $default
+	 * @param string|null $method
 	 * @return InputItem|string
 	 */
-	public function get($index, $default = null)
+	public function get($index, $default = null, $method = null)
 	{
-		$input = $this->getObject($index, $default);
+		$input = $this->getObject($index, $default, $method);
 
 		if ($input instanceof InputItem) {
 			return (trim($input->getValue()) === '') ? $default : $input->getValue();

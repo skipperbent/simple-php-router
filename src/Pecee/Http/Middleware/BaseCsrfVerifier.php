@@ -20,7 +20,7 @@ class BaseCsrfVerifier implements IMiddleware
 		$this->csrfToken = new CsrfToken();
 
 		// Generate or get the CSRF-Token from Cookie.
-		$this->token = (!$this->hasToken()) ? $this->generateToken() : $this->csrfToken->getToken();
+		$this->token = ($this->hasToken() === false) ? $this->generateToken() : $this->csrfToken->getToken();
 	}
 
 	/**
@@ -58,7 +58,7 @@ class BaseCsrfVerifier implements IMiddleware
 	public function handle(Request $request, ILoadableRoute &$route = null)
 	{
 
-		if ($request->getMethod() !== 'get' && !$this->skip($request)) {
+		if (in_array($request->getMethod(), ['post', 'put', 'delete']) === true && $this->skip($request) === false) {
 
 			$token = $request->getInput()->get(static::POST_KEY, null, 'post');
 
