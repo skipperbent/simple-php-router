@@ -59,6 +59,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
 
 		/* Remove requestType from method-name, if it exists */
 		if ($method !== null) {
+
 			$max = count(static::$requestTypes);
 
 			for ($i = 0; $i < $max; $i++) {
@@ -70,6 +71,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
 					break;
 				}
 			}
+
 			$method .= '/';
 		}
 
