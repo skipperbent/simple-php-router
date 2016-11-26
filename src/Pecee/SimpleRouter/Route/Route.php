@@ -136,7 +136,7 @@ abstract class Route implements IRoute
 
                 $name = $parameterNames[$i];
 
-                $parameterValue = $parameterValues[$name['name']] ?? null;
+                $parameterValue = isset($parameterValues[$name['name']]) ? $parameterValues[$name['name']] : null;
 
                 if ($parameterValue === null && $name['required']) {
                     throw new HttpException('Missing required parameter ' . $name['name'], 404);
@@ -386,7 +386,7 @@ abstract class Route implements IRoute
         if (count($this->parameters) > 0) {
 
             /* Ensure the right order + values */
-            $parameters = ($values['parameters'] ?? []) + $this->parameters;
+            $parameters = (isset($values['parameters']) ? $values['parameters'] : []) + $this->parameters;
             $parameters = array_merge($parameters, $this->parameters);
 
             $this->setParameters($parameters);

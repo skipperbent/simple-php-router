@@ -92,8 +92,7 @@ composer require pecee/simple-router
 
 ## Requirements
 
-- PHP 5.4 or greater
-- mcrypt extension
+- PHP 5.5 or greater
 
 ## Notes
 

@@ -163,7 +163,7 @@ class Input
      */
     public function findPost($index, $defaultValue = null)
     {
-        return $this->post[$index] ?? $defaultValue;
+        return isset($this->post[$index]) ? $this->post[$index] : $defaultValue;
     }
 
     /**
@@ -175,7 +175,7 @@ class Input
      */
     public function findFile($index, $defaultValue = null)
     {
-        return $this->file[$index] ?? $defaultValue;
+        return isset($this->file[$index]) ? $this->file[$index] : $defaultValue;
     }
 
     /**
@@ -187,7 +187,7 @@ class Input
      */
     public function findGet($index, $defaultValue = null)
     {
-        return $this->get[$index] ?? $defaultValue;
+        return isset($this->get[$index]) ? $this->get[$index] : $defaultValue;
     }
 
     /**

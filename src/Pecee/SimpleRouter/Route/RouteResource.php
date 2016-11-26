@@ -115,7 +115,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
 
             $parameters = array_merge($this->parameters, (array)$parameters);
 
-            $action = $parameters['action'] ?? null;
+            $action = isset($parameters['action']) ? $parameters['action'] : null;
             unset($parameters['action']);
 
             $method = $request->getMethod();

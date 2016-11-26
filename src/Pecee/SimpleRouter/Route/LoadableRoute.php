@@ -121,7 +121,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             $param = $keys[$i];
             $value = $params[$param];
 
-            $value = $parameters[$param] ?? $value;
+            $value = isset($parameters[$param]) ? $parameters[$param] : $value;
 
             if (stripos($url, $param1) !== false || stripos($url, $param) !== false) {
                 $url = str_ireplace([sprintf($param1, $param), sprintf($param2, $param)], $value, $url);
