@@ -51,7 +51,7 @@ class Input
         }
 
         /* Parse get requests */
-        $this->parseFiles();
+        $this->file = $this->parseFiles();
     }
 
     public function parseFiles()
@@ -73,7 +73,13 @@ class Input
 
             $keys = [];
 
-            $list = array_merge_recursive($list, [$key => $this->rearrangeFiles($value['name'], $keys, $value)]);
+            $files = $this->rearrangeFiles($value['name'], $keys, $value);
+
+            if (isset($list[$key])) {
+                $list[$key][] = $files;
+            } else {
+                $list[$key] = $files;
+            }
 
         }
 
@@ -109,8 +115,6 @@ class Input
                     'filename' => $getItem($key, 'name'),
                 ]);
 
-                $output = array_merge_recursive($output, [$key => $file]);
-
                 if (isset($output[$key])) {
                     $output[$key][] = $file;
                 } else {
@@ -121,7 +125,14 @@ class Input
             }
 
             $index[] = $key;
-            $output = array_merge_recursive($output, [$key => $this->rearrangeFiles($value, $index, $original)]);
+
+            $files = $this->rearrangeFiles($value, $index, $original);
+
+            if (isset($output[$key])) {
+                $output[$key][] = $files;
+            } else {
+                $output[$key] = $files;
+            }
 
         }
 
