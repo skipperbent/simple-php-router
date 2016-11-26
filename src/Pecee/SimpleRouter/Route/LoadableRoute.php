@@ -51,7 +51,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         /* Match on custom defined regular expression */
 
         if ($this->regex === null) {
-            return false;
+            return null;
         }
 
         $parameters = [];
@@ -60,10 +60,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
             /* Remove global match */
             if (count($parameters) > 1) {
-
                 $this->setParameters(array_slice($parameters, 1));
-                //array_shift($parameters);
-                //$this->parameters = $parameters;
             }
 
             return true;

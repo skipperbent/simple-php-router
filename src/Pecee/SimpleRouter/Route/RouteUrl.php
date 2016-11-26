@@ -22,18 +22,14 @@ class RouteUrl extends LoadableRoute
         }
 
         /* Make regular expression based on route */
-        $route = rtrim($this->url, '/') . '/';
-
-        $parameters = $this->parseParameters($route, $url);
-
-        if ($parameters !== null) {
+        $parameters = $this->parseParameters($this->url, $url);
+        if($parameters !== null) {
             $this->setParameters($parameters);
-            //$this->parameters = array_merge($this->parameters, $parameters);
-
             return true;
         }
 
         return false;
+
     }
 
 }
