@@ -32,7 +32,7 @@ class Input
         $this->parseInputs();
     }
 
-    protected function parseInputs()
+    public function parseInputs()
     {
         /* Parse get requests */
         if (count($_GET) > 0) {
@@ -42,7 +42,7 @@ class Input
         /* Parse post requests */
         $postVars = $_POST;
 
-        if (in_array($this->request->getMethod(), ['put', 'patch', 'delete']) === true) {
+        if (in_array($this->request->getMethod(), ['put', 'patch', 'delete'], false) === true) {
             parse_str(file_get_contents('php://input'), $postVars);
         }
 
@@ -51,49 +51,86 @@ class Input
         }
 
         /* Parse get requests */
-
-        if (count($_FILES) > 0) {
-
-            $max = count($_FILES) - 1;
-            $keys = array_keys($_FILES);
-
-            for ($i = $max; $i >= 0; $i--) {
-
-                $key = $keys[$i];
-                $value = $_FILES[$key];
-
-                // Handle array input
-                if (is_array($value['name']) === false) {
-                    $values['index'] = $key;
-                    $this->file[$key] = InputFile::createFromArray(array_merge($value, $values));
-                    continue;
-                }
-
-                $subMax = count($value['name']) - 1;
-                $keys = array_keys($value['name']);
-                $output = [];
-
-                for ($i = $subMax; $i >= 0; $i--) {
-
-                    $output[$keys[$i]] = InputFile::createFromArray([
-                        'index'    => $key,
-                        'error'    => $value['error'][$keys[$i]],
-                        'tmp_name' => $value['tmp_name'][$keys[$i]],
-                        'type'     => $value['type'][$keys[$i]],
-                        'size'     => $value['size'][$keys[$i]],
-                        'name'     => $value['name'][$keys[$i]],
-                    ]);
-
-                }
-
-                $this->file[$key] = $output;
-            }
-        }
+        $this->parseFiles();
     }
 
-    protected function handleGetPost($array)
+    public function parseFiles()
     {
-        $tmp = [];
+        if (count($_FILES) === 0) {
+            return [];
+        }
+
+        $list = [];
+
+        foreach ($_FILES as $key => $value) {
+
+            // Handle array input
+            if (is_array($value['name']) === false) {
+                $values['index'] = $key;
+                $list[$key] = InputFile::createFromArray(array_merge($value, $values));
+                continue;
+            }
+
+            $keys = [];
+
+            $list = array_merge_recursive($list, [$key => $this->rearrangeFiles($value['name'], $keys, $value)]);
+
+        }
+
+        return $list;
+    }
+
+    protected function rearrangeFiles(array $values, &$index, $original)
+    {
+
+        $output = [];
+
+        $getItem = function ($key, $property = 'name') use ($original, $index) {
+
+            $path = $original[$property];
+
+            foreach (array_values($index) as $i) {
+                $path = $path[$i];
+            }
+
+            return $path[$key];
+        };
+
+        foreach ($values as $key => $value) {
+
+            if (is_array($getItem($key)) === false) {
+
+                $file = InputFile::createFromArray([
+                    'index'    => $key,
+                    'error'    => $getItem($key, 'error'),
+                    'tmp_name' => $getItem($key, 'tmp_name'),
+                    'type'     => $getItem($key, 'type'),
+                    'size'     => $getItem($key, 'size'),
+                    'filename' => $getItem($key, 'name'),
+                ]);
+
+                $output = array_merge_recursive($output, [$key => $file]);
+
+                if (isset($output[$key])) {
+                    $output[$key][] = $file;
+                } else {
+                    $output[$key] = $file;
+                }
+
+                continue;
+            }
+
+            $index[] = $key;
+            $output = array_merge_recursive($output, [$key => $this->rearrangeFiles($value, $index, $original)]);
+
+        }
+
+        return $output;
+    }
+
+    protected function handleGetPost(array $array)
+    {
+        $list = [];
 
         $max = count($array) - 1;
         $keys = array_keys($array);
@@ -105,77 +142,110 @@ class Input
 
             // Handle array input
             if (is_array($value) === false) {
-                $tmp[$key] = new InputItem($key, $value);
+                $list[$key] = new InputItem($key, $value);
                 continue;
             }
 
-            $subMax = count($value) - 1;
-            $keys = array_keys($value);
-            $output = [];
+            $output = $this->handleGetPost($value);
 
-            for ($i = $subMax; $i >= 0; $i--) {
-                $output[$keys[$i]] = new InputItem($key, $value[$keys[$i]]);
-            }
-
-            $tmp[$key] = $output;
+            $list[$key] = $output;
         }
 
-        return $tmp;
+        return $list;
     }
 
-    public function findPost($index, $default = null)
+    /**
+     * Find post-value by index or return default value.
+     *
+     * @param string $index
+     * @param string|null $defaultValue
+     * @return InputItem|string
+     */
+    public function findPost($index, $defaultValue = null)
     {
-        return isset($this->post[$index]) ? $this->post[$index] : $default;
+        return isset($this->post[$index]) ? $this->post[$index] : $defaultValue;
     }
 
-    public function findFile($index, $default = null)
+    /**
+     * Find file by index or return default value.
+     *
+     * @param string $index
+     * @param string|null $defaultValue
+     * @return InputFile|string
+     */
+    public function findFile($index, $defaultValue = null)
     {
-        return isset($this->file[$index]) ? $this->file[$index] : $default;
+        return isset($this->file[$index]) ? $this->file[$index] : $defaultValue;
     }
 
-    public function findGet($index, $default = null)
+    /**
+     * Find parameter/query-string by index or return default value.
+     *
+     * @param string $index
+     * @param string|null $defaultValue
+     * @return InputItem|string
+     */
+    public function findGet($index, $defaultValue = null)
     {
-        return isset($this->get[$index]) ? $this->get[$index] : $default;
+        return isset($this->get[$index]) ? $this->get[$index] : $defaultValue;
     }
 
-    public function getObject($index, $default = null, $method = null)
+    /**
+     * Get input object
+     *
+     * @param string $index
+     * @param string|null $defaultValue
+     * @param array|string|null $methods
+     * @return IInputItem|string
+     */
+    public function getObject($index, $defaultValue = null, $methods = null)
     {
+        if ($methods !== null && is_string($methods) === true) {
+            $methods = [$methods];
+        }
+
         $element = null;
 
-        if ($method === null || strtolower($method) === 'get') {
+        if ($methods === null || in_array('get', $methods)) {
             $element = $this->findGet($index);
         }
 
-        if ($element === null && $method === null || strtolower($method) === 'post') {
+        if (($element === null && $methods === null) || ($methods !== null && in_array('post', $methods))) {
             $element = $this->findPost($index);
         }
 
-        if ($element === null && $method === null || strtolower($method) === 'file') {
+        if (($element === null && $methods === null) || ($methods !== null && in_array('file', $methods))) {
             $element = $this->findFile($index);
         }
 
-        return ($element === null) ? $default : $element;
+        return ($element !== null) ? $element : $defaultValue;
     }
 
     /**
      * Get input element value matching index
      *
      * @param string $index
-     * @param string|null $default
-     * @param string|null $method
+     * @param string|null $defaultValue
+     * @param array|string|null $methods
      * @return InputItem|string
      */
-    public function get($index, $default = null, $method = null)
+    public function get($index, $defaultValue = null, $methods = null)
     {
-        $input = $this->getObject($index, $default, $method);
+        $input = $this->getObject($index, $defaultValue, $methods);
 
         if ($input instanceof InputItem) {
-            return (trim($input->getValue()) === '') ? $default : $input->getValue();
+            return (trim($input->getValue()) === '') ? $defaultValue : $input->getValue();
         }
 
         return $input;
     }
 
+    /**
+     * Check if a input-item exist
+     *
+     * @param string $index
+     * @return bool
+     */
     public function exists($index)
     {
         return ($this->getObject($index) !== null);
@@ -194,7 +264,7 @@ class Input
 
             $contents = file_get_contents('php://input');
 
-            if (stripos(trim($contents), '{') === 0) {
+            if (strpos(trim($contents), '{') === 0) {
                 $output = json_decode($contents, true);
                 if ($output === false) {
                     $output = [];
@@ -206,11 +276,7 @@ class Input
 
         if ($filter !== null) {
             $output = array_filter($output, function ($key) use ($filter) {
-                if (in_array($key, $filter)) {
-                    return true;
-                }
-
-                return false;
+                return (in_array($key, $filter) === true);
             }, ARRAY_FILTER_USE_KEY);
         }
 

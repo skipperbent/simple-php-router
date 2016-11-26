@@ -58,7 +58,7 @@ class BaseCsrfVerifier implements IMiddleware
     public function handle(Request $request, ILoadableRoute &$route = null)
     {
 
-        if (in_array($request->getMethod(), ['post', 'put', 'delete']) === true && $this->skip($request) === false) {
+        if ($this->skip($request) === false && in_array($request->getMethod(), ['post', 'put', 'delete']) === true) {
 
             $token = $request->getInput()->get(static::POST_KEY, null, 'post');
 
@@ -77,7 +77,7 @@ class BaseCsrfVerifier implements IMiddleware
 
     public function generateToken()
     {
-        $token = $this->csrfToken->generateToken();
+        $token = CsrfToken::generateToken();
         $this->csrfToken->setToken($token);
 
         return $token;
@@ -85,7 +85,7 @@ class BaseCsrfVerifier implements IMiddleware
 
     public function hasToken()
     {
-        if ($this->token != null) {
+        if ($this->token !== null) {
             return true;
         }
 

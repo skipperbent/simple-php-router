@@ -2,140 +2,161 @@
 
 require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
-require_once 'Dummy/Handler/ExceptionHandler.php';
+require_once 'Dummy/Exceptions/ExceptionHandlerException.php';
+require_once 'Dummy/Handler/TestExceptionHandlerFirst.php';
+require_once 'Dummy/Handler/TestExceptionHandlerSecond.php';
+require_once 'Dummy/Handler/TestExceptionHandlerThird.php';
 
-use Pecee\SimpleRouter\SimpleRouter as SimpleRouter;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException as NotFoundHttpException;
+use Pecee\SimpleRouter\SimpleRouter as SimpleRouter;
 
 class RouterRouteTest extends PHPUnit_Framework_TestCase
 {
-	protected $result = false;
+    protected $result = false;
 
-	public function testNotFound()
-	{
-		SimpleRouter::router()->reset();
-		SimpleRouter::request()->setMethod('get');
-		SimpleRouter::request()->setUri('/test-param1-param2');
+    /**
+     * Redirects to another route through 3 exception handlers.
+     *
+     * You will see "ExceptionHandler 1 loaded" 2 times. This happen because
+     * the exceptionhandler is asking the router to reload.
+     *
+     * That means that the exceptionhandler is loaded again, but this time
+     * the router ignores the same rewrite-route to avoid loop - loads
+     * the second which have same behavior and is also ignored before
+     * throwing the final Exception in ExceptionHandler 3.
+     *
+     * So this tests:
+     * 1. If ExceptionHandlers loads
+     * 2. If ExceptionHandlers load in the correct order
+     * 3. If ExceptionHandlers can rewrite the page on error
+     * 4. If the router can avoid redirect-loop due to developer has started loop.
+     * 5. And finally if we reaches the last exception-handler and that the correct
+     *    exception-type is being thrown.
+     */
+    public function testNotFound()
+    {
+        $this->setExpectedException('ExceptionHandlerException');
 
-		SimpleRouter::group(['exceptionHandler' => 'ExceptionHandler'], function () {
-			SimpleRouter::get('/non-existing-path', 'DummyController@start');
-		});
+        SimpleRouter::router()->reset();
+        SimpleRouter::request()->setMethod('get');
+        SimpleRouter::request()->setUri('/test-param1-param2');
 
-		$found = false;
+        SimpleRouter::group(['exceptionHandler' => ['TestExceptionHandlerFirst', 'TestExceptionHandlerSecond']], function () {
 
-		try {
-			SimpleRouter::start();
-		} catch (\Exception $e) {
-			$found = ($e instanceof NotFoundHttpException && $e->getCode() == 404);
-		}
+            SimpleRouter::group(['exceptionHandler' => 'TestExceptionHandlerThird'], function () {
 
-		$this->assertTrue($found);
-	}
+                SimpleRouter::get('/non-existing-path', 'DummyController@start');
 
-	public function testGet()
-	{
-		SimpleRouter::router()->reset();
-		SimpleRouter::request()->setUri('/my/test/url');
-		SimpleRouter::request()->setMethod('get');
+            });
+        });
 
-		SimpleRouter::get('/my/test/url', 'DummyController@start');
-		SimpleRouter::start();
-	}
+        SimpleRouter::start();
+    }
 
-	public function testPost()
-	{
-		SimpleRouter::router()->reset();
-		SimpleRouter::request()->setUri('/my/test/url');
-		SimpleRouter::request()->setMethod('post');
+    public function testGet()
+    {
+        SimpleRouter::router()->reset();
+        SimpleRouter::request()->setUri('/my/test/url');
+        SimpleRouter::request()->setMethod('get');
 
-		SimpleRouter::post('/my/test/url', 'DummyController@start');
-		SimpleRouter::start();
-	}
+        SimpleRouter::get('/my/test/url', 'DummyController@start');
+        SimpleRouter::start();
+    }
 
-	public function testPut()
-	{
-		SimpleRouter::router()->reset();
-		SimpleRouter::request()->setUri('/my/test/url');
-		SimpleRouter::request()->setMethod('put');
+    public function testPost()
+    {
+        SimpleRouter::router()->reset();
+        SimpleRouter::request()->setUri('/my/test/url');
+        SimpleRouter::request()->setMethod('post');
 
-		SimpleRouter::put('/my/test/url', 'DummyController@start');
-		SimpleRouter::start();
-	}
+        SimpleRouter::post('/my/test/url', 'DummyController@start');
+        SimpleRouter::start();
+    }
 
-	public function testDelete()
-	{
-		SimpleRouter::router()->reset();
-		SimpleRouter::request()->setUri('/my/test/url');
-		SimpleRouter::request()->setMethod('delete');
+    public function testPut()
+    {
+        SimpleRouter::router()->reset();
+        SimpleRouter::request()->setUri('/my/test/url');
+        SimpleRouter::request()->setMethod('put');
 
-		SimpleRouter::delete('/my/test/url', 'DummyController@start');
-		SimpleRouter::start();
-	}
+        SimpleRouter::put('/my/test/url', 'DummyController@start');
+        SimpleRouter::start();
+    }
 
-	public function testMethodNotAllowed()
-	{
-		SimpleRouter::router()->reset();
-		SimpleRouter::request()->setUri('/my/test/url');
-		SimpleRouter::request()->setMethod('post');
+    public function testDelete()
+    {
+        SimpleRouter::router()->reset();
+        SimpleRouter::request()->setUri('/my/test/url');
+        SimpleRouter::request()->setMethod('delete');
 
-		SimpleRouter::get('/my/test/url', 'DummyController@start');
+        SimpleRouter::delete('/my/test/url', 'DummyController@start');
+        SimpleRouter::start();
+    }
 
-		try {
-			SimpleRouter::start();
-		} catch (\Exception $e) {
-			$this->assertEquals(403, $e->getCode());
-		}
-	}
+    public function testMethodNotAllowed()
+    {
+        SimpleRouter::router()->reset();
+        SimpleRouter::request()->setUri('/my/test/url');
+        SimpleRouter::request()->setMethod('post');
 
-	public function testSimpleParam()
-	{
-		SimpleRouter::router()->reset();
-		SimpleRouter::request()->setMethod('get');
-		SimpleRouter::request()->setUri('/test-param1');
+        SimpleRouter::get('/my/test/url', 'DummyController@start');
 
-		SimpleRouter::get('/test-{param1}', 'DummyController@param');
-		SimpleRouter::start();
-	}
+        try {
+            SimpleRouter::start();
+        } catch (\Exception $e) {
+            $this->assertEquals(403, $e->getCode());
+        }
+    }
 
-	public function testMultiParam()
-	{
-		SimpleRouter::router()->reset();
-		SimpleRouter::request()->setMethod('get');
-		SimpleRouter::request()->setUri('/test-param1-param2');
+    public function testSimpleParam()
+    {
+        SimpleRouter::router()->reset();
+        SimpleRouter::request()->setMethod('get');
+        SimpleRouter::request()->setUri('/test-param1');
 
-		SimpleRouter::get('/test-{param1}-{param2}', 'DummyController@param');
-		SimpleRouter::start();
-	}
+        SimpleRouter::get('/test-{param1}', 'DummyController@param');
+        SimpleRouter::start();
+    }
 
-	public function testPathParamRegex()
-	{
-		SimpleRouter::router()->reset();
-		SimpleRouter::request()->setMethod('get');
-		SimpleRouter::request()->setUri('/test/path/123123');
+    public function testMultiParam()
+    {
+        SimpleRouter::router()->reset();
+        SimpleRouter::request()->setMethod('get');
+        SimpleRouter::request()->setUri('/test-param1-param2');
 
-		SimpleRouter::get('/test/path/{myParam}', 'DummyController@param', ['where' => ['myParam' => '([0-9]+)']]);
-		SimpleRouter::start();
-	}
+        SimpleRouter::get('/test-{param1}-{param2}', 'DummyController@param');
+        SimpleRouter::start();
+    }
 
-	public function testDomainRoute()
-	{
-		SimpleRouter::router()->reset();
-		SimpleRouter::request()->setMethod('get');
-		SimpleRouter::request()->setUri('/test');
-		SimpleRouter::request()->setHost('hello.world.com');
+    public function testPathParamRegex()
+    {
+        SimpleRouter::router()->reset();
+        SimpleRouter::request()->setMethod('get');
+        SimpleRouter::request()->setUri('/test/path/123123');
 
-		$this->result = false;
+        SimpleRouter::get('/test/path/{myParam}', 'DummyController@param', ['where' => ['myParam' => '([0-9]+)']]);
+        SimpleRouter::start();
+    }
 
-		SimpleRouter::group(['domain' => '{subdomain}.world.com'], function () {
-			SimpleRouter::get('/test', function ($subdomain = null) {
-				$this->result = ($subdomain === 'hello');
-			});
-		});
+    public function testDomainRoute()
+    {
+        SimpleRouter::router()->reset();
+        SimpleRouter::request()->setMethod('get');
+        SimpleRouter::request()->setUri('/test');
+        SimpleRouter::request()->setHost('hello.world.com');
 
-		SimpleRouter::start();
+        $this->result = false;
 
-		$this->assertTrue($this->result);
+        SimpleRouter::group(['domain' => '{subdomain}.world.com'], function () {
+            SimpleRouter::get('/test', function ($subdomain = null) {
+                $this->result = ($subdomain === 'hello');
+            });
+        });
 
-	}
+        SimpleRouter::start();
+
+        $this->assertTrue($this->result);
+
+    }
 
 }

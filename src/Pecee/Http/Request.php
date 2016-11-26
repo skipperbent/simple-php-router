@@ -15,10 +15,10 @@ class Request
     public function __construct()
     {
         $this->parseHeaders();
-        $this->host = $this->getHeader('http-host');;
+        $this->host = $this->getHeader('http-host');
         $this->uri = $this->getHeader('request-uri');
         $this->input = new Input($this);
-        $this->method = strtolower($this->input->get('_method', $this->getHeader('request-method')));
+        $this->method = strtolower($this->input->get('_method', $this->getHeader('request-method'), 'post'));
     }
 
     protected function parseHeaders()
@@ -40,11 +40,7 @@ class Request
 
     public function isSecure()
     {
-        if ($this->getHeader('http-x-forwarded-proto') === 'https' || $this->getHeader('https') !== null || $this->getHeader('server-port') === 443) {
-            return true;
-        }
-
-        return false;
+        return $this->getHeader('http-x-forwarded-proto') === 'https' || $this->getHeader('https') !== null || $this->getHeader('server-port') === 443;
     }
 
     /**
@@ -108,7 +104,7 @@ class Request
             return $this->getHeader('http-cf-connecting-ip');
         }
 
-        if ($this->getHeader('http-x-forwarded-for') !== null && strlen($this->getHeader('http-x-forwarded-for'))) {
+        if ($this->getHeader('http-x-forwarded-for') !== null) {
             return $this->getHeader('http-x-forwarded_for');
         }
 
@@ -137,7 +133,7 @@ class Request
      * Get header value by name
      *
      * @param string $name
-     * @param object|null $defaultValue
+     * @param string|null $defaultValue
      *
      * @return string|null
      */
@@ -215,6 +211,11 @@ class Request
     public function setMethod($method)
     {
         $this->method = $method;
+    }
+
+    public function __isset($name)
+    {
+        return $this->data[$name] ?? null;
     }
 
     public function __set($name, $value = null)

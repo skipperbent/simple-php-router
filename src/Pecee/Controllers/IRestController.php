@@ -7,41 +7,41 @@ interface IRestController
     /**
      * @return void
      */
-    function index();
+    public function index();
 
     /**
      * @param mixed $id
      * @return void
      */
-    function show($id);
+    public function show($id);
 
     /**
      * @return void
      */
-    function store();
+    public function store();
 
     /**
      * @return void
      */
-    function create();
+    public function create();
 
     /**
      * View
      * @param mixed $id
      * @return void
      */
-    function edit($id);
+    public function edit($id);
 
     /**
      * @param mixed $id
      * @return void
      */
-    function update($id);
+    public function update($id);
 
     /**
      * @param mixed $id
      * @return void
      */
-    function destroy($id);
+    public function destroy($id);
 
 }

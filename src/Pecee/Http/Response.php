@@ -64,14 +64,14 @@ class Response
 
         $this->headers([
             'Cache-Control: public',
-            'Last-Modified: ' . gmdate("D, d M Y H:i:s", $lastModified) . ' GMT',
+            'Last-Modified: ' . gmdate('D, d M Y H:i:s', $lastModified) . ' GMT',
             'Etag: ' . $eTag,
         ]);
 
         $httpModified = $this->request->getHeader('http-if-modified-since');
         $httpIfNoneMatch = $this->request->getHeader('http-if-none-match');
 
-        if ($httpModified !== null && strtotime($httpModified) == $lastModified || $httpIfNoneMatch !== null && $httpIfNoneMatch === $eTag) {
+        if (($httpIfNoneMatch !== null && $httpIfNoneMatch === $eTag) || ($httpModified !== null && strtotime($httpModified) === $lastModified)) {
 
             $this->header('HTTP/1.1 304 Not Modified');
 
@@ -111,9 +111,8 @@ class Response
      */
     public function headers(array $headers)
     {
-        $max = count($headers);
-        for ($i = 0; $i < $max; $i++) {
-            $this->header($headers[$i]);
+        foreach ($headers as $header) {
+            $this->header($header);
         }
 
         return $this;

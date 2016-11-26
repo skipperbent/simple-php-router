@@ -8,25 +8,34 @@ use Pecee\SimpleRouter\SimpleRouter as SimpleRouter;
 
 class MiddlewareTest extends PHPUnit_Framework_TestCase
 {
-	public function testMiddlewareFound()
-	{
-		SimpleRouter::router()->reset();
-		SimpleRouter::request()->setMethod('get');
-		SimpleRouter::request()->setUri('/my/test/url');
+    public function testMiddlewareFound()
+    {
+        $this->setExpectedException('MiddlewareLoadedException');
 
-		SimpleRouter::group(['exceptionHandler' => 'ExceptionHandler'], function () {
-			SimpleRouter::get('/my/test/url', 'DummyController@start', ['middleware' => 'DummyMiddleware']);
-		});
+        SimpleRouter::router()->reset();
+        SimpleRouter::request()->setMethod('get');
+        SimpleRouter::request()->setUri('/my/test/url');
 
-		$found = false;
+        SimpleRouter::group(['exceptionHandler' => 'ExceptionHandler'], function () {
+            SimpleRouter::get('/my/test/url', 'DummyController@start', ['middleware' => 'DummyMiddleware']);
+        });
 
-		try {
-			SimpleRouter::start();
-		} catch (\Exception $e) {
-			$found = ($e instanceof MiddlewareLoadedException);
-		}
+        SimpleRouter::start();
+    }
 
-		$this->assertTrue($found);
-	}
+    public function testNestedMiddlewareLoad()
+    {
+        $this->setExpectedException('MiddlewareLoadedException');
+
+        SimpleRouter::router()->reset();
+        SimpleRouter::request()->setMethod('get');
+        SimpleRouter::request()->setUri('/my/test/url');
+
+        SimpleRouter::group(['exceptionHandler' => 'ExceptionHandler', 'middleware' => 'DummyMiddleware'], function () {
+            SimpleRouter::get('/my/test/url', 'DummyController@start');
+        });
+
+        SimpleRouter::start();
+    }
 
 }
