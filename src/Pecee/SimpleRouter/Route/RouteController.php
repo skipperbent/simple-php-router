@@ -2,7 +2,6 @@
 namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
-use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 class RouteController extends LoadableRoute implements IControllerRoute
 {
@@ -35,7 +34,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
             $method = substr($name, strrpos($name, '.') + 1);
             $newName = substr($name, 0, strrpos($name, '.'));
 
-            if (in_array($method, $this->names) === true && strtolower($this->name) === strtolower($newName)) {
+            if (in_array($method, $this->names, false) === true && strtolower($this->name) === strtolower($newName)) {
                 return true;
             }
         }
@@ -52,7 +51,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
     public function findUrl($method = null, $parameters = null, $name = null)
     {
         if (strpos($name, '.') !== false) {
-            $found = array_search(substr($name, strrpos($name, '.') + 1), $this->names);
+            $found = array_search(substr($name, strrpos($name, '.') + 1), $this->names, false);
             if ($found !== false) {
                 $method = $found;
             }
@@ -61,14 +60,10 @@ class RouteController extends LoadableRoute implements IControllerRoute
         $url = '';
         $parameters = (array)$parameters;
 
-        /* Remove requestType from method-name, if it exists */
         if ($method !== null) {
 
-            $max = count(static::$requestTypes);
-
-            for ($i = 0; $i < $max; $i++) {
-
-                $requestType = static::$requestTypes[$i];
+            /* Remove requestType from method-name, if it exists */
+            foreach(static::$requestTypes as $requestType) {
 
                 if (stripos($method, $requestType) === 0) {
                     $method = substr($method, strlen($requestType));
@@ -88,36 +83,15 @@ class RouteController extends LoadableRoute implements IControllerRoute
         return '/' . trim($url, '/') . '/';
     }
 
-    public function renderRoute(Request $request)
-    {
-        if ($this->getCallback() !== null && is_callable($this->getCallback())) {
-
-            // When the callback is a function
-            call_user_func_array($this->getCallback(), $this->getParameters());
-        } else {
-            // When the callback is a method
-            $controller = explode('@', $this->getCallback());
-            $className = $this->getNamespace() . '\\' . $controller[0];
-
-            $class = $this->loadClass($className);
-            $method = $request->getMethod() . ucfirst($controller[1]);
-
-            if (!method_exists($class, $method)) {
-                throw new NotFoundHttpException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
-            }
-
-            call_user_func_array([$class, $method], $this->getParameters());
-
-            return $class;
-        }
-
-        return null;
-    }
-
     public function matchRoute(Request $request)
     {
         $url = parse_url(urldecode($request->getUri()), PHP_URL_PATH);
         $url = rtrim($url, '/') . '/';
+
+        /* Match global regular-expression for route */
+        if($this->matchRegex($request, $url) === true) {
+            return true;
+        }
 
         if (stripos($url, $this->url) === 0 && strtolower($url) === strtolower($this->url)) {
 
@@ -130,9 +104,10 @@ class RouteController extends LoadableRoute implements IControllerRoute
                 $method = (!isset($path[0]) || trim($path[0]) === '') ? $this->defaultMethod : $path[0];
                 $this->method = $method;
 
-                array_shift($path);
+                //array_shift($path);
+                //$this->parameters = $path;
 
-                $this->parameters = $path;
+                $this->setParameters(array_slice($path, 1));
 
                 // Set callback
                 $this->setCallback($this->controller . '@' . $this->method);
@@ -141,7 +116,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
             }
         }
 
-        return null;
+        return false;
     }
 
     /**

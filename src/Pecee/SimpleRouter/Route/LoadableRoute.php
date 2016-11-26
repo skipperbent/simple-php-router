@@ -46,6 +46,32 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         }
     }
 
+    public function matchRegex(Request $request, $url) {
+
+        /* Match on custom defined regular expression */
+
+        if ($this->regex === null) {
+            return false;
+        }
+
+        $parameters = [];
+
+        if (preg_match($this->regex, $request->getHost() . $url, $parameters) !== false) {
+
+            /* Remove global match */
+            if (count($parameters) > 1) {
+
+                $this->setParameters(array_slice($parameters, 1));
+                //array_shift($parameters);
+                //$this->parameters = $parameters;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Set url
      *
@@ -61,15 +87,8 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             $regex = sprintf(static::PARAMETERS_REGEX_MATCH, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
             if (preg_match_all('/' . $regex . '/is', $this->url, $matches)) {
-
-                $max = count($matches[1]);
-
-                for ($i = 0; $i < $max; $i++) {
-                    $this->parameters[$matches[1][$i]] = null;
-                }
-
+                $this->parameters = array_fill_keys($matches[1], null);
             }
-
         }
 
         return $this;

@@ -18,26 +18,24 @@ class RouteGroup extends Route implements IGroupRoute
      */
     public function matchDomain(Request $request)
     {
-        if (count($this->domains) > 0) {
-
-            $max = count($this->domains) - 1;
-
-            for ($i = $max; $i >= 0; $i--) {
-
-                $domain = $this->domains[$i];
-                $parameters = $this->parseParameters($domain, $request->getHost(), '.*');
-
-                if ($parameters !== null && count($parameters) > 0) {
-                    $this->parameters = array_merge($this->parameters, $parameters);
-
-                    return true;
-                }
-            }
-
-            return false;
+        if (count($this->domains) === 0) {
+            return true;
         }
 
-        return true;
+        foreach($this->domains as $domain) {
+
+            $parameters = $this->parseParameters($domain, $request->getHost(), '.*');
+
+            if ($parameters !== null && count($parameters) > 0) {
+
+                $this->setParameters($parameters);
+                //$this->parameters = array_merge($this->parameters, $parameters);
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -48,7 +46,7 @@ class RouteGroup extends Route implements IGroupRoute
      */
     public function matchRoute(Request $request)
     {
-        // Skip if prefix doesn't match
+        /* Skip if prefix doesn't match */
         if ($this->prefix !== null && stripos($request->getUri(), $this->prefix) === false) {
             return false;
         }

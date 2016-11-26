@@ -23,6 +23,13 @@ abstract class Route implements IRoute
         self::REQUEST_TYPE_DELETE,
     ];
 
+    /**
+     * If enabled parameters containing null-value
+     * will not be passed along to the callback.
+     *
+     * @var bool
+     */
+    protected $filterEmptyParams = false;
     protected $paramModifiers = '{}';
     protected $paramOptionalSymbol = '?';
     protected $group;
@@ -37,6 +44,15 @@ abstract class Route implements IRoute
     protected $where = [];
     protected $parameters = [];
     protected $middlewares = [];
+
+    protected function loadClass($name)
+    {
+        if (!class_exists($name)) {
+            throw new NotFoundHttpException(sprintf('Class %s does not exist', $name), 404);
+        }
+
+        return new $name();
+    }
 
     public function renderRoute(Request $request)
     {
@@ -54,20 +70,22 @@ abstract class Route implements IRoute
             $class = $this->loadClass($className);
             $method = $controller[1];
 
-            if (!method_exists($class, $method)) {
+            if (method_exists($class, $method) === false) {
                 throw new NotFoundHttpException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
             }
 
-            $parameters = array_filter($this->getParameters(), function ($var) {
-                return ($var !== null);
-            });
+            $parameters = [];
+
+            /* Filter parameters with null-value */
+
+            if ($this->filterEmptyParams === true) {
+                $parameters = array_filter($this->getParameters(), function ($var) {
+                    return ($var !== null);
+                });
+            }
 
             call_user_func_array([$class, $method], $parameters);
-
-            return $class;
         }
-
-        return null;
     }
 
     protected function parseParameters($route, $url, $parameterRegex = '[\w]+')
@@ -84,13 +102,16 @@ abstract class Route implements IRoute
             $character = strrev($route)[$i];
 
             if ($character === '{') {
+
                 /* Remove "/" and "\" from regex */
                 if (substr($regex, strlen($regex) - 1) === '/') {
                     $regex = substr($regex, 0, -2);
                 }
 
                 $isParameter = true;
-            } elseif ($isParameter && $character === '}') {
+
+            } elseif ($isParameter === true && $character === '}') {
+
                 $required = true;
 
                 /* Check for optional parameter and use custom parameter regex if it exists */
@@ -99,11 +120,15 @@ abstract class Route implements IRoute
                 }
 
                 if ($lastCharacter === '?') {
+
                     $parameter = substr($parameter, 0, -1);
                     $regex .= '(?:\/?(?P<' . $parameter . '>' . $parameterRegex . ')[^\/]?)?';
                     $required = false;
+
                 } else {
+
                     $regex .= '\/?(?P<' . $parameter . '>' . $parameterRegex . ')[^\/]?';
+
                 }
 
                 $parameterNames[] = [
@@ -113,12 +138,19 @@ abstract class Route implements IRoute
 
                 $parameter = '';
                 $isParameter = false;
-            } elseif ($isParameter) {
+
+            } elseif ($isParameter === true) {
+
                 $parameter .= $character;
+
             } elseif ($character === '/') {
+
                 $regex .= '\\' . $character;
+
             } else {
+
                 $regex .= str_replace('.', '\\.', $character);
+
             }
 
             $lastCharacter = $character;
@@ -129,7 +161,6 @@ abstract class Route implements IRoute
         if (preg_match('/^' . $regex . '\/?$/is', $url, $parameterValues)) {
 
             $parameters = [];
-
             $max = count($parameterNames) - 1;
 
             for ($i = $max; $i >= 0; $i--) {
@@ -153,15 +184,6 @@ abstract class Route implements IRoute
         }
 
         return null;
-    }
-
-    protected function loadClass($name)
-    {
-        if (!class_exists($name)) {
-            throw new NotFoundHttpException(sprintf('Class %s does not exist', $name), 404);
-        }
-
-        return new $name();
     }
 
     /**
@@ -384,13 +406,7 @@ abstract class Route implements IRoute
         }
 
         if (count($this->parameters) > 0) {
-
-            /* Ensure the right order + values */
-            $parameters = (isset($values['parameters']) ? $values['parameters'] : []) + $this->parameters;
-            $parameters = array_merge($parameters, $this->parameters);
-
-            $this->setParameters($parameters);
-            $values['parameters'] = $parameters;
+            $values['parameters'] = $this->parameters;
         }
 
         if (count($this->middlewares) > 0) {
@@ -422,7 +438,7 @@ abstract class Route implements IRoute
         }
 
         if (isset($values['parameters'])) {
-            $this->setParameters(array_merge($this->parameters, (array)$values['parameters']));
+            $this->setParameters($values['parameters']);
         }
 
         // Push middleware if multiple
@@ -487,7 +503,10 @@ abstract class Route implements IRoute
      */
     public function setParameters(array $parameters)
     {
-        $this->parameters = $parameters;
+        /* Ensure the right order + values */
+
+        $this->parameters = array_fill_keys(array_keys($parameters), null) + $this->parameters;
+        $this->parameters = $parameters + $this->parameters;
 
         return $this;
     }

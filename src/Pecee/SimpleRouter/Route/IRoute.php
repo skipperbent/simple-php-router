@@ -18,7 +18,8 @@ interface IRoute
      * Returns class to be rendered.
      *
      * @param Request $request
-     * @return \Closure|string
+     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
+     * @return void
      */
     public function renderRoute(Request $request);
 
