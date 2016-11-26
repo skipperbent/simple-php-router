@@ -756,7 +756,7 @@ If items is grouped in the html, it will return an array of items.
 **Note:** `get` will automatically trim the value and ensure that it's not empty. If it's empty the `$defaultValue` will be returned.
 
 ```php
-$value = input()->get($index, $defaultValue);
+$value = input()->get($index, $defaultValue, $methods);
 ```
 
 **Return parameter object (matches both GET, POST, FILE):**
@@ -772,7 +772,7 @@ If items is grouped in the html, it will return an array of items.
 **Note:** `getObject` will only return `$defaultValue` if the item doesn't exist. If you want `$defaultValue` to be returned if the item is empty, please use `input()->get()` instead.
 
 ```php
-$object = input()->getObject($index);
+$object = input()->getObject($index, $defaultValue = null, $methods = null);
 ```
 
 **Return specific GET parameter (where name is the name of your parameter):**
@@ -853,8 +853,8 @@ All object implements the `IInputItem` interface and will always contain these m
 Below example requires you to have the helper functions added. Please refer to the helper functions section in the documentation.
 
 ```php
-// Get parameter site_id or default-value 2
-$siteId = input()->get('site_id', 2);
+/* Get parameter site_id or default-value 2 from either post-value or query-string */
+$siteId = input()->get('site_id', 2, ['post', 'get']);
 ```
 
 ---

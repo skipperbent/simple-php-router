@@ -86,7 +86,7 @@ abstract class Route implements IRoute
             if ($character === '{') {
                 /* Remove "/" and "\" from regex */
                 if (substr($regex, strlen($regex) - 1) === '/') {
-                    $regex = substr($regex, 0, strlen($regex) - 2);
+                    $regex = substr($regex, 0, -2);
                 }
 
                 $isParameter = true;
@@ -99,7 +99,7 @@ abstract class Route implements IRoute
                 }
 
                 if ($lastCharacter === '?') {
-                    $parameter = substr($parameter, 0, strlen($parameter) - 1);
+                    $parameter = substr($parameter, 0, -1);
                     $regex .= '(?:\/?(?P<' . $parameter . '>' . $parameterRegex . ')[^\/]?)?';
                     $required = false;
                 } else {
@@ -136,13 +136,13 @@ abstract class Route implements IRoute
 
                 $name = $parameterNames[$i];
 
-                $parameterValue = isset($parameterValues[$name['name']]) ? $parameterValues[$name['name']] : null;
+                $parameterValue = $parameterValues[$name['name']] ?? null;
 
-                if ($name['required'] && $parameterValue === null) {
+                if ($parameterValue === null && $name['required']) {
                     throw new HttpException('Missing required parameter ' . $name['name'], 404);
                 }
 
-                if ($name['required'] === false && $parameterValue === null) {
+                if ($parameterValue === null && $name['required'] === false) {
                     continue;
                 }
 
@@ -384,10 +384,13 @@ abstract class Route implements IRoute
         }
 
         if (count($this->parameters) > 0) {
+
             /* Ensure the right order + values */
-            $parameters = ($values['parameters'] + $this->parameters);
+            $parameters = ($values['parameters'] ?? []) + $this->parameters;
             $parameters = array_merge($parameters, $this->parameters);
+
             $this->setParameters($parameters);
+            $values['parameters'] = $parameters;
         }
 
         if (count($this->middlewares) > 0) {
@@ -406,7 +409,7 @@ abstract class Route implements IRoute
      */
     public function setSettings(array $values, $merge = false)
     {
-        if (isset($values['namespace']) && $this->namespace === null) {
+        if ($this->namespace === null && isset($values['namespace'])) {
             $this->setNamespace($values['namespace']);
         }
 

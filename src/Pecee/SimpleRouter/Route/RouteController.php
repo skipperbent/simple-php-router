@@ -31,11 +31,11 @@ class RouteController extends LoadableRoute implements IControllerRoute
         }
 
         /* Remove method/type */
-        if (stripos($name, '.') !== false) {
+        if (strpos($name, '.') !== false) {
             $method = substr($name, strrpos($name, '.') + 1);
             $newName = substr($name, 0, strrpos($name, '.'));
 
-            if (strtolower($this->name) === strtolower($newName) && in_array($method, $this->names)) {
+            if (in_array($method, $this->names) === true && strtolower($this->name) === strtolower($newName)) {
                 return true;
             }
         }
@@ -43,10 +43,15 @@ class RouteController extends LoadableRoute implements IControllerRoute
         return parent::hasName($name);
     }
 
+    /**
+     * @param string|null $method
+     * @param string|array|null $parameters
+     * @param string|null $name
+     * @return string
+     */
     public function findUrl($method = null, $parameters = null, $name = null)
     {
-
-        if (stripos($name, '.') !== false) {
+        if (strpos($name, '.') !== false) {
             $found = array_search(substr($name, strrpos($name, '.') + 1), $this->names);
             if ($found !== false) {
                 $method = $found;
@@ -54,7 +59,6 @@ class RouteController extends LoadableRoute implements IControllerRoute
         }
 
         $url = '';
-
         $parameters = (array)$parameters;
 
         /* Remove requestType from method-name, if it exists */
@@ -115,7 +119,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
         $url = parse_url(urldecode($request->getUri()), PHP_URL_PATH);
         $url = rtrim($url, '/') . '/';
 
-        if (strtolower($url) == strtolower($this->url) || stripos($url, $this->url) === 0) {
+        if (stripos($url, $this->url) === 0 && strtolower($url) === strtolower($this->url)) {
 
             $strippedUrl = trim(str_ireplace($this->url, '/', $url), '/');
 
@@ -127,6 +131,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
                 $this->method = $method;
 
                 array_shift($path);
+
                 $this->parameters = $path;
 
                 // Set callback

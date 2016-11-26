@@ -9,7 +9,14 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 {
     const PARAMETERS_REGEX_MATCH = '%s([\w\-\_]*?)\%s{0,1}%s';
 
+    /**
+     * @var
+     */
     protected $url;
+
+    /**
+     * @var string
+     */
     protected $name;
 
     /**
@@ -19,7 +26,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @param ILoadableRoute $route
      * @throws HttpException
      */
-    public function loadMiddleware(Request $request, ILoadableRoute &$route)
+    public function loadMiddleware(Request $request, ILoadableRoute $route)
     {
         if (count($this->getMiddlewares()) > 0) {
 
@@ -114,7 +121,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             $param = $keys[$i];
             $value = $params[$param];
 
-            $value = (isset($parameters[$param])) ? $parameters[$param] : $value;
+            $value = $parameters[$param] ?? $value;
 
             if (stripos($url, $param1) !== false || stripos($url, $param) !== false) {
                 $url = str_ireplace([sprintf($param1, $param), sprintf($param2, $param)], $value, $url);

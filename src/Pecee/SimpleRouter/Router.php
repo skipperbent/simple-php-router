@@ -100,7 +100,7 @@ class Router
         return static::$instance;
     }
 
-    public function __construct()
+    protected function __construct()
     {
         $this->reset();
     }
@@ -137,16 +137,26 @@ class Router
         return $route;
     }
 
+    /**
+     * Process added routes.
+     *
+     * @param array $routes
+     * @param IGroupRoute|null $group
+     * @param IRoute|null $parent
+     */
     protected function processRoutes(array $routes, IGroupRoute $group = null, IRoute $parent = null)
     {
         // Loop through each route-request
         $max = count($routes) - 1;
+
+        $exceptionHandlers = [];
 
         /* @var $route IRoute */
         for ($i = $max; $i >= 0; $i--) {
 
             $route = $routes[$i];
 
+            /* @var $route IGroupRoute */
             if ($route instanceof IGroupRoute) {
 
                 $group = $route;
@@ -159,9 +169,9 @@ class Router
 
                     if ($route->matchRoute($this->request)) {
 
-                        /* Add exceptionhandlers */
+                        /* Add exception handlers */
                         if (count($route->getExceptionHandlers()) > 0) {
-                            $this->exceptionHandlers = array_merge($route->getExceptionHandlers(), $this->exceptionHandlers);
+                            $exceptionHandlers += $route->getExceptionHandlers();
                         }
 
                     }
@@ -172,7 +182,6 @@ class Router
 
                 /* Add the parent group */
                 $route->setGroup($group);
-
             }
 
             if ($parent !== null) {
@@ -201,6 +210,8 @@ class Router
                 $this->processRoutes($stack, $route, $group);
             }
         }
+
+        $this->exceptionHandlers = array_unique(array_merge($exceptionHandlers, $this->exceptionHandlers));
     }
 
     public function routeRequest($rewrite = false)
@@ -253,7 +264,7 @@ class Router
                 if ($route->matchRoute($this->request)) {
 
                     /* Check if request method matches */
-                    if (count($route->getRequestMethods()) > 0 && !in_array($this->request->getMethod(), $route->getRequestMethods())) {
+                    if (count($route->getRequestMethods()) > 0 && in_array($this->request->getMethod(), $route->getRequestMethods()) === false) {
                         $routeNotAllowed = true;
                         continue;
                     }
@@ -262,7 +273,7 @@ class Router
                     $this->loadedRoute->loadMiddleware($this->request, $this->loadedRoute);
 
                     /* If the request has changed, we reinitialize the router */
-                    if ($this->request->getUri() !== $this->originalUrl && !in_array($this->request->getUri(), $this->routeRewrites)) {
+                    if ($this->request->getUri() !== $this->originalUrl && in_array($this->request->getUri(), $this->routeRewrites) === false) {
                         $this->routeRewrites[] = $this->request->getUri();
                         $this->routeRequest(true);
 
@@ -309,7 +320,7 @@ class Router
             $request = $handler->handleError($this->request, $this->loadedRoute, $e);
 
             /* If the request has changed */
-            if ($request !== null && $this->request->getUri() !== $this->originalUrl && !in_array($request->getUri(), $this->routeRewrites)) {
+            if ($request !== null && $this->request->getUri() !== $this->originalUrl && in_array($request->getUri(), $this->routeRewrites) === false) {
                 $this->request = $request;
                 $this->routeRewrites[] = $request->getUri();
                 $this->routeRequest(true);
@@ -375,7 +386,7 @@ class Router
             if (strpos($name, '@') !== false && strpos($route->getCallback(), '@') !== false && !is_callable($route->getCallback())) {
 
                 /* Check if the entire callback is matching */
-                if (strtolower($route->getCallback()) === strtolower($name) || strpos($route->getCallback(), $name) === 0) {
+                if (strpos($route->getCallback(), $name) === 0 || strtolower($route->getCallback()) === strtolower($name)) {
                     return $route;
                 }
 
@@ -404,6 +415,7 @@ class Router
      * @param string|null $name
      * @param string|array|null $parameters
      * @param array|null $getParams
+     * @throws \InvalidArgumentException
      * @return string
      */
     public function getUrl($name = null, $parameters = null, $getParams = null)
@@ -439,7 +451,7 @@ class Router
         }
 
         /* Using @ is most definitely a controller@method or alias@method */
-        if (stripos($name, '@') !== false) {
+        if (strpos($name, '@') !== false) {
             list($controller, $method) = explode('@', $name);
 
             /* Loop through all the routes to see if we can find a match */

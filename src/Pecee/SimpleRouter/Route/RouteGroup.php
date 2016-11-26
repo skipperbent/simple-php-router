@@ -27,8 +27,8 @@ class RouteGroup extends Route implements IGroupRoute
                 $domain = $this->domains[$i];
                 $parameters = $this->parseParameters($domain, $request->getHost(), '.*');
 
-                if ($parameters !== null) {
-                    $this->parameters = $parameters;
+                if ($parameters !== null && count($parameters) > 0) {
+                    $this->parameters = array_merge($this->parameters, $parameters);
 
                     return true;
                 }

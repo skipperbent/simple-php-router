@@ -18,7 +18,7 @@ interface IRoute
      * Returns class to be rendered.
      *
      * @param Request $request
-     * @return object
+     * @return \Closure|string
      */
     public function renderRoute(Request $request);
 
