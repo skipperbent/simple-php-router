@@ -309,6 +309,7 @@ class SimpleRouter
      * @param string|null $name
      * @param string|array|null $parameters
      * @param array|null $getParams
+     * @throws \Exception
      * @return string
      */
     public static function getUrl($name = null, $parameters = null, $getParams = null)

@@ -15,6 +15,17 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         'update'  => '',
         'destroy' => '',
     ];
+
+    protected $methodNames = [
+        'index'   => 'index',
+        'create'  => 'create',
+        'store'   => 'store',
+        'show'    => 'show',
+        'edit'    => 'edit',
+        'update'  => 'update',
+        'destroy' => 'destroy',
+    ];
+
     protected $names = [];
     protected $controller;
 
@@ -42,7 +53,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         }
 
         /* Remove method/type */
-        if (stripos($name, '.') !== false) {
+        if (strpos($name, '.') !== false) {
             $name = substr($name, 0, strrpos($name, '.'));
         }
 
@@ -51,7 +62,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
 
     public function findUrl($method = null, $parameters = null, $name = null)
     {
-        $method = array_search($name, $this->names);
+        $method = array_search($name, $this->names, false);
         if ($method !== false) {
             return rtrim($this->url . $this->urls[$method], '/') . '/';
         }
@@ -110,37 +121,37 @@ class RouteResource extends LoadableRoute implements IControllerRoute
             $method = $request->getMethod();
 
             // Delete
-            if (isset($parameters['id']) && $method === static::REQUEST_TYPE_DELETE) {
-                return $this->call('destroy', $parameters);
+            if ($method === static::REQUEST_TYPE_DELETE && isset($parameters['id'])) {
+                return $this->call($this->methodNames['destroy'], $parameters);
             }
 
             // Update
             if (isset($parameters['id']) && in_array($method, [static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT])) {
-                return $this->call('update', $parameters);
+                return $this->call($this->methodNames['update'], $parameters);
             }
 
             // Edit
-            if (isset($parameters['id']) && strtolower($action) === 'edit' && $method === static::REQUEST_TYPE_GET) {
-                return $this->call('edit', $parameters);
+            if ($method === static::REQUEST_TYPE_GET && isset($parameters['id']) && strtolower($action) === 'edit') {
+                return $this->call($this->methodNames['edit'], $parameters);
             }
 
             // Create
-            if (strtolower($action) === 'create' && $method === static::REQUEST_TYPE_GET) {
-                return $this->call('create', $parameters);
+            if ($method === static::REQUEST_TYPE_GET && strtolower($action) === 'create') {
+                return $this->call($this->methodNames['create'], $parameters);
             }
 
             // Save
             if ($method === static::REQUEST_TYPE_POST) {
-                return $this->call('store', $parameters);
+                return $this->call($this->methodNames['store'], $parameters);
             }
 
             // Show
-            if (isset($parameters['id']) && $method === static::REQUEST_TYPE_GET) {
-                return $this->call('show', $parameters);
+            if ($method === static::REQUEST_TYPE_GET && isset($parameters['id'])) {
+                return $this->call($this->methodNames['show'], $parameters);
             }
 
             // Index
-            return $this->call('index', $parameters);
+            return $this->call($this->methodNames['index'], $parameters);
         }
 
         return null;
@@ -183,6 +194,29 @@ class RouteResource extends LoadableRoute implements IControllerRoute
     }
 
     /**
+     * Define custom method name for resource controller
+     *
+     * @param array $names
+     * @return static $this
+     */
+    public function setMethodNames(array $names)
+    {
+        $this->methodNames = $names;
+
+        return $this;
+    }
+
+    /**
+     * Get method names
+     *
+     * @return array $this
+     */
+    public function getMethodNames()
+    {
+        return $this->methodNames;
+    }
+
+    /**
      * Merge with information from another route.
      *
      * @param array $values
@@ -193,6 +227,10 @@ class RouteResource extends LoadableRoute implements IControllerRoute
     {
         if (isset($values['names'])) {
             $this->names = $values['names'];
+        }
+
+        if (isset($values['methods'])) {
+            $this->methodNames = $values['methods'];
         }
 
         parent::setSettings($values, $merge);

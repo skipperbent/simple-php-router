@@ -75,4 +75,5 @@ class InputItem implements IInputItem
     {
         return (string)$this->value;
     }
+
 }
