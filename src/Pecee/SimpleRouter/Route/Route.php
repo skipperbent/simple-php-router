@@ -47,7 +47,7 @@ abstract class Route implements IRoute
 
     protected function loadClass($name)
     {
-        if (!class_exists($name)) {
+        if (class_exists($name) === false) {
             throw new NotFoundHttpException(sprintf('Class %s does not exist', $name), 404);
         }
 
@@ -528,7 +528,6 @@ abstract class Route implements IRoute
          * If this is the first time setting parameters we store them so we
          * later can organize the array, in case somebody tried to sort the array.
          */
-
         if(count($parameters) > 0 && count($this->originalParameters) === 0) {
             $this->originalParameters = $parameters;
         }

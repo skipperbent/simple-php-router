@@ -82,19 +82,19 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         $url = rtrim($url, '/') . '/';
 
         /* Match global regular-expression for route */
-        if($this->matchRegex($request, $url) === true) {
-            return true;
+        $domainMatch = $this->matchRegex($request, $url);
+        if($domainMatch !== null) {
+            return $domainMatch;
         }
 
         $route = rtrim($this->url, '/') . '/{id?}/{action?}';
 
         $parameters = $this->parseParameters($route, $url);
-
         if ($parameters === null) {
             return false;
         }
 
-        $this->setParameters((array)$parameters);
+        $this->parameters = (array)$parameters;
 
         $action = isset($this->parameters['action']) ? $this->parameters['action'] : null;
         unset($this->parameters['action']);
@@ -107,7 +107,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         }
 
         // Update
-        if (isset($this->parameters['id']) && in_array($method, [ static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT ])) {
+        if (isset($this->parameters['id']) && in_array($method, [ static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT ], false)) {
             return $this->call($this->methodNames['update']);
         }
 

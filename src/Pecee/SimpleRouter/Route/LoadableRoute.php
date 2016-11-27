@@ -37,6 +37,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
                 $middleware = $this->getMiddlewares()[$i];
 
                 $middleware = $this->loadClass($middleware);
+
                 if (!($middleware instanceof IMiddleware)) {
                     throw new HttpException($middleware . ' must be instance of Middleware');
                 }
@@ -60,7 +61,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
             /* Remove global match */
             if (count($parameters) > 1) {
-                $this->setParameters(array_slice($parameters, 1));
+                $this->parameters = array_slice($parameters, 1);
             }
 
             return true;

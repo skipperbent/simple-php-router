@@ -28,9 +28,7 @@ class RouteGroup extends Route implements IGroupRoute
 
             if ($parameters !== null && count($parameters) > 0) {
 
-                $this->setParameters($parameters);
-                //$this->parameters = array_merge($this->parameters, $parameters);
-
+                $this->parameters = $parameters;
                 return true;
             }
         }
