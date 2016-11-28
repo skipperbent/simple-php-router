@@ -167,7 +167,7 @@ class Router
                     $route->renderRoute($this->request);
                     $this->processingRoute = false;
 
-                    if ($route->matchRoute($this->request)) {
+                    if ($route->matchRoute($this->request) === true) {
 
                         /* Add exception handlers */
                         if (count($route->getExceptionHandlers()) > 0) {
@@ -220,7 +220,6 @@ class Router
         $routeNotAllowed = false;
 
         try {
-
             /* Initialize boot-managers */
             if (count($this->bootManagers) > 0) {
 
@@ -246,7 +245,7 @@ class Router
 
                 if ($this->csrfVerifier !== null) {
 
-                    // Verify csrf token for request
+                    /* Verify csrf token for request */
                     $this->csrfVerifier->handle($this->request);
                 }
 
@@ -261,10 +260,10 @@ class Router
                 $route = $this->processedRoutes[$i];
 
                 /* If the route matches */
-                if ($route->matchRoute($this->request)) {
+                if ($route->matchRoute($this->request) === true) {
 
                     /* Check if request method matches */
-                    if (count($route->getRequestMethods()) > 0 && in_array($this->request->getMethod(), $route->getRequestMethods()) === false) {
+                    if (count($route->getRequestMethods()) > 0 && in_array($this->request->getMethod(), $route->getRequestMethods(), false) === false) {
                         $routeNotAllowed = true;
                         continue;
                     }

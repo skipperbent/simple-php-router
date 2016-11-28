@@ -2,11 +2,12 @@
 namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
-use Pecee\SimpleRouter\Exceptions\HttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 abstract class Route implements IRoute
 {
+    const PARAMETERS_REGEX_MATCH = '%s([\w]+)(\%s?)%s';
+
     const REQUEST_TYPE_GET = 'get';
     const REQUEST_TYPE_POST = 'post';
     const REQUEST_TYPE_PUT = 'put';
@@ -23,6 +24,13 @@ abstract class Route implements IRoute
         self::REQUEST_TYPE_DELETE,
     ];
 
+    /**
+     * If enabled parameters containing null-value
+     * will not be passed along to the callback.
+     *
+     * @var bool
+     */
+    protected $filterEmptyParams = false;
     protected $paramModifiers = '{}';
     protected $paramOptionalSymbol = '?';
     protected $group;
@@ -32,11 +40,20 @@ abstract class Route implements IRoute
 
     /* Default options */
     protected $namespace;
-    protected $regex;
     protected $requestMethods = [];
     protected $where = [];
     protected $parameters = [];
+    protected $originalParameters = [];
     protected $middlewares = [];
+
+    protected function loadClass($name)
+    {
+        if (class_exists($name) === false) {
+            throw new NotFoundHttpException(sprintf('Class %s does not exist', $name), 404);
+        }
+
+        return new $name();
+    }
 
     public function renderRoute(Request $request)
     {
@@ -54,114 +71,70 @@ abstract class Route implements IRoute
             $class = $this->loadClass($className);
             $method = $controller[1];
 
-            if (!method_exists($class, $method)) {
+            if (method_exists($class, $method) === false) {
                 throw new NotFoundHttpException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
             }
 
-            $parameters = array_filter($this->getParameters(), function ($var) {
-                return ($var !== null);
-            });
+            $parameters = $this->getParameters();
+
+            /* Filter parameters with null-value */
+
+            if ($this->filterEmptyParams === true) {
+                $parameters = array_filter($parameters, function ($var) {
+                    return ($var !== null);
+                });
+            }
 
             call_user_func_array([$class, $method], $parameters);
-
-            return $class;
         }
-
-        return null;
     }
 
     protected function parseParameters($route, $url, $parameterRegex = '[\w]+')
     {
-        $parameterNames = [];
-        $regex = '';
-        $lastCharacter = '';
-        $isParameter = false;
-        $parameter = '';
-        $routeLength = strlen($route) - 1;
+        $regex = sprintf(static::PARAMETERS_REGEX_MATCH, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
-        for ($i = $routeLength; $i >= 0; $i--) {
+        if (preg_match_all('/' . $regex . '/is', $route, $parameters)) {
 
-            $character = strrev($route)[$i];
+            $parameterNamesRegex = [];
+            $parameterNames = $parameters[1];
+            $parameterRequired = [];
 
-            if ($character === '{') {
-                /* Remove "/" and "\" from regex */
-                if (substr($regex, strlen($regex) - 1) === '/') {
-                    $regex = substr($regex, 0, -2);
+            $urlParts = preg_split('/\{[^}]+\}/is', rtrim($route, '/'));
+
+            foreach ($urlParts as $key => $t) {
+
+                $regex = '';
+
+                if ($key < (count($parameters[1]))) {
+
+                    $name = $parameters[1][$key];
+                    $regex = isset($this->where[$name]) ? $this->where[$name] : $parameterRegex;
+                    $regex = sprintf('(?P<%s>%s)', $name, $regex) . $parameters[2][$key];
+
                 }
 
-                $isParameter = true;
-            } elseif ($isParameter && $character === '}') {
-                $required = true;
-
-                /* Check for optional parameter and use custom parameter regex if it exists */
-                if (is_array($this->where) === true && isset($this->where[$parameter])) {
-                    $parameterRegex = $this->where[$parameter];
-                }
-
-                if ($lastCharacter === '?') {
-                    $parameter = substr($parameter, 0, -1);
-                    $regex .= '(?:\/?(?P<' . $parameter . '>' . $parameterRegex . ')[^\/]?)?';
-                    $required = false;
-                } else {
-                    $regex .= '\/?(?P<' . $parameter . '>' . $parameterRegex . ')[^\/]?';
-                }
-
-                $parameterNames[] = [
-                    'name'     => $parameter,
-                    'required' => $required,
-                ];
-
-                $parameter = '';
-                $isParameter = false;
-            } elseif ($isParameter) {
-                $parameter .= $character;
-            } elseif ($character === '/') {
-                $regex .= '\\' . $character;
-            } else {
-                $regex .= str_replace('.', '\\.', $character);
+                $urlParts[$key] = preg_quote($t, '/') . $regex;
             }
 
-            $lastCharacter = $character;
+            $urlRegex = join('', $urlParts);
+
+        } else {
+            $urlRegex = preg_quote($route, '/');
         }
 
-        $parameterValues = [];
+        if (preg_match('/^' . $urlRegex . '(\/?)$/is', $url, $matches) > 0) {
 
-        if (preg_match('/^' . $regex . '\/?$/is', $url, $parameterValues)) {
+            $values = [];
 
-            $parameters = [];
-
-            $max = count($parameterNames) - 1;
-
-            for ($i = $max; $i >= 0; $i--) {
-
-                $name = $parameterNames[$i];
-
-                $parameterValue = isset($parameterValues[$name['name']]) ? $parameterValues[$name['name']] : null;
-
-                if ($parameterValue === null && $name['required']) {
-                    throw new HttpException('Missing required parameter ' . $name['name'], 404);
-                }
-
-                if ($parameterValue === null && $name['required'] === false) {
-                    continue;
-                }
-
-                $parameters[$name['name']] = $parameterValue;
+            /* Only take matched parameters with name */
+            foreach ($parameters[1] as $name) {
+                $values[$name] = $matches[$name];
             }
 
-            return $parameters;
+            return $values;
         }
 
         return null;
-    }
-
-    protected function loadClass($name)
-    {
-        if (!class_exists($name)) {
-            throw new NotFoundHttpException(sprintf('Class %s does not exist', $name), 404);
-        }
-
-        return new $name();
     }
 
     /**
@@ -340,29 +313,6 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Add regular expression match for the entire route.
-     *
-     * @param string $regex
-     * @return static
-     */
-    public function setMatch($regex)
-    {
-        $this->regex = $regex;
-
-        return $this;
-    }
-
-    /**
-     * Get regular expression match used for matching route (if defined).
-     *
-     * @return string
-     */
-    public function getMatch()
-    {
-        return $this->regex;
-    }
-
-    /**
      * Export route settings to array so they can be merged with another route.
      *
      * @return array
@@ -381,16 +331,6 @@ abstract class Route implements IRoute
 
         if (count($this->where) > 0) {
             $values['where'] = $this->where;
-        }
-
-        if (count($this->parameters) > 0) {
-
-            /* Ensure the right order + values */
-            $parameters = (isset($values['parameters']) ? $values['parameters'] : []) + $this->parameters;
-            $parameters = array_merge($parameters, $this->parameters);
-
-            $this->setParameters($parameters);
-            $values['parameters'] = $parameters;
         }
 
         if (count($this->middlewares) > 0) {
@@ -476,7 +416,14 @@ abstract class Route implements IRoute
      */
     public function getParameters()
     {
-        return $this->parameters;
+        /* Sort the parameters after the user-defined param order, if any */
+        $parameters = [];
+
+        if (count($this->originalParameters) > 0) {
+            $parameters = $this->originalParameters;
+        }
+
+        return array_merge($parameters, $this->parameters);
     }
 
     /**
@@ -487,6 +434,14 @@ abstract class Route implements IRoute
      */
     public function setParameters(array $parameters)
     {
+        /*
+         * If this is the first time setting parameters we store them so we
+         * later can organize the array, in case somebody tried to sort the array.
+         */
+        if (count($parameters) > 0 && count($this->originalParameters) === 0) {
+            $this->originalParameters = $parameters;
+        }
+
         $this->parameters = $parameters;
 
         return $this;

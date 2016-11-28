@@ -215,7 +215,7 @@ class Request
 
     public function __isset($name)
     {
-        return $this->data[$name] ?? null;
+        return array_key_exists($name, $this->data);
     }
 
     public function __set($name, $value = null)

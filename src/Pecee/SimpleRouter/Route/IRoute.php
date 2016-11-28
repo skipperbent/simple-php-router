@@ -18,7 +18,8 @@ interface IRoute
      * Returns class to be rendered.
      *
      * @param Request $request
-     * @return \Closure|string
+     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
+     * @return void
      */
     public function renderRoute(Request $request);
 
@@ -111,21 +112,6 @@ interface IRoute
     public function setDefaultNamespace($namespace);
 
     public function getDefaultNamespace();
-
-    /**
-     * Get regular expression match used for matching route (if defined).
-     *
-     * @return string
-     */
-    public function getMatch();
-
-    /**
-     * Add regular expression match for the entire route.
-     *
-     * @param string $regex
-     * @return static
-     */
-    public function setMatch($regex);
 
     /**
      * Get parameter names.
