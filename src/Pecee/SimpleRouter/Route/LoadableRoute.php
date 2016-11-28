@@ -107,47 +107,50 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      */
     public function findUrl($method = null, $parameters = null, $name = null)
     {
-        $url = '';
-
-        $parameters = (array)$parameters;
+        $url = $this->getUrl();
 
         if ($this->getGroup() !== null && count($this->getGroup()->getDomains()) > 0) {
-            $url .= '//' . $this->getGroup()->getDomains()[0];
+            $url = '//' . $this->getGroup()->getDomains()[0] . $url;
         }
 
-        $url .= $this->getUrl();
+        if($parameters !== null) {
 
-        $params = array_merge($this->getParameters(), $parameters);
+            $params = array_merge($this->getParameters(), $parameters);
 
-        /* Url that contains parameters that aren't recognized */
-        $unknownParams = [];
+            /* Contains parameters that aren't recognized and will be appended at the end of the url */
+            $unknownParams = [];
 
-        /* Create the param string - {} */
-        $param1 = $this->paramModifiers[0] . '%s' . $this->paramModifiers[1];
+            /* Create the param string - {parameter} */
+            $param1 = $this->paramModifiers[0] . '%s' . $this->paramModifiers[1];
 
-        /* Create the param string with the optional symbol - {?} */
-        $param2 = $this->paramModifiers[0] . '%s' . $this->paramOptionalSymbol . $this->paramModifiers[1];
+            /* Create the param string with the optional symbol - {parameter?} */
+            $param2 = $this->paramModifiers[0] . '%s' . $this->paramOptionalSymbol . $this->paramModifiers[1];
 
-        /* Let's parse the values of any {} parameter in the url */
+            /* Replace any {parameter} in the url with the correct value */
 
-        $max = count($params) - 1;
-        $keys = array_keys($params);
+            $max = count($params) - 1;
+            $keys = array_keys($params);
 
-        for ($i = $max; $i >= 0; $i--) {
-            $param = $keys[$i];
-            $value = $params[$param];
+            for ($i = $max; $i >= 0; $i--) {
+                $param = $keys[$i];
+                $value = $value = isset($parameters[$param]) ? $parameters[$param] : $params[$param];
 
-            $value = isset($parameters[$param]) ? $parameters[$param] : $value;
+                /* If parameter is specifically set to null - use the original-defined value */
+                if (array_key_exists($param, $parameters) && $parameters[$param] === null && isset($this->originalParameters[$param])) {
+                    $value = $this->originalParameters[$param];
+                }
 
-            if (stripos($url, $param1) !== false || stripos($url, $param) !== false) {
-                $url = str_ireplace([sprintf($param1, $param), sprintf($param2, $param)], $value, $url);
-            } else {
-                $unknownParams[$param] = $value;
+                if (stripos($url, $param1) !== false || stripos($url, $param) !== false) {
+                    /* Add parameter to the correct position */
+                    $url = str_ireplace([sprintf($param1, $param), sprintf($param2, $param)], $value, $url);
+                } else {
+                    $unknownParams[$param] = $value;
+                }
             }
-        }
 
-        /** @noinspection AliasFunctionsUsageInspection */
-        $url .= join('/', $unknownParams);
+            $url .= join('/', $unknownParams);
+
+        }
 
         return rtrim($url, '/') . '/';
     }
