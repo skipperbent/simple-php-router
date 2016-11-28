@@ -95,11 +95,7 @@ abstract class Route implements IRoute
 
         if (preg_match_all('/' . $regex . '/is', $route, $parameters)) {
 
-            $parameterNamesRegex = [];
-            $parameterNames = $parameters[1];
-            $parameterRequired = [];
-
-            $urlParts = preg_split('/\{[^}]+\}/is', rtrim($route, '/'));
+            $urlParts = preg_split('/((\-?\/?)\{[^}]+\})/is', rtrim($route, '/'));
 
             foreach ($urlParts as $key => $t) {
 
@@ -109,7 +105,7 @@ abstract class Route implements IRoute
 
                     $name = $parameters[1][$key];
                     $regex = isset($this->where[$name]) ? $this->where[$name] : $parameterRegex;
-                    $regex = sprintf('(?P<%s>%s)', $name, $regex) . $parameters[2][$key];
+                    $regex = sprintf('\-?\/?(?P<%s>%s)', $name, $regex) . $parameters[2][$key];
 
                 }
 
@@ -128,7 +124,7 @@ abstract class Route implements IRoute
 
             /* Only take matched parameters with name */
             foreach ($parameters[1] as $name) {
-                $values[$name] = $matches[$name];
+                $values[$name] = isset($matches[$name]) ? $matches[$name] : null;
             }
 
             return $values;
