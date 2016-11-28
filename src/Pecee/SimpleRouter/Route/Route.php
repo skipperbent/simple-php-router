@@ -6,7 +6,7 @@ use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 abstract class Route implements IRoute
 {
-    const PARAMETERS_REGEX_MATCH = '%s([\w\-\_]*?)(\%s{0,1})%s';
+    const PARAMETERS_REGEX_MATCH = '%s([\w]+)(\%s?)%s';
 
     const REQUEST_TYPE_GET = 'get';
     const REQUEST_TYPE_POST = 'post';
