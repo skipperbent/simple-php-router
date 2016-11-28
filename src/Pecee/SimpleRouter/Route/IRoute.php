@@ -114,21 +114,6 @@ interface IRoute
     public function getDefaultNamespace();
 
     /**
-     * Get regular expression match used for matching route (if defined).
-     *
-     * @return string
-     */
-    public function getMatch();
-
-    /**
-     * Add regular expression match for the entire route.
-     *
-     * @param string $regex
-     * @return static
-     */
-    public function setMatch($regex);
-
-    /**
      * Get parameter names.
      *
      * @return array

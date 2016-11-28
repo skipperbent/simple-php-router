@@ -8,7 +8,7 @@ use Pecee\SimpleRouter\Exceptions\HttpException;
 abstract class LoadableRoute extends Route implements ILoadableRoute
 {
     /**
-     * @var
+     * @var string
      */
     protected $url;
 
@@ -16,6 +16,8 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @var string
      */
     protected $name;
+
+    protected $regex;
 
     /**
      * Loads and renders middlewares-classes
@@ -169,6 +171,29 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     public function hasName($name)
     {
         return (strtolower($this->name) === strtolower($name));
+    }
+
+    /**
+     * Add regular expression match for the entire route.
+     *
+     * @param string $regex
+     * @return static
+     */
+    public function setMatch($regex)
+    {
+        $this->regex = $regex;
+
+        return $this;
+    }
+
+    /**
+     * Get regular expression match used for matching route (if defined).
+     *
+     * @return string
+     */
+    public function getMatch()
+    {
+        return $this->regex;
     }
 
     /**

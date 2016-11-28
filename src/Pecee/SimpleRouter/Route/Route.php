@@ -40,7 +40,6 @@ abstract class Route implements IRoute
 
     /* Default options */
     protected $namespace;
-    protected $regex;
     protected $requestMethods = [];
     protected $where = [];
     protected $parameters = [];
@@ -311,29 +310,6 @@ abstract class Route implements IRoute
     public function getNamespace()
     {
         return ($this->namespace === null) ? $this->defaultNamespace : $this->namespace;
-    }
-
-    /**
-     * Add regular expression match for the entire route.
-     *
-     * @param string $regex
-     * @return static
-     */
-    public function setMatch($regex)
-    {
-        $this->regex = $regex;
-
-        return $this;
-    }
-
-    /**
-     * Get regular expression match used for matching route (if defined).
-     *
-     * @return string
-     */
-    public function getMatch()
-    {
-        return $this->regex;
     }
 
     /**
