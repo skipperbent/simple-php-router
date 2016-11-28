@@ -104,9 +104,6 @@ class RouteController extends LoadableRoute implements IControllerRoute
                 $method = (!isset($path[0]) || trim($path[0]) === '') ? $this->defaultMethod : $path[0];
                 $this->method = $method;
 
-                //array_shift($path);
-                //$this->parameters = $path;
-
                 $this->parameters = array_slice($path, 1);
 
                 // Set callback

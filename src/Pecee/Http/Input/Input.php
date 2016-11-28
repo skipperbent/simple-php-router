@@ -51,18 +51,17 @@ class Input
         }
 
         /* Parse get requests */
-        $this->file = $this->parseFiles();
+        if (count($_FILES) > 0) {
+            $this->file = $this->parseFiles();
+        }
     }
 
     public function parseFiles()
     {
-        if (count($_FILES) === 0) {
-            return [];
-        }
-
+        $files = $_FILES;
         $list = [];
 
-        foreach ($_FILES as $key => $value) {
+        foreach ($files as $key => $value) {
 
             // Handle array input
             if (is_array($value['name']) === false) {
@@ -95,7 +94,8 @@ class Input
 
             $path = $original[$property];
 
-            foreach (array_values($index) as $i) {
+            $tmp = array_values($index);
+            foreach ($tmp as $i) {
                 $path = $path[$i];
             }
 

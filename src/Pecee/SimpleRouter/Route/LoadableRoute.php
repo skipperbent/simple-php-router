@@ -7,8 +7,6 @@ use Pecee\SimpleRouter\Exceptions\HttpException;
 
 abstract class LoadableRoute extends Route implements ILoadableRoute
 {
-    const PARAMETERS_REGEX_MATCH = '%s([\w\-\_]*?)\%s{0,1}%s';
-
     /**
      * @var
      */
@@ -57,12 +55,10 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
         $parameters = [];
 
-        if (preg_match($this->regex, $request->getHost() . $url, $parameters) !== false) {
+        if (preg_match($this->regex, $request->getHost() . $url, $parameters) > 0) {
 
             /* Remove global match */
-            if (count($parameters) > 1) {
-                $this->parameters = array_slice($parameters, 1);
-            }
+            $this->parameters = array_slice($parameters, 1);
 
             return true;
         }
@@ -147,6 +143,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             }
         }
 
+        /** @noinspection AliasFunctionsUsageInspection */
         $url .= join('/', $unknownParams);
 
         return rtrim($url, '/') . '/';

@@ -171,6 +171,10 @@ class RouteGroup extends Route implements IGroupRoute
             $values['as'] = $this->name;
         }
 
+        if (count($this->parameters) > 0) {
+            $values['parameters'] = $this->parameters;
+        }
+
         return array_merge($values, parent::toArray());
     }
 

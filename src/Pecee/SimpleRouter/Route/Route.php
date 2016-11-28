@@ -6,6 +6,8 @@ use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 abstract class Route implements IRoute
 {
+    const PARAMETERS_REGEX_MATCH = '%s([\w\-\_]*?)(\%s{0,1})%s';
+
     const REQUEST_TYPE_GET = 'get';
     const REQUEST_TYPE_POST = 'post';
     const REQUEST_TYPE_PUT = 'put';
@@ -88,113 +90,49 @@ abstract class Route implements IRoute
         }
     }
 
-    protected function generateRouteRegEx($route, $parameterRegex = '[\w]+') {
-
-        /* Make regular expression based on route */
-
-        $route = rtrim($route, '/') . '/';
-
-        $parameterNames = [];
-        $regex = '';
-        $lastCharacter = '';
-        $isParameter = false;
-        $parameter = '';
-        $routeLength = strlen($route) - 1;
-
-        for ($i = $routeLength; $i >= 0; $i--) {
-
-            $character = strrev($route)[$i];
-
-            if ($character === '{') {
-
-                /* Strip "/" and "\" from regex */
-
-                if (substr($regex, strlen($regex) - 1) === '/') {
-                    $regex = substr($regex, 0, -2);
-                }
-
-                $isParameter = true;
-
-            } elseif ($isParameter === true) {
-
-                if($character === '}') {
-
-                    $required = true;
-
-                    /* Check for optional parameter and use custom parameter regex if it exists */
-
-                    if (is_array($this->where) === true && isset($this->where[$parameter])) {
-                        $parameterRegex = $this->where[$parameter];
-                    }
-
-                    if ($lastCharacter === '?') {
-
-                        $parameter = substr($parameter, 0, -1);
-                        $regex .= '(?:\/(?P<' . $parameter . '>' . $parameterRegex . ')[^\/]?)?';
-                        $required = false;
-
-                    } else {
-
-                        $regex .= '\/(?P<' . $parameter . '>' . $parameterRegex . ')[^\/]?';
-                    }
-
-                    $parameterNames[] = [
-                        'name'     => $parameter,
-                        'required' => $required,
-                    ];
-
-                    $parameter = '';
-                    $isParameter = false;
-
-                } else {
-                    $parameter .= $character;
-                }
-
-
-            } else if ($character === '/') {
-                $regex .= '\\' . $character;
-            } else {
-                $regex .= str_replace('.', '\\.', $character);
-            }
-
-            $lastCharacter = $character;
-        }
-
-        $this->regex = $regex;
-
-        return [
-            'regex' => $regex,
-            'parameters' => $parameterNames
-        ];
-    }
-
     protected function parseParameters($route, $url, $parameterRegex = '[\w]+')
     {
-        $result = $this->generateRouteRegEx($route, $parameterRegex);
+        $regex = sprintf(static::PARAMETERS_REGEX_MATCH, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
-        $parameterNames = $result['parameters'];
+        if (preg_match_all('/' . $regex . '/is', $route, $parameters)) {
 
-        if (preg_match('/^' . $result['regex'] . '\/?$/is', $url, $matches)) {
+            $parameterNamesRegex = [];
+            $parameterNames = $parameters[1];
+            $parameterRequired = [];
 
-            $parameters = [];
+            $urlParts = preg_split('/\{[^}]+\}/is', rtrim($route, '/'));
 
-            $max = count($parameterNames) - 1;
+            foreach($urlParts as $key => $t) {
 
-            for ($i = $max; $i >= 0; $i--) {
+                $regex = '';
 
-                $name = $parameterNames[$i]['name'];
-                $required = $parameterNames[$i]['required'];
+                if($key < (count($parameters[1]))) {
 
-                $param = isset($matches[$name]) ? $matches[$name] : null;
+                    $name = $parameters[1][$key];
+                    $regex = isset($this->where[$name]) ? $this->where[$name] : $parameterRegex;
+                    $regex = sprintf('(?P<%s>%s)', $name, $regex) . $parameters[2][$key];
 
-                if ($required === true && isset($this->parameters[$name]) === true && trim($param) === '') {
-                    $param = $this->parameters[$name];
                 }
 
-                $parameters[$name] = $param;
+                $urlParts[$key] = preg_quote($t, '/') . $regex;
             }
 
-            return $parameters;
+            $urlRegex = join('', $urlParts);
+
+        } else {
+            $urlRegex = preg_quote($route, '/');
+        }
+
+        if(preg_match('/^' . $urlRegex . '(\/?)$/is', $url, $matches) > 0) {
+
+            $values = [];
+
+            /* Only take matched parameters with name */
+            foreach($parameters[1] as $name) {
+                $values[$name] = $matches[$name];
+            }
+
+            return $values;
         }
 
         return null;
@@ -418,10 +356,6 @@ abstract class Route implements IRoute
         if (count($this->where) > 0) {
             $values['where'] = $this->where;
         }
-
-        /*if (count($this->parameters) > 0) {
-            $values['parameters'] = $this->parameters;
-        }*/
 
         if (count($this->middlewares) > 0) {
             $values['middleware'] = $this->middlewares;

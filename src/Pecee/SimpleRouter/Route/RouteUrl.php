@@ -24,12 +24,13 @@ class RouteUrl extends LoadableRoute
 
         /* Make regular expression based on route */
         $parameters = $this->parseParameters($this->url, $url);
-        if($parameters !== null) {
-            $this->setParameters($parameters);
-            return true;
+        if($parameters === null) {
+            return false;
         }
 
-        return false;
+        $this->setParameters($parameters);
+
+        return true;
 
     }
 
