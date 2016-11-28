@@ -42,14 +42,13 @@ class InputFile implements IInputItem
             'error'    => null,
         ], $values);
 
-        $input = new static($values['index']);
-        $input->setError($values['error'])
+        return (new static($values['index']))
+            ->setError($values['error'])
             ->setSize($values['size'])
             ->setType($values['type'])
             ->setTmpName($values['tmp_name'])
             ->setFilename($values['name']);
 
-        return $input;
     }
 
     /**

@@ -51,15 +51,13 @@ class Input
         }
 
         /* Parse get requests */
-        $this->file = $this->parseFiles();
+        if (count($_FILES) > 0) {
+            $this->file = $this->parseFiles();
+        }
     }
 
     public function parseFiles()
     {
-        if (count($_FILES) === 0) {
-            return [];
-        }
-
         $list = [];
 
         foreach ($_FILES as $key => $value) {

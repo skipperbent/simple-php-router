@@ -14,6 +14,26 @@ class RouterRouteTest extends PHPUnit_Framework_TestCase
 {
     protected $result = false;
 
+    public function testMultiParam()
+    {
+        SimpleRouter::router()->reset();
+        SimpleRouter::request()->setMethod('get');
+        SimpleRouter::request()->setUri('/test-param1-param2');
+
+        SimpleRouter::get('/test-{param1}-{param2}', function($param1, $param2) {
+
+            if($param1 === 'param1' && $param2 === 'param2') {
+                $this->result = true;
+            }
+
+        });
+
+        SimpleRouter::start();
+
+        $this->assertTrue($this->result);
+
+    }
+
     /**
      * Redirects to another route through 3 exception handlers.
      *
@@ -115,16 +135,6 @@ class RouterRouteTest extends PHPUnit_Framework_TestCase
         SimpleRouter::request()->setUri('/test-param1');
 
         SimpleRouter::get('/test-{param1}', 'DummyController@param');
-        SimpleRouter::start();
-    }
-
-    public function testMultiParam()
-    {
-        SimpleRouter::router()->reset();
-        SimpleRouter::request()->setMethod('get');
-        SimpleRouter::request()->setUri('/test-param1-param2');
-
-        SimpleRouter::get('/test-{param1}-{param2}', 'DummyController@param');
         SimpleRouter::start();
     }
 

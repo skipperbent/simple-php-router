@@ -2,7 +2,6 @@
 namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
-use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 class RouteResource extends LoadableRoute implements IControllerRoute
 {
@@ -70,34 +69,9 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         return $this->url;
     }
 
-    public function renderRoute(Request $request)
-    {
-        if ($this->getCallback() !== null && is_callable($this->getCallback())) {
-            // When the callback is a function
-            call_user_func_array($this->getCallback(), $this->getParameters());
-        } else {
-            // When the callback is a method
-            $controller = explode('@', $this->getCallback());
-            $className = $this->getNamespace() . '\\' . $controller[0];
-            $class = $this->loadClass($className);
-            $method = strtolower($controller[1]);
-
-            if (!method_exists($class, $method)) {
-                throw new NotFoundHttpException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
-            }
-
-            call_user_func_array([$class, $method], $this->getParameters());
-
-            return $class;
-        }
-
-        return null;
-    }
-
-    protected function call($method, $parameters)
+    protected function call($method)
     {
         $this->setCallback($this->controller . '@' . $method);
-        $this->parameters = $parameters;
 
         return true;
     }
@@ -107,54 +81,58 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         $url = parse_url(urldecode($request->getUri()), PHP_URL_PATH);
         $url = rtrim($url, '/') . '/';
 
+        /* Match global regular-expression for route */
+        $domainMatch = $this->matchRegex($request, $url);
+        if ($domainMatch !== null) {
+            return $domainMatch;
+        }
+
         $route = rtrim($this->url, '/') . '/{id?}/{action?}';
 
         $parameters = $this->parseParameters($route, $url);
-
-        if ($parameters !== null) {
-
-            $parameters = array_merge($this->parameters, (array)$parameters);
-
-            $action = isset($parameters['action']) ? $parameters['action'] : null;
-            unset($parameters['action']);
-
-            $method = $request->getMethod();
-
-            // Delete
-            if ($method === static::REQUEST_TYPE_DELETE && isset($parameters['id'])) {
-                return $this->call($this->methodNames['destroy'], $parameters);
-            }
-
-            // Update
-            if (isset($parameters['id']) && in_array($method, [static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT])) {
-                return $this->call($this->methodNames['update'], $parameters);
-            }
-
-            // Edit
-            if ($method === static::REQUEST_TYPE_GET && isset($parameters['id']) && strtolower($action) === 'edit') {
-                return $this->call($this->methodNames['edit'], $parameters);
-            }
-
-            // Create
-            if ($method === static::REQUEST_TYPE_GET && strtolower($action) === 'create') {
-                return $this->call($this->methodNames['create'], $parameters);
-            }
-
-            // Save
-            if ($method === static::REQUEST_TYPE_POST) {
-                return $this->call($this->methodNames['store'], $parameters);
-            }
-
-            // Show
-            if ($method === static::REQUEST_TYPE_GET && isset($parameters['id'])) {
-                return $this->call($this->methodNames['show'], $parameters);
-            }
-
-            // Index
-            return $this->call($this->methodNames['index'], $parameters);
+        if ($parameters === null) {
+            return false;
         }
 
-        return null;
+        $this->parameters = (array)$parameters;
+
+        $action = isset($this->parameters['action']) ? $this->parameters['action'] : null;
+        unset($this->parameters['action']);
+
+        $method = $request->getMethod();
+
+        // Delete
+        if ($method === static::REQUEST_TYPE_DELETE && isset($this->parameters['id'])) {
+            return $this->call($this->methodNames['destroy']);
+        }
+
+        // Update
+        if (isset($this->parameters['id']) && in_array($method, [static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT], false)) {
+            return $this->call($this->methodNames['update']);
+        }
+
+        // Edit
+        if ($method === static::REQUEST_TYPE_GET && isset($this->parameters['id']) && strtolower($action) === 'edit') {
+            return $this->call($this->methodNames['edit']);
+        }
+
+        // Create
+        if ($method === static::REQUEST_TYPE_GET && strtolower($action) === 'create') {
+            return $this->call($this->methodNames['create']);
+        }
+
+        // Save
+        if ($method === static::REQUEST_TYPE_POST) {
+            return $this->call($this->methodNames['store']);
+        }
+
+        // Show
+        if ($method === static::REQUEST_TYPE_GET && isset($this->parameters['id'])) {
+            return $this->call($this->methodNames['show']);
+        }
+
+        // Index
+        return $this->call($this->methodNames['index']);
     }
 
     /**

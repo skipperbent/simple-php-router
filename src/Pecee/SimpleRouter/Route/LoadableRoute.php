@@ -7,10 +7,8 @@ use Pecee\SimpleRouter\Exceptions\HttpException;
 
 abstract class LoadableRoute extends Route implements ILoadableRoute
 {
-    const PARAMETERS_REGEX_MATCH = '%s([\w\-\_]*?)\%s{0,1}%s';
-
     /**
-     * @var
+     * @var string
      */
     protected $url;
 
@@ -18,6 +16,8 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @var string
      */
     protected $name;
+
+    protected $regex;
 
     /**
      * Loads and renders middlewares-classes
@@ -37,6 +37,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
                 $middleware = $this->getMiddlewares()[$i];
 
                 $middleware = $this->loadClass($middleware);
+
                 if (!($middleware instanceof IMiddleware)) {
                     throw new HttpException($middleware . ' must be instance of Middleware');
                 }
@@ -44,6 +45,28 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
                 $middleware->handle($request, $route);
             }
         }
+    }
+
+    public function matchRegex(Request $request, $url)
+    {
+
+        /* Match on custom defined regular expression */
+
+        if ($this->regex === null) {
+            return null;
+        }
+
+        $parameters = [];
+
+        if (preg_match($this->regex, $request->getHost() . $url, $parameters) > 0) {
+
+            /* Remove global match */
+            $this->parameters = array_slice($parameters, 1);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -61,15 +84,8 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             $regex = sprintf(static::PARAMETERS_REGEX_MATCH, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
             if (preg_match_all('/' . $regex . '/is', $this->url, $matches)) {
-
-                $max = count($matches[1]);
-
-                for ($i = 0; $i < $max; $i++) {
-                    $this->parameters[$matches[1][$i]] = null;
-                }
-
+                $this->parameters = array_fill_keys($matches[1], null);
             }
-
         }
 
         return $this;
@@ -130,6 +146,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             }
         }
 
+        /** @noinspection AliasFunctionsUsageInspection */
         $url .= join('/', $unknownParams);
 
         return rtrim($url, '/') . '/';
@@ -154,6 +171,29 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     public function hasName($name)
     {
         return (strtolower($this->name) === strtolower($name));
+    }
+
+    /**
+     * Add regular expression match for the entire route.
+     *
+     * @param string $regex
+     * @return static
+     */
+    public function setMatch($regex)
+    {
+        $this->regex = $regex;
+
+        return $this;
+    }
+
+    /**
+     * Get regular expression match used for matching route (if defined).
+     *
+     * @return string
+     */
+    public function getMatch()
+    {
+        return $this->regex;
     }
 
     /**
