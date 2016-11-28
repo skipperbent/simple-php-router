@@ -63,7 +63,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
         if ($method !== null) {
 
             /* Remove requestType from method-name, if it exists */
-            foreach(static::$requestTypes as $requestType) {
+            foreach (static::$requestTypes as $requestType) {
 
                 if (stripos($method, $requestType) === 0) {
                     $method = substr($method, strlen($requestType));
@@ -89,7 +89,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
         $url = rtrim($url, '/') . '/';
 
         /* Match global regular-expression for route */
-        if($this->matchRegex($request, $url) === true) {
+        if ($this->matchRegex($request, $url) === true) {
             return true;
         }
 

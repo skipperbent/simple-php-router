@@ -102,11 +102,11 @@ abstract class Route implements IRoute
 
             $urlParts = preg_split('/\{[^}]+\}/is', rtrim($route, '/'));
 
-            foreach($urlParts as $key => $t) {
+            foreach ($urlParts as $key => $t) {
 
                 $regex = '';
 
-                if($key < (count($parameters[1]))) {
+                if ($key < (count($parameters[1]))) {
 
                     $name = $parameters[1][$key];
                     $regex = isset($this->where[$name]) ? $this->where[$name] : $parameterRegex;
@@ -123,12 +123,12 @@ abstract class Route implements IRoute
             $urlRegex = preg_quote($route, '/');
         }
 
-        if(preg_match('/^' . $urlRegex . '(\/?)$/is', $url, $matches) > 0) {
+        if (preg_match('/^' . $urlRegex . '(\/?)$/is', $url, $matches) > 0) {
 
             $values = [];
 
             /* Only take matched parameters with name */
-            foreach($parameters[1] as $name) {
+            foreach ($parameters[1] as $name) {
                 $values[$name] = $matches[$name];
             }
 
@@ -441,9 +441,9 @@ abstract class Route implements IRoute
     public function getParameters()
     {
         /* Sort the parameters after the user-defined param order, if any */
-        $parameters = array();
+        $parameters = [];
 
-        if(count($this->originalParameters) > 0) {
+        if (count($this->originalParameters) > 0) {
             $parameters = $this->originalParameters;
         }
 
@@ -462,7 +462,7 @@ abstract class Route implements IRoute
          * If this is the first time setting parameters we store them so we
          * later can organize the array, in case somebody tried to sort the array.
          */
-        if(count($parameters) > 0 && count($this->originalParameters) === 0) {
+        if (count($parameters) > 0 && count($this->originalParameters) === 0) {
             $this->originalParameters = $parameters;
         }
 

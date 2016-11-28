@@ -18,13 +18,13 @@ class RouteUrl extends LoadableRoute
 
         /* Match global regular-expression for route */
         $domainMatch = $this->matchRegex($request, $url);
-        if($domainMatch !== null) {
+        if ($domainMatch !== null) {
             return $domainMatch;
         }
 
         /* Make regular expression based on route */
         $parameters = $this->parseParameters($this->url, $url);
-        if($parameters === null) {
+        if ($parameters === null) {
             return false;
         }
 

@@ -45,7 +45,8 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         }
     }
 
-    public function matchRegex(Request $request, $url) {
+    public function matchRegex(Request $request, $url)
+    {
 
         /* Match on custom defined regular expression */
 

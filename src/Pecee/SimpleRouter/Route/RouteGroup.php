@@ -22,13 +22,14 @@ class RouteGroup extends Route implements IGroupRoute
             return true;
         }
 
-        foreach($this->domains as $domain) {
+        foreach ($this->domains as $domain) {
 
             $parameters = $this->parseParameters($domain, $request->getHost(), '.*');
 
             if ($parameters !== null && count($parameters) > 0) {
 
                 $this->parameters = $parameters;
+
                 return true;
             }
         }

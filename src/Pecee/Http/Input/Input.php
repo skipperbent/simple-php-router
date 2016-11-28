@@ -94,8 +94,7 @@ class Input
 
             $path = $original[$property];
 
-            $tmp = array_values($index);
-            foreach ($tmp as $i) {
+            foreach (array_values($index) as $i) {
                 $path = $path[$i];
             }
 

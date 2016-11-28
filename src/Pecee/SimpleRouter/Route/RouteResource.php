@@ -83,7 +83,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
 
         /* Match global regular-expression for route */
         $domainMatch = $this->matchRegex($request, $url);
-        if($domainMatch !== null) {
+        if ($domainMatch !== null) {
             return $domainMatch;
         }
 
@@ -107,7 +107,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         }
 
         // Update
-        if (isset($this->parameters['id']) && in_array($method, [ static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT ], false)) {
+        if (isset($this->parameters['id']) && in_array($method, [static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT], false)) {
             return $this->call($this->methodNames['update']);
         }
 
