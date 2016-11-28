@@ -442,7 +442,7 @@ abstract class Route implements IRoute
             $this->originalParameters = $parameters;
         }
 
-        $this->parameters = $parameters;
+        $this->parameters = array_merge($this->parameters, $parameters);
 
         return $this;
     }
