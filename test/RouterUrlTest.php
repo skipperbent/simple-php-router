@@ -99,4 +99,16 @@ class RouterUrlTest extends PHPUnit_Framework_TestCase
 
     }
 
+    public function testRegEx()
+    {
+        SimpleRouter::router()->reset();
+        SimpleRouter::request()->setMethod('get');
+        SimpleRouter::request()->setUri('/my/custom-path');
+
+        SimpleRouter::get('/my/{path}', 'DummyController@start')->where(['path' => '[a-zA-Z\-]+']);
+
+        SimpleRouter::start();
+
+    }
+
 }
