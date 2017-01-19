@@ -402,7 +402,7 @@ abstract class Route implements IRoute
      */
     public function where(array $options)
     {
-        return $this->where($options);
+        return $this->setWhere($options);
     }
 
     /**
