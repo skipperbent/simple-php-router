@@ -127,7 +127,7 @@ class InputFile implements IInputItem
      */
     public function getExtension()
     {
-        return pathinfo($this->getName(), PATHINFO_EXTENSION);
+        return pathinfo($this->getFilename(), PATHINFO_EXTENSION);
     }
 
     /**
