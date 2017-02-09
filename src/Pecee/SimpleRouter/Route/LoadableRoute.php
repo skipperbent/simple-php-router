@@ -23,10 +23,9 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * Loads and renders middlewares-classes
      *
      * @param Request $request
-     * @param ILoadableRoute $route
      * @throws HttpException
      */
-    public function loadMiddleware(Request $request, ILoadableRoute $route)
+    public function loadMiddleware(Request $request)
     {
         if (count($this->getMiddlewares()) > 0) {
 
@@ -42,7 +41,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
                     throw new HttpException($middleware . ' must be instance of Middleware');
                 }
 
-                $middleware->handle($request, $route);
+                $middleware->handle($request);
             }
         }
     }

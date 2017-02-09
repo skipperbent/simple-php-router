@@ -20,9 +20,8 @@ interface ILoadableRoute extends IRoute
      * Loads and renders middlewares-classes
      *
      * @param Request $request
-     * @param ILoadableRoute $route
      */
-    public function loadMiddleware(Request $request, ILoadableRoute $route);
+    public function loadMiddleware(Request $request);
 
     public function getUrl();
 

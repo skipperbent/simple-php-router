@@ -2,6 +2,9 @@
 namespace Pecee\Http;
 
 use Pecee\Http\Input\Input;
+use Pecee\SimpleRouter\Route\ILoadableRoute;
+use Pecee\SimpleRouter\Route\IRoute;
+use Pecee\SimpleRouter\Route\RouteUrl;
 
 class Request
 {
@@ -11,6 +14,17 @@ class Request
     protected $uri;
     protected $method;
     protected $input;
+
+    /**
+     * @var ILoadableRoute|null
+     */
+    protected $rewriteRoute;
+    protected $rewriteUrl;
+
+    /**
+     * @var ILoadableRoute|null
+     */
+    protected $loadedRoute;
 
     public function __construct()
     {
@@ -211,6 +225,86 @@ class Request
     public function setMethod($method)
     {
         $this->method = $method;
+    }
+
+    /**
+     * Set rewrite route
+     *
+     * @param ILoadableRoute $route
+     * @return static
+     */
+    public function setRewriteRoute(ILoadableRoute $route)
+    {
+        $this->rewriteRoute = $route;
+
+        return $this;
+    }
+
+    /**
+     * Get rewrite route
+     *
+     * @return IRoute|null
+     */
+    public function getRewriteRoute()
+    {
+        return $this->rewriteRoute;
+    }
+
+    /**
+     * Get rewrite url
+     *
+     * @return string
+     */
+    public function getRewriteUrl()
+    {
+        return $this->rewriteUrl;
+    }
+
+    /**
+     * Set rewrite url
+     *
+     * @param string $rewriteUrl
+     * @return static
+     */
+    public function setRewriteUrl($rewriteUrl)
+    {
+        $this->rewriteUrl = $rewriteUrl;
+
+        return $this;
+    }
+
+    /**
+     * Set rewrite callback
+     * @param string $callback
+     * @return static
+     */
+    public function setRewriteCallback($callback)
+    {
+        $this->rewriteRoute = new RouteUrl($this->uri, $callback);
+
+        return $this;
+    }
+
+    /**
+     * Get loaded route
+     * @return ILoadableRoute|null
+     */
+    public function getLoadedRoute()
+    {
+        return $this->loadedRoute;
+    }
+
+    /**
+     * Set loaded route
+     *
+     * @param ILoadableRoute $route
+     * @return static
+     */
+    public function setLoadedRoute(ILoadableRoute $route)
+    {
+        $this->loadedRoute = $route;
+
+        return $this;
     }
 
     public function __isset($name)
