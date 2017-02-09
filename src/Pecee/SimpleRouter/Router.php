@@ -125,6 +125,7 @@ class Router
      * @param array $routes
      * @param IGroupRoute|null $group
      * @param IRoute|null $parent
+     * @throws NotFoundHttpException
      */
     protected function processRoutes(array $routes, IGroupRoute $group = null, IRoute $parent = null)
     {
