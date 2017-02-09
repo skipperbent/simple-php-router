@@ -4,7 +4,6 @@ namespace Pecee\Http\Middleware;
 use Pecee\CsrfToken;
 use Pecee\Http\Middleware\Exceptions\TokenMismatchException;
 use Pecee\Http\Request;
-use Pecee\SimpleRouter\Route\ILoadableRoute;
 
 class BaseCsrfVerifier implements IMiddleware
 {
@@ -55,7 +54,7 @@ class BaseCsrfVerifier implements IMiddleware
         return false;
     }
 
-    public function handle(Request $request, ILoadableRoute &$route = null)
+    public function handle(Request $request)
     {
 
         if ($this->skip($request) === false && in_array($request->getMethod(), ['post', 'put', 'delete'], false) === true) {

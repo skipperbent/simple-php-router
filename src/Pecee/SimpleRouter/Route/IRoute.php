@@ -8,10 +8,11 @@ interface IRoute
     /**
      * Method called to check if a domain matches
      *
+     * @param string $route
      * @param Request $request
      * @return bool
      */
-    public function matchRoute(Request $request);
+    public function matchRoute($route, Request $request);
 
     /**
      * Called when route is matched.

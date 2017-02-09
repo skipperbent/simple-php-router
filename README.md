@@ -15,71 +15,72 @@ If you want a great new feature or experience any issues what-so-ever, please fe
 
 ## Table of Contents
 
-- Gettings started
-	- Requirements
-	- Notes
-	- Features
-	- Installation
-		- Setting up Apache
-		- Setting up Nginx
-		- Setting up simple-php-router
-		- Helper methods
+- [Getting started](#getting-started)
+	- [Requirements](#requirements)
+	- [Notes](#notes-1)
+	- [Features](#features)
+	- [Installation](#installation)
+		- [Setting up Apache](#setting-up-apache)
+		- [Setting up Nginx](#setting-up-nginx)
+		- [Configuration](#configuration)
+		- [Helper functions](#helper-functions)
 
-- Routes
-	- Basic routing
-		- Available methods
-		- Multiple HTTP-verbs
-	- Route parameters
-		- Required parameters
-		- Optional parameters
-		- Regular expression constraints
-		- Regular expression route-match
-	- Named routes
-		- Generating URLs To Named Routes
-	- Router groups
-		- Middleware
-		- Namespaces
-		- Subdomain-routing
-		- Route prefixes
-	- Form Method Spoofing
-	- Accessing The Current Route
-	- Other examples
+- [Routes](#routes)
+	- [Basic routing](#basic-routing)
+		- [Available methods](#available-methods)
+		- [Multiple HTTP-verbs](#multiple-http-verbs)
+	- [Route parameters](#route-parameters)
+		- [Required parameters](#required-parameters)
+		- [Optional parameters](#optional-parameters)
+		- [Regular expression constraints](#regular-expression-constraints)
+		- [Regular expression route-match](#regular-expression-route-match)
+	- [Named routes](#named-routes)
+		- [Generating URLs To Named Routes](#generating-urls-to-named-routes)
+	- [Router groups](#router-groups)
+		- [Middleware](#middleware)
+		- [Namespaces](#namespaces)
+		- [Subdomain-routing](#subdomain-routing)
+		- [Route prefixes](#route-prefixes)
+	- [Form Method Spoofing](#form-method-spoofing)
+	- [Accessing The Current Route](#accessing-the-current-route)
+	- [Other examples](#other-examples)
 
-- CSRF-protection
-	- Adding CSRF-verifier
-	- Getting CSRF-token
+- [CSRF-protection](#csrf-protection)
+	- [Adding CSRF-verifier](#adding-csrf-verifier)
+	- [Getting CSRF-token](#getting-csrf-token)
 
-- Middleware
-	- Example
-- ExceptionHandler
-	- Example
+- [Middlewares](#middlewares)
+	- [Example](#example)
+- [ExceptionHandler](#exceptionhandler)
+	- [Example](#example-1)
 
-- Urls
- 	- Get by name (single route)
- 	- Get by name (controller route)
- 	- Get by class
- 	- Get by custom names for methods on a controller/resource route
- 	- Getting REST/resource controller urls
+- [Urls](#urls)
+ 	- [Get by name (single route)](#get-by-name-single-route)
+ 	- [Get by name (controller route)](#get-by-name-controller-route)
+ 	- [Get by class](#get-by-class)
+ 	- [Get by custom names for methods on a controller/resource route](#using-custom-names-for-methods-on-a-controllerresource-route)
+ 	- [Getting REST/resource controller urls](#getting-restresource-controller-urls)
+ 	- [Get the current url](#get-the-current-url)
 
-- Input & parameters
-	- Return single parameter value
-	- Return single parameter object
-	- Managing files
-	- Return all parameters
+- [Input & parameters](#input--parameters)
+    - [Using the Input class to manage parameters](#using-the-input-class-to-manage-parameters)
+	    - [Get single parameter value](#get-single-parameter-value)
+	    - [Get parameter object](#get-parameter-object)
+	    - [Managing files](#managing-files)
+	    - [Get all parameters](#get-all-parameters)
 
-- Advanced
-	- Bootmanager: loading routes dynamically
-	- Ovewrite route about to be loaded
-		- Examples
-		- Rewriting to new route
-		- Changing callback
+- [Advanced](#advanced)
+	- [Bootmanager: loading routes dynamically](#bootmanager-loading-routes-dynamically)
+	- [Url rewriting](#url-rewriting)
+		- [Rewrite using callback](#rewrite-using-callback)
+		- [Rewrite using url](#rewrite-using-url)
 
-	- Adding routes manually
-	- Extending
+	- [Adding routes manually](#adding-routes-manually)
+	- [Extending](#extending)
 
-- Credits
-	- Sites
-	- License
+- [Credits](#credits)
+	- [Sites](#sites)
+	- [License](#license)
 
 ___
 
@@ -154,7 +155,7 @@ location / {
 
 Nothing special is required for Apache to work. We've include the `.htaccess` file in the `public` folder. If rewriting is not working for you, please check that the `mod_rewrite` module (htaccess support) is enabled in the Apache configuration.
 
-### Setting up simple-php-router
+### Configuration
 
 Create a new file, name it `routes.php` and place it in your library folder. This will be the file where you define all the routes for your project.
 
@@ -192,8 +193,6 @@ To implement the functions below, simply copy the code to a new file and require
 
 ```php
 <?php
-use Pecee\SimpleRouter\SimpleRouter;
-
 /**
  * Get url for a route by using either name/alias, class or method name.
  *
@@ -211,41 +210,43 @@ use Pecee\SimpleRouter\SimpleRouter;
  * @param array|null $getParams
  * @return string
  */
-function url($name = null, $parameters = null, $getParams = null) {
-    SimpleRouter::getUrl($name, $parameters, $getParams);
+function url($name = null, $parameters = null, $getParams = null)
+{
+    return SimpleRouter::getUrl($name, $parameters, $getParams);
 }
 
 /**
- * Get current csrf-token
- * @return null|string
- */
-function csrf_token() {
-    $token = new \Pecee\CsrfToken();
-    return $token->getToken();
-}
-
-/**
- * Get request object
- * @return \Pecee\Http\Request
- */
-function request() {
-    return SimpleRouter::request();
-}
-
-/**
- * Get response object
  * @return \Pecee\Http\Response
  */
-function response() {
+function response()
+{
     return SimpleRouter::response();
+}
+
+/**
+ * @return \Pecee\Http\Request
+ */
+function request()
+{
+    return SimpleRouter::request();
 }
 
 /**
  * Get input class
  * @return \Pecee\Http\Input\Input
  */
-function input() {
-    return SimpleRouter::request()->getInput();
+function input()
+{
+    return request()->getInput();
+}
+
+function redirect($url, $code = null)
+{
+    if ($code !== null) {
+        response()->httpCode($code);
+    }
+
+    response()->redirect($url);
 }
 ```
 
@@ -479,7 +480,8 @@ HTML forms do not support `PUT`, `PATCH` or `DELETE` actions. So, when defining 
 You can access information about the current route loaded by using the following method:
 
 ```php
-SimpleRouter::router()->getLoadedRoute();
+SimpleRouter::request()->getLoadedRoute();
+request()->getLoadedRoute();
 ```
 
 ## Other examples
@@ -584,13 +586,19 @@ namespace Demo\Middlewares;
 
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
-use Pecee\SimpleRouter\Route\ILoadableRoute;
 
 class CustomMiddleware implements Middleware {
 
-    public function handle(Request $request, ILoadableRoute &$route) {
+    public function handle(Request $request) {
 
-        $request->setUri(url('home'));
+        // Authenticate user, will be available using request()->user
+        $request->user = User::authenticate();
+
+        // If authentication failed, redirect request to user-login page.
+        if($request->user === null) {
+            $request->setRewriteUrl(url('user.login'));
+            return $request;
+        }
 
     }
 }
@@ -614,11 +622,10 @@ namespace Demo\Handlers;
 use Pecee\Handlers\IExceptionHandler;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
-use Pecee\SimpleRouter\Route\ILoadableRoute;
 
 class CustomExceptionHandler implements IExceptionHandler
 {
-	public function handleError(Request $request, ILoadableRoute &$route = null, \Exception $error)
+	public function handleError(Request $request, \Exception $error)
 	{
 
 		/* You can use the exception handler to format errors depending on the request and type. */
@@ -635,14 +642,9 @@ class CustomExceptionHandler implements IExceptionHandler
 		/* The router will throw the NotFoundHttpException on 404 */
 		if($error instanceof NotFoundHttpException) {
 
-			/*
-			 * Render your own custom 404-view, rewrite the request to another route,
-			 * or simply return the $request object to ignore the error and continue on rendering the route.
-			 *
-			 * The code below will make the router render our page.notfound route.
-			 */
+			// Render custom 404-page
 
-			$request->setUri(url('page.notfound'));
+			$request->setRewriteCallback('Demo\Controllers\PageController@notFound');
 			return $request;
 
 		}
@@ -660,7 +662,7 @@ class CustomExceptionHandler implements IExceptionHandler
 
 By default all controller and resource routes will use a simplified version of their url as name.
 
-### Get routes using custom name (single route)
+### Get by name (single route)
 
 ```php
 SimpleRouter::get('/product-view/{id}', 'ProductsController@show', ['as' => 'product']);
@@ -673,7 +675,7 @@ url('product', null, ['category' => 'shoes']);
 # /product-view/?category=shoes
 ```
 
-### Getting the url using the name (controller route)
+### Get by name (controller route)
 
 ```php
 SimpleRouter::controller('/images', 'ImagesController', ['as' => 'picture']);
@@ -688,7 +690,7 @@ url('picture', 'view');
 # /images/view/
 ```
 
-### Getting the url using class
+### Get by class
 
 ```php
 SimpleRouter::get('/product-view/{id}', 'ProductsController@show', ['as' => 'product']);
@@ -731,7 +733,7 @@ url('phones.edit');
 # /phones/edit/
 ```
 
-### Return the current url
+### Get the current url
 
 ```php
 url();
@@ -748,7 +750,7 @@ url(null, null, ['q' => 'cars']);
 
 We've added the `Input` class to easy access and manage parameters from your Controller-classes.
 
-**Return single parameter value (matches both GET, POST, FILE):**
+### Get single parameter value:
 
 If items is grouped in the html, it will return an array of items.
 
@@ -758,7 +760,7 @@ If items is grouped in the html, it will return an array of items.
 $value = input()->get($index, $defaultValue, $methods);
 ```
 
-**Return parameter object (matches both GET, POST, FILE):**
+### Get parameter object
 
 Will return an instance of `InputItem` or `InputFile` depending on the type.
 
@@ -774,7 +776,7 @@ If items is grouped in the html, it will return an array of items.
 $object = input()->getObject($index, $defaultValue = null, $methods = null);
 ```
 
-**Return specific GET parameter (where name is the name of your parameter):**
+### Return specific GET parameter (where name is the name of your parameter):
 
 ```php
 # -- match any (default) --
@@ -798,9 +800,11 @@ $object = input()->get($index, $defaultValue, 'file');
 $object = input()->findGet($index, $defaultValue);
 $object = input()->findPost($index, $defaultValue);
 $object = input()->findFile($index, $defaultValue);
+```
 
-# -- examples --
+### Managing files
 
+```php
 /**
  * In this small example we loop through a collection of files
  * added on the page like this
@@ -818,9 +822,10 @@ foreach(input()->get('images', []) as $image)
 
     }
 }
+
 ```
 
-**Return all parameters:**
+### Get all parameters
 
 ```php
 // Get all
@@ -860,7 +865,132 @@ $siteId = input()->get('site_id', 2, ['post', 'get']);
 
 # Advanced
 
-## Load routes dynamicially using the router bootmanager
+## Url rewriting
+Sometimes it can be useful to manipulate the route about to be loaded.
+simple-php-router allows you to easily change the route about to be executed.
+All information about the current route is stored in the ```\Pecee\SimpleRouter\Router``` instance's `loadedRoute` property.
+
+For easy access you can use the shortcut method `\Pecee\SimpleRouter\SimpleRouter::router()`.
+
+
+```php
+use Pecee\SimpleRouter;
+$request = SimpleRouter::request();
+$request->setRewriteCallback('Example\MyCustomClass@hello');
+
+// -- or you can rewrite by url --
+
+$request->setRewriteUrl('/my-rewrite-url');
+```
+
+### Examples
+
+It's only possible to change the route BEFORE the route has initially been rendered. You can use the `Request` object to manipulate the route which are about to be loaded.
+
+#### Rewrite using callback
+
+This method is most efficient, as it will render the route immediately.
+
+This method is useful for rendering 404-pages etc.
+
+You can also change the callback by modifying the `$route` parameter. This is perfect if you just want to display a view quickly - or change the callback depending
+on some criteria's for the request.
+
+The callback below will fire immediately after the `Middleware` or `ExceptionHandler` has been loaded, as they are loaded before the route is rendered.
+If you wish to change the callback from outside, please have this in mind.
+
+The example below will render `DefaultController@notFound` regardless of the url.
+
+**NOTE: Use this method if you want to load another controller. No additional middlewares or rules will be loaded.**
+
+#### Middleware example
+
+```php
+namespace Demo\Middlewares;
+
+use Pecee\Http\Middleware\IMiddleware;
+use Pecee\Http\Request;
+
+class CustomMiddleware implements IMiddleware {
+
+    public function handle(Request $request) {
+
+        $request->setRewriteCallback('Demo\Controllers\DefaultController@notFound');
+        return $request;
+
+    }
+
+}
+```
+
+#### Exception handler example
+
+```php
+namespace Demo\Handlers;
+
+use Pecee\Handlers\IExceptionHandler;
+use Pecee\Http\Request;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
+
+class CustomExceptionHandler implements IExceptionHandler
+{
+	public function handleError(Request $request, \Exception $error)
+	{
+		/* The router will throw the NotFoundHttpException on 404 */
+		if($error instanceof NotFoundHttpException) {
+
+			/*
+			 * Render your own custom 404-view, rewrite the request to another route,
+			 * or simply return the $request object to ignore the error and continue on rendering the route.
+			 *
+			 * The code below will make the router render our page.notfound route.
+			 */
+
+			$request->setRewriteCallback('Demo\Controllers\DefaultController@notFound');
+			return $request;
+
+		}
+
+		throw $error;
+
+	}
+
+}
+```
+
+#### Rewrite using url
+
+The example below will cause the router to reload the request and reinitialize all the routes. This method is slower, but will ensure that all middlewares and rules for the route is loaded.
+
+This method is useful if you want to redirect a url to another-url which is dependent on a middleware. You can also add a custom rule by calling `$request->setRewriteRoute($route)` if
+you want to customize request-methods or use another route-type like `RouteController` etc.
+
+We are using the `url()` helper function to get the uri to another route added in the `routes.php` file.
+
+**NOTE: Use this method if you want to fully load another route using it's settings (request method, middlewares etc).**
+
+#### Middleware example
+
+The example below will redirect the request to the `home`-route.
+
+```php
+namespace Demo\Middlewares;
+
+use Pecee\Http\Middleware\IMiddleware;
+use Pecee\Http\Request;
+
+class CustomMiddleware implements IMiddleware {
+
+    public function handle(Request $request) {
+
+        $request->setRewriteUrl(url('home'));
+        return $request;
+
+    }
+}
+```
+
+# Bootmanager: loading routes dynamically
 
 Sometimes it can be necessary to keep urls stored in the database, file or similar. In this example, we want the url ```/my-cat-is-beatiful``` to load the route ```/article/view/1``` which the router knows, because it's defined in the ```routes.php``` file.
 
@@ -876,7 +1006,7 @@ class CustomRouterRules implement IRouterBootManager {
 
         $rewriteRules = [
             '/my-cat-is-beatiful' => '/article/view/1',
-            '/horses-are-great' => '/article/view/2'
+            '/horses-are-great'   => '/article/view/2',
         ];
 
         foreach($rewriteRules as $url => $rule) {
@@ -884,11 +1014,11 @@ class CustomRouterRules implement IRouterBootManager {
             // If the current uri matches the url, we use our custom route
 
             if($request->getUri() === $url) {
-                $request->setUri($rule);
+                $request->setRewriteUrl($rule);
+                return $request;
             }
         }
 
-        return $request;
     }
 
 }
@@ -904,82 +1034,6 @@ The last thing we need to do, is to add our custom boot-manager to the ```routes
 
 ```php
 SimpleRouter::addBootManager(new CustomRouterRules());
-```
-
-## Easily overwrite route about to be loaded
-Sometimes it can be useful to manipulate the route about to be loaded.
-simple-php-router allows you to easily change the route about to be executed.
-All information about the current route is stored in the ```\Pecee\SimpleRouter\Router``` instance's `loadedRoute` property.
-
-For easy access you can use the shortcut method `\Pecee\SimpleRouter\SimpleRouter::router()`.
-
-
-```php
-use Pecee\SimpleRouter;
-$route = SimpleRouter::router()->getLoadedRoute();
-
-$route->setCallback('Example\MyCustomClass@hello');
-
-// -- or you can rewrite by doing --
-
-$route->setClass('Example\MyCustomClass');
-$route->setMethod('hello');
-```
-
-### Examples
-
-It's only possible to change the route BEFORE the route has initially been loaded. If you want to redirect to another route, we highly recommend that you
-modify the `IRoute` object from a `Middleware` or `ExceptionHandler`, like the examples below.
-
-#### Rewriting to new route
-
-The example below will cause the router to re-route the request with another url. We are using the `url()` helper function to get the uri to another route added in the `routes.php` file.
-
-**NOTE: Use this method if you want to fully load another route using it's settings (request method etc).**
-
-
-```php
-namespace Demo\Middlewares;
-
-use Pecee\Http\Middleware\IMiddleware;
-use Pecee\Http\Request;
-use Pecee\SimpleRouter\Route\ILoadableRoute;
-
-class CustomMiddleware implements Middleware {
-
-    public function handle(Request $request, ILoadableRoute &$route) {
-
-        $request->setUri(url('home'));
-
-    }
-}
-```
-
-#### Changing callback
-You can also change the callback by modifying the `$route` parameter. This is perfect if you just want to display a view quickly - or change the callback depending
-on some criteria's for the request.
-
-The callback below will fire immediately after the `Middleware` or `ExceptionHandler` has been loaded, as they are loaded before the route is rendered.
-If you wish to change the callback from outside, please have this in mind.
-
-**NOTE: Use this method if you want to load another controller. No additional middlewares or rules will be loaded.**
-
-```php
-namespace Demo\Middlewares;
-
-use Pecee\Http\Middleware\IMiddleware;
-use Pecee\Http\Request;
-use Pecee\SimpleRouter\Route\ILoadableRoute;
-
-class CustomMiddleware implements Middleware {
-
-    public function handle(Request $request, ILoadableRoute &$route) {
-
-        $route->callback('DefaultController@home');
-
-    }
-
-}
 ```
 
 ## Adding routes manually
@@ -1042,6 +1096,7 @@ class Router extends SimpleRouter {
 # Credits
 
 ## Sites
+
 This is some sites that uses the simple-router project in production.
 
 - [holla.dk](http://www.holla.dk)

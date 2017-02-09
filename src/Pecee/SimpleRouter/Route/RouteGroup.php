@@ -40,13 +40,14 @@ class RouteGroup extends Route implements IGroupRoute
     /**
      * Method called to check if route matches
      *
+     * @param string $url
      * @param Request $request
      * @return bool
      */
-    public function matchRoute(Request $request)
+    public function matchRoute($url, Request $request)
     {
         /* Skip if prefix doesn't match */
-        if ($this->prefix !== null && stripos($request->getUri(), $this->prefix) === false) {
+        if ($this->prefix !== null && stripos($url, $this->prefix) === false) {
             return false;
         }
 
