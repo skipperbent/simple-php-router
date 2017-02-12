@@ -124,7 +124,7 @@ abstract class Route implements IRoute
 
             /* Only take matched parameters with name */
             foreach ($parameters[1] as $name) {
-                $values[$name] = isset($matches[$name]) ? $matches[$name] : null;
+                $values[$name] = (isset($matches[$name]) && $matches[$name] !== '') ? $matches[$name] : null;
             }
 
             return $values;
