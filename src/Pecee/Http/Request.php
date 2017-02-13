@@ -3,8 +3,8 @@ namespace Pecee\Http;
 
 use Pecee\Http\Input\Input;
 use Pecee\SimpleRouter\Route\ILoadableRoute;
-use Pecee\SimpleRouter\Route\IRoute;
 use Pecee\SimpleRouter\Route\RouteUrl;
+use Pecee\SimpleRouter\SimpleRouter;
 
 class Request
 {
@@ -237,13 +237,25 @@ class Request
     {
         $this->rewriteRoute = $route;
 
+        $namespace = SimpleRouter::getDefaultNamespace();
+
+        if ($namespace !== null) {
+
+            if ($this->rewriteRoute->getNamespace() !== null) {
+                $namespace .= '\\' . $this->rewriteRoute->getNamespace();
+            }
+
+            $this->rewriteRoute->setDefaultNamespace($namespace);
+
+        }
+
         return $this;
     }
 
     /**
      * Get rewrite route
      *
-     * @return IRoute|null
+     * @return ILoadableRoute|null
      */
     public function getRewriteRoute()
     {
@@ -280,9 +292,7 @@ class Request
      */
     public function setRewriteCallback($callback)
     {
-        $this->rewriteRoute = new RouteUrl($this->uri, $callback);
-
-        return $this;
+        return $this->setRewriteRoute(new RouteUrl($this->uri, $callback));
     }
 
     /**

@@ -372,4 +372,13 @@ class SimpleRouter
         return $route;
     }
 
+    /**
+     * Get default namespace
+     * @return string
+     */
+    public static function getDefaultNamespace()
+    {
+        return static::$defaultNamespace;
+    }
+
 }
