@@ -249,8 +249,11 @@ class Router
 
                     $route->loadMiddleware($this->request);
 
-                    if ($this->request->getRewriteRoute() !== null) {
-                        $this->request->getRewriteRoute()->renderRoute($this->request);
+                    $rewriteRoute = $this->request->getRewriteRoute();
+
+                    if ($rewriteRoute !== null) {
+                        $rewriteRoute->loadMiddleware($this->request);
+                        $rewriteRoute->renderRoute($this->request);
 
                         return;
                     }
@@ -306,8 +309,11 @@ class Router
 
             if ($handler->handleError($this->request, $e) !== null) {
 
-                if ($this->request->getRewriteRoute() !== null) {
-                    $this->request->getRewriteRoute()->renderRoute($this->request);
+                $rewriteRoute = $this->request->getRewriteRoute();
+
+                if ($rewriteRoute !== null) {
+                    $rewriteRoute->loadMiddleware($this->request);
+                    $rewriteRoute->renderRoute($this->request);
 
                     return;
                 }
