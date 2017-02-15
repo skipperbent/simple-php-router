@@ -57,16 +57,21 @@ abstract class Route implements IRoute
 
     public function renderRoute(Request $request)
     {
-        if ($this->getCallback() !== null && is_callable($this->getCallback())) {
+        $callback = $this->getCallback();
+
+        if ($callback !== null && is_callable($callback)) {
 
             /* When the callback is a function */
-            call_user_func_array($this->getCallback(), $this->getParameters());
+            call_user_func_array($callback, $this->getParameters());
 
         } else {
 
             /* When the callback is a method */
-            $controller = explode('@', $this->getCallback());
-            $className = $this->getNamespace() . '\\' . $controller[0];
+            $controller = explode('@', $callback);
+
+            $namespace = $this->getNamespace();
+
+            $className = ($namespace !== null) ? $namespace . '\\' . $controller[0] : $controller[0];
 
             $class = $this->loadClass($className);
             $method = $controller[1];

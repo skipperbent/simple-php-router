@@ -237,15 +237,22 @@ class Request
     {
         $this->rewriteRoute = $route;
 
-        $namespace = SimpleRouter::getDefaultNamespace();
+        $callback = $route->getCallback();
 
-        if ($namespace !== null) {
+        /* Only add default namespace on relative callbacks */
+        if($callback === null || $callback[0] !== '\\') {
 
-            if ($this->rewriteRoute->getNamespace() !== null) {
-                $namespace .= '\\' . $this->rewriteRoute->getNamespace();
+            $namespace = SimpleRouter::getDefaultNamespace();
+
+            if ($namespace !== null) {
+
+                if ($this->rewriteRoute->getNamespace() !== null) {
+                    $namespace .= '\\' . $this->rewriteRoute->getNamespace();
+                }
+
+                $this->rewriteRoute->setDefaultNamespace($namespace);
+
             }
-
-            $this->rewriteRoute->setDefaultNamespace($namespace);
 
         }
 

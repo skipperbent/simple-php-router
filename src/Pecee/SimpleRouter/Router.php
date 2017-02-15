@@ -340,7 +340,7 @@ class Router
 
             if ($includeEmpty === false) {
                 $getParams = array_filter($getParams, function ($item) {
-                    return (trim($item) !== false);
+                    return (trim($item) !== '');
                 });
             }
 
