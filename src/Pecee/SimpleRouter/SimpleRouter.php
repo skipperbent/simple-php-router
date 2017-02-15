@@ -284,6 +284,7 @@ class SimpleRouter
     public static function resource($url, $controller, array $settings = null)
     {
         $route = new RouteResource($url, $controller);
+        $route = static::addDefaultNamespace($route);
 
         if ($settings !== null) {
             $route->setSettings($settings);
@@ -360,13 +361,23 @@ class SimpleRouter
     protected static function addDefaultNamespace(IRoute $route)
     {
         if (static::$defaultNamespace !== null) {
-            $namespace = static::$defaultNamespace;
 
-            if ($route->getNamespace() !== null) {
-                $namespace .= '\\' . $route->getNamespace();
+            $callback = $route->getCallback();
+
+            /* Only add default namespace on relative callbacks */
+            if($callback === null || $callback[0] !== '\\') {
+
+                $namespace = static::$defaultNamespace;
+
+                $currentNamespace = $route->getNamespace();
+
+                if ($currentNamespace !== null) {
+                    $namespace .= '\\' . $currentNamespace;
+                }
+
+                $route->setDefaultNamespace($namespace);
+
             }
-
-            $route->setDefaultNamespace($namespace);
         }
 
         return $route;
