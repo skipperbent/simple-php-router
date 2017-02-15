@@ -27,9 +27,9 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      */
     public function loadMiddleware(Request $request)
     {
-        if (count($this->getMiddlewares()) > 0) {
+        $max = count($this->getMiddlewares());
 
-            $max = count($this->getMiddlewares());
+        if ($max > 0) {
 
             for ($i = 0; $i < $max; $i++) {
 
@@ -37,7 +37,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
                 $middleware = $this->loadClass($middleware);
 
-                if (!($middleware instanceof IMiddleware)) {
+                if (($middleware instanceof IMiddleware) === false) {
                     throw new HttpException($middleware . ' must be instance of Middleware');
                 }
 
@@ -48,7 +48,6 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
     public function matchRegex(Request $request, $url)
     {
-
         /* Match on custom defined regular expression */
 
         if ($this->regex === null) {
