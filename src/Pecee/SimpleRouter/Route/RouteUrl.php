@@ -17,9 +17,9 @@ class RouteUrl extends LoadableRoute
         $url = rtrim($url, '/') . '/';
 
         /* Match global regular-expression for route */
-        $domainMatch = $this->matchRegex($request, $url);
-        if ($domainMatch !== null) {
-            return $domainMatch;
+        $regexMatch = $this->matchRegex($request, $url);
+        if ($regexMatch === false) {
+            return false;
         }
 
         /* Make regular expression based on route */
@@ -31,7 +31,6 @@ class RouteUrl extends LoadableRoute
         $this->setParameters($parameters);
 
         return true;
-
     }
 
 }

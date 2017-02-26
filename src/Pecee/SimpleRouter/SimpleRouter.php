@@ -33,6 +33,8 @@ class SimpleRouter
      */
     protected static $response;
 
+    protected static $router;
+
     /**
      * Start/route request
      *
@@ -349,7 +351,11 @@ class SimpleRouter
      */
     public static function router()
     {
-        return Router::getInstance();
+        if(static::$router === null) {
+            static::$router = new Router();
+        }
+
+        return static::$router;
     }
 
     /**
@@ -365,7 +371,7 @@ class SimpleRouter
             $callback = $route->getCallback();
 
             /* Only add default namespace on relative callbacks */
-            if($callback === null || $callback[0] !== '\\') {
+            if ($callback === null || $callback[0] !== '\\') {
 
                 $namespace = static::$defaultNamespace;
 
