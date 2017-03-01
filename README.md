@@ -422,7 +422,7 @@ Route groups allow you to share route attributes, such as middleware or namespac
 To assign middleware to all routes within a group, you may use the middleware key in the group attribute array. Middleware are executed in the order they are listed in the array:
 
 ```php
-SimpleRouter::group(['middleware' => '\Demo\Middleware\Auth'], function () {
+SimpleRouter::group(['middleware' => \Demo\Middleware\Auth::class], function () {
     SimpleRouter::get('/', function ()    {
         // Uses Auth Middleware
     });
@@ -436,6 +436,11 @@ SimpleRouter::group(['middleware' => '\Demo\Middleware\Auth'], function () {
 ### Namespaces
 
 Another common use-case for route groups is assigning the same PHP namespace to a group of controllers using the `namespace` parameter in the group array:
+
+#### Note
+Group namespaces will only be added to routes with relative callbacks.
+For example if your route has an absolute callback like `\Demo\Controller\DefaultController@home`, the namespace from the route will not be prepended.
+To fix this you can make the callback relative by removing the `\` in the beginning of the callback.
 
 ```php
 SimpleRouter::group(['namespace' => 'Admin'], function () {
@@ -495,7 +500,7 @@ use Pecee\SimpleRouter\SimpleRouter;
 /* Adding custom csrfVerifier here */
 SimpleRouter::csrfVerifier(new \Demo\Middlewares\CsrfVerifier());
 
-SimpleRouter::group(['middleware' => '\Demo\Middlewares\Site', 'exceptionHandler' => 'Handlers\CustomExceptionHandler'], function() {
+SimpleRouter::group(['middleware' => \Demo\Middlewares\Site::class, 'exceptionHandler' => \Demo\Handlers\CustomExceptionHandler::class], function() {
 
 
     SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show', ['where' => ['id' => '[0-9]+']]);
@@ -505,7 +510,7 @@ SimpleRouter::group(['middleware' => '\Demo\Middlewares\Site', 'exceptionHandler
      * Restful resource (see IRestController interface for available methods)
      */
 
-    SimpleRouter::resource('/rest', 'ControllerRessource');
+    SimpleRouter::resource('/rest', ControllerRessource::class);
 
 
     /**
@@ -521,7 +526,7 @@ SimpleRouter::group(['middleware' => '\Demo\Middlewares\Site', 'exceptionHandler
      * etc.
      */
 
-    SimpleRouter::controller('/animals', 'ControllerAnimals');
+    SimpleRouter::controller('/animals', ControllerAnimals::class);
 
 });
 
@@ -678,7 +683,7 @@ url('product', null, ['category' => 'shoes']);
 ### Get by name (controller route)
 
 ```php
-SimpleRouter::controller('/images', 'ImagesController', ['as' => 'picture']);
+SimpleRouter::controller('/images', ImagesController::class, ['as' => 'picture']);
 
 url('picture@getView', null, ['category' => 'shoes']);
 url('picture', 'getView', ['category' => 'shoes']);
@@ -707,7 +712,7 @@ url('ImagesController@getImage', null, ['id' => 22]);
 ### Using custom names for methods on a controller/resource route
 
 ```php
-SimpleRouter::controller('gadgets', 'GadgetsController', ['names' => ['getIphoneInfo' => 'iphone']]);
+SimpleRouter::controller('gadgets', GadgetsController::class, ['names' => ['getIphoneInfo' => 'iphone']]);
 
 url('gadgets.iphone');
 
@@ -718,7 +723,7 @@ url('gadgets.iphone');
 ### Getting REST/resource controller urls
 
 ```php
-SimpleRouter::resource('/phones', 'PhonesController');
+SimpleRouter::resource('/phones', PhonesController::class);
 
 url('phones');
 url('phones.index');
@@ -1045,8 +1050,8 @@ If you are up for a challenge, want the full control or simply just want to crea
 use \Pecee\SimpleRouter\Router;
 use \Pecee\SimpleRouter\Route\RouteUrl;
 
-/* Grap the router instance */
-$router = Router::getInstance();
+/* Create new Router instance */
+$router = new Router();
 
 $route = new RouteUrl('/answer/1', function() {
 
@@ -1054,7 +1059,7 @@ $route = new RouteUrl('/answer/1', function() {
 
 });
 
-$route->setMiddleware('\Demo\Middlewares\AuthMiddleware');
+$route->setMiddleware(\Demo\Middlewares\AuthMiddleware::class);
 $route->setNamespace('\Demo\Controllers');
 $route->setPrefix('v1');
 

@@ -43,8 +43,8 @@ class InputFile implements IInputItem
         ], $values);
 
         return (new static($values['index']))
-            ->setError($values['error'])
             ->setSize($values['size'])
+            ->setError($values['error'])
             ->setType($values['type'])
             ->setTmpName($values['tmp_name'])
             ->setFilename($values['name']);
@@ -199,7 +199,7 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Return true if an upload error occured.
+     * Return true if an upload error occurred.
      *
      * @return bool
      */
@@ -254,6 +254,11 @@ class InputFile implements IInputItem
     public function __toString()
     {
         return $this->getTmpName();
+    }
+
+    public function getValue()
+    {
+        return $this->getFilename();
     }
 
     public function toArray()

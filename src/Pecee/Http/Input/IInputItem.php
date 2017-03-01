@@ -12,6 +12,8 @@ interface IInputItem
 
     public function setName($name);
 
+    public function getValue();
+
     public function __toString();
 
 }

@@ -69,20 +69,7 @@ class Router
      */
     protected $exceptionHandlers;
 
-    /**
-     * Get current router instance
-     * @return static
-     */
-    public static function getInstance()
-    {
-        if (static::$instance === null) {
-            static::$instance = new static();
-        }
-
-        return static::$instance;
-    }
-
-    protected function __construct()
+    public function __construct()
     {
         $this->reset();
     }
@@ -187,7 +174,7 @@ class Router
 
             if (count($this->routeStack) > 0) {
 
-                /* Pop and grap the routes added when executing group callback earlier */
+                /* Pop and grab the routes added when executing group callback earlier */
                 $stack = $this->routeStack;
                 $this->routeStack = [];
 
@@ -199,6 +186,29 @@ class Router
         $this->exceptionHandlers = array_unique(array_merge($exceptionHandlers, $this->exceptionHandlers));
     }
 
+    /**
+     * Load routes
+     * @throws NotFoundHttpException
+     * @return void
+     */
+    public function loadRoutes()
+    {
+        /* Initialize boot-managers */
+        if (count($this->bootManagers) > 0) {
+
+            $max = count($this->bootManagers) - 1;
+
+            /* @var $manager IRouterBootManager */
+            for ($i = $max; $i >= 0; $i--) {
+                $manager = $this->bootManagers[$i];
+                $manager->boot($this->request);
+            }
+        }
+
+        /* Loop through each route-request */
+        $this->processRoutes($this->routes);
+    }
+
     public function routeRequest($rewrite = false)
     {
         $routeNotAllowed = false;
@@ -206,21 +216,7 @@ class Router
         try {
 
             if ($rewrite === false) {
-
-                /* Initialize boot-managers */
-                if (count($this->bootManagers) > 0) {
-
-                    $max = count($this->bootManagers) - 1;
-
-                    /* @var $manager IRouterBootManager */
-                    for ($i = $max; $i >= 0; $i--) {
-                        $manager = $this->bootManagers[$i];
-                        $manager->boot($this->request);
-                    }
-                }
-
-                /* Loop through each route-request */
-                $this->processRoutes($this->routes);
+                $this->loadRoutes();
 
                 if ($this->csrfVerifier !== null) {
 
