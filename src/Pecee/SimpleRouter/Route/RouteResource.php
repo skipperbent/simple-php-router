@@ -82,9 +82,10 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         $url = rtrim($url, '/') . '/';
 
         /* Match global regular-expression for route */
-        $domainMatch = $this->matchRegex($request, $url);
-        if ($domainMatch !== null) {
-            return $domainMatch;
+        $regexMatch = $this->matchRegex($request, $url);
+
+        if ($regexMatch === false || stripos($url, $this->url) !== 0 || strtolower($url) !== strtolower($this->url)) {
+            return false;
         }
 
         $route = rtrim($this->url, '/') . '/{id?}/{action?}';

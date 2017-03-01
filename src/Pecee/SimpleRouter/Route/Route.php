@@ -71,7 +71,7 @@ abstract class Route implements IRoute
 
             $namespace = $this->getNamespace();
 
-            $className = ($namespace !== null) ? $namespace . '\\' . $controller[0] : $controller[0];
+            $className = ($namespace !== null && $controller[0][0] !== '\\') ? $namespace . '\\' . $controller[0] : $controller[0];
 
             $class = $this->loadClass($className);
             $method = $controller[1];
@@ -98,15 +98,17 @@ abstract class Route implements IRoute
     {
         $regex = sprintf(static::PARAMETERS_REGEX_MATCH, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
-        if (preg_match_all('/' . $regex . '/is', $route, $parameters)) {
+        $parameters = [];
 
-            $urlParts = preg_split('/((\-?\/?)\{[^}]+\})/is', rtrim($route, '/'));
+        if (preg_match_all('/' . $regex . '/', $route, $parameters)) {
+
+            $urlParts = preg_split('/((\-?\/?)\{[^}]+\})/', rtrim($route, '/'));
 
             foreach ($urlParts as $key => $t) {
 
                 $regex = '';
 
-                if ($key < (count($parameters[1]))) {
+                if ($key < count($parameters[1])) {
 
                     $name = $parameters[1][$key];
                     $regex = isset($this->where[$name]) ? $this->where[$name] : $parameterRegex;
@@ -123,13 +125,16 @@ abstract class Route implements IRoute
             $urlRegex = preg_quote($route, '/');
         }
 
-        if (preg_match('/^' . $urlRegex . '(\/?)$/is', $url, $matches) > 0) {
+        if (preg_match('/^' . $urlRegex . '(\/?)$/', $url, $matches) > 0) {
 
             $values = [];
 
-            /* Only take matched parameters with name */
-            foreach ($parameters[1] as $name) {
-                $values[$name] = (isset($matches[$name]) && $matches[$name] !== '') ? $matches[$name] : null;
+            if (isset($parameters[1])) {
+
+                /* Only take matched parameters with name */
+                foreach ($parameters[1] as $name) {
+                    $values[$name] = (isset($matches[$name]) && $matches[$name] !== '') ? $matches[$name] : null;
+                }
             }
 
             return $values;

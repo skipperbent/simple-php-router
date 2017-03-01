@@ -89,28 +89,26 @@ class RouteController extends LoadableRoute implements IControllerRoute
         $url = rtrim($url, '/') . '/';
 
         /* Match global regular-expression for route */
-        if ($this->matchRegex($request, $url) === true) {
-            return true;
+        $regexMatch = $this->matchRegex($request, $url);
+
+        if ($regexMatch === false || stripos($url, $this->url) !== 0 || strtolower($url) !== strtolower($this->url)) {
+            return false;
         }
 
-        if (stripos($url, $this->url) === 0 && strtolower($url) === strtolower($this->url)) {
+        $strippedUrl = trim(str_ireplace($this->url, '/', $url), '/');
+        $path = explode('/', $strippedUrl);
 
-            $strippedUrl = trim(str_ireplace($this->url, '/', $url), '/');
+        if (count($path) > 0) {
 
-            $path = explode('/', $strippedUrl);
+            $method = (isset($path[0]) === false || trim($path[0]) === '') ? $this->defaultMethod : $path[0];
+            $this->method = $request->getMethod() . ucfirst($method);
 
-            if (count($path) > 0) {
+            $this->parameters = array_slice($path, 1);
 
-                $method = (!isset($path[0]) || trim($path[0]) === '') ? $this->defaultMethod : $path[0];
-                $this->method = $method;
+            // Set callback
+            $this->setCallback($this->controller . '@' . $this->method);
 
-                $this->parameters = array_slice($path, 1);
-
-                // Set callback
-                $this->setCallback($this->controller . '@' . $this->method);
-
-                return true;
-            }
+            return true;
         }
 
         return false;

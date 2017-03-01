@@ -126,6 +126,17 @@ class Request
     }
 
     /**
+     * Get remote address/ip
+     *
+     * @alias static::getIp
+     * @return string
+     */
+    public function getRemoteAddr()
+    {
+        return $this->getIp();
+    }
+
+    /**
      * Get referer
      * @return string
      */
@@ -240,7 +251,7 @@ class Request
         $callback = $route->getCallback();
 
         /* Only add default namespace on relative callbacks */
-        if($callback === null || $callback[0] !== '\\') {
+        if ($callback === null || $callback[0] !== '\\') {
 
             $namespace = SimpleRouter::getDefaultNamespace();
 
