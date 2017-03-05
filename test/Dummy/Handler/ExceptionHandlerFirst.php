@@ -1,10 +1,11 @@
 <?php
 
-class TestExceptionHandlerFirst implements \Pecee\Handlers\IExceptionHandler
+class ExceptionHandlerFirst implements \Pecee\Handlers\IExceptionHandler
 {
 	public function handleError(\Pecee\Http\Request $request, \Exception $error)
 	{
-	    echo 'ExceptionHandler 1 loaded' . chr(10);
+	    global $stack;
+	    $stack[] = static::class;
 
 		$request->setUri('/');
 		return $request;
