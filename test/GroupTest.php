@@ -2,8 +2,7 @@
 
 require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
-
-use Pecee\SimpleRouter\SimpleRouter as SimpleRouter;
+require_once 'Helpers/TestRouter.php';
 
 class GroupTest extends PHPUnit_Framework_TestCase
 {
@@ -13,82 +12,71 @@ class GroupTest extends PHPUnit_Framework_TestCase
     {
         $this->result = false;
 
-        SimpleRouter::group(['prefix' => '/group'], function () {
+        TestRouter::group(['prefix' => '/group'], function () {
             $this->result = true;
         });
 
         try {
-            SimpleRouter::start();
-        } catch (Exception $e) {
-            // ignore RouteNotFound exception
-        }
+            TestRouter::debug('/', 'get');
+        } catch(\Exception $e) {
 
+        }
         $this->assertTrue($this->result);
     }
 
     public function testNestedGroup()
     {
 
-        SimpleRouter::router()->reset();
-        SimpleRouter::request()->setUri('/api/v1/test');
-        SimpleRouter::request()->setMethod('get');
+        TestRouter::group(['prefix' => '/api'], function () {
 
-        SimpleRouter::group(['prefix' => '/api'], function () {
-
-            SimpleRouter::group(['prefix' => '/v1'], function () {
-                SimpleRouter::get('/test', 'DummyController@start');
+            TestRouter::group(['prefix' => '/v1'], function () {
+                TestRouter::get('/test', 'DummyController@method1');
             });
 
         });
 
-        SimpleRouter::start();
+        TestRouter::debug('/api/v1/test', 'get');
+
     }
 
-    public function testManyRoutes()
+    public function testMultipleRoutes()
     {
 
-        SimpleRouter::router()->reset();
-        SimpleRouter::request()->setUri('/my/match');
-        SimpleRouter::request()->setMethod('get');
+        TestRouter::group(['prefix' => '/api'], function () {
 
-        SimpleRouter::group(['prefix' => '/api'], function () {
-
-            SimpleRouter::group(['prefix' => '/v1'], function () {
-                SimpleRouter::get('/test', 'DummyController@start');
+            TestRouter::group(['prefix' => '/v1'], function () {
+                TestRouter::get('/test', 'DummyController@method1');
             });
 
         });
 
-        SimpleRouter::get('/my/match', 'DummyController@start');
+        TestRouter::get('/my/match', 'DummyController@method1');
 
-        SimpleRouter::group(['prefix' => '/service'], function () {
+        TestRouter::group(['prefix' => '/service'], function () {
 
-            SimpleRouter::group(['prefix' => '/v1'], function () {
-                SimpleRouter::get('/no-match', 'DummyController@start');
+            TestRouter::group(['prefix' => '/v1'], function () {
+                TestRouter::get('/no-match', 'DummyController@method1');
             });
 
         });
 
-        SimpleRouter::start();
+        TestRouter::debug('/my/match', 'get');
     }
 
     public function testUrls()
     {
-
-        SimpleRouter::router()->reset();
-        SimpleRouter::request()->setUri('/my/fancy/url/1');
-        SimpleRouter::request()->setMethod('get');
-
         // Test array name
-        SimpleRouter::get('/my/fancy/url/1', 'DummyController@start', ['as' => 'fancy1']);
+        TestRouter::get('/my/fancy/url/1', 'DummyController@method1', ['as' => 'fancy1']);
 
         // Test method name
-        SimpleRouter::get('/my/fancy/url/2', 'DummyController@start')->setName('fancy2');
+        TestRouter::get('/my/fancy/url/2', 'DummyController@method1')->setName('fancy2');
 
-        SimpleRouter::start();
+        TestRouter::debugNoReset('/my/fancy/url/1');
 
-        $this->assertEquals('/my/fancy/url/1/', SimpleRouter::getUrl('fancy1'));
-        $this->assertEquals('/my/fancy/url/2/', SimpleRouter::getUrl('fancy2'));
+        $this->assertEquals('/my/fancy/url/1/', TestRouter::getUrl('fancy1'));
+        $this->assertEquals('/my/fancy/url/2/', TestRouter::getUrl('fancy2'));
+
+        TestRouter::router()->reset();
 
     }
 

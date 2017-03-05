@@ -1,7 +1,7 @@
 <?php
 namespace Pecee\Controllers;
 
-interface IRestController
+interface IResourceController
 {
 
     /**
