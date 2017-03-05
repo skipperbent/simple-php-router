@@ -2,24 +2,19 @@
 
 class DummyController
 {
-	public function start()
+	public function method1()
 	{
-		echo static::class . '@' . 'start() OK';
+
 	}
+
+    public function method2()
+    {
+
+    }
 
 	public function param($params = null)
 	{
-		$params = func_get_args();
-		echo 'Params: ' . join(', ', $params);
-	}
-
-	public function notFound()
-	{
-		echo 'not found';
-	}
-
-	public function silent() {
-
+		echo join(', ', func_get_args());
 	}
 
 }

@@ -84,41 +84,42 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         /* Match global regular-expression for route */
         $regexMatch = $this->matchRegex($request, $url);
 
-        if ($regexMatch === false || stripos($url, $this->url) !== 0 || strtolower($url) !== strtolower($this->url)) {
+        if ($regexMatch === false) {
             return false;
         }
 
         $route = rtrim($this->url, '/') . '/{id?}/{action?}';
 
-        $parameters = $this->parseParameters($route, $url);
-        if ($parameters === null) {
+        $this->parameters = $this->parseParameters($route, $url);
+        if ($this->parameters === null) {
             return false;
         }
 
-        $this->parameters = (array)$parameters;
+        $action = strtolower(trim($this->parameters['action']));
+        $id = $this->parameters['id'];
 
-        $action = isset($this->parameters['action']) ? $this->parameters['action'] : null;
+        // Remove action parameter
         unset($this->parameters['action']);
 
         $method = $request->getMethod();
 
         // Delete
-        if ($method === static::REQUEST_TYPE_DELETE && isset($this->parameters['id'])) {
+        if ($method === static::REQUEST_TYPE_DELETE && $id !== null) {
             return $this->call($this->methodNames['destroy']);
         }
 
         // Update
-        if (isset($this->parameters['id']) && in_array($method, [static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT], false)) {
+        if ($id !== null && in_array($method, [static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT], false) === true) {
             return $this->call($this->methodNames['update']);
         }
 
         // Edit
-        if ($method === static::REQUEST_TYPE_GET && isset($this->parameters['id']) && strtolower($action) === 'edit') {
+        if ($method === static::REQUEST_TYPE_GET && $id !== null && $action === 'edit') {
             return $this->call($this->methodNames['edit']);
         }
 
         // Create
-        if ($method === static::REQUEST_TYPE_GET && strtolower($action) === 'create') {
+        if ($method === static::REQUEST_TYPE_GET && $id === 'create') {
             return $this->call($this->methodNames['create']);
         }
 
@@ -128,7 +129,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         }
 
         // Show
-        if ($method === static::REQUEST_TYPE_GET && isset($this->parameters['id'])) {
+        if ($method === static::REQUEST_TYPE_GET && $id !== null) {
             return $this->call($this->methodNames['show']);
         }
 

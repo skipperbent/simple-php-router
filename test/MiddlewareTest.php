@@ -3,39 +3,32 @@
 require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
 require_once 'Dummy/Handler/ExceptionHandler.php';
-
-use Pecee\SimpleRouter\SimpleRouter as SimpleRouter;
+require_once 'Helpers/TestRouter.php';
 
 class MiddlewareTest extends PHPUnit_Framework_TestCase
 {
     public function testMiddlewareFound()
     {
-        $this->setExpectedException('MiddlewareLoadedException');
+        $this->setExpectedException(MiddlewareLoadedException::class);
 
-        SimpleRouter::router()->reset();
-        SimpleRouter::request()->setMethod('get');
-        SimpleRouter::request()->setUri('/my/test/url');
-
-        SimpleRouter::group(['exceptionHandler' => 'ExceptionHandler'], function () {
-            SimpleRouter::get('/my/test/url', 'DummyController@start', ['middleware' => 'DummyMiddleware']);
+        TestRouter::group(['exceptionHandler' => 'ExceptionHandler'], function () {
+            TestRouter::get('/my/test/url', 'DummyController@method1', ['middleware' => 'DummyMiddleware']);
         });
 
-        SimpleRouter::start();
+        TestRouter::debug('/my/test/url', 'get');
+
     }
 
-    public function testNestedMiddlewareLoad()
+    public function testNestedMiddlewareDontLoad()
     {
-        $this->setExpectedException('MiddlewareLoadedException');
 
-        SimpleRouter::router()->reset();
-        SimpleRouter::request()->setMethod('get');
-        SimpleRouter::request()->setUri('/my/test/url');
-
-        SimpleRouter::group(['exceptionHandler' => 'ExceptionHandler', 'middleware' => 'DummyMiddleware'], function () {
-            SimpleRouter::get('/my/test/url', 'DummyController@start');
+        TestRouter::group(['exceptionHandler' => 'ExceptionHandler', 'middleware' => 'DummyMiddleware'], function () {
+            TestRouter::get('/middleware', 'DummyController@method1');
         });
 
-        SimpleRouter::start();
+        TestRouter::get('/my/test/url', 'DummyController@method1');
+
+        TestRouter::debug('/my/test/url', 'get');
     }
 
 }
