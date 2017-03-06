@@ -91,7 +91,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
         /* Match global regular-expression for route */
         $regexMatch = $this->matchRegex($request, $url);
 
-        if ($regexMatch === false || stripos($url, $this->url) !== 0 || strtolower($url) !== strtolower($this->url)) {
+        if ($regexMatch === false || (stripos($url, $this->url) !== 0 && strtolower($url) !== strtolower($this->url))) {
             return false;
         }
 
