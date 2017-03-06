@@ -10,17 +10,15 @@ class RouterUrlTest extends PHPUnit_Framework_TestCase
 
     public function testSimularUrls()
     {
-        SimpleRouter::router()->reset();
-        SimpleRouter::request()->setMethod('get');
-        SimpleRouter::request()->setUri('/url1');
-
         // Match normal route on alias
-        SimpleRouter::resource('/url11', 'DummyController@silent');
-        SimpleRouter::resource('/url1', 'DummyController@silent', ['as' => 'match']);
+        TestRouter::resource('/url11', 'DummyController@method1');
+        TestRouter::resource('/url1', 'DummyController@method1', ['as' => 'match']);
 
-        SimpleRouter::start();
+        TestRouter::debugNoReset('/url1', 'get');
 
-        $this->assertEquals($this->getUrl('match'), $this->getUrl());
+        $this->assertEquals(TestRouter::getUrl('match'), TestRouter::getUrl());
+
+        TestRouter::router()->reset();
     }
 
     public function testUrls()
