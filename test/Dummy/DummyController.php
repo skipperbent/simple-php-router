@@ -17,4 +17,19 @@ class DummyController
 		echo join(', ', func_get_args());
 	}
 
+	public function getTest()
+    {
+        echo 'getTest';
+    }
+
+    public function postTest()
+    {
+        echo 'postTest';
+    }
+
+    public function putTest()
+    {
+        echo 'putTest';
+    }
+
 }
