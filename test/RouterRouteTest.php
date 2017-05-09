@@ -77,10 +77,10 @@ class RouterRouteTest extends PHPUnit_Framework_TestCase
 
     public function testPathParamRegex()
     {
-        TestRouter::get('/test/path/{myParam}', 'DummyController@param', ['where' => ['myParam' => '([0-9]+)']]);
-        $response = TestRouter::debugOutput('/test/path/123123', 'get');
+        TestRouter::get('/{lang}/productscategories/{name}', 'DummyController@param', ['where' => ['lang' => '[a-z]+', 'name' => '[A-Za-z0-9\-]+']]);
+        $response = TestRouter::debugOutput('/it/productscategories/system', 'get');
 
-        $this->assertEquals('123123', $response);
+        $this->assertEquals('it, system', $response);
     }
 
     public function testDomainAllowedRoute()
