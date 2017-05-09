@@ -33,6 +33,10 @@ class SimpleRouter
      */
     protected static $response;
 
+    /**
+     * Router instance
+     * @var Router
+     */
     protected static $router;
 
     /**
@@ -214,7 +218,7 @@ class SimpleRouter
      * @param string $url
      * @param string|\Closure $callback
      * @param array|null $settings
-     * @return RouteUrl
+     * @return RouteUrl|IRoute
      */
     public static function match(array $requestMethods, $url, $callback, array $settings = null)
     {
@@ -237,7 +241,7 @@ class SimpleRouter
      * @param string $url
      * @param string|\Closure $callback
      * @param array|null $settings
-     * @return RouteUrl
+     * @return RouteUrl|IRoute
      */
     public static function all($url, $callback, array $settings = null)
     {
@@ -259,7 +263,7 @@ class SimpleRouter
      * @param string $url
      * @param string $controller
      * @param array|null $settings
-     * @return RouteController
+     * @return RouteController|IRoute
      */
     public static function controller($url, $controller, array $settings = null)
     {
@@ -281,7 +285,7 @@ class SimpleRouter
      * @param string $url
      * @param string $controller
      * @param array|null $settings
-     * @return RouteResource
+     * @return RouteResource|IRoute
      */
     public static function resource($url, $controller, array $settings = null)
     {
