@@ -10,6 +10,7 @@ class CsrfToken
     /**
      * Generate random identifier for CSRF token
      *
+     * @throws \RuntimeException
      * @return string
      */
     public static function generateToken()
@@ -18,7 +19,14 @@ class CsrfToken
             return bin2hex(random_bytes(32));
         }
 
-        return bin2hex(openssl_random_pseudo_bytes(32));
+        $isSourceStrong = false;
+
+        $random = openssl_random_pseudo_bytes(32, $isSourceStrong);
+        if ($isSourceStrong === false || $random === false) {
+            throw new \RuntimeException('IV generation failed');
+        }
+
+        return $random;
     }
 
     /**

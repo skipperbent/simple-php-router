@@ -53,7 +53,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
 
         /* Remove method/type */
         if (strpos($name, '.') !== false) {
-            $name = substr($name, 0, strrpos($name, '.'));
+            $name = (string)substr($name, 0, strrpos($name, '.'));
         }
 
         return (strtolower($this->name) === strtolower($name));
