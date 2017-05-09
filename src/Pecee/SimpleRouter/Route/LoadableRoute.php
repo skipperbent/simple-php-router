@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Middleware\IMiddleware;
@@ -54,17 +55,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             return null;
         }
 
-        $parameters = [];
-
-        if (preg_match($this->regex, $request->getHost() . $url, $parameters) > 0) {
-
-            /* Remove global match */
-            $this->parameters = array_slice($parameters, 1);
-
-            return true;
-        }
-
-        return false;
+        return (preg_match($this->regex, $request->getHost() . $url) > 0);
     }
 
     /**
@@ -79,7 +70,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
         if (strpos($this->url, $this->paramModifiers[0]) !== false) {
 
-            $regex = sprintf(static::PARAMETERS_REGEX_MATCH, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
+            $regex = sprintf(static::PARAMETERS_REGEX_FORMAT, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
             if (preg_match_all('/' . $regex . '/', $this->url, $matches)) {
                 $this->parameters = array_fill_keys($matches[1], null);

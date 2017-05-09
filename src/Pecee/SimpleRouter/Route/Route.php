@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
@@ -6,7 +7,8 @@ use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 abstract class Route implements IRoute
 {
-    const PARAMETERS_REGEX_MATCH = '%s([\w]+)(\%s?)%s';
+    const PARAMETERS_REGEX_FORMAT = '%s([\w]+)(\%s?)%s';
+    const PARAMETERS_DEFAULT_REGEX = '[\w]+';
 
     const REQUEST_TYPE_GET = 'get';
     const REQUEST_TYPE_POST = 'post';
@@ -31,6 +33,7 @@ abstract class Route implements IRoute
      * @var bool
      */
     protected $filterEmptyParams = false;
+    protected $defaultParameterRegex = null;
     protected $paramModifiers = '{}';
     protected $paramOptionalSymbol = '?';
     protected $group;
@@ -94,9 +97,9 @@ abstract class Route implements IRoute
         }
     }
 
-    protected function parseParameters($route, $url, $parameterRegex = '[\w]+')
+    protected function parseParameters($route, $url, $parameterRegex = null)
     {
-        $regex = sprintf(static::PARAMETERS_REGEX_MATCH, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
+        $regex = sprintf(static::PARAMETERS_REGEX_FORMAT, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
         $parameters = [];
 
@@ -111,7 +114,20 @@ abstract class Route implements IRoute
                 if ($key < count($parameters[1])) {
 
                     $name = $parameters[1][$key];
-                    $regex = isset($this->where[$name]) ? $this->where[$name] : $parameterRegex;
+
+                    /* If custom regex is defined, use that */
+                    if (isset($this->where[$name]) === true) {
+                        $regex = $this->where[$name];
+                    } else {
+
+                        /* If method specific regex is defined use that, otherwise use the default parameter regex */
+                        if ($parameterRegex !== null) {
+                            $regex = $parameterRegex;
+                        } else {
+                            $regex = ($this->defaultParameterRegex === null) ? static::PARAMETERS_DEFAULT_REGEX : $this->defaultParameterRegex;
+                        }
+                    }
+
                     $regex = sprintf('\-?\/?(?P<%s>%s)', $name, $regex) . $parameters[2][$key];
 
                 }
@@ -129,7 +145,7 @@ abstract class Route implements IRoute
 
             $values = [];
 
-            if (isset($parameters[1])) {
+            if (isset($parameters[1]) === true) {
 
                 /* Only take matched parameters with name */
                 foreach ($parameters[1] as $name) {
@@ -343,6 +359,10 @@ abstract class Route implements IRoute
             $values['middleware'] = $this->middlewares;
         }
 
+        if ($this->defaultParameterRegex !== null) {
+            $values['defaultParameterRegex'] = $this->defaultParameterRegex;
+        }
+
         return $values;
     }
 
@@ -374,6 +394,10 @@ abstract class Route implements IRoute
         // Push middleware if multiple
         if (isset($values['middleware'])) {
             $this->setMiddlewares(array_merge((array)$values['middleware'], $this->middlewares));
+        }
+
+        if (isset($values['defaultParameterRegex'])) {
+            $this->setDefaultParameterRegex($values['defaultParameterRegex']);
         }
 
         return $this;
@@ -485,6 +509,30 @@ abstract class Route implements IRoute
     public function getMiddlewares()
     {
         return $this->middlewares;
+    }
+
+    /**
+     * Set default regular expression used when matching parameters.
+     * This is used when no custom parameter regex is found.
+     *
+     * @param string $regex
+     * @return static $this
+     */
+    public function setDefaultParameterRegex($regex)
+    {
+        $this->defaultParameterRegex = $regex;
+
+        return $this;
+    }
+
+    /**
+     * Get default regular expression used when matching parameters.
+     *
+     * @return string
+     */
+    public function getDefaultParameterRegex()
+    {
+        return $this->defaultParameterRegex;
     }
 
 }

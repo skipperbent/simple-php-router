@@ -70,12 +70,13 @@ If you want a great new feature or experience any issues what-so-ever, please fe
 	    - [Get all parameters](#get-all-parameters)
 
 - [Advanced](#advanced)
-	- [Bootmanager: loading routes dynamically](#bootmanager-loading-routes-dynamically)
 	- [Url rewriting](#url-rewriting)
 		- [Rewrite using callback](#rewrite-using-callback)
 		- [Rewrite using url](#rewrite-using-url)
-
-	- [Adding routes manually](#adding-routes-manually)
+		- [Bootmanager: loading routes dynamically](#bootmanager-loading-routes-dynamically)
+		- [Adding routes manually](#adding-routes-manually)
+	- [Parameters](#parameters)
+        - [Custom default regex for matching parameters](#custom-default-regex-for-matching-parameters)
 	- [Extending](#extending)
 
 - [Credits](#credits)
@@ -902,11 +903,9 @@ $request->setRewriteCallback('Example\MyCustomClass@hello');
 $request->setRewriteUrl('/my-rewrite-url');
 ```
 
-### Examples
+**Note:** It's only possible to change the route BEFORE the route has initially been rendered. You can use the `Request` object to manipulate the route which are about to be loaded.
 
-It's only possible to change the route BEFORE the route has initially been rendered. You can use the `Request` object to manipulate the route which are about to be loaded.
-
-#### Rewrite using callback
+### Rewrite using callback
 
 This method is most efficient, as it will render the route immediately.
 
@@ -922,7 +921,7 @@ The example below will render `DefaultController@notFound` regardless of the url
 
 **NOTE: Use this method if you want to load another controller. No additional middlewares or rules will be loaded.**
 
-#### Middleware example
+##### Middleware example
 
 ```php
 namespace Demo\Middlewares;
@@ -942,7 +941,7 @@ class CustomMiddleware implements IMiddleware {
 }
 ```
 
-#### Exception handler example
+##### Exception handler example
 
 ```php
 namespace Demo\Handlers;
@@ -977,7 +976,7 @@ class CustomExceptionHandler implements IExceptionHandler
 }
 ```
 
-#### Rewrite using url
+### Rewrite using url
 
 The example below will cause the router to reload the request and reinitialize all the routes. This method is slower, but will ensure that all middlewares and rules for the route is loaded.
 
@@ -988,7 +987,7 @@ We are using the `url()` helper function to get the uri to another route added i
 
 **NOTE: Use this method if you want to fully load another route using it's settings (request method, middlewares etc).**
 
-#### Middleware example
+##### Middleware example
 
 The example below will redirect the request to the `home`-route.
 
@@ -1009,7 +1008,7 @@ class CustomMiddleware implements IMiddleware {
 }
 ```
 
-# Bootmanager: loading routes dynamically
+### Bootmanager: loading routes dynamically
 
 Sometimes it can be necessary to keep urls stored in the database, file or similar. In this example, we want the url ```/my-cat-is-beatiful``` to load the route ```/article/view/1``` which the router knows, because it's defined in the ```routes.php``` file.
 
@@ -1055,7 +1054,7 @@ The last thing we need to do, is to add our custom boot-manager to the ```routes
 SimpleRouter::addBootManager(new CustomRouterRules());
 ```
 
-## Adding routes manually
+### Adding routes manually
 
 The ```SimpleRouter``` class referenced in the previous example, is just a simple helper class that knows how to communicate with the ```Router``` class.
 If you are up for a challenge, want the full control or simply just want to create your own ```Router``` helper class, this example is for you.
@@ -1079,6 +1078,39 @@ $route->setPrefix('v1');
 
 /* Add the route to the router */
 $router->addRoute($route);
+```
+
+## Parameters
+
+This section contains advanced tips & tricks on extending the usage for parameters.
+
+### Custom default regex for matching parameters
+
+By default simple-php-router uses the `\w` regular expression when matching parameters. 
+This decision was made with speed and reliability in mind, as this match will match both letters, number and most of the used symbols on the internet.
+
+However, sometimes it can be nessesary to add a custom regular expression to match more advanced characters like `-` etc. 
+
+Instead of adding a custom regular expression to all your parameters, you can simply add a global regular expression which will be used on all the parameters on the route. 
+
+**Note:** If you the regular expression to be available across, we recommend using the global parameter on a group as demonstrated in the examples below.
+
+#### Route
+
+This example will ensure that all parameters use the `[\w\-]+` regular expression when parsing.
+
+```php
+SimpleRouter::get('/path/{parameter}', 'VideoController@home', ['defaultParameterRegex' => '[\w\-]+']);
+```
+
+You can also apply this setting to a group if you need multiple routes to use your custom regular expression when parsing parameters.
+
+```php
+SimpleRouter::group(['defaultParameterRegex' => '[\w\-]+'], function() {
+
+    SimpleRouter::get('/path/{parameter}', 'VideoController@home');
+
+});
 ```
 
 ## Extending
