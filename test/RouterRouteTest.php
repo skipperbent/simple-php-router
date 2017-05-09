@@ -125,4 +125,23 @@ class RouterRouteTest extends PHPUnit_Framework_TestCase
         TestRouter::debug('/my/custom-path', 'get');
     }
 
+    public function testDefaultParameterRegex()
+    {
+        TestRouter::get('/my/{path}', 'DummyController@param', ['defaultParameterRegex' => '[\w\-]+']);
+        $output = TestRouter::debugOutput('/my/custom-regex', 'get');
+
+        $this->assertEquals('custom-regex', $output);
+    }
+
+    public function testDefaultParameterRegexGroup()
+    {
+        TestRouter::group(['defaultParameterRegex' => '[\w\-]+'], function() {
+            TestRouter::get('/my/{path}', 'DummyController@param');
+        });
+
+        $output = TestRouter::debugOutput('/my/custom-regex', 'get');
+
+        $this->assertEquals('custom-regex', $output);
+    }
+
 }
