@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
@@ -18,17 +19,21 @@ class RouteUrl extends LoadableRoute
 
         /* Match global regular-expression for route */
         $regexMatch = $this->matchRegex($request, $url);
+
         if ($regexMatch === false) {
             return false;
         }
 
-        /* Make regular expression based on route */
+        /* Parse parameters from current route */
         $parameters = $this->parseParameters($this->url, $url);
-        if ($parameters === null) {
+
+        /* If no custom regular expression or parameters was found on this route, we stop */
+        if ($regexMatch === null && $parameters === null) {
             return false;
         }
 
-        $this->setParameters($parameters);
+        /* Set the parameters */
+        $this->setParameters((array)$parameters);
 
         return true;
     }
