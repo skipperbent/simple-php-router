@@ -7,8 +7,10 @@
  * This class is added so calls can be made statically like Router::get() making the code look pretty.
  * It also adds some extra functionality like default-namespace.
  */
+
 namespace Pecee\SimpleRouter;
 
+use Pecee\Handlers\CallbackExceptionHandler;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Response;
 use Pecee\SimpleRouter\Exceptions\HttpException;
@@ -302,6 +304,31 @@ class SimpleRouter
     }
 
     /**
+     * Add exception callback handler.
+     *
+     * @param \Closure $callback
+     * @return CallbackExceptionHandler $callbackHandler
+     */
+    public static function error($callback)
+    {
+        $routes = static::router()->getRoutes();
+
+        $callbackHandler = new CallbackExceptionHandler($callback);
+
+        $group = new RouteGroup();
+        $group->setCallback(function () {
+
+        });
+        $group->addExceptionHandler($callbackHandler);
+
+        array_unshift($routes, $group);
+
+        static::router()->setRoutes($routes);
+
+        return $callbackHandler;
+    }
+
+    /**
      * Get url for a route by using either name/alias, class or method name.
      *
      * The name parameter supports the following values:
@@ -355,7 +382,7 @@ class SimpleRouter
      */
     public static function router()
     {
-        if(static::$router === null) {
+        if (static::$router === null) {
             static::$router = new Router();
         }
 

@@ -98,8 +98,10 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     {
         $url = $this->getUrl();
 
-        if ($this->getGroup() !== null && count($this->getGroup()->getDomains()) > 0) {
-            $url = '//' . $this->getGroup()->getDomains()[0] . $url;
+        $group = $this->getGroup();
+
+        if ($group !== null && count($group->getDomains()) > 0) {
+            $url = '//' . $group->getDomains()[0] . $url;
         }
 
         /* Contains parameters that aren't recognized and will be appended at the end of the url */

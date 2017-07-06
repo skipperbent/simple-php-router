@@ -168,7 +168,7 @@ abstract class Route implements IRoute
      */
     public function getIdentifier()
     {
-        if (strpos($this->callback, '@') !== false) {
+        if (is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             return $this->callback;
         }
 
@@ -265,7 +265,7 @@ abstract class Route implements IRoute
 
     public function getMethod()
     {
-        if (strpos($this->callback, '@') !== false) {
+        if (is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             $tmp = explode('@', $this->callback);
 
             return $tmp[1];
@@ -276,7 +276,7 @@ abstract class Route implements IRoute
 
     public function getClass()
     {
-        if (strpos($this->callback, '@') !== false) {
+        if (is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             $tmp = explode('@', $this->callback);
 
             return $tmp[0];

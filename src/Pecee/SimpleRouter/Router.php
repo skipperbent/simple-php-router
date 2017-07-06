@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee\SimpleRouter;
 
 use Pecee\Handlers\IExceptionHandler;
@@ -143,6 +144,7 @@ class Router
 
                         /* Add exception handlers */
                         if (count($route->getExceptionHandlers()) > 0) {
+                            /** @noinspection AdditionOperationOnArraysInspection */
                             $exceptionHandlers += $route->getExceptionHandlers();
                         }
 
@@ -297,7 +299,10 @@ class Router
         for ($i = 0; $i < $max; $i++) {
 
             $handler = $this->exceptionHandlers[$i];
-            $handler = new $handler();
+
+            if (is_object($handler) === false) {
+                $handler = new $handler();
+            }
 
             if (($handler instanceof IExceptionHandler) === false) {
                 throw new HttpException('Exception handler must implement the IExceptionHandler interface.', 500);
@@ -372,7 +377,7 @@ class Router
             }
 
             /* Using @ is most definitely a controller@method or alias@method */
-            if (strpos($name, '@') !== false) {
+            if (is_string($name) === true && strpos($name, '@') !== false) {
                 list($controller, $method) = array_map('strtolower', explode('@', $name));
 
                 if ($controller === strtolower($route->getClass()) && $method === strtolower($route->getMethod())) {
@@ -381,7 +386,7 @@ class Router
             }
 
             /* Check if callback matches (if it's not a function) */
-            if (strpos($name, '@') !== false && strpos($route->getCallback(), '@') !== false && !is_callable($route->getCallback())) {
+            if (is_string($name) === true && is_string($route->getCallback()) && strpos($name, '@') !== false && strpos($route->getCallback(), '@') !== false && is_callable($route->getCallback()) === false) {
 
                 /* Check if the entire callback is matching */
                 if (strpos($route->getCallback(), $name) === 0 || strtolower($route->getCallback()) === strtolower($name)) {
@@ -451,7 +456,7 @@ class Router
         }
 
         /* Using @ is most definitely a controller@method or alias@method */
-        if (strpos($name, '@') !== false) {
+        if (is_string($name) === true && strpos($name, '@') !== false) {
             list($controller, $method) = explode('@', $name);
 
             /* Loop through all the routes to see if we can find a match */
@@ -515,6 +520,19 @@ class Router
     public function getRoutes()
     {
         return $this->routes;
+    }
+
+    /**
+     * Set routes
+     *
+     * @param array $routes
+     * @return static $this
+     */
+    public function setRoutes(array $routes)
+    {
+        $this->routes = $routes;
+
+        return $this;
     }
 
     /**
