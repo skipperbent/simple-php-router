@@ -185,7 +185,7 @@ class Router
             }
         }
 
-        $this->exceptionHandlers = array_unique(array_merge($exceptionHandlers, $this->exceptionHandlers));
+        $this->exceptionHandlers = array_merge($exceptionHandlers, $this->exceptionHandlers);
     }
 
     /**
@@ -285,7 +285,16 @@ class Router
         }
 
         if ($this->request->getLoadedRoute() === null) {
-            $this->handleException(new NotFoundHttpException('Route not found: ' . $this->request->getUri(), 404));
+
+            $rewriteUrl = $this->request->getRewriteUrl();
+
+            if ($rewriteUrl !== null) {
+                $message = sprintf('Route not found: %s (redirected from: %s)', $rewriteUrl, $this->request->getUri());
+            } else {
+                $message = sprintf('Route not found: %s', $this->request->getUri());
+            }
+
+            $this->handleException(new NotFoundHttpException($message, 404));
         }
     }
 
