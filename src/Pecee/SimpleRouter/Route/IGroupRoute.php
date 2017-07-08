@@ -1,6 +1,8 @@
 <?php
+
 namespace Pecee\SimpleRouter\Route;
 
+use Pecee\Handlers\IExceptionHandler;
 use Pecee\Http\Request;
 
 interface IGroupRoute extends IRoute
@@ -12,6 +14,14 @@ interface IGroupRoute extends IRoute
      * @return bool
      */
     public function matchDomain(Request $request);
+
+    /**
+     * Add exception handler
+     *
+     * @param IExceptionHandler|string $handler
+     * @return static $this;
+     */
+    public function addExceptionHandler($handler);
 
     /**
      * Set exception-handlers for group

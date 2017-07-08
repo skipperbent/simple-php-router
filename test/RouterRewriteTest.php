@@ -1,4 +1,5 @@
 <?php
+require_once 'Dummy/DummyController.php';
 require_once 'Dummy/Exceptions/ResponseException.php';
 require_once 'Dummy/Handler/ExceptionHandlerFirst.php';
 require_once 'Dummy/Handler/ExceptionHandlerSecond.php';
@@ -43,7 +44,7 @@ class RouteRewriteTest extends PHPUnit_Framework_TestCase
 
         try {
             TestRouter::debug('/my-non-existing-path', 'get');
-        } catch(\ResponseException $e) {
+        } catch (\ResponseException $e) {
 
         }
 
@@ -55,6 +56,23 @@ class RouteRewriteTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($expectedStack, $stack);
 
+    }
+
+    public function testRewriteExceptionMessage()
+    {
+        $this->setExpectedException(\Pecee\SimpleRouter\Exceptions\NotFoundHttpException::class);
+
+        TestRouter::error(function (\Pecee\Http\Request $request, \Exception $error) {
+
+            if (strtolower($request->getUri()) == '/my/test') {
+                $request->setRewriteUrl('/another-non-existing');
+
+                return $request;
+            }
+
+        });
+
+        TestRouter::debug('/my/test', 'get');
     }
 
 }
