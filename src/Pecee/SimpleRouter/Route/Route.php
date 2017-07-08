@@ -487,6 +487,20 @@ abstract class Route implements IRoute
     /**
      * Add middleware class-name
      *
+     * @deprecated This method is deprecated and will be removed in the near future.
+     * @param IMiddleware|string $middleware
+     * @return static
+     */
+    public function setMiddleware($middleware)
+    {
+        $this->middlewares[] = $middleware;
+
+        return $this;
+    }
+
+    /**
+     * Add middleware class-name
+     *
      * @param IMiddleware|string $middleware
      * @return static
      */
