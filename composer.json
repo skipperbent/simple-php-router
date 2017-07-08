@@ -3,10 +3,13 @@
   "description": "Simple, fast PHP router that is easy to get integrated and in almost any project. Heavily inspired by the Laravel router.",
   "keywords": [
     "router",
+    "router",
     "routing",
+    "route",
+    "simple-php-router",
     "laravel",
     "pecee",
-    "route"
+    "php"
   ],
   "license": "MIT",
   "support": {
