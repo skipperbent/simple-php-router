@@ -309,16 +309,13 @@ class SimpleRouter
      * @param \Closure $callback
      * @return CallbackExceptionHandler $callbackHandler
      */
-    public static function error($callback)
+    public static function error(\Closure $callback)
     {
         $routes = static::router()->getRoutes();
 
         $callbackHandler = new CallbackExceptionHandler($callback);
 
         $group = new RouteGroup();
-        $group->setCallback(function () {
-
-        });
         $group->addExceptionHandler($callbackHandler);
 
         array_unshift($routes, $group);

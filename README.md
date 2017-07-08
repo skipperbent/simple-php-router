@@ -398,7 +398,7 @@ Named routes allow the convenient generation of URLs or redirects for specific r
 
 ```php
 SimpleRouter::get('/user/profile', function () {
-    //
+    // Your code here
 })->name('profile');
 ```
 
@@ -1090,7 +1090,7 @@ $route = new RouteUrl('/answer/1', function() {
 
 });
 
-$route->setMiddleware(\Demo\Middlewares\AuthMiddleware::class);
+$route->addMiddleware(\Demo\Middlewares\AuthMiddleware::class);
 $route->setNamespace('\Demo\Controllers');
 $route->setPrefix('v1');
 

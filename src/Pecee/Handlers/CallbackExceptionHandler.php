@@ -17,7 +17,7 @@ class CallbackExceptionHandler implements IExceptionHandler
 
     protected $callback;
 
-    public function __construct($callback)
+    public function __construct(\Closure $callback)
     {
         $this->callback = $callback;
     }

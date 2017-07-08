@@ -134,21 +134,18 @@ class Router
 
                 $group = $route;
 
-                if ($route->getCallback() !== null && is_callable($route->getCallback())) {
+                $this->processingRoute = true;
+                $route->renderRoute($this->request);
+                $this->processingRoute = false;
 
-                    $this->processingRoute = true;
-                    $route->renderRoute($this->request);
-                    $this->processingRoute = false;
+                if ($route->matchRoute($url, $this->request) === true) {
 
-                    if ($route->matchRoute($url, $this->request) === true) {
-
-                        /* Add exception handlers */
-                        if (count($route->getExceptionHandlers()) > 0) {
-                            /** @noinspection AdditionOperationOnArraysInspection */
-                            $exceptionHandlers += $route->getExceptionHandlers();
-                        }
-
+                    /* Add exception handlers */
+                    if (count($route->getExceptionHandlers()) > 0) {
+                        /** @noinspection AdditionOperationOnArraysInspection */
+                        $exceptionHandlers += $route->getExceptionHandlers();
                     }
+
                 }
             }
 
@@ -289,9 +286,9 @@ class Router
             $rewriteUrl = $this->request->getRewriteUrl();
 
             if ($rewriteUrl !== null) {
-                $message = sprintf('Route not found: %s (redirected from: %s)', $rewriteUrl, $this->request->getUri());
+                $message = sprintf('Route not found: "%s" (rewrite from: "%s")', $rewriteUrl, $this->request->getUri());
             } else {
-                $message = sprintf('Route not found: %s', $this->request->getUri());
+                $message = sprintf('Route not found: "%s"', $this->request->getUri());
             }
 
             $this->handleException(new NotFoundHttpException($message, 404));

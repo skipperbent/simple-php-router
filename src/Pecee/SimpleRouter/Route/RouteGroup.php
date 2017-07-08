@@ -20,7 +20,7 @@ class RouteGroup extends Route implements IGroupRoute
      */
     public function matchDomain(Request $request)
     {
-        if (count($this->domains) === 0) {
+        if ($this->domains === null || count($this->domains) === 0) {
             return true;
         }
 
@@ -59,10 +59,10 @@ class RouteGroup extends Route implements IGroupRoute
     /**
      * Add exception handler
      *
-     * @param IExceptionHandler $handler
+     * @param IExceptionHandler|string $handler
      * @return static $this
      */
-    public function addExceptionHandler(IExceptionHandler $handler)
+    public function addExceptionHandler($handler)
     {
         $this->exceptionHandlers[] = $handler;
 

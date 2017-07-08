@@ -18,10 +18,10 @@ interface IGroupRoute extends IRoute
     /**
      * Add exception handler
      *
-     * @param IExceptionHandler $handler
+     * @param IExceptionHandler|string $handler
      * @return static $this;
      */
-    public function addExceptionHandler(IExceptionHandler $handler);
+    public function addExceptionHandler($handler);
 
     /**
      * Set exception-handlers for group

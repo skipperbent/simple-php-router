@@ -36,10 +36,12 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
                 $middleware = $this->getMiddlewares()[$i];
 
-                $middleware = $this->loadClass($middleware);
+                if (is_object($middleware) === false) {
+                    $middleware = $this->loadClass($middleware);
+                }
 
                 if (($middleware instanceof IMiddleware) === false) {
-                    throw new HttpException($middleware . ' must be instance of Middleware');
+                    throw new HttpException($middleware . ' must be inherit the IMiddleware interface');
                 }
 
                 $middleware->handle($request);

@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
@@ -173,7 +174,7 @@ interface IRoute
      * @param string $middleware
      * @return static
      */
-    public function setMiddleware($middleware);
+    public function addMiddleware($middleware);
 
     /**
      * Set middlewares array
