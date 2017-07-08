@@ -2,6 +2,7 @@
 
 namespace Pecee\SimpleRouter\Route;
 
+use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
@@ -52,7 +53,7 @@ abstract class Route implements IRoute
     protected function loadClass($name)
     {
         if (class_exists($name) === false) {
-            throw new NotFoundHttpException(sprintf('Class %s does not exist', $name), 404);
+            throw new NotFoundHttpException(sprintf('Class "%s" does not exist', $name), 404);
         }
 
         return new $name();
@@ -62,39 +63,45 @@ abstract class Route implements IRoute
     {
         $callback = $this->getCallback();
 
-        if ($callback !== null && is_callable($callback)) {
+        if ($callback === null) {
+            return;
+        }
+
+        /* Render callback function */
+        if (is_callable($callback) === true) {
 
             /* When the callback is a function */
             call_user_func_array($callback, $this->getParameters());
 
-        } else {
+            return;
 
-            /* When the callback is a method */
-            $controller = explode('@', $callback);
-
-            $namespace = $this->getNamespace();
-
-            $className = ($namespace !== null && $controller[0][0] !== '\\') ? $namespace . '\\' . $controller[0] : $controller[0];
-
-            $class = $this->loadClass($className);
-            $method = $controller[1];
-
-            if (method_exists($class, $method) === false) {
-                throw new NotFoundHttpException(sprintf('Method %s does not exist in class %s', $method, $className), 404);
-            }
-
-            $parameters = $this->getParameters();
-
-            /* Filter parameters with null-value */
-
-            if ($this->filterEmptyParams === true) {
-                $parameters = array_filter($parameters, function ($var) {
-                    return ($var !== null);
-                });
-            }
-
-            call_user_func_array([$class, $method], $parameters);
         }
+
+        /* When the callback is a class + method */
+        $controller = explode('@', $callback);
+
+        $namespace = $this->getNamespace();
+
+        $className = ($namespace !== null && $controller[0][0] !== '\\') ? $namespace . '\\' . $controller[0] : $controller[0];
+
+        $class = $this->loadClass($className);
+        $method = $controller[1];
+
+        if (method_exists($class, $method) === false) {
+            throw new NotFoundHttpException(sprintf('Method "%s" does not exist in class "%s"', $method, $className), 404);
+        }
+
+        $parameters = $this->getParameters();
+
+        /* Filter parameters with null-value */
+
+        if ($this->filterEmptyParams === true) {
+            $parameters = array_filter($parameters, function ($var) {
+                return ($var !== null);
+            });
+        }
+
+        call_user_func_array([$class, $method], $parameters);
     }
 
     protected function parseParameters($route, $url, $parameterRegex = null)
@@ -168,7 +175,7 @@ abstract class Route implements IRoute
      */
     public function getIdentifier()
     {
-        if (strpos($this->callback, '@') !== false) {
+        if (is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             return $this->callback;
         }
 
@@ -265,7 +272,7 @@ abstract class Route implements IRoute
 
     public function getMethod()
     {
-        if (strpos($this->callback, '@') !== false) {
+        if (is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             $tmp = explode('@', $this->callback);
 
             return $tmp[1];
@@ -276,7 +283,7 @@ abstract class Route implements IRoute
 
     public function getClass()
     {
-        if (strpos($this->callback, '@') !== false) {
+        if (is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             $tmp = explode('@', $this->callback);
 
             return $tmp[0];
@@ -478,12 +485,26 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Set middleware class-name
+     * Add middleware class-name
      *
-     * @param string $middleware
+     * @deprecated This method is deprecated and will be removed in the near future.
+     * @param IMiddleware|string $middleware
      * @return static
      */
     public function setMiddleware($middleware)
+    {
+        $this->middlewares[] = $middleware;
+
+        return $this;
+    }
+
+    /**
+     * Add middleware class-name
+     *
+     * @param IMiddleware|string $middleware
+     * @return static
+     */
+    public function addMiddleware($middleware)
     {
         $this->middlewares[] = $middleware;
 

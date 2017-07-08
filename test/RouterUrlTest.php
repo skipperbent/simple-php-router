@@ -8,7 +8,7 @@ require_once 'Helpers/TestRouter.php';
 class RouterUrlTest extends PHPUnit_Framework_TestCase
 {
 
-    public function testSimularUrls()
+    public function testSimilarUrls()
     {
         // Match normal route on alias
         TestRouter::resource('/url11', 'DummyController@method1');

@@ -3,7 +3,7 @@ namespace Pecee;
 
 class CsrfToken
 {
-    const CSRF_KEY = 'XSRF-TOKEN';
+    const CSRF_KEY = 'CSRF-TOKEN';
 
     protected $token;
 
@@ -60,7 +60,7 @@ class CsrfToken
      */
     public function getToken()
     {
-        if ($this->hasToken()) {
+        if ($this->hasToken() === true) {
             return $_COOKIE[static::CSRF_KEY];
         }
 

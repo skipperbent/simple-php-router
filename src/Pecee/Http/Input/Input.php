@@ -108,11 +108,11 @@ class Input
 
                 $file = InputFile::createFromArray([
                     'index'    => $key,
+                    'filename' => $getItem($key),
                     'error'    => $getItem($key, 'error'),
                     'tmp_name' => $getItem($key, 'tmp_name'),
                     'type'     => $getItem($key, 'type'),
                     'size'     => $getItem($key, 'size'),
-                    'filename' => $getItem($key, 'name'),
                 ]);
 
                 if (isset($output[$key])) {

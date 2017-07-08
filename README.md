@@ -51,8 +51,9 @@ If you want a great new feature or experience any issues what-so-ever, please fe
 
 - [Middlewares](#middlewares)
 	- [Example](#example)
-- [ExceptionHandler](#exceptionhandler)
-	- [Example](#example-1)
+- [ExceptionHandlers](#exceptionhandlers)
+    - [Handling 404, 403 and other errors](#handling-404-403-and-other-errors)
+	- [Using custom exception handlers](#using-custom-exception-handlers)
 
 - [Urls](#urls)
  	- [Get by name (single route)](#get-by-name-single-route)
@@ -397,7 +398,7 @@ Named routes allow the convenient generation of URLs or redirects for specific r
 
 ```php
 SimpleRouter::get('/user/profile', function () {
-    //
+    // Your code here
 })->name('profile');
 ```
 
@@ -626,13 +627,30 @@ class CustomMiddleware implements Middleware {
 
 ---
 
-# ExceptionHandler
+# ExceptionHandlers
 
 ExceptionHandler are classes that handles all exceptions. ExceptionsHandlers must implement the `IExceptionHandler` interface.
 
-## Example
+## Handling 404, 403 and other errors
 
-Resource controllers can implement the `IRestController` interface, but is not required.
+If you simply want to catch a 404 (page not found) etc. you can use the `Router::error($callback)` static helper method. 
+
+This will add a callback method which is fired whenever an error occurs on all routes.
+
+The basic example below simply redirect the page to `/not-found` if an `NotFoundHttpException` (404) occurred. 
+The code should be placed in the file that contains your routes.
+
+```php
+Router::get('/not-found', 'PageController@notFound');
+
+Router::error(function(Request $request, \Exception $exception) {
+    if($exception instanceof NotFoundHttpException && $exception->getCode == 404) {
+        response()->redirect('/not-found');
+    }
+});
+```
+
+## Using custom exception handlers
 
 This is a basic example of an ExceptionHandler implementation (please see "[Easily overwrite route about to be loaded](#easily-overwrite-route-about-to-be-loaded)" for examples on how to change callback).
 
@@ -1072,7 +1090,7 @@ $route = new RouteUrl('/answer/1', function() {
 
 });
 
-$route->setMiddleware(\Demo\Middlewares\AuthMiddleware::class);
+$route->addMiddleware(\Demo\Middlewares\AuthMiddleware::class);
 $route->setNamespace('\Demo\Controllers');
 $route->setPrefix('v1');
 

@@ -8,7 +8,7 @@ use Pecee\SimpleRouter\SimpleRouter;
 
 class Request
 {
-    protected $data = [];
+    private $data = [];
     protected $headers;
     protected $host;
     protected $uri;

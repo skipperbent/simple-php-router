@@ -74,8 +74,10 @@ class RouteController extends LoadableRoute implements IControllerRoute
             $method .= '/';
         }
 
-        if ($this->getGroup() !== null && count($this->getGroup()->getDomains()) > 0) {
-            $url .= '//' . $this->getGroup()->getDomains()[0];
+        $group = $this->getGroup();
+
+        if ($group !== null && count($group->getDomains()) > 0) {
+            $url .= '//' . $group->getDomains()[0];
         }
 
         $url .= '/' . trim($this->getUrl(), '/') . '/' . strtolower($method) . join('/', $parameters);
