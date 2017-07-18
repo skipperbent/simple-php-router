@@ -283,15 +283,7 @@ class Input
             }
         }
 
-        $output = array_merge($_GET, $output);
-
-        if ($filter !== null) {
-            $output = array_filter($output, function ($key) use ($filter) {
-                return (in_array($key, $filter) === true);
-            }, ARRAY_FILTER_USE_KEY);
-        }
-
-        return $output;
+        return ($filter !== null) ? array_intersect_key($output, array_flip($filter)) : array_merge($_GET, $output);
     }
 
 }
