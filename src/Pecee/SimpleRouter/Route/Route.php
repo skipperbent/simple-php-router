@@ -135,7 +135,7 @@ abstract class Route implements IRoute
                         }
                     }
 
-                    $regex = sprintf('\-?\/?(?P<%s>%s)', $name, $regex) . $parameters[2][$key];
+                    $regex = sprintf('(?:\/|\-)' . $parameters[2][$key] . '(?P<%s>%s)', $name, $regex) . $parameters[2][$key];
 
                 }
 
@@ -148,7 +148,9 @@ abstract class Route implements IRoute
             $urlRegex = preg_quote($route, '/');
         }
 
-        if (preg_match('/^' . $urlRegex . '(\/?)$/', $url, $matches) > 0) {
+        echo $urlRegex . '\/? | ' . $url . chr(10);
+
+        if (preg_match('/^' . $urlRegex . '\/?/', $url, $matches) > 0) {
 
             $values = [];
 

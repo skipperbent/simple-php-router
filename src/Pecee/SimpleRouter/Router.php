@@ -11,6 +11,7 @@ use Pecee\SimpleRouter\Route\IControllerRoute;
 use Pecee\SimpleRouter\Route\IGroupRoute;
 use Pecee\SimpleRouter\Route\ILoadableRoute;
 use Pecee\SimpleRouter\Route\IRoute;
+use Pecee\SimpleRouter\Route\LoadableRoute;
 
 class Router
 {
@@ -123,6 +124,8 @@ class Router
         $exceptionHandlers = [];
 
         $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri();
+
+
 
         /* @var $route IRoute */
         for ($i = $max; $i >= 0; $i--) {
