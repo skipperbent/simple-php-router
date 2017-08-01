@@ -110,6 +110,8 @@ abstract class Route implements IRoute
 
         $parameters = [];
 
+        $url = '/' . ltrim($url, '/');
+
         if (preg_match_all('/' . $regex . '/', $route, $parameters)) {
 
             $urlParts = preg_split('/((\-?\/?)\{[^}]+\})/', rtrim($route, '/'));
@@ -147,8 +149,6 @@ abstract class Route implements IRoute
         } else {
             $urlRegex = preg_quote($route, '/');
         }
-
-        echo $urlRegex . '\/? | ' . $url . chr(10);
 
         if (preg_match('/^' . $urlRegex . '\/?/', $url, $matches) > 0) {
 

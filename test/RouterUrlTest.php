@@ -10,24 +10,22 @@ class RouterUrlTest extends PHPUnit_Framework_TestCase
 
     public function testOptionalParameters()
     {
-
-        // TestRouter::get('/aviso/legal', 'DummyController@method1');
+        TestRouter::get('/aviso/legal', 'DummyController@method1');
         TestRouter::get('/aviso/{aviso}', 'DummyController@method1');
-        //TestRouter::get('/pagina/{pagina}', 'DummyController@method1');
+        TestRouter::get('/pagina/{pagina}', 'DummyController@method1');
         TestRouter::get('/{pagina?}', 'DummyController@method1');
 
-        //TestRouter::debugNoReset('/aviso/optional', 'get');
-        //$this->assertEquals('/aviso/{aviso}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+        TestRouter::debugNoReset('/aviso/optional', 'get');
+        $this->assertEquals('/aviso/{aviso}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
 
-        //TestRouter::debugNoReset('/pagina/optional', 'get');
-        //$this->assertEquals('/pagina/{pagina}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+        TestRouter::debugNoReset('/pagina/optional', 'get');
+        $this->assertEquals('/pagina/{pagina}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
 
-        //TestRouter::debugNoReset('/optional', 'get');
-        //$this->assertEquals('/{pagina?}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+        TestRouter::debugNoReset('/optional', 'get');
+        $this->assertEquals('/{pagina?}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
 
-// New test lines
-        //TestRouter::debugNoReset('/avisolegal', 'get');
-        //$this->assertNotEquals('/aviso/{aviso}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+        TestRouter::debugNoReset('/avisolegal', 'get');
+        $this->assertNotEquals('/aviso/{aviso}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
 
         TestRouter::debugNoReset('/avisolegal', 'get');
         $this->assertEquals('/{pagina?}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
