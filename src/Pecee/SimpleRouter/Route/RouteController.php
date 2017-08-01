@@ -53,7 +53,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
         if (strpos($name, '.') !== false) {
             $found = array_search(substr($name, strrpos($name, '.') + 1), $this->names, false);
             if ($found !== false) {
-                $method = $found;
+                $method = (string)$found;
             }
         }
 
