@@ -34,7 +34,12 @@ abstract class Route implements IRoute
      * @var bool
      */
     protected $filterEmptyParams = false;
-    protected $defaultParameterRegex = null;
+
+    /**
+     * Default regular expression used for parsing parameters.
+     * @var string|null
+     */
+    protected $defaultParameterRegex;
     protected $paramModifiers = '{}';
     protected $paramOptionalSymbol = '?';
     protected $group;
@@ -138,7 +143,7 @@ abstract class Route implements IRoute
                         }
                     }
 
-                    $regex = sprintf('(?:\/|\-)' . $parameters[2][$key] . '(?P<%s>%s)', $name, $regex) . $parameters[2][$key];
+                    $regex = sprintf('(?:\/|\-)%1$s(?P<%2$s>%3$s)%1$s', $parameters[2][$key], $name, $regex);
 
                 }
 
@@ -151,7 +156,7 @@ abstract class Route implements IRoute
             $urlRegex = preg_quote($route, '/');
         }
 
-        if (preg_match('/^' . $urlRegex . '\/?/', $url, $matches) > 0) {
+        if (preg_match('/^' . $urlRegex . '\/?$/', $url, $matches) > 0) {
 
             $values = [];
 
