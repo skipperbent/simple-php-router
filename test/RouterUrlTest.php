@@ -8,6 +8,20 @@ require_once 'Helpers/TestRouter.php';
 class RouterUrlTest extends PHPUnit_Framework_TestCase
 {
 
+    public function testIssue253()
+    {
+        TestRouter::get('/', 'DummyController@method1');
+        TestRouter::get('/page/{id?}', 'DummyController@method1');
+
+        TestRouter::debugNoReset('/page/22', 'get');
+        $this->assertEquals('/page/{id?}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+
+        TestRouter::debugNoReset('/', 'get');
+        $this->assertEquals('/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+
+        TestRouter::router()->reset();
+    }
+
     public function testOptionalParameters()
     {
         TestRouter::get('/aviso/legal', 'DummyController@method1');
