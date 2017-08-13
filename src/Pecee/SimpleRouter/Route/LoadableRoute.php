@@ -124,14 +124,16 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         for ($i = $max; $i >= 0; $i--) {
             $param = $keys[$i];
 
-            if($parameters !== null) {
-                $parameters = (array)$parameters;
-                $value = array_key_exists($param, $parameters) ? $parameters[$param] : $params[$param];
-            }
+            if ($parameters === '' || (is_array($parameters) && count($parameters) === 0)) {
+                $value = '';
+            } else {
+                $p = (array)$parameters;
+                $value = array_key_exists($param, $p) ? $p[$param] : $params[$param];
 
-            /* If parameter is specifically set to null - use the original-defined value */
-            if ($value === null && isset($this->originalParameters[$param])) {
-                $value = $this->originalParameters[$param];
+                /* If parameter is specifically set to null - use the original-defined value */
+                if ($value === null && isset($this->originalParameters[$param])) {
+                    $value = $this->originalParameters[$param];
+                }
             }
 
             if (stripos($url, $param1) !== false || stripos($url, $param) !== false) {
