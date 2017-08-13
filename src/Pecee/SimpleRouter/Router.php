@@ -248,9 +248,7 @@ class Router
 
                     if ($rewriteRoute !== null) {
                         $rewriteRoute->loadMiddleware($this->request);
-                        $rewriteRoute->renderRoute($this->request);
-
-                        return;
+                        return $rewriteRoute->renderRoute($this->request);
                     }
 
                     /* If the request has changed */
@@ -267,7 +265,7 @@ class Router
                     /* Render route */
                     $routeNotAllowed = false;
                     $this->request->setLoadedRoute($route);
-                    $route->renderRoute($this->request);
+                    return $route->renderRoute($this->request);
 
                     break;
                 }
@@ -295,6 +293,11 @@ class Router
         }
     }
 
+    /**
+     * @param \Exception $e
+     * @throws HttpException
+     * @throws \Exception
+     */
     protected function handleException(\Exception $e)
     {
         $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri();
@@ -320,9 +323,7 @@ class Router
 
                 if ($rewriteRoute !== null) {
                     $rewriteRoute->loadMiddleware($this->request);
-                    $rewriteRoute->renderRoute($this->request);
-
-                    return;
+                    return $rewriteRoute->renderRoute($this->request);
                 }
 
                 $rewriteUrl = $this->request->getRewriteUrl();

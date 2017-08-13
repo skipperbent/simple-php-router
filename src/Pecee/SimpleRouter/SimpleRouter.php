@@ -49,7 +49,7 @@ class SimpleRouter
      */
     public static function start()
     {
-        static::router()->routeRequest();
+        echo static::router()->routeRequest();
     }
 
     /**
