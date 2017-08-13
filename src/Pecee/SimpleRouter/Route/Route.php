@@ -76,9 +76,7 @@ abstract class Route implements IRoute
         if (is_callable($callback) === true) {
 
             /* When the callback is a function */
-            call_user_func_array($callback, $this->getParameters());
-
-            return;
+            return call_user_func_array($callback, $this->getParameters());
 
         }
 
@@ -106,7 +104,7 @@ abstract class Route implements IRoute
             });
         }
 
-        call_user_func_array([$class, $method], $parameters);
+        return call_user_func_array([$class, $method], $parameters);
     }
 
     protected function parseParameters($route, $url, $parameterRegex = null)

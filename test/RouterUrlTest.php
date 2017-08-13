@@ -12,12 +12,18 @@ class RouterUrlTest extends PHPUnit_Framework_TestCase
     {
         TestRouter::get('/', 'DummyController@method1');
         TestRouter::get('/page/{id?}', 'DummyController@method1');
+        TestRouter::get('/test-output', function() {
+            return 'return value';
+        });
 
         TestRouter::debugNoReset('/page/22', 'get');
         $this->assertEquals('/page/{id?}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
 
         TestRouter::debugNoReset('/', 'get');
         $this->assertEquals('/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+
+        $output = TestRouter::debugOutput('/test-output', 'get');
+        $this->assertEquals('return value', $output);
 
         TestRouter::router()->reset();
     }

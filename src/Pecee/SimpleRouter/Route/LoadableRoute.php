@@ -92,7 +92,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * Used when calling the url() helper.
      *
      * @param string|null $method
-     * @param array|null $parameters
+     * @param string|array|null $parameters
      * @param string|null $name
      * @return string
      */
@@ -123,7 +123,11 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
         for ($i = $max; $i >= 0; $i--) {
             $param = $keys[$i];
-            $value = $value = ($parameters !== null && array_key_exists($param, $parameters)) ? $parameters[$param] : $params[$param];
+
+            if($parameters !== null) {
+                $parameters = (array)$parameters;
+                $value = array_key_exists($param, $parameters) ? $parameters[$param] : $params[$param];
+            }
 
             /* If parameter is specifically set to null - use the original-defined value */
             if ($value === null && isset($this->originalParameters[$param])) {
