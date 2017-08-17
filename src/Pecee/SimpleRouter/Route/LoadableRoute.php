@@ -144,6 +144,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             }
         }
 
+        $url = '/' . ltrim($url, '/');
         $url .= join('/', $unknownParams);
 
         return rtrim($url, '/') . '/';
