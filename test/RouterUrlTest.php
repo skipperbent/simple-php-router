@@ -28,6 +28,21 @@ class RouterUrlTest extends PHPUnit_Framework_TestCase
         TestRouter::router()->reset();
     }
 
+    public function testUnicodeCharacters()
+    {
+        // Test spanish characters
+        TestRouter::get('/cursos/listado/{listado?}/{category?}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s-]+']);
+        TestRouter::debugNoReset('/cursos/listado/especialidad/cirugía local', 'get');
+        $this->assertEquals('/cursos/listado/{listado?}/{category?}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+
+        // Test danish characters
+        TestRouter::get('/kategori/økse', 'DummyController@method1', ['defaultParameterRegex' => '[\w\ø]+']);
+        TestRouter::debugNoReset('/kategori/økse', 'get');
+        $this->assertEquals('/kategori/økse/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+
+        TestRouter::router()->reset();
+    }
+
     public function testOptionalParameters()
     {
         TestRouter::get('/aviso/legal', 'DummyController@method1');
