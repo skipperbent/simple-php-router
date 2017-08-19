@@ -846,7 +846,7 @@ the `getValue` or use the `input()` instead.
 
 If items is grouped in the html, it will return an array of items.
 
-**Note:** `getObject` will only return `$defaultValue` if the item doesn't exist. If you want `$defaultValue` to be returned if the item is empty, please use `input()->get()` instead.
+**Note:** `getObject` will only return `$defaultValue` if the item doesn't exist. If you want `$defaultValue` to be returned if the item is empty, please use `input()` instead.
 
 ```php
 $object = input()->getObject($index, $defaultValue = null, $methods = null);
@@ -871,9 +871,9 @@ $id = input($index, $defaultValue, $method);
 
 # -- match specific --
 
-$object = input()->get($index, $defaultValue, 'get');
-$object = input()->get($index, $defaultValue, 'post');
-$object = input()->get($index, $defaultValue, 'file');
+$object = input($index, $defaultValue, 'get');
+$object = input($index, $defaultValue, 'post');
+$object = input($index, $defaultValue, 'file');
 
 # -- or --
 
