@@ -204,9 +204,9 @@ SimpleRouter::start();
 
 ### Helper functions
 
-We recommend that you add these helper functions to your project. Theese will allow you to access functionality of the router more easily.
+We recommend that you add these helper functions to your project. These will allow you to access functionality of the router more easily.
 
-To implement the functions below, simply copy the code to a new file and require the file before initializing the router.
+To implement the functions below, simply copy the code to a new file and require the file before initializing the router or copy the `helpers.php` we've included in this library.
 
 ```php
 <?php
@@ -250,10 +250,18 @@ function request()
 
 /**
  * Get input class
- * @return \Pecee\Http\Input\Input
+ * @param string|null $index Parameter index name
+ * @param string|null $defaultValue Default return value
+ * @param string|array|null $methods Default method
+ * @return \Pecee\Http\Input\Input|string
  */
-function input()
+function input($index = null, $defaultValue = null, $methods = null)
 {
+    if($index !== null)
+    {
+        return request()->getInput()->get($index, $defaultValue, $methods);
+    }
+
     return request()->getInput();
 }
 
@@ -395,12 +403,12 @@ SimpleRouter::all('/ajax/abc/123', function($param1, $param2) {
 
 ### Custom regex for matching parameters
 
-By default simple-php-router uses the `\w` regular expression when matching parameters. 
+By default simple-php-router uses the `\w` regular expression when matching parameters.
 This decision was made with speed and reliability in mind, as this match will match both letters, number and most of the used symbols on the internet.
 
-However, sometimes it can be necessary to add a custom regular expression to match more advanced characters like `-` etc. 
+However, sometimes it can be necessary to add a custom regular expression to match more advanced characters like `-` etc.
 
-Instead of adding a custom regular expression to all your parameters, you can simply add a global regular expression which will be used on all the parameters on the route. 
+Instead of adding a custom regular expression to all your parameters, you can simply add a global regular expression which will be used on all the parameters on the route.
 
 **Note:** If you the regular expression to be available across, we recommend using the global parameter on a group as demonstrated in the examples below.
 
@@ -663,11 +671,11 @@ ExceptionHandler are classes that handles all exceptions. ExceptionsHandlers mus
 
 ## Handling 404, 403 and other errors
 
-If you simply want to catch a 404 (page not found) etc. you can use the `Router::error($callback)` static helper method. 
+If you simply want to catch a 404 (page not found) etc. you can use the `Router::error($callback)` static helper method.
 
 This will add a callback method which is fired whenever an error occurs on all routes.
 
-The basic example below simply redirect the page to `/not-found` if an `NotFoundHttpException` (404) occurred. 
+The basic example below simply redirect the page to `/not-found` if an `NotFoundHttpException` (404) occurred.
 The code should be placed in the file that contains your routes.
 
 ```php
@@ -825,7 +833,7 @@ If items is grouped in the html, it will return an array of items.
 **Note:** `get` will automatically trim the value and ensure that it's not empty. If it's empty the `$defaultValue` will be returned.
 
 ```php
-$value = input()->get($index, $defaultValue, $methods);
+$value = input($index, $defaultValue, $methods);
 ```
 
 ### Get parameter object
@@ -834,7 +842,7 @@ Will return an instance of `InputItem` or `InputFile` depending on the type.
 
 You can use this in your html as it will render the value of the item.
 However if you want to compare value in your if statements, you have to use
-the `getValue` or use the `input()->get()` instead.
+the `getValue` or use the `input()` instead.
 
 If items is grouped in the html, it will return an array of items.
 
@@ -855,7 +863,11 @@ $object = input()->getObject($index, $defaultValue = null, $methods = null);
  * $defaultValue is returned if the value is empty.
  */
 
-$id = input()->get($index, $defaultValue);
+$id = input()->get($index, $defaultValue, $method);
+
+# -- shortcut to above --
+
+$id = input($index, $defaultValue, $method);
 
 # -- match specific --
 
@@ -880,7 +892,7 @@ $object = input()->findFile($index, $defaultValue);
  */
 
 /* @var $image \Pecee\Http\Input\InputFile */
-foreach(input()->get('images', []) as $image)
+foreach(input('images', []) as $image)
 {
     if($image->getMime() === 'image/jpeg') {
 
@@ -926,7 +938,7 @@ Below example requires you to have the helper functions added. Please refer to t
 
 ```php
 /* Get parameter site_id or default-value 2 from either post-value or query-string */
-$siteId = input()->get('site_id', 2, ['post', 'get']);
+$siteId = input('site_id', 2, ['post', 'get']);
 ```
 
 ---
