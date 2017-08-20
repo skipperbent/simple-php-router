@@ -674,7 +674,7 @@ The code should be placed in the file that contains your routes.
 Router::get('/not-found', 'PageController@notFound');
 
 Router::error(function(Request $request, \Exception $exception) {
-    if($exception instanceof NotFoundHttpException && $exception->getCode == 404) {
+    if($exception instanceof NotFoundHttpException && $exception->getCode() == 404) {
         response()->redirect('/not-found');
     }
 });
