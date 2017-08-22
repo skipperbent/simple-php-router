@@ -248,6 +248,7 @@ class Router
 
                     if ($rewriteRoute !== null) {
                         $rewriteRoute->loadMiddleware($this->request);
+
                         return $rewriteRoute->renderRoute($this->request);
                     }
 
@@ -265,6 +266,7 @@ class Router
                     /* Render route */
                     $routeNotAllowed = false;
                     $this->request->setLoadedRoute($route);
+
                     return $route->renderRoute($this->request);
 
                     break;
@@ -323,6 +325,7 @@ class Router
 
                 if ($rewriteRoute !== null) {
                     $rewriteRoute->loadMiddleware($this->request);
+
                     return $rewriteRoute->renderRoute($this->request);
                 }
 
@@ -432,6 +435,10 @@ class Router
     {
         if ($getParams !== null && is_array($getParams) === false) {
             throw new \InvalidArgumentException('Invalid type for getParams. Must be array or null');
+        }
+
+        if ($name === '' && $parameters === '') {
+            return '/';
         }
 
         /* Only merge $_GET when all parameters are null */
