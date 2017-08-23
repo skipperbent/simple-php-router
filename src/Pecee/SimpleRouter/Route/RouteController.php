@@ -87,8 +87,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
 
     public function matchRoute($url, Request $request)
     {
-        $url = parse_url(urldecode($url), PHP_URL_PATH);
-        $url = rtrim($url, '/') . '/';
+        $url = rtrim(parse_url($url, PHP_URL_PATH), '/') . '/';
 
         /* Match global regular-expression for route */
         $regexMatch = $this->matchRegex($request, $url);
