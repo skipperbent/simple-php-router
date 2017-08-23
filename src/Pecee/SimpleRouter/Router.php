@@ -437,6 +437,10 @@ class Router
             throw new \InvalidArgumentException('Invalid type for getParams. Must be array or null');
         }
 
+        if ($name === '' && $parameters === '') {
+            return '/';
+        }
+
         /* Only merge $_GET when all parameters are null */
         if ($name === null && $parameters === null && $getParams === null) {
             $getParams = $_GET;
