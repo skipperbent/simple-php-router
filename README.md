@@ -181,7 +181,7 @@ On IIS you have to add some lines your `web.config` file in the `public` folder 
 
 Below is an example of an working `web.config` file used by simple-php-router.
 
-Simply create a new `web.config` file in your projects `public` directory and paste the contents below in your newly created file. This will redirect all requests to your `index.php` file (see Configuration section below). If the xxx file already exists, add the `<rewrite>` section inside the `<system.webServer>` branch.
+Simply create a new `web.config` file in your projects `public` directory and paste the contents below in your newly created file. This will redirect all requests to your `index.php` file (see Configuration section below). If the `web.config` file already exists, add the `<rewrite>` section inside the `<system.webServer>` branch.
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
