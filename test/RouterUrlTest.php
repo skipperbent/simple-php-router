@@ -31,7 +31,7 @@ class RouterUrlTest extends PHPUnit_Framework_TestCase
     public function testUnicodeCharacters()
     {
         // Test spanish characters
-        TestRouter::get('/cursos/listado/{listado?}/{category?}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s-]+']);
+        TestRouter::get('/cursos/listado/{listado?}/{category?}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s-\í]+']);
         TestRouter::debugNoReset('/cursos/listado/especialidad/cirugía local', 'get');
         $this->assertEquals('/cursos/listado/{listado?}/{category?}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
 
@@ -39,6 +39,13 @@ class RouterUrlTest extends PHPUnit_Framework_TestCase
         TestRouter::get('/kategori/økse', 'DummyController@method1', ['defaultParameterRegex' => '[\w\ø]+']);
         TestRouter::debugNoReset('/kategori/økse', 'get');
         $this->assertEquals('/kategori/økse/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+
+        TestRouter::get('/test/{param}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s-\í]+']);
+        TestRouter::debugNoReset('/test/Dermatología');
+
+        $parameters = TestRouter::request()->getLoadedRoute()->getParameters();
+
+        $this->assertEquals('Dermatología', $parameters['param']);
 
         TestRouter::router()->reset();
     }

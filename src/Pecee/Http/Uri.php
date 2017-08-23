@@ -20,6 +20,11 @@ class Uri
     {
         $this->originalUrl = $url;
         $this->data = array_merge($this->data, $this->parseUrl($url));
+
+        if (isset($this->data['path']) === true && $this->data['path'] !== '/') {
+            $this->data['path'] = rtrim($this->data['path'], '/') . '/';
+        }
+
     }
 
     /**
@@ -122,12 +127,14 @@ class Uri
 
     /**
      * UTF-8 aware parse_url() replacement.
+     * @param string $url
+     * @param int $component
      * @throws \InvalidArgumentException
      * @return array
      */
-    public function parseUrl($url)
+    public function parseUrl($url, $component = -1)
     {
-        $enc_url = preg_replace_callback(
+        $encodedUrl = preg_replace_callback(
             '%[^:/@?&=#]+%u',
             function ($matches) {
                 return urlencode($matches[0]);
@@ -135,7 +142,7 @@ class Uri
             $url
         );
 
-        $parts = parse_url($enc_url);
+        $parts = parse_url($encodedUrl, $component);
 
         if ($parts === false) {
             throw new \InvalidArgumentException('Malformed URL: ' . $url);

@@ -29,8 +29,8 @@ class Request
     public function __construct()
     {
         $this->parseHeaders();
-        $this->host = $this->getHeader('http-host');
-        $this->uri = urldecode($this->getHeader('request-uri'));
+        $this->setHost($this->getHeader('http-host'));
+        $this->setUri(new Uri($this->getHeader('request-uri')));
         $this->input = new Input($this);
         $this->method = strtolower($this->input->get('_method', $this->getHeader('request-method'), 'post'));
     }
@@ -58,7 +58,7 @@ class Request
     }
 
     /**
-     * @return string
+     * @return Uri
      */
     public function getUri()
     {
@@ -215,9 +215,9 @@ class Request
     }
 
     /**
-     * @param string $uri
+     * @param Uri $uri
      */
-    public function setUri($uri)
+    public function setUri(Uri $uri)
     {
         $this->uri = $uri;
     }
