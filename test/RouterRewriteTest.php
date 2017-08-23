@@ -64,7 +64,7 @@ class RouteRewriteTest extends PHPUnit_Framework_TestCase
 
         TestRouter::error(function (\Pecee\Http\Request $request, \Exception $error) {
 
-            if (strtolower($request->getUri()) == '/my/test') {
+            if (strtolower($request->getUri()->getPath()) == '/my/test') {
                 $request->setRewriteUrl('/another-non-existing');
 
                 return $request;

@@ -41,9 +41,9 @@ class BaseCsrfVerifier implements IMiddleware
             $url = rtrim($url, '/');
             if ($url[strlen($url) - 1] === '*') {
                 $url = rtrim($url, '*');
-                $skip = (stripos($request->getUri(), $url) === 0);
+                $skip = (stripos($request->getUri()->getPath(), $url) === 0);
             } else {
-                $skip = ($url === rtrim($request->getUri(), '/'));
+                $skip = ($url === $request->getUri()->getPath());
             }
 
             if ($skip === true) {

@@ -746,7 +746,7 @@ class CustomExceptionHandler implements IExceptionHandler
 
 		/* You can use the exception handler to format errors depending on the request and type. */
 
-		if (stripos($request->getUri(), '/api') !== false) {
+		if (stripos($request->getUri()->getPath(), '/api') !== false) {
 
 			response()->json([
 				'error' => $error->getMessage(),
@@ -1131,7 +1131,7 @@ class CustomRouterRules implement IRouterBootManager {
 
             // If the current uri matches the url, we use our custom route
 
-            if($request->getUri() === $url) {
+            if($request->getUri()->getPath() === $url) {
                 $request->setRewriteUrl($rule);
                 return $request;
             }
