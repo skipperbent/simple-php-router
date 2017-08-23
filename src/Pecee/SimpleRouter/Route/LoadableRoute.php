@@ -74,7 +74,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
             $regex = sprintf(static::PARAMETERS_REGEX_FORMAT, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
-            if (preg_match_all('/' . $regex . '/', $this->url, $matches)) {
+            if (preg_match_all('/' . $regex . '/u', $this->url, $matches)) {
                 $this->parameters = array_fill_keys($matches[1], null);
             }
         }
