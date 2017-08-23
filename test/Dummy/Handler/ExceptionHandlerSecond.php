@@ -7,7 +7,7 @@ class ExceptionHandlerSecond implements \Pecee\Handlers\IExceptionHandler
         global $stack;
         $stack[] = static::class;
 
-        $request->setUri('/');
+        $request->setUri(new \Pecee\Http\Uri('/'));
         return $request;
 	}
 

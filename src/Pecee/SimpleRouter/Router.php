@@ -122,7 +122,7 @@ class Router
 
         $exceptionHandlers = [];
 
-        $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri();
+        $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri()->getPath();
 
         /* @var $route IRoute */
         for ($i = $max; $i >= 0; $i--) {
@@ -224,7 +224,7 @@ class Router
                 }
             }
 
-            $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri();
+            $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri()->getPath();
 
             $max = count($this->processedRoutes) - 1;
 
@@ -248,6 +248,7 @@ class Router
 
                     if ($rewriteRoute !== null) {
                         $rewriteRoute->loadMiddleware($this->request);
+
                         return $rewriteRoute->renderRoute($this->request);
                     }
 
@@ -265,6 +266,7 @@ class Router
                     /* Render route */
                     $routeNotAllowed = false;
                     $this->request->setLoadedRoute($route);
+
                     return $route->renderRoute($this->request);
 
                     break;
@@ -284,9 +286,9 @@ class Router
             $rewriteUrl = $this->request->getRewriteUrl();
 
             if ($rewriteUrl !== null) {
-                $message = sprintf('Route not found: "%s" (rewrite from: "%s")', $rewriteUrl, $this->request->getUri());
+                $message = sprintf('Route not found: "%s" (rewrite from: "%s")', $rewriteUrl, $this->request->getUri()->getPath());
             } else {
-                $message = sprintf('Route not found: "%s"', $this->request->getUri());
+                $message = sprintf('Route not found: "%s"', $this->request->getUri()->getPath());
             }
 
             $this->handleException(new NotFoundHttpException($message, 404));
@@ -300,7 +302,7 @@ class Router
      */
     protected function handleException(\Exception $e)
     {
-        $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri();
+        $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri()->getPath();
 
         $max = count($this->exceptionHandlers);
 
@@ -323,6 +325,7 @@ class Router
 
                 if ($rewriteRoute !== null) {
                     $rewriteRoute->loadMiddleware($this->request);
+
                     return $rewriteRoute->renderRoute($this->request);
                 }
 
@@ -434,6 +437,10 @@ class Router
             throw new \InvalidArgumentException('Invalid type for getParams. Must be array or null');
         }
 
+        if ($name === '' && $parameters === '') {
+            return '/';
+        }
+
         /* Only merge $_GET when all parameters are null */
         if ($name === null && $parameters === null && $getParams === null) {
             $getParams = $_GET;
@@ -443,9 +450,7 @@ class Router
 
         /* Return current route if no options has been specified */
         if ($name === null && $parameters === null) {
-            $url = rtrim(parse_url($this->request->getUri(), PHP_URL_PATH), '/');
-
-            return (($url === '') ? '/' : $url . '/') . $this->arrayToParams($getParams);
+            return $this->request->getUri()->getPath() . $this->arrayToParams($getParams);
         }
 
         $loadedRoute = $this->request->getLoadedRoute();
