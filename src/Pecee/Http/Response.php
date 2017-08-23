@@ -41,7 +41,7 @@ class Response
 
     public function refresh()
     {
-        $this->redirect($this->request->getUri());
+        $this->redirect($this->request->getUri()->getPath());
     }
 
     /**

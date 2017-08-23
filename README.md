@@ -22,6 +22,7 @@ If you want a great new feature or experience any issues what-so-ever, please fe
 	- [Installation](#installation)
 		- [Setting up Apache](#setting-up-apache)
 		- [Setting up Nginx](#setting-up-nginx)
+		- [Setting up IIS](#setting-up-iis)
 		- [Configuration](#configuration)
 		- [Helper functions](#helper-functions)
 
@@ -172,6 +173,45 @@ RewriteCond %{SCRIPT_FILENAME} !-l
 RewriteRule ^(.*)$ index.php/$1
 ```
 
+### Setting up IIS
+
+On IIS you have to add some lines your `web.config` file in the `public` folder or create a new one. If rewriting is not working for you, please check that your IIS version have included the `url rewrite` module or download and install them from Microsoft web site.
+
+#### web.config example
+
+Below is an example of an working `web.config` file used by simple-php-router.
+
+Simply create a new `web.config` file in your projects `public` directory and paste the contents below in your newly created file. This will redirect all requests to your `index.php` file (see Configuration section below). If the `web.config` file already exists, add the `<rewrite>` section inside the `<system.webServer>` branch.
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <system.webServer>
+	<rewrite>
+	  <rules>
+		<!-- Remove slash '/' from the en of the url -->
+		<rule name="RewriteRequestsToPublic">
+		  <match url="^(.*)$" />
+		  <conditions logicalGrouping="MatchAll" trackAllCaptures="false">
+		  </conditions>
+		  <action type="Rewrite" url="/{R:0}" />
+		</rule>
+
+		<!-- When requested file or folder don't exists, will request again through index.php -->
+		<rule name="Imported Rule 1" stopProcessing="true">
+		  <match url="^(.*)$" ignoreCase="true" />
+		  <conditions logicalGrouping="MatchAll">
+			<add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+			<add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+		  </conditions>
+		  <action type="Rewrite" url="/index.php/{R:1}" appendQueryString="true" />
+		</rule>
+	  </rules>
+	</rewrite>
+    </system.webServer>
+</configuration>
+```
+
 ### Configuration
 
 Create a new file, name it `routes.php` and place it in your library folder. This will be the file where you define all the routes for your project.
@@ -204,9 +244,9 @@ SimpleRouter::start();
 
 ### Helper functions
 
-We recommend that you add these helper functions to your project. Theese will allow you to access functionality of the router more easily.
+We recommend that you add these helper functions to your project. These will allow you to access functionality of the router more easily.
 
-To implement the functions below, simply copy the code to a new file and require the file before initializing the router.
+To implement the functions below, simply copy the code to a new file and require the file before initializing the router or copy the `helpers.php` we've included in this library.
 
 ```php
 <?php
@@ -250,10 +290,18 @@ function request()
 
 /**
  * Get input class
- * @return \Pecee\Http\Input\Input
+ * @param string|null $index Parameter index name
+ * @param string|null $defaultValue Default return value
+ * @param string|array|null $methods Default method
+ * @return \Pecee\Http\Input\Input|string
  */
-function input()
+function input($index = null, $defaultValue = null, $methods = null)
 {
+    if($index !== null)
+    {
+        return request()->getInput()->get($index, $defaultValue, $methods);
+    }
+
     return request()->getInput();
 }
 
@@ -395,12 +443,12 @@ SimpleRouter::all('/ajax/abc/123', function($param1, $param2) {
 
 ### Custom regex for matching parameters
 
-By default simple-php-router uses the `\w` regular expression when matching parameters. 
+By default simple-php-router uses the `\w` regular expression when matching parameters.
 This decision was made with speed and reliability in mind, as this match will match both letters, number and most of the used symbols on the internet.
 
-However, sometimes it can be necessary to add a custom regular expression to match more advanced characters like `-` etc. 
+However, sometimes it can be necessary to add a custom regular expression to match more advanced characters like `-` etc.
 
-Instead of adding a custom regular expression to all your parameters, you can simply add a global regular expression which will be used on all the parameters on the route. 
+Instead of adding a custom regular expression to all your parameters, you can simply add a global regular expression which will be used on all the parameters on the route.
 
 **Note:** If you the regular expression to be available across, we recommend using the global parameter on a group as demonstrated in the examples below.
 
@@ -663,18 +711,18 @@ ExceptionHandler are classes that handles all exceptions. ExceptionsHandlers mus
 
 ## Handling 404, 403 and other errors
 
-If you simply want to catch a 404 (page not found) etc. you can use the `Router::error($callback)` static helper method. 
+If you simply want to catch a 404 (page not found) etc. you can use the `Router::error($callback)` static helper method.
 
 This will add a callback method which is fired whenever an error occurs on all routes.
 
-The basic example below simply redirect the page to `/not-found` if an `NotFoundHttpException` (404) occurred. 
+The basic example below simply redirect the page to `/not-found` if an `NotFoundHttpException` (404) occurred.
 The code should be placed in the file that contains your routes.
 
 ```php
 Router::get('/not-found', 'PageController@notFound');
 
 Router::error(function(Request $request, \Exception $exception) {
-    if($exception instanceof NotFoundHttpException && $exception->getCode == 404) {
+    if($exception instanceof NotFoundHttpException && $exception->getCode() == 404) {
         response()->redirect('/not-found');
     }
 });
@@ -698,7 +746,7 @@ class CustomExceptionHandler implements IExceptionHandler
 
 		/* You can use the exception handler to format errors depending on the request and type. */
 
-		if (stripos($request->getUri(), '/api') !== false) {
+		if (stripos($request->getUri()->getPath(), '/api') !== false) {
 
 			response()->json([
 				'error' => $error->getMessage(),
@@ -825,7 +873,7 @@ If items is grouped in the html, it will return an array of items.
 **Note:** `get` will automatically trim the value and ensure that it's not empty. If it's empty the `$defaultValue` will be returned.
 
 ```php
-$value = input()->get($index, $defaultValue, $methods);
+$value = input($index, $defaultValue, $methods);
 ```
 
 ### Get parameter object
@@ -834,11 +882,11 @@ Will return an instance of `InputItem` or `InputFile` depending on the type.
 
 You can use this in your html as it will render the value of the item.
 However if you want to compare value in your if statements, you have to use
-the `getValue` or use the `input()->get()` instead.
+the `getValue` or use the `input()` instead.
 
 If items is grouped in the html, it will return an array of items.
 
-**Note:** `getObject` will only return `$defaultValue` if the item doesn't exist. If you want `$defaultValue` to be returned if the item is empty, please use `input()->get()` instead.
+**Note:** `getObject` will only return `$defaultValue` if the item doesn't exist. If you want `$defaultValue` to be returned if the item is empty, please use `input()` instead.
 
 ```php
 $object = input()->getObject($index, $defaultValue = null, $methods = null);
@@ -855,13 +903,17 @@ $object = input()->getObject($index, $defaultValue = null, $methods = null);
  * $defaultValue is returned if the value is empty.
  */
 
-$id = input()->get($index, $defaultValue);
+$id = input()->get($index, $defaultValue, $method);
+
+# -- shortcut to above --
+
+$id = input($index, $defaultValue, $method);
 
 # -- match specific --
 
-$object = input()->get($index, $defaultValue, 'get');
-$object = input()->get($index, $defaultValue, 'post');
-$object = input()->get($index, $defaultValue, 'file');
+$object = input($index, $defaultValue, 'get');
+$object = input($index, $defaultValue, 'post');
+$object = input($index, $defaultValue, 'file');
 
 # -- or --
 
@@ -880,7 +932,7 @@ $object = input()->findFile($index, $defaultValue);
  */
 
 /* @var $image \Pecee\Http\Input\InputFile */
-foreach(input()->get('images', []) as $image)
+foreach(input('images', []) as $image)
 {
     if($image->getMime() === 'image/jpeg') {
 
@@ -926,7 +978,7 @@ Below example requires you to have the helper functions added. Please refer to t
 
 ```php
 /* Get parameter site_id or default-value 2 from either post-value or query-string */
-$siteId = input()->get('site_id', 2, ['post', 'get']);
+$siteId = input('site_id', 2, ['post', 'get']);
 ```
 
 ---
@@ -1079,7 +1131,7 @@ class CustomRouterRules implement IRouterBootManager {
 
             // If the current uri matches the url, we use our custom route
 
-            if($request->getUri() === $url) {
+            if($request->getUri()->getPath() === $url) {
                 $request->setRewriteUrl($rule);
                 return $request;
             }

@@ -14,9 +14,6 @@ class RouteUrl extends LoadableRoute
 
     public function matchRoute($url, Request $request)
     {
-        $url = parse_url(urldecode($url), PHP_URL_PATH);
-        $url = rtrim($url, '/') . '/';
-
         /* Match global regular-expression for route */
         $regexMatch = $this->matchRegex($request, $url);
 
