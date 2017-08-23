@@ -22,6 +22,7 @@ If you want a great new feature or experience any issues what-so-ever, please fe
 	- [Installation](#installation)
 		- [Setting up Apache](#setting-up-apache)
 		- [Setting up Nginx](#setting-up-nginx)
+		- [Setting up IIS](#setting-up-iis)
 		- [Configuration](#configuration)
 		- [Helper functions](#helper-functions)
 
@@ -170,6 +171,45 @@ RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteCond %{SCRIPT_FILENAME} !-d
 RewriteCond %{SCRIPT_FILENAME} !-l
 RewriteRule ^(.*)$ index.php/$1
+```
+
+### Setting up IIS
+
+On IIS you have to add some lines your `web.config` file in the `public` folder or create a new one. If rewriting is not working for you, please check that your IIS version have included the `url rewrite` module or download and install them from Microsoft web site.
+
+#### web.config example
+
+Below is an example of an working `web.config` file used by simple-php-router.
+
+Simply create a new `web.config` file in your projects `public` directory and paste the contents below in your newly created file. This will redirect all requests to your `index.php` file (see Configuration section below). If the xxx file already exists, add the `<rewrite>` section inside the `<system.webServer>` branch.
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <system.webServer>
+	<rewrite>
+	  <rules>
+		<!-- Remove slash '/' from the en of the url -->
+		<rule name="RewriteRequestsToPublic">
+		  <match url="^(.*)$" />
+		  <conditions logicalGrouping="MatchAll" trackAllCaptures="false">
+		  </conditions>
+		  <action type="Rewrite" url="/{R:0}" />
+		</rule>
+
+		<!-- When requested file or folder don't exists, will request again through index.php -->
+		<rule name="Imported Rule 1" stopProcessing="true">
+		  <match url="^(.*)$" ignoreCase="true" />
+		  <conditions logicalGrouping="MatchAll">
+			<add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+			<add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+		  </conditions>
+		  <action type="Rewrite" url="/index.php/{R:1}" appendQueryString="true" />
+		</rule>
+	  </rules>
+	</rewrite>
+    </system.webServer>
+</configuration>
 ```
 
 ### Configuration
