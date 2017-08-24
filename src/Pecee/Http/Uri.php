@@ -19,7 +19,7 @@ class Uri
     public function __construct($url)
     {
         $this->originalUrl = $url;
-        $this->data = array_merge($this->data, $this->parseUrl($url));
+        $this->data = array_merge($this->data, $this->parseUrl(urldecode($url)));
 
         if (isset($this->data['path']) === true && $this->data['path'] !== '/') {
             $this->data['path'] = rtrim($this->data['path'], '/') . '/';
