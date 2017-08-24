@@ -30,7 +30,10 @@ class Request
     {
         $this->parseHeaders();
         $this->setHost($this->getHeader('http-host'));
-        $this->setUri(new Uri($this->getHeader('request-uri')));
+
+        // Check if special IIS header exist, otherwise use default.
+        $this->setUri(new Uri($this->getHeader('unencoded-url', $this->getHeader('request-uri'))));
+
         $this->input = new Input($this);
         $this->method = strtolower($this->input->get('_method', $this->getHeader('request-method'), 'post'));
     }
@@ -164,7 +167,7 @@ class Request
      */
     public function getHeader($name, $defaultValue = null)
     {
-        if (isset($this->headers[strtolower($name)])) {
+        if (array_key_exists(strtolower($name), $this->headers) === true) {
             return $this->headers[strtolower($name)];
         }
 
