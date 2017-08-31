@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee\Http;
 
 class Response
@@ -82,14 +83,19 @@ class Response
     }
 
     /**
-     * Json encode array
-     * @param array $value
+     * Json encode
+     * @param array|\JsonSerializable $value
+     * @throws \InvalidArgumentException;
      */
-    public function json(array $value)
+    public function json($value)
     {
-        $this->header('Content-Type: application/json');
+        if (($value instanceof \JsonSerializable) === false && is_array($value) === false) {
+            throw new \InvalidArgumentException('Invalid type for parameter "value". Must be of type array or object implementing the \JsonSerializable interface.');
+        }
+
+        $this->header('Content-type: application/json');
         echo json_encode($value);
-        die();
+        exit(0);
     }
 
     /**
