@@ -79,7 +79,6 @@ If you want a great new feature or experience any issues what-so-ever, please fe
 		- [Bootmanager: loading routes dynamically](#bootmanager-loading-routes-dynamically)
 		- [Adding routes manually](#adding-routes-manually)
 	- [Parameters](#parameters)
-        - [Custom default regex for matching parameters](#custom-default-regex-for-matching-parameters)
 	- [Extending](#extending)
 
 - [Credits](#credits)
