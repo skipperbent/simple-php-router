@@ -43,6 +43,7 @@ If you want a great new feature or experience any issues what-so-ever, please fe
 		- [Namespaces](#namespaces)
 		- [Subdomain-routing](#subdomain-routing)
 		- [Route prefixes](#route-prefixes)
+	- [Partial groups](#partial-groups)
 	- [Form Method Spoofing](#form-method-spoofing)
 	- [Accessing The Current Route](#accessing-the-current-route)
 	- [Other examples](#other-examples)
@@ -357,7 +358,7 @@ SimpleRouter::any('foo', function() {
 });
 ```
 
-We've created a simple method which matches `GET` and `POST` which is most commenly used:
+We've created a simple method which matches `GET` and `POST` which is most commonly used:
 
 ```php
 SimpleRouter::form('foo', function() {
@@ -541,7 +542,7 @@ SimpleRouter::group(['namespace' => 'Admin'], function () {
 });
 ```
 
-### Subdomain-routing
+### Sub domain-routing
 
 Route groups may also be used to handle sub-domain routing. Sub-domains may be assigned route parameters just like route URIs, allowing you to capture a portion of the sub-domain for usage in your route or controller. The sub-domain may be specified using the `domain` key on the group attribute array:
 
@@ -564,6 +565,29 @@ SimpleRouter::group(['prefix' => '/admin'], function () {
     });
 });
 ```
+
+## Partial groups
+
+Partial router groups has the same benefits as a normal group, but supports parameters and are only rendered once the url has matched.
+
+This can be extremely useful in situations, where you only want special routes to be added, when a certain criteria or logic has been met.
+
+**NOTE:** Use partial groups with caution as routes added within are only rendered and available once the url of the partial-group has matched. This can cause `url()` not to find urls for the routes added within.
+
+**Example:**
+
+```php
+SimpleRouter::partialGroup('/admin/{applicationId}', function ($applicationId) {
+
+    SimpleRouter::get('/', function($applicationId) {
+
+        // Matches The "/admin/applicationId" URL
+
+    });
+
+});
+```
+
 
 ## Form Method Spoofing
 

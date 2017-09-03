@@ -10,6 +10,7 @@ use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\Route\IControllerRoute;
 use Pecee\SimpleRouter\Route\IGroupRoute;
 use Pecee\SimpleRouter\Route\ILoadableRoute;
+use Pecee\SimpleRouter\Route\IPartialGroupRoute;
 use Pecee\SimpleRouter\Route\IRoute;
 
 class Router
@@ -129,14 +130,26 @@ class Router
 
             $route = $routes[$i];
 
+            if ($parent !== null) {
+
+                /* Add the parent route */
+                $route->setParent($parent);
+
+                /* Add/merge parent settings with child */
+                $route->setSettings($parent->toArray(), true);
+
+            }
+
+            if ($group !== null) {
+
+                /* Add the parent group */
+                $route->setGroup($group);
+            }
+
             /* @var $route IGroupRoute */
             if ($route instanceof IGroupRoute) {
 
                 $group = $route;
-
-                $this->processingRoute = true;
-                $route->renderRoute($this->request);
-                $this->processingRoute = false;
 
                 if ($route->matchRoute($url, $this->request) === true) {
 
@@ -146,23 +159,20 @@ class Router
                         $exceptionHandlers += $route->getExceptionHandlers();
                     }
 
+                    /* Only render partial group if it matches */
+                    if ($route instanceof IPartialGroupRoute) {
+                        $this->processingRoute = true;
+                        $route->renderRoute($this->request);
+                        $this->processingRoute = false;
+                    }
+
                 }
-            }
 
-            if ($group !== null) {
-
-                /* Add the parent group */
-                $route->setGroup($group);
-            }
-
-            if ($parent !== null) {
-
-                /* Add the parent route */
-                $route->setParent($parent);
-
-                /* Add/merge parent settings with child */
-                $route->setSettings($parent->toArray(), true);
-
+                if (($route instanceof IPartialGroupRoute) === false) {
+                    $this->processingRoute = true;
+                    $route->renderRoute($this->request);
+                    $this->processingRoute = false;
+                }
             }
 
             if ($route instanceof ILoadableRoute) {
@@ -258,9 +268,8 @@ class Router
                     if ($rewriteUrl !== null && $rewriteUrl !== $url) {
                         unset($this->processedRoutes[$i]);
                         $this->processedRoutes = array_values($this->processedRoutes);
-                        $this->routeRequest(true);
 
-                        return;
+                        return $this->routeRequest(true);
                     }
 
                     /* Render route */
@@ -268,8 +277,6 @@ class Router
                     $this->request->setLoadedRoute($route);
 
                     return $route->renderRoute($this->request);
-
-                    break;
                 }
             }
 
@@ -293,12 +300,15 @@ class Router
 
             $this->handleException(new NotFoundHttpException($message, 404));
         }
+
+        return null;
     }
 
     /**
      * @param \Exception $e
      * @throws HttpException
      * @throws \Exception
+     * @return string
      */
     protected function handleException(\Exception $e)
     {
@@ -335,9 +345,8 @@ class Router
                 if ($rewriteUrl !== null && $rewriteUrl !== $url) {
                     unset($this->exceptionHandlers[$i]);
                     $this->exceptionHandlers = array_values($this->exceptionHandlers);
-                    $this->routeRequest(true);
 
-                    return;
+                    return $this->routeRequest(true);
                 }
             }
         }

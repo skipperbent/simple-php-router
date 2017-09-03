@@ -150,11 +150,11 @@ class RouteGroup extends Route implements IGroupRoute
             $this->setPrefix($values['prefix'] . $this->prefix);
         }
 
-        if (isset($values['exceptionHandler'])) {
+        if ($merge === false && isset($values['exceptionHandler'])) {
             $this->setExceptionHandlers((array)$values['exceptionHandler']);
         }
 
-        if (isset($values['domain'])) {
+        if ($merge === false && isset($values['domain'])) {
             $this->setDomains((array)$values['domain']);
         }
 
