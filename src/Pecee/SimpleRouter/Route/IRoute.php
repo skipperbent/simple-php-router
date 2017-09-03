@@ -21,7 +21,7 @@ interface IRoute
      *
      * @param Request $request
      * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
-     * @return void
+     * @return string
      */
     public function renderRoute(Request $request);
 

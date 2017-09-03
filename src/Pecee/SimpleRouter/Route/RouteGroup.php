@@ -48,9 +48,17 @@ class RouteGroup extends Route implements IGroupRoute
      */
     public function matchRoute($url, Request $request)
     {
-        /* Skip if prefix doesn't match */
-        if ($this->prefix !== null && stripos($url, $this->prefix) === false) {
-            return false;
+        if($this->prefix !== null) {
+            /* Parse parameters from current route */
+            $parameters = $this->parseParameters($this->prefix, $url);
+
+            /* If no custom regular expression or parameters was found on this route, we stop */
+            if ($parameters === null) {
+                return false;
+            }
+
+            /* Set the parameters */
+            $this->setParameters((array)$parameters);
         }
 
         return $this->matchDomain($request);
@@ -150,11 +158,11 @@ class RouteGroup extends Route implements IGroupRoute
             $this->setPrefix($values['prefix'] . $this->prefix);
         }
 
-        if (isset($values['exceptionHandler'])) {
+        if ($merge === false && isset($values['exceptionHandler'])) {
             $this->setExceptionHandlers((array)$values['exceptionHandler']);
         }
 
-        if (isset($values['domain'])) {
+        if ($merge === false &&isset($values['domain'])) {
             $this->setDomains((array)$values['domain']);
         }
 
