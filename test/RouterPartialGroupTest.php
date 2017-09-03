@@ -5,7 +5,7 @@ require_once 'Dummy/DummyController.php';
 require_once 'Dummy/Handler/ExceptionHandler.php';
 require_once 'Helpers/TestRouter.php';
 
-class RouterGroupTest extends PHPUnit_Framework_TestCase
+class RouterPartialGroupTest extends PHPUnit_Framework_TestCase
 {
 
     public function testParameters()
@@ -13,7 +13,7 @@ class RouterGroupTest extends PHPUnit_Framework_TestCase
         $result1 = null;
         $result2 = null;
 
-        TestRouter::group(['prefix' => '{param1}/{param2}'], function ($param1 = null, $param2 = null) use (&$result1, &$result2) {
+        TestRouter::partialGroup('{param1}/{param2}', function ($param1 = null, $param2 = null) use (&$result1, &$result2) {
             $result1 = $param1;
             $result2 = $param2;
 

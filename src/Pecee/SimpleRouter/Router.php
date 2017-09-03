@@ -10,6 +10,7 @@ use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\Route\IControllerRoute;
 use Pecee\SimpleRouter\Route\IGroupRoute;
 use Pecee\SimpleRouter\Route\ILoadableRoute;
+use Pecee\SimpleRouter\Route\IPartialGroupRoute;
 use Pecee\SimpleRouter\Route\IRoute;
 
 class Router
@@ -158,11 +159,20 @@ class Router
                         $exceptionHandlers += $route->getExceptionHandlers();
                     }
 
+                    /* Only render partial group if it matches */
+                    if ($route instanceof IPartialGroupRoute) {
+                        $this->processingRoute = true;
+                        $route->renderRoute($this->request);
+                        $this->processingRoute = false;
+                    }
+
                 }
 
-                $this->processingRoute = true;
-                $route->renderRoute($this->request);
-                $this->processingRoute = false;
+                if (($route instanceof IPartialGroupRoute) === false) {
+                    $this->processingRoute = true;
+                    $route->renderRoute($this->request);
+                    $this->processingRoute = false;
+                }
             }
 
             if ($route instanceof ILoadableRoute) {

@@ -4,8 +4,10 @@ namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
 
-class PartialGroup extends RouteGroup
+class RoutePartialGroup extends RouteGroup implements IPartialGroupRoute
 {
+    protected $urlRegex = '/^%s\/?/u';
+
     /**
      * Method called to check if route matches
      *
@@ -15,7 +17,7 @@ class PartialGroup extends RouteGroup
      */
     public function matchRoute($url, Request $request)
     {
-        if($this->prefix !== null) {
+        if ($this->prefix !== null) {
             /* Parse parameters from current route */
             $parameters = $this->parseParameters($this->prefix, $url);
 

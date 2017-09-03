@@ -16,6 +16,7 @@ use Pecee\Http\Response;
 use Pecee\SimpleRouter\Exceptions\HttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\Route\IRoute;
+use Pecee\SimpleRouter\Route\RoutePartialGroup;
 use Pecee\SimpleRouter\Route\RouteController;
 use Pecee\SimpleRouter\Route\RouteGroup;
 use Pecee\SimpleRouter\Route\RouteResource;
@@ -171,13 +172,40 @@ class SimpleRouter
      */
     public static function group(array $settings = [], \Closure $callback)
     {
+        if (is_callable($callback) === false) {
+            throw new \InvalidArgumentException('Invalid callback provided. Only functions or methods supported');
+        }
+
         $group = new RouteGroup();
         $group->setCallback($callback);
         $group->setSettings($settings);
 
+        static::router()->addRoute($group);
+
+        return $group;
+    }
+
+    /**
+     * Special group that has the same benefits as group but supports
+     * parameters and which are only rendered when the url matches.
+     *
+     * @param string $url
+     * @param array $settings
+     * @param \Closure $callback
+     * @throws \InvalidArgumentException
+     * @return RoutePartialGroup
+     */
+    public static function partialGroup($url, \Closure $callback, array $settings = [])
+    {
         if (is_callable($callback) === false) {
             throw new \InvalidArgumentException('Invalid callback provided. Only functions or methods supported');
         }
+
+        $settings['prefix'] = $url;
+
+        $group = new RoutePartialGroup();
+        $group->setSettings($settings);
+        $group->setCallback($callback);
 
         static::router()->addRoute($group);
 

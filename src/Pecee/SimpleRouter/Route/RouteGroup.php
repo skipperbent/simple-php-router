@@ -48,17 +48,9 @@ class RouteGroup extends Route implements IGroupRoute
      */
     public function matchRoute($url, Request $request)
     {
-        if ($this->prefix !== null) {
-            /* Parse parameters from current route */
-            $parameters = $this->parseParameters($this->prefix, $url);
-
-            /* If no custom regular expression or parameters was found on this route, we stop */
-            if ($parameters === null) {
-                return false;
-            }
-
-            /* Set the parameters */
-            $this->setParameters((array)$parameters);
+        /* Skip if prefix doesn't match */
+        if ($this->prefix !== null && stripos($url, $this->prefix) === false) {
+            return false;
         }
 
         return $this->matchDomain($request);
