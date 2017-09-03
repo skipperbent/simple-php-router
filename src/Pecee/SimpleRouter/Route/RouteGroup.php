@@ -48,7 +48,7 @@ class RouteGroup extends Route implements IGroupRoute
      */
     public function matchRoute($url, Request $request)
     {
-        if($this->prefix !== null) {
+        if ($this->prefix !== null) {
             /* Parse parameters from current route */
             $parameters = $this->parseParameters($this->prefix, $url);
 
@@ -162,7 +162,7 @@ class RouteGroup extends Route implements IGroupRoute
             $this->setExceptionHandlers((array)$values['exceptionHandler']);
         }
 
-        if ($merge === false &&isset($values['domain'])) {
+        if ($merge === false && isset($values['domain'])) {
             $this->setDomains((array)$values['domain']);
         }
 

@@ -258,6 +258,7 @@ class Router
                     if ($rewriteUrl !== null && $rewriteUrl !== $url) {
                         unset($this->processedRoutes[$i]);
                         $this->processedRoutes = array_values($this->processedRoutes);
+
                         return $this->routeRequest(true);
                     }
 
@@ -334,6 +335,7 @@ class Router
                 if ($rewriteUrl !== null && $rewriteUrl !== $url) {
                     unset($this->exceptionHandlers[$i]);
                     $this->exceptionHandlers = array_values($this->exceptionHandlers);
+
                     return $this->routeRequest(true);
                 }
             }

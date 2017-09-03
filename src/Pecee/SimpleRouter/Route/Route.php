@@ -70,7 +70,7 @@ abstract class Route implements IRoute
         $callback = $this->getCallback();
 
         if ($callback === null) {
-            return;
+            return null;
         }
 
         /* Render callback function */
@@ -162,7 +162,7 @@ abstract class Route implements IRoute
             if (isset($parameters[1]) === true) {
 
                 /* Only take matched parameters with name */
-                foreach ($parameters[1] as $name) {
+                foreach ((array)$parameters[1] as $name) {
                     $values[$name] = (isset($matches[$name]) && $matches[$name] !== '') ? $matches[$name] : null;
                 }
             }
