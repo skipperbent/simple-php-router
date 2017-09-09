@@ -64,3 +64,17 @@ function redirect($url, $code = null)
 
     response()->redirect($url);
 }
+
+/**
+ * Get current csrf-token
+ * @return string|null
+ */
+function csrf_token()
+{
+    $baseVerifier = Router::router()->getCsrfVerifier();
+    if ($baseVerifier !== null) {
+        return $baseVerifier->getToken();
+    }
+
+    return null;
+}

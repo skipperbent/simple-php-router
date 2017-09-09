@@ -249,7 +249,8 @@ We recommend that you add these helper functions to your project. These will all
 To implement the functions below, simply copy the code to a new file and require the file before initializing the router or copy the `helpers.php` we've included in this library.
 
 ```php
-<?php
+use Pecee\SimpleRouter\SimpleRouter as Router;
+
 /**
  * Get url for a route by using either name/alias, class or method name.
  *
@@ -269,7 +270,7 @@ To implement the functions below, simply copy the code to a new file and require
  */
 function url($name = null, $parameters = null, $getParams = null)
 {
-    return SimpleRouter::getUrl($name, $parameters, $getParams);
+    return Router::getUrl($name, $parameters, $getParams);
 }
 
 /**
@@ -277,7 +278,7 @@ function url($name = null, $parameters = null, $getParams = null)
  */
 function response()
 {
-    return SimpleRouter::response();
+    return Router::response();
 }
 
 /**
@@ -285,7 +286,7 @@ function response()
  */
 function request()
 {
-    return SimpleRouter::request();
+    return Router::request();
 }
 
 /**
@@ -297,8 +298,7 @@ function request()
  */
 function input($index = null, $defaultValue = null, $methods = null)
 {
-    if($index !== null)
-    {
+    if ($index !== null) {
         return request()->getInput()->get($index, $defaultValue, $methods);
     }
 
@@ -312,6 +312,20 @@ function redirect($url, $code = null)
     }
 
     response()->redirect($url);
+}
+
+/**
+ * Get current csrf-token
+ * @return string|null
+ */
+function csrf_token()
+{
+    $baseVerifier = Router::router()->getCsrfVerifier();
+    if ($baseVerifier !== null) {
+        return $baseVerifier->getToken();
+    }
+
+    return null;
 }
 ```
 
