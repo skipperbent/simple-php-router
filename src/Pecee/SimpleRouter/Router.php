@@ -329,25 +329,31 @@ class Router
                 throw new HttpException('Exception handler must implement the IExceptionHandler interface.', 500);
             }
 
-            if ($handler->handleError($this->request, $e) !== null) {
+            try {
 
-                $rewriteRoute = $this->request->getRewriteRoute();
+                if ($handler->handleError($this->request, $e) !== null) {
 
-                if ($rewriteRoute !== null) {
-                    $rewriteRoute->loadMiddleware($this->request);
+                    $rewriteRoute = $this->request->getRewriteRoute();
 
-                    return $rewriteRoute->renderRoute($this->request);
+                    if ($rewriteRoute !== null) {
+                        $rewriteRoute->loadMiddleware($this->request);
+
+                        return $rewriteRoute->renderRoute($this->request);
+                    }
+
+                    $rewriteUrl = $this->request->getRewriteUrl();
+
+                    /* If the request has changed */
+                    if ($rewriteUrl !== null && $rewriteUrl !== $url) {
+                        unset($this->exceptionHandlers[$i]);
+                        $this->exceptionHandlers = array_values($this->exceptionHandlers);
+
+                        return $this->routeRequest(true);
+                    }
                 }
 
-                $rewriteUrl = $this->request->getRewriteUrl();
+            } catch (\Exception $e) {
 
-                /* If the request has changed */
-                if ($rewriteUrl !== null && $rewriteUrl !== $url) {
-                    unset($this->exceptionHandlers[$i]);
-                    $this->exceptionHandlers = array_values($this->exceptionHandlers);
-
-                    return $this->routeRequest(true);
-                }
             }
         }
 
