@@ -285,7 +285,8 @@ class Router
         }
 
         if ($routeNotAllowed === true) {
-            $this->handleException(new HttpException('Route or method not allowed', 403));
+			$message = sprintf('Route "%s" or method "%s" not allowed.', $this->request->getUri()->getPath(), $this->request->getMethod());
+            $this->handleException(new HttpException($message, 403));
         }
 
         if ($this->request->getLoadedRoute() === null) {
