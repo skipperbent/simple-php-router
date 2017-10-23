@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee\Http\Middleware;
 
 use Pecee\CsrfToken;
