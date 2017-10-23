@@ -709,6 +709,20 @@ You can get the CSRF-token by calling the helper method:
 csrf_token();
 ```
 
+The default name/key for the input-field is `csrf_token` and is defined in the `POST_KEY` constant in the `BaseCsrfVerifier` class.
+You can change the key by overwriting the constant in your own CSRF-verifier class.
+
+**Example:**
+
+The example below will post to the current url and add a hidden field with the name of `csrf_token`.
+
+```php
+<form method="post" action="<?= url(); ?>">
+    <input type="hidden" name="csrf_token" value="<?= csrf_token(); ?>">
+    <!-- other input elements here -->
+</form>
+```
+
 ---
 
 # Middlewares
