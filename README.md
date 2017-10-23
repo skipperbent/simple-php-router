@@ -716,7 +716,7 @@ You can change the key by overwriting the constant in your own CSRF-verifier cla
 
 The example below will post to the current url with a hidden field "`csrf_token`".
 
-```php
+```html
 <form method="post" action="<?= url(); ?>">
     <input type="hidden" name="csrf_token" value="<?= csrf_token(); ?>">
     <!-- other input elements here -->
