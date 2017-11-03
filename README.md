@@ -221,6 +221,9 @@ To add `favicon.ico` as exception, you can add this line to the `<conditions>` g
 You can also make one exception for files with some extensions: 
 ```<add input="{REQUEST_FILENAME}" pattern="\.ico|\.png|\.css|\.jpg" negate="true" ignoreCase="true" />```
 
+If you are using `$_SERVER['ORIG_PATH_INFO']`, you will get `\index.php\` as part of the returned value. By sample: 
+```/index.php/test/mypage.php```
+
 ### Configuration
 
 Create a new file, name it `routes.php` and place it in your library folder. This will be the file where you define all the routes for your project.
