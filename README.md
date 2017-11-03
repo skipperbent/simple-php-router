@@ -215,10 +215,10 @@ Simply create a new `web.config` file in your projects `public` directory and pa
 #### Troubleshoting
 
 If you do not have a favicon.ico file in your project, you can get `404 Router::notFoundException()` constantly.
-To add `favicon.ico` as exception, you can add this line to the `<conditions>` group:
+To add `favicon.ico` as exception, you can add this line to the `<conditions>` group: 
 ```<add input="{REQUEST_FILENAME}" negate="true" pattern="favicon.ico" ignoreCase="true" />```
 
-You can also make one exception for files with some extensions:
+You can also make one exception for files with some extensions: 
 ```<add input="{REQUEST_FILENAME}" pattern="\.ico|\.png|\.css|\.jpg" negate="true" ignoreCase="true" />```
 
 ### Configuration
