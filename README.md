@@ -212,6 +212,18 @@ Simply create a new `web.config` file in your projects `public` directory and pa
 </configuration>
 ```
 
+#### Troubleshoting
+
+If you do not have a favicon.ico file in your project, you can get `404 Router::notFoundException()` constantly.
+To add `favicon.ico` as exception, you can add this line to the `<conditions>` group: 
+```<add input="{REQUEST_FILENAME}" negate="true" pattern="favicon.ico" ignoreCase="true" />```
+
+You can also make one exception for files with some extensions: 
+```<add input="{REQUEST_FILENAME}" pattern="\.ico|\.png|\.css|\.jpg" negate="true" ignoreCase="true" />```
+
+If you are using `$_SERVER['ORIG_PATH_INFO']`, you will get `\index.php\` as part of the returned value. By sample: 
+```/index.php/test/mypage.php```
+
 ### Configuration
 
 Create a new file, name it `routes.php` and place it in your library folder. This will be the file where you define all the routes for your project.
