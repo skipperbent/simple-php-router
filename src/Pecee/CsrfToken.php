@@ -15,7 +15,7 @@ class CsrfToken
      */
     public static function generateToken()
     {
-        if (function_exists('random_bytes')) {
+        if (function_exists('random_bytes') === true) {
             return bin2hex(random_bytes(32));
         }
 
@@ -46,6 +46,7 @@ class CsrfToken
 
     /**
      * Set csrf token cookie
+     * Overwrite this method to save the token to another storage like session etc.
      *
      * @param $token
      */
