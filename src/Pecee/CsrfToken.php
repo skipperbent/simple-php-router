@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee;
 
 class CsrfToken
@@ -48,24 +49,34 @@ class CsrfToken
      * Set csrf token cookie
      * Overwrite this method to save the token to another storage like session etc.
      *
-     * @param $token
+     * @param string $token
      */
     public function setToken($token)
     {
+        $this->token = $token;
         setcookie(static::CSRF_KEY, $token, time() + 60 * 120, '/');
     }
 
     /**
      * Get csrf token
+     * @param string|null $defaultValue
      * @return string|null
      */
-    public function getToken()
+    public function getToken($defaultValue = null)
     {
-        if ($this->hasToken() === true) {
-            return $_COOKIE[static::CSRF_KEY];
-        }
+        $this->token = ($this->hasToken() === true) ? $_COOKIE[static::CSRF_KEY] : null;
 
-        return null;
+        return ($this->token !== null) ? $this->token : $defaultValue;
+    }
+
+    /**
+     * Refresh existing token
+     */
+    public function refresh()
+    {
+        if ($this->token !== null) {
+            $this->setToken($this->token);
+        }
     }
 
     /**
