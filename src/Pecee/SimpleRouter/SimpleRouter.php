@@ -427,7 +427,7 @@ class SimpleRouter
             $callback = $route->getCallback();
 
             /* Only add default namespace on relative callbacks */
-            if ($callback === null || $callback[0] !== '\\') {
+            if ($callback === null || (is_string($callback) === true && $callback[0] !== '\\')) {
 
                 $namespace = static::$defaultNamespace;
 
