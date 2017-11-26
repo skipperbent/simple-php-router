@@ -28,7 +28,7 @@ class InputFile implements IInputItem
      */
     public static function createFromArray(array $values)
     {
-        if (isset('index', $values) === false) {
+        if (isset($values['index']) === false) {
             throw new \InvalidArgumentException('Index key is required');
         }
 
