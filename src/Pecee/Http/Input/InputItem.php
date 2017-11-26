@@ -13,7 +13,7 @@ class InputItem implements IInputItem
         $this->value = $value;
 
         // Make the name human friendly, by replace _ with space
-        $this->name = ucfirst(str_replace('_', ' ', $this->index));
+        $this->name = ucfirst(str_replace('_', ' ', strtolower($this->index)));
     }
 
     /**

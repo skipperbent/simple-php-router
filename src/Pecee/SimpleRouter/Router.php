@@ -154,7 +154,7 @@ class Router
                 if ($route->matchRoute($url, $this->request) === true) {
 
                     /* Add exception handlers */
-                    if (count($route->getExceptionHandlers()) > 0) {
+                    if (count($route->getExceptionHandlers()) !== 0) {
                         /** @noinspection AdditionOperationOnArraysInspection */
                         $exceptionHandlers += $route->getExceptionHandlers();
                     }
@@ -181,7 +181,7 @@ class Router
                 $this->processedRoutes[] = $route;
             }
 
-            if (count($this->routeStack) > 0) {
+            if (count($this->routeStack) !== 0) {
 
                 /* Pop and grab the routes added when executing group callback earlier */
                 $stack = $this->routeStack;
@@ -203,7 +203,7 @@ class Router
     public function loadRoutes()
     {
         /* Initialize boot-managers */
-        if (count($this->bootManagers) > 0) {
+        if (count($this->bootManagers) !== 0) {
 
             $max = count($this->bootManagers) - 1;
 
@@ -247,7 +247,7 @@ class Router
                 if ($route->matchRoute($url, $this->request) === true) {
 
                     /* Check if request method matches */
-                    if (count($route->getRequestMethods()) > 0 && in_array($this->request->getMethod(), $route->getRequestMethods(), false) === false) {
+                    if (count($route->getRequestMethods()) !== 0 && in_array($this->request->getMethod(), $route->getRequestMethods(), false) === false) {
                         $routeNotAllowed = true;
                         continue;
                     }
@@ -363,7 +363,7 @@ class Router
 
     public function arrayToParams(array $getParams = [], $includeEmpty = true)
     {
-        if (count($getParams) > 0) {
+        if (count($getParams) !== 0) {
 
             if ($includeEmpty === false) {
                 $getParams = array_filter($getParams, function ($item) {

@@ -73,7 +73,7 @@ function csrf_token()
 {
     $baseVerifier = Router::router()->getCsrfVerifier();
     if ($baseVerifier !== null) {
-        return $baseVerifier->getToken();
+        return $baseVerifier->getTokenProvider()->getToken();
     }
 
     return null;
