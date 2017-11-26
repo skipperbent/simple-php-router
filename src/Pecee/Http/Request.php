@@ -227,26 +227,7 @@ class Request
      */
     public function setRewriteRoute(ILoadableRoute $route)
     {
-        $this->rewriteRoute = $route;
-
-        $callback = $route->getCallback();
-
-        /* Only add default namespace on relative callbacks */
-        if ($callback === null || $callback[0] !== '\\') {
-
-            $namespace = SimpleRouter::getDefaultNamespace();
-
-            if ($namespace !== null) {
-
-                if ($this->rewriteRoute->getNamespace() !== null) {
-                    $namespace .= '\\' . $this->rewriteRoute->getNamespace();
-                }
-
-                $this->rewriteRoute->setDefaultNamespace($namespace);
-
-            }
-
-        }
+        $this->rewriteRoute = SimpleRouter::addDefaultNamespace($route);
 
         return $this;
     }

@@ -726,6 +726,36 @@ When you've created your CSRF-verifier you need to tell simple-php-router that i
 Router::csrfVerifier(new \Demo\Middlewares\CsrfVerifier());
 ```
 
+## Getting CSRF-token
+
+When posting to any of the urls that has CSRF-verification enabled, you need post your CSRF-token or else the request will get rejected.
+
+You can get the CSRF-token by calling the helper method:
+
+```php
+csrf_token();
+```
+
+You can also get the token directly:
+
+```php
+return Router::router()->getCsrfVerifier()->getTokenProvider()->getToken();
+```
+
+The default name/key for the input-field is `csrf_token` and is defined in the `POST_KEY` constant in the `BaseCsrfVerifier` class.
+You can change the key by overwriting the constant in your own CSRF-verifier class.
+
+**Example:**
+
+The example below will post to the current url with a hidden field "`csrf_token`".
+
+```html
+<form method="post" action="<?= url(); ?>">
+    <input type="hidden" name="csrf_token" value="<?= csrf_token(); ?>">
+    <!-- other input elements here -->
+</form>
+```
+
 ## Custom CSRF-verifier
 
 Create a new class and extend the `BaseCsrfVerifier` middleware class provided by default with the simple-php-router library.
@@ -788,36 +818,6 @@ $verifier = new \dscuz\Middleware\CsrfVerifier();
 $verifier->setTokenProvider(new SessionTokenProvider());
 
 Router::csrfVerifier($verifier);
-```
-
-## Getting CSRF-token
-
-When posting to any of the urls that has CSRF-verification enabled, you need post your CSRF-token or else the request will get rejected.
-
-You can get the CSRF-token by calling the helper method:
-
-```php
-csrf_token();
-```
-
-You can also get the token directly:
-
-```php
-return Router::router()->getCsrfVerifier()->getTokenProvider()->getToken();
-```
-
-The default name/key for the input-field is `csrf_token` and is defined in the `POST_KEY` constant in the `BaseCsrfVerifier` class.
-You can change the key by overwriting the constant in your own CSRF-verifier class.
-
-**Example:**
-
-The example below will post to the current url with a hidden field "`csrf_token`".
-
-```html
-<form method="post" action="<?= url(); ?>">
-    <input type="hidden" name="csrf_token" value="<?= csrf_token(); ?>">
-    <!-- other input elements here -->
-</form>
 ```
 
 ---
