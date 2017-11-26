@@ -76,7 +76,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
 
         $group = $this->getGroup();
 
-        if ($group !== null && count($group->getDomains()) > 0) {
+        if ($group !== null && count($group->getDomains()) !== 0) {
             $url .= '//' . $group->getDomains()[0];
         }
 
@@ -97,7 +97,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
         $strippedUrl = trim(str_ireplace($this->url, '/', $url), '/');
         $path = explode('/', $strippedUrl);
 
-        if (count($path) > 0) {
+        if (count($path) !== 0) {
 
             $method = (isset($path[0]) === false || trim($path[0]) === '') ? $this->defaultMethod : $path[0];
             $this->method = $request->getMethod() . ucfirst($method);

@@ -30,7 +30,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     {
         $max = count($this->getMiddlewares());
 
-        if ($max > 0) {
+        if ($max !== 0) {
 
             for ($i = 0; $i < $max; $i++) {
 
@@ -57,7 +57,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             return null;
         }
 
-        return (preg_match($this->regex, $request->getHost() . $url) > 0);
+        return (preg_match($this->regex, $request->getHost() . $url) !== 0);
     }
 
     /**
@@ -74,7 +74,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
             $regex = sprintf(static::PARAMETERS_REGEX_FORMAT, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
-            if (preg_match_all('/' . $regex . '/u', $this->url, $matches)) {
+            if (preg_match_all('/' . $regex . '/u', $this->url, $matches) === 1) {
                 $this->parameters = array_fill_keys($matches[1], null);
             }
         }
@@ -102,7 +102,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
         $group = $this->getGroup();
 
-        if ($group !== null && count($group->getDomains()) > 0) {
+        if ($group !== null && count($group->getDomains()) !== 0) {
             $url = '//' . $group->getDomains()[0] . $url;
         }
 

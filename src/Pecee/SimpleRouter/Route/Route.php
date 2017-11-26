@@ -117,7 +117,7 @@ abstract class Route implements IRoute
         // Ensures that hostnames/domains will work with parameters
         $url = '/' . ltrim($url, '/');
 
-        if (preg_match_all('/' . $regex . '/u', $route, $parameters)) {
+        if (preg_match_all('/' . $regex . '/u', $route, $parameters) !== 0) {
 
             $urlParts = preg_split('/((\-?\/?)\{[^}]+\})/', rtrim($route, '/'));
 
@@ -155,7 +155,7 @@ abstract class Route implements IRoute
             $urlRegex = preg_quote($route, '/');
         }
 
-        if (preg_match(sprintf($this->urlRegex, $urlRegex), $url, $matches) > 0) {
+        if (preg_match(sprintf($this->urlRegex, $urlRegex), $url, $matches) === 1) {
 
             $values = [];
 
@@ -361,15 +361,15 @@ abstract class Route implements IRoute
             $values['namespace'] = $this->namespace;
         }
 
-        if (count($this->requestMethods) > 0) {
+        if (count($this->requestMethods) !== 0) {
             $values['method'] = $this->requestMethods;
         }
 
-        if (count($this->where) > 0) {
+        if (count($this->where) !== 0) {
             $values['where'] = $this->where;
         }
 
-        if (count($this->middlewares) > 0) {
+        if (count($this->middlewares) !== 0) {
             $values['middleware'] = $this->middlewares;
         }
 
@@ -389,28 +389,28 @@ abstract class Route implements IRoute
      */
     public function setSettings(array $values, $merge = false)
     {
-        if ($this->namespace === null && isset($values['namespace'])) {
+        if ($this->namespace === null && isset($values['namespace']) === true) {
             $this->setNamespace($values['namespace']);
         }
 
-        if (isset($values['method'])) {
+        if (isset($values['method']) === true) {
             $this->setRequestMethods(array_merge($this->requestMethods, (array)$values['method']));
         }
 
-        if (isset($values['where'])) {
+        if (isset($values['where']) === true) {
             $this->setWhere(array_merge($this->where, (array)$values['where']));
         }
 
-        if (isset($values['parameters'])) {
+        if (isset($values['parameters']) === true) {
             $this->setParameters(array_merge($this->parameters, (array)$values['parameters']));
         }
 
         // Push middleware if multiple
-        if (isset($values['middleware'])) {
+        if (isset($values['middleware']) === true) {
             $this->setMiddlewares(array_merge((array)$values['middleware'], $this->middlewares));
         }
 
-        if (isset($values['defaultParameterRegex'])) {
+        if (isset($values['defaultParameterRegex']) === true) {
             $this->setDefaultParameterRegex($values['defaultParameterRegex']);
         }
 
@@ -463,7 +463,7 @@ abstract class Route implements IRoute
         /* Sort the parameters after the user-defined param order, if any */
         $parameters = [];
 
-        if (count($this->originalParameters) > 0) {
+        if (count($this->originalParameters) !== 0) {
             $parameters = $this->originalParameters;
         }
 
@@ -482,7 +482,7 @@ abstract class Route implements IRoute
          * If this is the first time setting parameters we store them so we
          * later can organize the array, in case somebody tried to sort the array.
          */
-        if (count($parameters) > 0 && count($this->originalParameters) === 0) {
+        if (count($parameters) !== 0 && count($this->originalParameters) === 0) {
             $this->originalParameters = $parameters;
         }
 
