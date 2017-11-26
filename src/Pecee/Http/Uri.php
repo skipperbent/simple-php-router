@@ -134,7 +134,15 @@ class Uri
      */
     public function parseUrl($url, $component = -1)
     {
-        $parts = parse_url(urlencode($url), $component);
+        $encodedUrl = preg_replace_callback(
+            '%[^:/@?&=#]+%u',
+            function ($matches) {
+                return urlencode($matches[0]);
+            },
+            $url
+        );
+
+        $parts = parse_url($encodedUrl, $component);
 
         if ($parts === false) {
             throw new \InvalidArgumentException('Malformed URL: ' . $url);
