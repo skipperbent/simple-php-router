@@ -6,20 +6,20 @@ class Uri
 {
     private $originalUrl;
     private $data = [
-        'scheme',
-        'host',
-        'port',
-        'user',
-        'pass',
-        'path',
-        'query',
-        'fragment',
+        'scheme' => '',
+        'host' => '',
+        'port' => '',
+        'user' => '',
+        'pass' => '',
+        'path' => '',
+        'query' => '',
+        'fragment' => '',
     ];
 
     public function __construct($url)
     {
         $this->originalUrl = $url;
-        $this->data = array_merge($this->data, $this->parseUrl(urldecode($url)));
+        $this->data = $this->parseUrl($url) + $this->data;
 
         if (isset($this->data['path']) === true && $this->data['path'] !== '/') {
             $this->data['path'] = rtrim($this->data['path'], '/') . '/';
@@ -134,15 +134,7 @@ class Uri
      */
     public function parseUrl($url, $component = -1)
     {
-        $encodedUrl = preg_replace_callback(
-            '%[^:/@?&=#]+%u',
-            function ($matches) {
-                return urlencode($matches[0]);
-            },
-            $url
-        );
-
-        $parts = parse_url($encodedUrl, $component);
+        $parts = parse_url(urlencode($url), $component);
 
         if ($parts === false) {
             throw new \InvalidArgumentException('Malformed URL: ' . $url);

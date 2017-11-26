@@ -28,7 +28,7 @@ class RouteGroup extends Route implements IGroupRoute
 
             $parameters = $this->parseParameters($domain, $request->getHost(), '.*');
 
-            if ($parameters !== null && count($parameters) > 0) {
+            if ($parameters !== null && count($parameters) !== 0) {
 
                 $this->parameters = $parameters;
 
@@ -146,19 +146,19 @@ class RouteGroup extends Route implements IGroupRoute
     public function setSettings(array $values, $merge = false)
     {
 
-        if (isset($values['prefix'])) {
+        if (isset($values['prefix']) === true) {
             $this->setPrefix($values['prefix'] . $this->prefix);
         }
 
-        if ($merge === false && isset($values['exceptionHandler'])) {
+        if ($merge === false && isset($values['exceptionHandler']) === true) {
             $this->setExceptionHandlers((array)$values['exceptionHandler']);
         }
 
-        if ($merge === false && isset($values['domain'])) {
+        if ($merge === false && isset($values['domain']) === true) {
             $this->setDomains((array)$values['domain']);
         }
 
-        if (isset($values['as'])) {
+        if (isset($values['as']) === true) {
             if ($this->name !== null && $merge !== false) {
                 $this->name = $values['as'] . '.' . $this->name;
             } else {
@@ -188,7 +188,7 @@ class RouteGroup extends Route implements IGroupRoute
             $values['as'] = $this->name;
         }
 
-        if (count($this->parameters) > 0) {
+        if (count($this->parameters) !== 0) {
             $values['parameters'] = $this->parameters;
         }
 

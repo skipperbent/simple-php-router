@@ -1,12 +1,22 @@
 <?php
 
-namespace Pecee;
+namespace Pecee\Http\Security;
 
-class CsrfToken
+class CookieTokenProvider implements ITokenProvider
 {
     const CSRF_KEY = 'CSRF-TOKEN';
 
     protected $token;
+    protected $cookieTimeoutMinutes = 120;
+
+    public function __construct()
+    {
+        $this->token = $this->getToken();
+
+        if ($this->token === null) {
+            $this->token = $this->generateToken();
+        }
+    }
 
     /**
      * Generate random identifier for CSRF token
@@ -14,7 +24,7 @@ class CsrfToken
      * @throws \RuntimeException
      * @return string
      */
-    public static function generateToken()
+    public function generateToken()
     {
         if (function_exists('random_bytes') === true) {
             return bin2hex(random_bytes(32));
@@ -54,7 +64,7 @@ class CsrfToken
     public function setToken($token)
     {
         $this->token = $token;
-        setcookie(static::CSRF_KEY, $token, time() + 60 * 120, '/');
+        setcookie(static::CSRF_KEY, $token, time() + 60 * $this->cookieTimeoutMinutes, '/');
     }
 
     /**
@@ -86,6 +96,24 @@ class CsrfToken
     public function hasToken()
     {
         return isset($_COOKIE[static::CSRF_KEY]);
+    }
+
+    /**
+     * Get timeout for cookie in minutes
+     * @return int
+     */
+    public function getCookieTimeoutMinutes()
+    {
+        return $this->cookieTimeoutMinutes;
+    }
+
+    /**
+     * Set cookie timeout in minutes
+     * @param $minutes
+     */
+    public function setCookieTimeoutMinutes($minutes)
+    {
+        $this->cookieTimeoutMinutes = $minutes;
     }
 
 }
