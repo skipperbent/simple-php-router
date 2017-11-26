@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee\Http\Input;
 
 class InputFile implements IInputItem
@@ -34,21 +35,20 @@ class InputFile implements IInputItem
 
         /* Easy way of ensuring that all indexes-are set and not filling the screen with isset() */
 
-        $values = array_merge([
+        $values += [
             'tmp_name' => null,
             'type'     => null,
             'size'     => null,
             'name'     => null,
-            'filename' => null,
             'error'    => null,
-        ], $values);
+        ];
 
         return (new static($values['index']))
             ->setSize($values['size'])
             ->setError($values['error'])
             ->setType($values['type'])
             ->setTmpName($values['tmp_name'])
-            ->setFilename($values['filename']);
+            ->setFilename($values['name']);
 
     }
 
