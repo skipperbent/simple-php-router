@@ -7,9 +7,31 @@ Simple, fast and yet powerful PHP router that is easy to get integrated and in a
 
 The goal of this project is to create a router that is more or less 100% compatible with the Laravel documentation, while remaining as simple as possible, and as easy to integrate and change without compromising either speed or complexity. Being lightweight is the #1 priority.
 
-### Ideas and issues
+### Feedback and development
 
-If you want a great new feature or experience any issues what-so-ever, please feel free to leave an issue and i'll look into it whenever possible.
+If you are missing a feature, experience problems or have ideas or feedback that you want us to hear, please feel free to create an issue.
+
+###### Issues guidelines
+
+- Please be as detailed as possible in the description when creating a new issue. This will help others to more easily understand- and solve your issue.
+For example: if you are experiencing issues, you should provide the necessary steps to reproduce the error within your description.
+
+- We love to hear out any ideas or feedback to the library.
+
+[Create a new issue here](https://github.com/skipperbent/simple-php-router/issues/new)
+
+###### Contribution development guidelines
+
+- Please try to follow the PSR-2 codestyle guidelines.
+
+- Please create your pull requests to the development base that matches the version number you want to change.
+For example when pushing changes to version 3, the pull request should use the `v3-development` base/branch.
+
+- Create detailed descriptions for your commits, as these will be used in the changelog for new releases.
+
+- When changing existing functionality, please ensure that the unit-tests working.
+
+- When adding new stuff, please remember to add new unit-tests for the functionality.
 
 ---
 
@@ -51,6 +73,8 @@ If you want a great new feature or experience any issues what-so-ever, please fe
 - [CSRF-protection](#csrf-protection)
 	- [Adding CSRF-verifier](#adding-csrf-verifier)
 	- [Getting CSRF-token](#getting-csrf-token)
+	- [Custom CSRF-verifier](#custom-csrf-verifier)
+	- [Custom Token-provider](#custom-token-provider)
 
 - [Middlewares](#middlewares)
 	- [Example](#example)
@@ -215,13 +239,13 @@ Simply create a new `web.config` file in your projects `public` directory and pa
 #### Troubleshoting
 
 If you do not have a favicon.ico file in your project, you can get `404 Router::notFoundException()` constantly.
-To add `favicon.ico` as exception, you can add this line to the `<conditions>` group: 
+To add `favicon.ico` as exception, you can add this line to the `<conditions>` group:
 ```<add input="{REQUEST_FILENAME}" negate="true" pattern="favicon.ico" ignoreCase="true" />```
 
-You can also make one exception for files with some extensions: 
+You can also make one exception for files with some extensions:
 ```<add input="{REQUEST_FILENAME}" pattern="\.ico|\.png|\.css|\.jpg" negate="true" ignoreCase="true" />```
 
-If you are using `$_SERVER['ORIG_PATH_INFO']`, you will get `\index.php\` as part of the returned value. By sample: 
+If you are using `$_SERVER['ORIG_PATH_INFO']`, you will get `\index.php\` as part of the returned value. By sample:
 ```/index.php/test/mypage.php```
 
 ### Configuration
@@ -681,11 +705,27 @@ SimpleRouter::get('/page/404', 'ControllerPage@notFound', ['as' => 'page.notfoun
 
 # CSRF Protection
 
-Any forms posting to `POST`, `PUT` or `DELETE` routes should include the CSRF-token. We strongly recommend that you create your enable CSRF-verification on your site.
+Any forms posting to `POST`, `PUT` or `DELETE` routes should include the CSRF-token. We strongly recommend that you enable CSRF-verification on your site to maximize security.
 
-Create a new class and extend the ```BaseCsrfVerifier``` middleware class provided with simple-php-router.
+You can use the `BaseCsrfVerifier` to enable CSRF-validation on all request. If you need to disable verification for specific urls, please refer to the "Custom CSRF-verifier" section below.
 
-Add the property ```except``` with an array of the urls to the routes you would like to exclude/whitelist from the CSRF validation. Using ```*``` at the end for the url will match the entire url.
+By default simple-php-router will use the `CookieTokenProvider` class. This provider will store the security-token in a cookie on the clients machine.
+If you want to store the token elsewhere, please refer to the "Creating custom Token Provider" section below.
+
+## Adding CSRF-verifier
+
+When you've created your CSRF-verifier you need to tell simple-php-router that it should use it. You can do this by adding the following line in your `routes.php` file:
+
+```php
+Router::csrfVerifier(new \Demo\Middlewares\CsrfVerifier());
+```
+
+## Custom CSRF-verifier
+
+Create a new class and extend the `BaseCsrfVerifier` middleware class provided by default with the simple-php-router library.
+
+Add the property `except` with an array of the urls to the routes you want to exclude/whitelist from the CSRF validation.
+Using ```*``` at the end for the url will match the entire url.
 
 **Here's a basic example on a CSRF-verifier class:**
 
@@ -703,12 +743,45 @@ class CsrfVerifier extends BaseCsrfVerifier
 }
 ```
 
-## Adding CSRF-verifier
+## Custom Token Provider
 
-When you've created your CSRF verifier - you need to tell simple-php-router that it should use it. You can do this by adding the following line in your `routes.php` file:
+By default the `BaseCsrfVerifier` will use the `CookieTokenProvider` to store the token in a cookie on the clients machine.
+
+If you need to store the token elsewhere, you can do that by creating your own class and implementing the `ITokenProvider` class.
 
 ```php
-Router::csrfVerifier(new \Demo\Middlewares\CsrfVerifier());
+class SessionTokenProvider implements ITokenProvider
+{
+
+    /**
+     * Refresh existing token
+     */
+    public function refresh()
+    {
+        // Implement your own functionality here...
+    }
+
+    /**
+     * Validate valid CSRF token
+     *
+     * @param string $token
+     * @return bool
+     */
+    public function validate($token)
+    {
+        // Implement your own functionality here...
+    }
+
+}
+```
+
+Next you need to set your custom `ITokenProvider` implementation on your `BaseCsrfVerifier` class in your routes file:
+
+```php
+$verifier = new \dscuz\Middleware\CsrfVerifier();
+$verifier->setTokenProvider(new SessionTokenProvider());
+
+Router::csrfVerifier($verifier);
 ```
 
 ## Getting CSRF-token
@@ -719,6 +792,12 @@ You can get the CSRF-token by calling the helper method:
 
 ```php
 csrf_token();
+```
+
+You can also get the token directly:
+
+```php
+return Router::router()->getCsrfVerifier()->getTokenProvider()->getToken();
 ```
 
 The default name/key for the input-field is `csrf_token` and is defined in the `POST_KEY` constant in the `BaseCsrfVerifier` class.
@@ -1028,6 +1107,7 @@ All object implements the `IInputItem` interface and will always contain these m
 - `getValue()` - returns the value of the input.
 
 `InputFile` has the same methods as above along with some other file-specific methods like:
+- `getFilename` - get the filename.
 - `getTmpName()` - get file temporary name.
 - `getSize()` - get file size.
 - `move($destination)` - move file to destination.
@@ -1051,7 +1131,7 @@ $siteId = input('site_id', 2, ['post', 'get']);
 ## Url rewriting
 Sometimes it can be useful to manipulate the route about to be loaded.
 simple-php-router allows you to easily change the route about to be executed.
-All information about the current route is stored in the ```\Pecee\SimpleRouter\Router``` instance's `loadedRoute` property.
+All information about the current route is stored in the `\Pecee\SimpleRouter\Router` instance's `loadedRoute` property.
 
 For easy access you can use the shortcut method `\Pecee\SimpleRouter\SimpleRouter::router()`.
 

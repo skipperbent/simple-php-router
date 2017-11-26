@@ -16,7 +16,7 @@ class InputFile implements IInputItem
         $this->index = $index;
 
         // Make the name human friendly, by replace _ with space
-        $this->name = ucfirst(str_replace('_', ' ', $this->index));
+        $this->name = ucfirst(str_replace('_', ' ', strtolower($this->index)));
     }
 
     /**
@@ -28,7 +28,7 @@ class InputFile implements IInputItem
      */
     public static function createFromArray(array $values)
     {
-        if (!isset($values['index'])) {
+        if (array_key_exists('index', $values) === false) {
             throw new \InvalidArgumentException('Index key is required');
         }
 
@@ -39,6 +39,7 @@ class InputFile implements IInputItem
             'type'     => null,
             'size'     => null,
             'name'     => null,
+            'filename' => null,
             'error'    => null,
         ], $values);
 
@@ -47,7 +48,7 @@ class InputFile implements IInputItem
             ->setError($values['error'])
             ->setType($values['type'])
             ->setTmpName($values['tmp_name'])
-            ->setFilename($values['name']);
+            ->setFilename($values['filename']);
 
     }
 
@@ -267,8 +268,9 @@ class InputFile implements IInputItem
             'tmp_name' => $this->tmpName,
             'type'     => $this->type,
             'size'     => $this->size,
-            'name'     => $this->filename,
+            'name'     => $this->name,
             'error'    => $this->error,
+            'filename' => $this->filename,
         ];
     }
 
