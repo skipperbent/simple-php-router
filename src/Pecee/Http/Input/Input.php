@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee\Http\Input;
 
 use Pecee\Http\Request;
@@ -65,7 +66,7 @@ class Input
             // Handle array input
             if (is_array($value['name']) === false) {
                 $values['index'] = $key;
-                $list[$key] = InputFile::createFromArray(array_merge($value, $values));
+                $list[$key] = InputFile::createFromArray($values + $value);
                 continue;
             }
 
@@ -73,7 +74,7 @@ class Input
 
             $files = $this->rearrangeFiles($value['name'], $keys, $value);
 
-            if (isset($list[$key])) {
+            if (isset($list[$key]) === true) {
                 $list[$key][] = $files;
             } else {
                 $list[$key] = $files;
@@ -92,38 +93,25 @@ class Input
 
         $output = [];
 
-        $getItem = function ($key, $property = 'name') use ($original, $index) {
-
-            $path = $original[$property];
-
-            $fileValues = array_values($index);
-
-            foreach ($fileValues as $i) {
-                $path = $path[$i];
-            }
-
-            return $path[$key];
-        };
-
         foreach ($values as $key => $value) {
 
-            if (is_array($getItem($key)) === false) {
+            if (is_array($original['name'][$key]) === false) {
 
                 $file = InputFile::createFromArray([
                     'index'    => (empty($key) === true && empty($originalIndex) === false) ? $originalIndex : $key,
-                    'filename' => $getItem($key),
-                    'error'    => $getItem($key, 'error'),
-                    'tmp_name' => $getItem($key, 'tmp_name'),
-                    'type'     => $getItem($key, 'type'),
-                    'size'     => $getItem($key, 'size'),
+                    'name'     => $original['name'][$key],
+                    'error'    => $original['error'][$key],
+                    'tmp_name' => $original['tmp_name'][$key],
+                    'type'     => $original['type'][$key],
+                    'size'     => $original['size'][$key],
                 ]);
 
-                if (isset($output[$key])) {
+                if (isset($output[$key]) === true) {
                     $output[$key][] = $file;
-                } else {
-                    $output[$key] = $file;
+                    continue;
                 }
 
+                $output[$key] = $file;
                 continue;
             }
 
@@ -146,13 +134,7 @@ class Input
     {
         $list = [];
 
-        $max = count($array) - 1;
-        $keys = array_keys($array);
-
-        for ($i = $max; $i >= 0; $i--) {
-
-            $key = $keys[$i];
-            $value = $array[$key];
+        foreach ($array as $key => $value) {
 
             // Handle array input
             if (is_array($value) === false) {
