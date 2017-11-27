@@ -206,11 +206,11 @@ class RouteResource extends LoadableRoute implements IControllerRoute
      */
     public function setSettings(array $values, $merge = false)
     {
-        if (isset($values['names'])) {
+        if (isset($values['names']) === true) {
             $this->names = $values['names'];
         }
 
-        if (isset($values['methods'])) {
+        if (isset($values['methods']) === true) {
             $this->methodNames = $values['methods'];
         }
 
