@@ -57,7 +57,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             return null;
         }
 
-        return (preg_match($this->regex, $request->getHost() . $url) !== 0);
+        return (preg_match($this->regex, $request->getHost() . $url) > 0);
     }
 
     /**
@@ -74,7 +74,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
             $regex = sprintf(static::PARAMETERS_REGEX_FORMAT, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
-            if (preg_match_all('/' . $regex . '/u', $this->url, $matches) === 1) {
+            if (preg_match_all('/' . $regex . '/u', $this->url, $matches) > 0) {
                 $this->parameters = array_fill_keys($matches[1], null);
             }
         }
@@ -124,7 +124,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         for ($i = $max; $i >= 0; $i--) {
             $param = $keys[$i];
 
-            if ($parameters === '' || (is_array($parameters) && count($parameters) === 0)) {
+            if ($parameters === '' || (is_array($parameters) === true && count($parameters) === 0)) {
                 $value = '';
             } else {
                 $p = (array)$parameters;
@@ -229,15 +229,18 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      */
     public function setSettings(array $values, $merge = false)
     {
-        if (isset($values['as'])) {
+        if (isset($values['as']) === true) {
+
+            $name = $values['as'];
+
             if ($this->name !== null && $merge !== false) {
-                $this->setName($values['as'] . '.' . $this->name);
-            } else {
-                $this->setName($values['as']);
+                $name .= '.' . $this->name;
             }
+
+            $this->setName($name);
         }
 
-        if (isset($values['prefix'])) {
+        if (isset($values['prefix']) === true) {
             $this->setUrl($values['prefix'] . $this->getUrl());
         }
 
