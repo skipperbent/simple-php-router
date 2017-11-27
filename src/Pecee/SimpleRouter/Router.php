@@ -285,7 +285,7 @@ class Router
         }
 
         if ($routeNotAllowed === true) {
-			$message = sprintf('Route "%s" or method "%s" not allowed.', $this->request->getUri()->getPath(), $this->request->getMethod());
+            $message = sprintf('Route "%s" or method "%s" not allowed.', $this->request->getUri()->getPath(), $this->request->getMethod());
             $this->handleException(new HttpException($message, 403));
         }
 
@@ -497,7 +497,7 @@ class Router
                 $route = $this->processedRoutes[$i];
 
                 /* Check if the route contains the name/alias */
-                if ($route->hasName($controller)) {
+                if ($route->hasName($controller) === true) {
                     return $route->findUrl($method, $parameters, $name) . $this->arrayToParams($getParams);
                 }
 

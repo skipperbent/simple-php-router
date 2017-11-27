@@ -159,11 +159,14 @@ class RouteGroup extends Route implements IGroupRoute
         }
 
         if (isset($values['as']) === true) {
+
+            $name = $values['as'];
+
             if ($this->name !== null && $merge !== false) {
-                $this->name = $values['as'] . '.' . $this->name;
-            } else {
-                $this->name = $values['as'];
+                $name .= '.' . $this->name;
             }
+
+            $this->name = $name;
         }
 
         parent::setSettings($values, $merge);

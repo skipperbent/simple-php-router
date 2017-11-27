@@ -6,14 +6,14 @@ class Uri
 {
     private $originalUrl;
     private $data = [
-        'scheme' => '',
-        'host' => '',
-        'port' => '',
-        'user' => '',
-        'pass' => '',
-        'path' => '',
-        'query' => '',
-        'fragment' => '',
+        'scheme'   => null,
+        'host'     => null,
+        'port'     => null,
+        'user'     => null,
+        'pass'     => null,
+        'path'     => null,
+        'query'    => null,
+        'fragment' => null,
     ];
 
     public function __construct($url)
