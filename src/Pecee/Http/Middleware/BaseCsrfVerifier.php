@@ -52,6 +52,12 @@ class BaseCsrfVerifier implements IMiddleware
         return false;
     }
 
+    /**
+     * Handle request
+     *
+     * @param Request $request
+     * @throws TokenMismatchException
+     */
     public function handle(Request $request)
     {
 
