@@ -56,6 +56,12 @@ abstract class Route implements IRoute
     protected $originalParameters = [];
     protected $middlewares = [];
 
+    /**
+     * Load class by name
+     * @param string $name
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
     protected function loadClass($name)
     {
         if (class_exists($name) === false) {
@@ -65,6 +71,13 @@ abstract class Route implements IRoute
         return new $name();
     }
 
+    /**
+     * Render route
+     *
+     * @param Request $request
+     * @return string|mixed
+     * @throws NotFoundHttpException
+     */
     public function renderRoute(Request $request)
     {
         $callback = $this->getCallback();
@@ -119,7 +132,7 @@ abstract class Route implements IRoute
 
         if (preg_match_all('/' . $regex . '/u', $route, $parameters) > 0) {
 
-            $urlParts = preg_split('/((\-?\/?)\{[^}]+\})/', rtrim($route, '/'));
+            $urlParts = preg_split('/((\-?\/?)\{[^}]+\})/', $route);
 
             foreach ($urlParts as $key => $t) {
 
@@ -149,7 +162,7 @@ abstract class Route implements IRoute
                 $urlParts[$key] = preg_quote($t, '/') . $regex;
             }
 
-            $urlRegex = join('', $urlParts);
+            $urlRegex = implode('', $urlParts);
 
         } else {
             $urlRegex = preg_quote($route, '/');
