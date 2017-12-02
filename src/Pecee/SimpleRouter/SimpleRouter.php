@@ -45,8 +45,7 @@ class SimpleRouter
     /**
      * Start/route request
      *
-     * @throws HttpException
-     * @throws NotFoundHttpException
+     * @throws HttpException|NotFoundHttpException|\Exception
      */
     public static function start()
     {

@@ -125,7 +125,6 @@ class Router
 
         $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri()->getPath();
 
-        /* @var $route IRoute */
         for ($i = $max; $i >= 0; $i--) {
 
             $route = $routes[$i];
@@ -218,6 +217,14 @@ class Router
         $this->processRoutes($this->routes);
     }
 
+    /**
+     * Routes the request
+     *
+     * @param bool $rewrite
+     * @return string|mixed
+     * @throws HttpException
+     * @throws \Exception
+     */
     public function routeRequest($rewrite = false)
     {
         $routeNotAllowed = false;
@@ -315,12 +322,8 @@ class Router
     {
         $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri()->getPath();
 
-        $max = count($this->exceptionHandlers);
-
         /* @var $handler IExceptionHandler */
-        for ($i = 0; $i < $max; $i++) {
-
-            $handler = $this->exceptionHandlers[$i];
+        foreach ($this->exceptionHandlers as $key => $handler) {
 
             if (is_object($handler) === false) {
                 $handler = new $handler();
@@ -346,7 +349,7 @@ class Router
 
                     /* If the request has changed */
                     if ($rewriteUrl !== null && $rewriteUrl !== $url) {
-                        unset($this->exceptionHandlers[$i]);
+                        unset($this->exceptionHandlers[$key]);
                         $this->exceptionHandlers = array_values($this->exceptionHandlers);
 
                         return $this->routeRequest(true);
@@ -510,7 +513,7 @@ class Router
         }
 
         /* No result so we assume that someone is using a hardcoded url and join everything together. */
-        $url = trim(join('/', array_merge((array)$name, (array)$parameters)), '/');
+        $url = trim(implode('/', array_merge((array)$name, (array)$parameters)), '/');
 
         return (($url === '') ? '/' : '/' . $url . '/') . $this->arrayToParams($getParams);
     }
