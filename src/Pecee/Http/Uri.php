@@ -135,7 +135,7 @@ class Uri
     public function parseUrl($url, $component = -1)
     {
         $encodedUrl = preg_replace_callback(
-            '%[^:/@?&=#]+%u',
+            '/[^:\/@?&=#]+/u',
             function ($matches) {
                 return urlencode($matches[0]);
             },
@@ -148,11 +148,7 @@ class Uri
             throw new \InvalidArgumentException('Malformed URL: ' . $url);
         }
 
-        foreach ((array)$parts as $name => $value) {
-            $parts[$name] = urldecode($value);
-        }
-
-        return $parts;
+        return array_map('urldecode', $parts);
     }
 
     /**

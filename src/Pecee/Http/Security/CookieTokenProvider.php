@@ -21,7 +21,7 @@ class CookieTokenProvider implements ITokenProvider
     /**
      * Generate random identifier for CSRF token
      *
-     * @throws \RuntimeException
+     * @throws \RuntimeException|\Exception
      * @return string
      */
     public function generateToken()
