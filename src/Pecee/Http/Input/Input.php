@@ -98,12 +98,12 @@ class Input
             if (is_array($original['name'][$key]) === false) {
 
                 $file = InputFile::createFromArray([
-                    'index'    => (empty($key) === true && empty($originalIndex) === false) ? $originalIndex : $key,
-                    'name'     => $original['name'][$key],
-                    'error'    => $original['error'][$key],
+                    'index' => (empty($key) === true && empty($originalIndex) === false) ? $originalIndex : $key,
+                    'name' => $original['name'][$key],
+                    'error' => $original['error'][$key],
                     'tmp_name' => $original['tmp_name'][$key],
-                    'type'     => $original['type'][$key],
-                    'size'     => $original['size'][$key],
+                    'type' => $original['type'][$key],
+                    'size' => $original['size'][$key],
                 ]);
 
                 if (isset($output[$key]) === true) {
@@ -254,21 +254,21 @@ class Input
      */
     public function all(array $filter = null)
     {
-        $output = $_POST;
+        $output = $_GET;
 
         if ($this->request->getMethod() === 'post') {
 
             $contents = file_get_contents('php://input');
 
             if (strpos(trim($contents), '{') === 0) {
-                $output = json_decode($contents, true);
-                if ($output === false) {
-                    $output = [];
+                $post = json_decode($contents, true);
+                if ($post !== false) {
+                    $output = array_merge($output, $post);
                 }
             }
         }
 
-        return ($filter !== null) ? array_intersect_key($output, array_flip($filter)) : array_merge($_GET, $output);
+        return ($filter !== null) ? array_intersect_key($output, array_flip($filter)) : $output;
     }
 
 }
