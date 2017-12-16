@@ -85,17 +85,17 @@ class Response
     /**
      * Json encode
      * @param array|\JsonSerializable $value
-     * @throws \InvalidArgumentException;
+     * @param int $options JSON options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_PRESERVE_ZERO_FRACTION, JSON_UNESCAPED_UNICODE, JSON_PARTIAL_OUTPUT_ON_ERROR.
+     * @param int $dept JSON debt.
+     * @throws \InvalidArgumentException
      */
-    public function json($value)
+    public function json($value, $options = null, $dept = 512)
     {
-
         if (($value instanceof \JsonSerializable) === false && is_array($value) === false) {
             throw new \InvalidArgumentException('Invalid type for parameter "value". Must be of type array or object implementing the \JsonSerializable interface.');
         }
-
-        $this->header('Content-type: application/json');
-        echo json_encode($value);
+        $this->header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($value, $options, $dept);
         exit(0);
     }
 
