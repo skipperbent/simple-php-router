@@ -309,7 +309,7 @@ class Request
 
     public function __get($name)
     {
-        return isset($this->data[$name]) ? $this->data[$name] : null;
+        return $this->data[$name];
     }
 
 }
