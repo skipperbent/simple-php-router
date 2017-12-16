@@ -267,29 +267,21 @@ class Input
      */
     public function all(array $filter = null)
     {
-        $output = $_POST;
+        $output = $_GET;
 
         if ($this->request->getMethod() === 'post') {
 
             $contents = file_get_contents('php://input');
 
             if (strpos(trim($contents), '{') === 0) {
-                $output = json_decode($contents, true);
-                if ($output === false) {
-                    $output = [];
+                $post = json_decode($contents, true);
+                if ($post !== false) {
+                    $output = array_merge($output, $post);
                 }
             }
         }
 
-        $output = array_merge($_GET, $output);
-
-        if ($filter !== null) {
-            $output = array_filter($output, function ($key) use ($filter) {
-                return (in_array($key, $filter) === true);
-            }, ARRAY_FILTER_USE_KEY);
-        }
-
-        return $output;
+        return ($filter !== null) ? array_intersect_key($output, array_flip($filter)) : $output;
     }
 
 }
