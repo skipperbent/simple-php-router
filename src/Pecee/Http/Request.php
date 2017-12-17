@@ -18,7 +18,7 @@ class Request
         $this->host = $this->getHeader('http-host');
         $this->uri = $this->getHeader('request-uri');
         $this->input = new Input($this);
-        $this->method = strtolower($this->input->get('_method', $this->getHeader('request-method'), 'post'));
+        $this->method = strtolower($this->input->get('_method', $this->getHeader('request-method')));
     }
 
     protected function parseHeaders()
