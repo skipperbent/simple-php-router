@@ -196,10 +196,14 @@ class Request
     }
 
     /**
-     * @param Uri $uri
+     * @param Uri|string $uri
      */
-    public function setUri(Uri $uri)
+    public function setUri($uri)
     {
+        if (is_string($uri) === true) {
+            $uri = new Uri($uri);
+        }
+
         $this->uri = $uri;
     }
 
