@@ -546,6 +546,16 @@ class Router
     }
 
     /**
+     * Get routes that has been processed.
+     *
+     * @return array
+     */
+    public function getProcessedRoutes()
+    {
+        return $this->processedRoutes;
+    }
+
+    /**
      * @return array
      */
     public function getRoutes()
