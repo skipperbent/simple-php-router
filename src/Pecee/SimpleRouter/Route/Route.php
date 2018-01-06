@@ -33,7 +33,7 @@ abstract class Route implements IRoute
      *
      * @var bool
      */
-    protected $filterEmptyParams = false;
+    protected $filterEmptyParams = true;
 
     /**
      * Default regular expression used for parsing parameters.
@@ -86,12 +86,20 @@ abstract class Route implements IRoute
             return null;
         }
 
+        $parameters = $this->getParameters();
+
+        /* Filter parameters with null-value */
+
+        if ($this->filterEmptyParams === true) {
+            $parameters = array_filter($parameters, function ($var) {
+                return ($var !== null);
+            });
+        }
+
         /* Render callback function */
         if (is_callable($callback) === true) {
-
             /* When the callback is a function */
-            return call_user_func_array($callback, $this->getParameters());
-
+            return call_user_func_array($callback, $parameters);
         }
 
         /* When the callback is a class + method */
@@ -106,16 +114,6 @@ abstract class Route implements IRoute
 
         if (method_exists($class, $method) === false) {
             throw new NotFoundHttpException(sprintf('Method "%s" does not exist in class "%s"', $method, $className), 404);
-        }
-
-        $parameters = $this->getParameters();
-
-        /* Filter parameters with null-value */
-
-        if ($this->filterEmptyParams === true) {
-            $parameters = array_filter($parameters, function ($var) {
-                return ($var !== null);
-            });
         }
 
         return call_user_func_array([$class, $method], $parameters);
