@@ -254,7 +254,7 @@ class Input
      */
     public function all(array $filter = null)
     {
-        $output = $_GET;
+        $output = $_GET + $_POST;
 
         if ($this->request->getMethod() === 'post') {
 
@@ -263,7 +263,7 @@ class Input
             if (strpos(trim($contents), '{') === 0) {
                 $post = json_decode($contents, true);
                 if ($post !== false) {
-                    $output = array_merge($output, $post);
+                    $output += $post;
                 }
             }
         }
