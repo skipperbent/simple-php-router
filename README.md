@@ -1362,6 +1362,88 @@ class Router extends SimpleRouter {
 }
 ```
 
+### Using PHP DI package for Controller dependency injection
+You optionally use PHP DI auto-wiring `require [PHP DI package](https://github.com/php-di/php-di)`
+for automatically injection the controller's constructor arguments.
+
+To enble this feature you muse add the next line to your Simple router config:
+```php
+use Pecee\SimpleRouter\SimpleRouter;
+
+class Router extends SimpleRouter {
+
+    public static function start() {
+
+        // change this to whatever makes sense in your project
+        require_once 'routes.php';
+
+        // change default namespace for all routes
+        parent::setDefaultNamespace('\Demo\Controllers');
+		...
+
+		// This line to enable the feature
+		static::useDependencyInjection(true);
+
+		...
+        // Do initial stuff
+        parent::start();
+
+    }
+
+}
+```
+Or just add the line where you included your routes.php file, That's helps you to write
+code like:
+
+#### PostsRepository.php:
+```php
+<?php
+
+interface IRepository
+{
+    public function find($id);
+
+    public function all();
+
+    public function findBy($field, $value);
+
+    public function where(array $conditions);
+
+    public function paginate($perPage = 15, $columns = array('*'));
+
+    public function create(array $data);
+
+    public function update(int $id, array $data);
+
+    public function delete($id);
+}
+
+class PostsRepository implements IRepository
+{
+	...
+	// Implements the methods as you like
+	...
+}
+```
+
+#### PostsController.php
+```php
+class PostsController
+{
+	private $posts;
+
+	public function __construct(PostsRepository $posts)
+	{
+		// Just like this
+		$this->posts = $posts;
+	}
+
+	public function index()
+	{
+		resonse()->json($this->posts->all());
+	}
+}
+```
 ---
 
 # Credits

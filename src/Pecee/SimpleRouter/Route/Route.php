@@ -5,6 +5,8 @@ namespace Pecee\SimpleRouter\Route;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
+use Pecee\SimpleRouter\SimpleRouter;
+use DI\ContainerBuilder;
 
 abstract class Route implements IRoute
 {
@@ -68,7 +70,17 @@ abstract class Route implements IRoute
             throw new NotFoundHttpException(sprintf('Class "%s" does not exist', $name), 404);
         }
 
-        return new $name();
+        if (SimpleRouter::isUsingDependencyInjection()) {
+            // Build a PHP DI container instance
+            $builder = new ContainerBuilder();
+            // Enable auto-wiring feature
+            $builder->useAutowiring(true);
+            $container = $builder->build();
+            // Load the class using Container
+            return $container->get($name);
+        } else {
+            return new $name();
+        }
     }
 
     /**

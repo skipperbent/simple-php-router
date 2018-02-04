@@ -43,6 +43,13 @@ class SimpleRouter
     protected static $router;
 
     /**
+     * If enabled will use the php dependency injection for loading controllers
+     * By default it false
+     * @var $useDependencyInjection boolean
+     */
+    protected static $useDependencyInjection = false;
+
+    /**
      * Start/route request
      *
      * @throws HttpException|NotFoundHttpException|\Exception
@@ -452,5 +459,25 @@ class SimpleRouter
     {
         return static::$defaultNamespace;
     }
+
+    /**
+     * Set the static variable $useDependencyInjection
+     * @param bool $status
+     * @return void
+     */
+    public static function useDependencyInjection(bool $status)
+    {
+        static::$useDependencyInjection = $status;
+    }
+
+    /**
+     * Check if the router is using dependency injection for the controller
+     * @return bool
+     */
+    public static function isUsingDependencyInjection()
+    {
+        return static::$useDependencyInjection;
+    }
+
 
 }

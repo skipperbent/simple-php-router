@@ -1,6 +1,6 @@
 {
-  "name": "pecee/simple-router",
-  "description": "Simple, fast PHP router that is easy to get integrated and in almost any project. Heavily inspired by the Laravel router.",
+  "name": "dracola/simple-router",
+  "description": "Forked from pecee/simple-router with PHP DI support",
   "keywords": [
     "router",
     "router",
@@ -22,7 +22,8 @@
     }
   ],
   "require": {
-    "php": ">=5.4.0"
+    "php": ">=5.5.0",
+    "php-di/php-di": "~5.4"
   },
   "require-dev": {
     "phpunit/phpunit": "4.7.7"
