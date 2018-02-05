@@ -543,7 +543,7 @@ abstract class Route implements IRoute
     }
 
     /**
-     * @return string|array
+     * @return array
      */
     public function getMiddlewares()
     {

@@ -17,12 +17,6 @@ class Router
 {
 
     /**
-     * The instance of this class
-     * @var static
-     */
-    protected static $instance;
-
-    /**
      * Current request
      * @var Request
      */
@@ -119,15 +113,12 @@ class Router
     protected function processRoutes(array $routes, IGroupRoute $group = null, IRoute $parent = null)
     {
         // Loop through each route-request
-        $max = count($routes) - 1;
 
         $exceptionHandlers = [];
 
         $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri()->getPath();
 
-        for ($i = $max; $i >= 0; $i--) {
-
-            $route = $routes[$i];
+        foreach ($routes as $route) {
 
             if ($parent !== null) {
 
@@ -202,15 +193,9 @@ class Router
     public function loadRoutes()
     {
         /* Initialize boot-managers */
-        if (count($this->bootManagers) !== 0) {
-
-            $max = count($this->bootManagers) - 1;
-
-            /* @var $manager IRouterBootManager */
-            for ($i = $max; $i >= 0; $i--) {
-                $manager = $this->bootManagers[$i];
-                $manager->boot($this->request);
-            }
+        /* @var $manager IRouterBootManager */
+        foreach ($this->bootManagers as $manager) {
+            $manager->boot($this->request);
         }
 
         /* Loop through each route-request */
@@ -243,12 +228,9 @@ class Router
 
             $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri()->getPath();
 
-            $max = count($this->processedRoutes) - 1;
-
             /* @var $route ILoadableRoute */
-            for ($i = $max; $i >= 0; $i--) {
+            foreach ($this->processedRoutes as $key => $route) {
 
-                $route = $this->processedRoutes[$i];
 
                 /* If the route matches */
                 if ($route->matchRoute($url, $this->request) === true) {
@@ -273,7 +255,7 @@ class Router
                     $rewriteUrl = $this->request->getRewriteUrl();
 
                     if ($rewriteUrl !== null && $rewriteUrl !== $url) {
-                        unset($this->processedRoutes[$i]);
+                        unset($this->processedRoutes[$key]);
                         $this->processedRoutes = array_values($this->processedRoutes);
 
                         return $this->routeRequest(true);
@@ -388,12 +370,8 @@ class Router
      */
     public function findRoute($name)
     {
-        $max = count($this->processedRoutes) - 1;
-
         /* @var $route ILoadableRoute */
-        for ($i = $max; $i >= 0; $i--) {
-
-            $route = $this->processedRoutes[$i];
+        foreach ($this->processedRoutes as $route) {
 
             /* Check if the name matches with a name on the route. Should match either router alias or controller alias. */
             if ($route->hasName($name)) {
@@ -492,12 +470,8 @@ class Router
 
             /* Loop through all the routes to see if we can find a match */
 
-            $max = count($this->processedRoutes) - 1;
-
             /* @var $route ILoadableRoute */
-            for ($i = $max; $i >= 0; $i--) {
-
-                $route = $this->processedRoutes[$i];
+            foreach ($this->processedRoutes as $route) {
 
                 /* Check if the route contains the name/alias */
                 if ($route->hasName($controller) === true) {
