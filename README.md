@@ -1364,10 +1364,10 @@ class Router extends SimpleRouter {
 
 
  ### Using PHP DI package for Controller dependency injection
- You optionally use PHP DI auto-wiring `require [PHP DI package](https://github.com/php-di/php-di)`
- for automatically injection the controller's constructor arguments.
+ You can optionally use PHP DI auto-wiring "It requires [PHP DI package](https://github.com/php-di/php-di)"
+ for automatically inject the controller's constructor parameters.
 
- To enble this feature you muse add the next line to your Simple router config:
+ To enable this feature you must add the next line to your Simple router config:
  ```php
  use Pecee\SimpleRouter\SimpleRouter;
 
@@ -1383,7 +1383,7 @@ class Router extends SimpleRouter {
  	...
 
  	// This line to enable the feature
- 	static::useDependencyInjection(true);
+ 	self::useDependencyInjection(true);
 
  	...
          // Do initial stuff
