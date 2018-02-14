@@ -28,15 +28,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      */
     public function loadMiddleware(Request $request)
     {
-        $max = count($this->getMiddlewares());
-
-        if ($max === 0) {
-            return;
-        }
-
-        for ($i = 0; $i < $max; $i++) {
-
-            $middleware = $this->getMiddlewares()[$i];
+        foreach ($this->getMiddlewares() as $middleware) {
 
             if (is_object($middleware) === false) {
                 $middleware = $this->loadClass($middleware);
