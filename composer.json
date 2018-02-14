@@ -9,7 +9,12 @@
     "simple-php-router",
     "laravel",
     "pecee",
-    "php"
+    "php",
+    "framework",
+    "url-handling",
+    "input-handler",
+    "routing-engine",
+    "request-handler"
   ],
   "license": "MIT",
   "support": {

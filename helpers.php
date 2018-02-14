@@ -18,6 +18,7 @@ use Pecee\SimpleRouter\SimpleRouter as Router;
  * @param string|array|null $parameters
  * @param array|null $getParams
  * @return string
+ * @throws \InvalidArgumentException
  */
 function url($name = null, $parameters = null, $getParams = null)
 {
