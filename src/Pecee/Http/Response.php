@@ -37,12 +37,12 @@ class Response
         }
 
         $this->header('location: ' . $url);
-        die();
+        exit(0);
     }
 
     public function refresh()
     {
-        $this->redirect($this->request->getUri()->getPath());
+        $this->redirect($this->request->getUri()->getOriginalUrl());
     }
 
     /**
