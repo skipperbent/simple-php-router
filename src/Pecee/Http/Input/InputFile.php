@@ -9,12 +9,14 @@ class InputFile implements IInputItem
     public $filename;
     public $size;
     public $type;
-    public $error;
+    public $errors;
     public $tmpName;
 
     public function __construct($index)
     {
         $this->index = $index;
+
+        $this->errors = 0;
 
         // Make the name human friendly, by replace _ with space
         $this->name = ucfirst(str_replace('_', ' ', strtolower($this->index)));
@@ -216,7 +218,7 @@ class InputFile implements IInputItem
      */
     public function getError()
     {
-        return $this->error;
+        return $this->errors;
     }
 
     /**
@@ -227,7 +229,7 @@ class InputFile implements IInputItem
      */
     public function setError($error)
     {
-        $this->error = (int)$error;
+        $this->errors = (int)$error;
 
         return $this;
     }
@@ -269,7 +271,7 @@ class InputFile implements IInputItem
             'type'     => $this->type,
             'size'     => $this->size,
             'name'     => $this->name,
-            'error'    => $this->error,
+            'error'    => $this->errors,
             'filename' => $this->filename,
         ];
     }
