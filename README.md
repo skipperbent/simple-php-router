@@ -1136,125 +1136,18 @@ $siteId = input('site_id', 2, ['post', 'get']);
 
 ## Url rewriting
 Sometimes it can be useful to manipulate the route about to be loaded.
-simple-php-router allows you to easily change the route about to be executed.
+simple-php-router allows you to easily manipulate and change the routes which are about to be rendered.
 All information about the current route is stored in the `\Pecee\SimpleRouter\Router` instance's `loadedRoute` property.
 
-For easy access you can use the shortcut method `\Pecee\SimpleRouter\SimpleRouter::router()`.
+For easy access you can use the shortcut helper function `request()` instead of calling the class directly `\Pecee\SimpleRouter\SimpleRouter::router()`.
 
 
 ```php
-use Pecee\SimpleRouter;
-$request = SimpleRouter::request();
-$request->setRewriteCallback('Example\MyCustomClass@hello');
+request()->setRewriteCallback('Example\MyCustomClass@hello');
 
 // -- or you can rewrite by url --
 
-$request->setRewriteUrl('/my-rewrite-url');
-```
-
-**Note:** It's only possible to change the route BEFORE the route has initially been rendered. You can use the `Request` object to manipulate the route which are about to be loaded.
-
-### Rewrite using callback
-
-This method is most efficient, as it will render the route immediately.
-
-This method is useful for rendering 404-pages etc.
-
-You can also change the callback by modifying the `$route` parameter. This is perfect if you just want to display a view quickly - or change the callback depending
-on some criteria's for the request.
-
-The callback below will fire immediately after the `Middleware` or `ExceptionHandler` has been loaded, as they are loaded before the route is rendered.
-If you wish to change the callback from outside, please have this in mind.
-
-The example below will render `DefaultController@notFound` regardless of the url.
-
-**NOTE: Use this method if you want to load another controller. No additional middlewares or rules will be loaded.**
-
-##### Middleware example
-
-```php
-namespace Demo\Middlewares;
-
-use Pecee\Http\Middleware\IMiddleware;
-use Pecee\Http\Request;
-
-class CustomMiddleware implements IMiddleware {
-
-    public function handle(Request $request) {
-
-        $request->setRewriteCallback('Demo\Controllers\DefaultController@notFound');
-        return $request;
-
-    }
-
-}
-```
-
-##### Exception handler example
-
-```php
-namespace Demo\Handlers;
-
-use Pecee\Handlers\IExceptionHandler;
-use Pecee\Http\Request;
-use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
-
-class CustomExceptionHandler implements IExceptionHandler
-{
-	public function handleError(Request $request, \Exception $error)
-	{
-		/* The router will throw the NotFoundHttpException on 404 */
-		if($error instanceof NotFoundHttpException) {
-
-			/*
-			 * Render your own custom 404-view, rewrite the request to another route,
-			 * or simply return the $request object to ignore the error and continue on rendering the route.
-			 *
-			 * The code below will make the router render our page.notfound route.
-			 */
-
-			$request->setRewriteCallback('Demo\Controllers\DefaultController@notFound');
-			return $request;
-
-		}
-
-		throw $error;
-
-	}
-
-}
-```
-
-### Rewrite using url
-
-The example below will cause the router to reload the request and reinitialize all the routes. This method is slower, but will ensure that all middlewares and rules for the route is loaded.
-
-This method is useful if you want to redirect a url to another-url which is dependent on a middleware. You can also add a custom rule by calling `$request->setRewriteRoute($route)` if
-you want to customize request-methods or use another route-type like `RouteController` etc.
-
-We are using the `url()` helper function to get the uri to another route added in the `routes.php` file.
-
-**NOTE: Use this method if you want to fully load another route using it's settings (request method, middlewares etc).**
-
-##### Middleware example
-
-The example below will redirect the request to the `home`-route.
-
-```php
-namespace Demo\Middlewares;
-
-use Pecee\Http\Middleware\IMiddleware;
-use Pecee\Http\Request;
-
-class CustomMiddleware implements IMiddleware {
-
-    public function handle(Request $request) {
-
-        $request->setRewriteUrl(url('home'));
-        return $request;
-
-    }
-}
+request()->setRewriteUrl('/my-rewrite-url');
 ```
 
 ### Bootmanager: loading routes dynamically
@@ -1282,7 +1175,6 @@ class CustomRouterRules implement IRouterBootManager {
 
             if($request->getUri()->getPath() === $url) {
                 $request->setRewriteUrl($rule);
-                return $request;
             }
         }
 

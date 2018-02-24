@@ -224,13 +224,14 @@ class Router
                     /* Verify csrf token for request */
                     $this->csrfVerifier->handle($this->request);
                 }
+            } else {
+                $this->request->setHasRewrite(false);
             }
 
             $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri()->getPath();
 
             /* @var $route ILoadableRoute */
             foreach ($this->processedRoutes as $key => $route) {
-
 
                 /* If the route matches */
                 if ($route->matchRoute($url, $this->request) === true) {
@@ -243,29 +244,28 @@ class Router
 
                     $route->loadMiddleware($this->request);
 
-                    $rewriteRoute = $this->request->getRewriteRoute();
-
-                    if ($rewriteRoute !== null) {
-                        $rewriteRoute->loadMiddleware($this->request);
-
-                        return $rewriteRoute->renderRoute($this->request);
-                    }
-
-                    /* If the request has changed */
-                    $rewriteUrl = $this->request->getRewriteUrl();
-
-                    if ($rewriteUrl !== null && $rewriteUrl !== $url) {
+                    if ($this->hasRewrite($url) === true) {
                         unset($this->processedRoutes[$key]);
-                        $this->processedRoutes = array_values($this->processedRoutes);
 
                         return $this->routeRequest(true);
                     }
 
                     /* Render route */
                     $routeNotAllowed = false;
+
                     $this->request->setLoadedRoute($route);
 
-                    return $route->renderRoute($this->request);
+                    $output = $route->renderRoute($this->request);
+
+                    if ($output !== null) {
+                        return $output;
+                    }
+
+                    if ($this->hasRewrite($url) === true) {
+                        unset($this->processedRoutes[$key]);
+
+                        return $this->routeRequest(true);
+                    }
                 }
             }
 
@@ -294,6 +294,31 @@ class Router
         return null;
     }
 
+    protected function hasRewrite($url)
+    {
+
+        /* If the request has changed */
+        if ($this->request->hasRewrite() === true) {
+
+            if ($this->request->getRewriteRoute() !== null) {
+                /* Render rewrite-route */
+                $this->processedRoutes[] = $this->request->getRewriteRoute();
+
+                return true;
+            }
+
+            if ($this->request->isRewrite($url) === false) {
+
+                /* Render rewrite-url */
+                $this->processedRoutes = array_values($this->processedRoutes);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * @param \Exception $e
      * @throws HttpException
@@ -302,8 +327,6 @@ class Router
      */
     protected function handleException(\Exception $e)
     {
-        $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri()->getPath();
-
         /* @var $handler IExceptionHandler */
         foreach ($this->exceptionHandlers as $key => $handler) {
 
@@ -317,25 +340,13 @@ class Router
 
             try {
 
-                if ($handler->handleError($this->request, $e) !== null) {
+                $handler->handleError($this->request, $e);
 
-                    $rewriteRoute = $this->request->getRewriteRoute();
+                if ($this->request->hasRewrite() === true) {
+                    unset($this->exceptionHandlers[$key]);
+                    $this->exceptionHandlers = array_values($this->exceptionHandlers);
 
-                    if ($rewriteRoute !== null) {
-                        $rewriteRoute->loadMiddleware($this->request);
-
-                        return $rewriteRoute->renderRoute($this->request);
-                    }
-
-                    $rewriteUrl = $this->request->getRewriteUrl();
-
-                    /* If the request has changed */
-                    if ($rewriteUrl !== null && $rewriteUrl !== $url) {
-                        unset($this->exceptionHandlers[$key]);
-                        $this->exceptionHandlers = array_values($this->exceptionHandlers);
-
-                        return $this->routeRequest(true);
-                    }
+                    return $this->routeRequest(true);
                 }
 
             } catch (\Exception $e) {
