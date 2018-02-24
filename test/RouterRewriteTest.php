@@ -5,6 +5,7 @@ require_once 'Dummy/Handler/ExceptionHandlerFirst.php';
 require_once 'Dummy/Handler/ExceptionHandlerSecond.php';
 require_once 'Dummy/Handler/ExceptionHandlerThird.php';
 require_once 'Helpers/TestRouter.php';
+require_once 'Dummy/Middlewares/RewriteMiddleware.php';
 
 class RouteRewriteTest extends PHPUnit_Framework_TestCase
 {
@@ -33,9 +34,9 @@ class RouteRewriteTest extends PHPUnit_Framework_TestCase
         global $stack;
         $stack = [];
 
-        TestRouter::group(['exceptionHandler' => [ExceptionHandlerFirst::class, ExceptionHandlerSecond::class]], function () {
+        TestRouter::group(['exceptionHandler' => [ExceptionHandlerFirst::class, ExceptionHandlerSecond::class]], function () use ($stack) {
 
-            TestRouter::group(['exceptionHandler' => ExceptionHandlerThird::class], function () {
+            TestRouter::group(['exceptionHandler' => ExceptionHandlerThird::class], function () use ($stack) {
 
                 TestRouter::get('/my-path', 'DummyController@method1');
 
@@ -64,15 +65,113 @@ class RouteRewriteTest extends PHPUnit_Framework_TestCase
 
         TestRouter::error(function (\Pecee\Http\Request $request, \Exception $error) {
 
-            if (strtolower($request->getUri()->getPath()) == '/my/test') {
+            if (strtolower($request->getUri()->getPath()) === '/my/test/') {
                 $request->setRewriteUrl('/another-non-existing');
-
-                return $request;
             }
 
         });
 
         TestRouter::debug('/my/test', 'get');
+    }
+
+    public function testRewriteUrlFromRoute()
+    {
+
+        TestRouter::get('/old', function () {
+            TestRouter::request()->setRewriteUrl('/new');
+        });
+
+        TestRouter::get('/new', function () {
+            echo 'ok';
+        });
+
+        TestRouter::get('/new1', function () {
+            echo 'ok';
+        });
+
+        TestRouter::get('/new2', function () {
+            echo 'ok';
+        });
+
+        $output = TestRouter::debugOutput('/old');
+
+        $this->assertEquals('ok', $output);
+
+    }
+
+    public function testRewriteCallbackFromRoute()
+    {
+
+        TestRouter::get('/old', function () {
+            TestRouter::request()->setRewriteUrl('/new');
+        });
+
+        TestRouter::get('/new', function () {
+            return 'ok';
+        });
+
+        TestRouter::get('/new1', function () {
+            return 'fail';
+        });
+
+        TestRouter::get('/new/2', function () {
+            return 'fail';
+        });
+
+        $output = TestRouter::debugOutput('/old');
+
+        TestRouter::router()->reset();
+
+        $this->assertEquals('ok', $output);
+
+    }
+
+    public function testRewriteRouteFromRoute()
+    {
+
+        TestRouter::get('/match', function () {
+            TestRouter::request()->setRewriteRoute(new \Pecee\SimpleRouter\Route\RouteUrl('/match', function () {
+                return 'ok';
+            }));
+        });
+
+        TestRouter::get('/old1', function () {
+            return 'fail';
+        });
+
+        TestRouter::get('/old/2', function () {
+            return 'fail';
+        });
+
+        TestRouter::get('/new2', function () {
+            return 'fail';
+        });
+
+        $output = TestRouter::debugOutput('/match');
+
+        TestRouter::router()->reset();
+
+        $this->assertEquals('ok', $output);
+
+    }
+
+    public function testMiddlewareRewrite()
+    {
+
+        TestRouter::group(['middleware' => 'RewriteMiddleware'], function () {
+            TestRouter::get('/', function () {
+                return 'fail';
+            });
+
+            TestRouter::get('no/match', function () {
+                return 'fail';
+            });
+        });
+
+        $output = TestRouter::debugOutput('/');
+
+        $this->assertEquals('ok', $output);
+
     }
 
 }

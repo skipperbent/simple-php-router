@@ -16,6 +16,8 @@ class Request
     protected $method;
     protected $input;
 
+    protected $hasRewrite = false;
+
     /**
      * @var ILoadableRoute|null
      */
@@ -231,6 +233,7 @@ class Request
      */
     public function setRewriteRoute(ILoadableRoute $route)
     {
+        $this->hasRewrite = true;
         $this->rewriteRoute = SimpleRouter::addDefaultNamespace($route);
 
         return $this;
@@ -264,7 +267,8 @@ class Request
      */
     public function setRewriteUrl($rewriteUrl)
     {
-        $this->rewriteUrl = $rewriteUrl;
+        $this->hasRewrite = true;
+        $this->rewriteUrl = rtrim($rewriteUrl, '/') . '/';
 
         return $this;
     }
@@ -276,7 +280,9 @@ class Request
      */
     public function setRewriteCallback($callback)
     {
-        return $this->setRewriteRoute(new RouteUrl($this->uri, $callback));
+        $this->hasRewrite = true;
+
+        return $this->setRewriteRoute(new RouteUrl($this->getUri()->getPath(), $callback));
     }
 
     /**
@@ -299,6 +305,23 @@ class Request
         $this->loadedRoute = $route;
 
         return $this;
+    }
+
+    public function hasRewrite()
+    {
+        return $this->hasRewrite;
+    }
+
+    public function setHasRewrite($value)
+    {
+        $this->hasRewrite = $value;
+
+        return $this;
+    }
+
+    public function isRewrite($url)
+    {
+        return ($this->rewriteUrl === $url);
     }
 
     public function __isset($name)
