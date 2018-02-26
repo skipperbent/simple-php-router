@@ -235,7 +235,7 @@ class Router
                 $this->request->setHasRewrite(false);
             }
 
-            $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUrl();
+            $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUrl()->getPath();
 
             /* @var $route ILoadableRoute */
             foreach ($this->processedRoutes as $key => $route) {
