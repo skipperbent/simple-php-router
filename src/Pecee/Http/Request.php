@@ -217,7 +217,7 @@ class Request
      */
     public function setUrl($url)
     {
-        $this->url = is_string($url) ? new Url($url) : $url;
+        $this->url = ($url instanceof Url) ? $url : new Url($url);
     }
 
     /**
