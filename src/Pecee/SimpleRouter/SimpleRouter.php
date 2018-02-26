@@ -48,11 +48,6 @@ class SimpleRouter
      */
     public static function start()
     {
-        // Stop processing routes if no valid route is found.
-        if(static::request()->getUrl()->getPath() === null) {
-            return;
-        }
-
         echo static::router()->routeRequest();
     }
 
