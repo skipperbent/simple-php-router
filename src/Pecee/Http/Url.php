@@ -2,7 +2,9 @@
 
 namespace Pecee\Http;
 
-class Uri
+use Pecee\Http\Exceptions\MalformedUrlException;
+
+class Url
 {
     private $originalUrl;
     private $data = [
@@ -16,6 +18,11 @@ class Uri
         'fragment' => null,
     ];
 
+    /**
+     * Url constructor.
+     * @param string $url
+     * @throws MalformedUrlException
+     */
     public function __construct($url)
     {
         $this->originalUrl = $url;
@@ -129,7 +136,7 @@ class Uri
      * UTF-8 aware parse_url() replacement.
      * @param string $url
      * @param int $component
-     * @throws \InvalidArgumentException
+     * @throws MalformedUrlException
      * @return array
      */
     public function parseUrl($url, $component = -1)
@@ -145,7 +152,7 @@ class Uri
         $parts = parse_url($encodedUrl, $component);
 
         if ($parts === false) {
-            throw new \InvalidArgumentException('Malformed URL: ' . $url);
+            throw new MalformedUrlException('Malformed URL: ' . $url);
         }
 
         return array_map('urldecode', $parts);

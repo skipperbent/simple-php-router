@@ -15,6 +15,10 @@ class BaseCsrfVerifier implements IMiddleware
     protected $except;
     protected $tokenProvider;
 
+    /**
+     * BaseCsrfVerifier constructor.
+     * @throws \Pecee\Http\Security\Exceptions\SecurityException
+     */
     public function __construct()
     {
         $this->tokenProvider = new CookieTokenProvider();
@@ -39,9 +43,9 @@ class BaseCsrfVerifier implements IMiddleware
             $url = rtrim($url, '/');
             if ($url[strlen($url) - 1] === '*') {
                 $url = rtrim($url, '*');
-                $skip = (stripos($request->getUri()->getPath(), $url) === 0);
+                $skip = (stripos($request->getUrl()->getOriginalUrl(), $url) === 0);
             } else {
-                $skip = ($url === $request->getUri()->getPath());
+                $skip = ($url === $request->getUrl()->getOriginalUrl());
             }
 
             if ($skip === true) {

@@ -2,6 +2,7 @@
 
 namespace Pecee\Http\Input;
 
+use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Request;
 
 class Input
@@ -26,6 +27,10 @@ class Input
      */
     protected $request;
 
+    /**
+     * Input constructor.
+     * @param Request $request
+     */
     public function __construct(Request $request)
     {
         $this->request = $request;
@@ -33,6 +38,10 @@ class Input
         $this->parseInputs();
     }
 
+    /**
+     * Parse input values
+     *
+     */
     public function parseInputs()
     {
         /* Parse get requests */
@@ -57,6 +66,9 @@ class Input
         }
     }
 
+    /**
+     * @return array
+     */
     public function parseFiles()
     {
         $list = [];
@@ -66,7 +78,11 @@ class Input
             // Handle array input
             if (is_array($value['name']) === false) {
                 $values['index'] = $key;
-                $list[$key] = InputFile::createFromArray($values + $value);
+                try {
+                    $list[$key] = InputFile::createFromArray($values + $value);
+                } catch(InvalidArgumentException $e ){
+
+                }
                 continue;
             }
 
@@ -97,22 +113,28 @@ class Input
 
             if (is_array($original['name'][$key]) === false) {
 
-                $file = InputFile::createFromArray([
-                    'index' => (empty($key) === true && empty($originalIndex) === false) ? $originalIndex : $key,
-                    'name' => $original['name'][$key],
-                    'error' => $original['error'][$key],
-                    'tmp_name' => $original['tmp_name'][$key],
-                    'type' => $original['type'][$key],
-                    'size' => $original['size'][$key],
-                ]);
+                try {
 
-                if (isset($output[$key]) === true) {
-                    $output[$key][] = $file;
+                    $file = InputFile::createFromArray([
+                        'index'    => (empty($key) === true && empty($originalIndex) === false) ? $originalIndex : $key,
+                        'name'     => $original['name'][$key],
+                        'error'    => $original['error'][$key],
+                        'tmp_name' => $original['tmp_name'][$key],
+                        'type'     => $original['type'][$key],
+                        'size'     => $original['size'][$key],
+                    ]);
+
+                    if (isset($output[$key]) === true) {
+                        $output[$key][] = $file;
+                        continue;
+                    }
+
+                    $output[$key] = $file;
                     continue;
-                }
 
-                $output[$key] = $file;
-                continue;
+                } catch(InvalidArgumentException $e) {
+
+                }
             }
 
             $index[] = $key;

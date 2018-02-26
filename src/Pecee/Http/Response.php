@@ -2,6 +2,8 @@
 
 namespace Pecee\Http;
 
+use Pecee\Exceptions\InvalidArgumentException;
+
 class Response
 {
     protected $request;
@@ -42,7 +44,7 @@ class Response
 
     public function refresh()
     {
-        $this->redirect($this->request->getUri()->getOriginalUrl());
+        $this->redirect($this->request->getUrl()->getOriginalUrl());
     }
 
     /**
@@ -87,12 +89,12 @@ class Response
      * @param array|\JsonSerializable $value
      * @param int $options JSON options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_PRESERVE_ZERO_FRACTION, JSON_UNESCAPED_UNICODE, JSON_PARTIAL_OUTPUT_ON_ERROR.
      * @param int $dept JSON debt.
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function json($value, $options = null, $dept = 512)
     {
         if (($value instanceof \JsonSerializable) === false && is_array($value) === false) {
-            throw new \InvalidArgumentException('Invalid type for parameter "value". Must be of type array or object implementing the \JsonSerializable interface.');
+            throw new InvalidArgumentException('Invalid type for parameter "value". Must be of type array or object implementing the \JsonSerializable interface.');
         }
 
         $this->header('Content-Type: application/json; charset=utf-8');
