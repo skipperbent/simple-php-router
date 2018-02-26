@@ -2,6 +2,8 @@
 
 namespace Pecee\Http\Security;
 
+use Pecee\Http\Security\Exceptions\SecurityException;
+
 class CookieTokenProvider implements ITokenProvider
 {
     const CSRF_KEY = 'CSRF-TOKEN';
@@ -9,6 +11,10 @@ class CookieTokenProvider implements ITokenProvider
     protected $token;
     protected $cookieTimeoutMinutes = 120;
 
+    /**
+     * CookieTokenProvider constructor.
+     * @throws SecurityException
+     */
     public function __construct()
     {
         $this->token = $this->getToken();
@@ -21,20 +27,24 @@ class CookieTokenProvider implements ITokenProvider
     /**
      * Generate random identifier for CSRF token
      *
-     * @throws \RuntimeException|\Exception
      * @return string
+     * @throws SecurityException
      */
     public function generateToken()
     {
         if (function_exists('random_bytes') === true) {
-            return bin2hex(random_bytes(32));
+            try {
+                return bin2hex(random_bytes(32));
+            } catch(\Exception $e) {
+                throw new SecurityException($e->getMessage(), $e->getCode(), $e->getPrevious());
+            }
         }
 
         $isSourceStrong = false;
 
         $random = openssl_random_pseudo_bytes(32, $isSourceStrong);
         if ($isSourceStrong === false || $random === false) {
-            throw new \RuntimeException('IV generation failed');
+            throw new SecurityException('IV generation failed');
         }
 
         return $random;

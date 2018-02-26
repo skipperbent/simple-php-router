@@ -2,6 +2,8 @@
 
 namespace Pecee\Http\Input;
 
+use Pecee\Exceptions\InvalidArgumentException;
+
 class InputFile implements IInputItem
 {
     public $index;
@@ -26,13 +28,13 @@ class InputFile implements IInputItem
      * Create from array
      *
      * @param array $values
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return static
      */
     public static function createFromArray(array $values)
     {
         if (isset($values['index']) === false) {
-            throw new \InvalidArgumentException('Index key is required');
+            throw new InvalidArgumentException('Index key is required');
         }
 
         /* Easy way of ensuring that all indexes-are set and not filling the screen with isset() */

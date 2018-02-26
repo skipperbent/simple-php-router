@@ -12,7 +12,7 @@ class Request
     private $data = [];
     protected $headers;
     protected $host;
-    protected $uri;
+    protected $url;
     protected $method;
     protected $input;
 
@@ -29,13 +29,17 @@ class Request
      */
     protected $loadedRoute;
 
+    /**
+     * Request constructor.
+     * @throws \Pecee\Http\Exceptions\MalformedUrlException
+     */
     public function __construct()
     {
         $this->parseHeaders();
         $this->setHost($this->getHeader('http-host'));
 
         // Check if special IIS header exist, otherwise use default.
-        $this->setUri(new Uri($this->getHeader('unencoded-url', $this->getHeader('request-uri'))));
+        $this->setUrl($this->getHeader('unencoded-url', $this->getHeader('request-uri')));
 
         $this->input = new Input($this);
         $this->method = strtolower($this->input->get('_method', $this->getHeader('request-method')));
@@ -58,11 +62,11 @@ class Request
     }
 
     /**
-     * @return Uri
+     * @return Url
      */
-    public function getUri()
+    public function getUrl()
     {
-        return $this->uri;
+        return $this->url;
     }
 
     /**
@@ -189,6 +193,16 @@ class Request
     }
 
     /**
+     * Returns true if the request is made through Ajax
+     *
+     * @return bool
+     */
+    public function isAjax()
+    {
+        return (strtolower($this->getHeader('http-x-requested-with')) === 'xmlhttprequest');
+    }
+
+    /**
      * Get accept formats
      * @return array
      */
@@ -198,15 +212,12 @@ class Request
     }
 
     /**
-     * @param Uri|string $uri
+     * @param string|Url $url
+     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public function setUri($uri)
+    public function setUrl($url)
     {
-        if (is_string($uri) === true) {
-            $uri = new Uri($uri);
-        }
-
-        $this->uri = $uri;
+        $this->url = is_string($url) ? new Url($url) : $url;
     }
 
     /**
@@ -282,7 +293,7 @@ class Request
     {
         $this->hasRewrite = true;
 
-        return $this->setRewriteRoute(new RouteUrl($this->getUri()->getPath(), $callback));
+        return $this->setRewriteRoute(new RouteUrl($this->getUrl()->getPath(), $callback));
     }
 
     /**

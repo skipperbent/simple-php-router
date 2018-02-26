@@ -600,7 +600,7 @@ SimpleRouter::group(['namespace' => 'Admin'], function () {
 
 ### Sub domain-routing
 
-Route groups may also be used to handle sub-domain routing. Sub-domains may be assigned route parameters just like route URIs, allowing you to capture a portion of the sub-domain for usage in your route or controller. The sub-domain may be specified using the `domain` key on the group attribute array:
+Route groups may also be used to handle sub-domain routing. Sub-domains may be assigned route parameters just like route urls, allowing you to capture a portion of the sub-domain for usage in your route or controller. The sub-domain may be specified using the `domain` key on the group attribute array:
 
 ```php
 SimpleRouter::group(['domain' => '{account}.myapp.com'], function () {
@@ -612,7 +612,7 @@ SimpleRouter::group(['domain' => '{account}.myapp.com'], function () {
 
 ### Route prefixes
 
-The `prefix` group attribute may be used to prefix each route in the group with a given URI. For example, you may want to prefix all route URIs within the group with `admin`:
+The `prefix` group attribute may be used to prefix each route in the group with a given url. For example, you may want to prefix all route urls within the group with `admin`:
 
 ```php
 SimpleRouter::group(['prefix' => '/admin'], function () {
@@ -894,7 +894,7 @@ class CustomExceptionHandler implements IExceptionHandler
 
 		/* You can use the exception handler to format errors depending on the request and type. */
 
-		if (stripos($request->getUri()->getPath(), '/api') !== false) {
+		if (stripos($request->getUrl()->getPath(), '/api') !== false) {
 
 			response()->json([
 				'error' => $error->getMessage(),
@@ -1171,9 +1171,9 @@ class CustomRouterRules implement IRouterBootManager {
 
         foreach($rewriteRules as $url => $rule) {
 
-            // If the current uri matches the url, we use our custom route
+            // If the current url matches the rewrite url, we use our custom route
 
-            if($request->getUri()->getPath() === $url) {
+            if($request->getUrl()->getPath() === $url) {
                 $request->setRewriteUrl($rule);
             }
         }

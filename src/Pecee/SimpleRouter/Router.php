@@ -2,6 +2,7 @@
 
 namespace Pecee\SimpleRouter;
 
+use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Handlers\IExceptionHandler;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
@@ -65,11 +66,18 @@ class Router
      */
     protected $exceptionHandlers;
 
+    /**
+     * Router constructor.
+     * @throws \Pecee\Http\Exceptions\MalformedUrlException
+     */
     public function __construct()
     {
         $this->reset();
     }
 
+    /**
+     * @throws \Pecee\Http\Exceptions\MalformedUrlException
+     */
     public function reset()
     {
         $this->processingRoute = false;
@@ -116,7 +124,7 @@ class Router
 
         $exceptionHandlers = [];
 
-        $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri()->getPath();
+        $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUrl()->getPath();
 
         foreach ($routes as $route) {
 
@@ -208,7 +216,6 @@ class Router
      * @param bool $rewrite
      * @return string|mixed
      * @throws HttpException
-     * @throws \Exception
      */
     public function routeRequest($rewrite = false)
     {
@@ -228,7 +235,7 @@ class Router
                 $this->request->setHasRewrite(false);
             }
 
-            $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUri()->getPath();
+            $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUrl()->getPath();
 
             /* @var $route ILoadableRoute */
             foreach ($this->processedRoutes as $key => $route) {
@@ -274,7 +281,7 @@ class Router
         }
 
         if ($routeNotAllowed === true) {
-            $message = sprintf('Route "%s" or method "%s" not allowed.', $this->request->getUri()->getPath(), $this->request->getMethod());
+            $message = sprintf('Route "%s" or method "%s" not allowed.', $this->request->getUrl()->getPath(), $this->request->getMethod());
             $this->handleException(new HttpException($message, 403));
         }
 
@@ -283,9 +290,9 @@ class Router
             $rewriteUrl = $this->request->getRewriteUrl();
 
             if ($rewriteUrl !== null) {
-                $message = sprintf('Route not found: "%s" (rewrite from: "%s")', $rewriteUrl, $this->request->getUri()->getPath());
+                $message = sprintf('Route not found: "%s" (rewrite from: "%s")', $rewriteUrl, $this->request->getUrl()->getPath());
             } else {
-                $message = sprintf('Route not found: "%s"', $this->request->getUri()->getPath());
+                $message = sprintf('Route not found: "%s"', $this->request->getUrl()->getPath());
             }
 
             $this->handleException(new NotFoundHttpException($message, 404));
@@ -322,7 +329,6 @@ class Router
     /**
      * @param \Exception $e
      * @throws HttpException
-     * @throws \Exception
      * @return string
      */
     protected function handleException(\Exception $e)
@@ -354,7 +360,7 @@ class Router
             }
         }
 
-        throw $e;
+        throw new HttpException($e->getMessage(), $e->getCode(), $e->getPrevious());
     }
 
     public function arrayToParams(array $getParams = [], $includeEmpty = true)
@@ -436,13 +442,13 @@ class Router
      * @param string|null $name
      * @param string|array|null $parameters
      * @param array|null $getParams
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return string
      */
     public function getUrl($name = null, $parameters = null, $getParams = null)
     {
         if ($getParams !== null && is_array($getParams) === false) {
-            throw new \InvalidArgumentException('Invalid type for getParams. Must be array or null');
+            throw new InvalidArgumentException('Invalid type for getParams. Must be array or null');
         }
 
         if ($name === '' && $parameters === '') {
@@ -458,7 +464,7 @@ class Router
 
         /* Return current route if no options has been specified */
         if ($name === null && $parameters === null) {
-            return $this->request->getUri()->getPath() . $this->arrayToParams($getParams);
+            return $this->request->getUrl()->getPath() . $this->arrayToParams($getParams);
         }
 
         $loadedRoute = $this->request->getLoadedRoute();
