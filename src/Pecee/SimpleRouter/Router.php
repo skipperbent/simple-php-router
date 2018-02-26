@@ -200,6 +200,11 @@ class Router
      */
     public function loadRoutes()
     {
+        // Stop processing routes if no valid route is found.
+        if($this->request->getRewriteRoute() === null && $this->request->getUrl() === null) {
+            return;
+        }
+
         /* Initialize boot-managers */
         /* @var $manager IRouterBootManager */
         foreach ($this->bootManagers as $manager) {
