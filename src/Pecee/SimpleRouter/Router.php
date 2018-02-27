@@ -221,6 +221,7 @@ class Router
      * @param bool $rewrite
      * @return string|mixed
      * @throws HttpException
+     * @throws \Exception
      */
     public function routeRequest($rewrite = false)
     {
@@ -334,6 +335,7 @@ class Router
     /**
      * @param \Exception $e
      * @throws HttpException
+     * @throws \Exception
      * @return string
      */
     protected function handleException(\Exception $e)
@@ -365,7 +367,7 @@ class Router
             }
         }
 
-        throw new HttpException($e->getMessage(), (int)$e->getCode(), $e->getPrevious());
+        throw $e;
     }
 
     public function arrayToParams(array $getParams = [], $includeEmpty = true)
