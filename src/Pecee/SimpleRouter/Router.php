@@ -124,6 +124,11 @@ class Router
 
         $exceptionHandlers = [];
 
+        // Stop processing routes if no valid route is found.
+        if($this->request->getRewriteRoute() === null && $this->request->getUrl() === null) {
+            return;
+        }
+
         $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUrl()->getPath();
 
         foreach ($routes as $route) {
@@ -200,11 +205,6 @@ class Router
      */
     public function loadRoutes()
     {
-        // Stop processing routes if no valid route is found.
-        if($this->request->getRewriteRoute() === null && $this->request->getUrl() === null) {
-            return;
-        }
-
         /* Initialize boot-managers */
         /* @var $manager IRouterBootManager */
         foreach ($this->bootManagers as $manager) {
@@ -365,7 +365,7 @@ class Router
             }
         }
 
-        throw new HttpException($e->getMessage(), $e->getCode(), $e->getPrevious());
+        throw new HttpException($e->getMessage(), (int)$e->getCode(), $e->getPrevious());
     }
 
     public function arrayToParams(array $getParams = [], $includeEmpty = true)
