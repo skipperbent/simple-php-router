@@ -45,6 +45,7 @@ class SimpleRouter
     /**
      * @throws \Pecee\Http\Exceptions\MalformedUrlException
      * @throws HttpException
+     * @throws \Exception
      */
     public static function start()
     {
