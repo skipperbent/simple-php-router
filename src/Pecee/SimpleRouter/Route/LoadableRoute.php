@@ -50,7 +50,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             return null;
         }
 
-        return (preg_match($this->regex, $request->getHost() . $url) > 0);
+        return ((bool)preg_match($this->regex, $request->getHost() . $url) !== false);
     }
 
     /**
@@ -67,7 +67,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
             $regex = sprintf(static::PARAMETERS_REGEX_FORMAT, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
-            if (preg_match_all('/' . $regex . '/u', $this->url, $matches) > 0) {
+            if ((bool)preg_match_all('/' . $regex . '/u', $this->url, $matches) !== false) {
                 $this->parameters = array_fill_keys($matches[1], null);
             }
         }
@@ -111,11 +111,8 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         /* Replace any {parameter} in the url with the correct value */
 
         $params = $this->getParameters();
-        $max = count($params) - 1;
-        $keys = array_keys($params);
 
-        for ($i = $max; $i >= 0; $i--) {
-            $param = $keys[$i];
+        foreach (array_keys($params) as $param) {
 
             if ($parameters === '' || (is_array($parameters) === true && count($parameters) === 0)) {
                 $value = '';
@@ -137,8 +134,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             }
         }
 
-        $url = '/' . ltrim($url, '/');
-        $url .= implode('/', $unknownParams);
+        $url = '/' . ltrim($url, '/') . implode('/', $unknownParams);
 
         return rtrim($url, '/') . '/';
     }

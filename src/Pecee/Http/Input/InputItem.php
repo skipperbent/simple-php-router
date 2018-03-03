@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee\Http\Input;
 
 class InputItem implements IInputItem
