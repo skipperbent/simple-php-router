@@ -128,7 +128,9 @@ abstract class Route implements IRoute
         // Ensures that hostnames/domains will work with parameters
         $url = '/' . ltrim($url, '/');
 
-        if (preg_match_all('/' . $regex . '/u', $route, $parameters) !== 0) {
+        if ((bool)preg_match_all('/' . $regex . '/u', $route, $parameters) === false) {
+            $urlRegex = preg_quote($route, '/');
+        } else {
 
             $urlParts = preg_split('/((\-?\/?)\{[^}]+\})/', $route);
 
@@ -154,7 +156,6 @@ abstract class Route implements IRoute
                     }
 
                     $regex = sprintf('(?:\/|\-)%1$s(?P<%2$s>%3$s)%1$s', $parameters[2][$key], $name, $regex);
-
                 }
 
                 $urlParts[$key] = preg_quote($t, '/') . $regex;
@@ -162,11 +163,9 @@ abstract class Route implements IRoute
 
             $urlRegex = implode('', $urlParts);
 
-        } else {
-            $urlRegex = preg_quote($route, '/');
         }
 
-        if (preg_match(sprintf($this->urlRegex, $urlRegex), $url, $matches) === 0) {
+        if ((bool)preg_match(sprintf($this->urlRegex, $urlRegex), $url, $matches) === false) {
             return null;
         }
 
@@ -249,6 +248,9 @@ abstract class Route implements IRoute
     public function setGroup(IGroupRoute $group)
     {
         $this->group = $group;
+
+        /* Add/merge parent settings with child */
+        $this->setSettings($group->toArray(), true);
 
         return $this;
     }

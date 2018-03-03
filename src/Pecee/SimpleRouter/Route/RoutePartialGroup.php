@@ -17,6 +17,10 @@ class RoutePartialGroup extends RouteGroup implements IPartialGroupRoute
      */
     public function matchRoute($url, Request $request)
     {
+        if($this->getGroup() !== null && $this->getGroup()->matchRoute($url, $request) === false) {
+            return false;
+        }
+        
         if ($this->prefix !== null) {
             /* Parse parameters from current route */
             $parameters = $this->parseParameters($this->prefix, $url);

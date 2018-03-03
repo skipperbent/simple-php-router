@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee\Http\Input;
 
 interface IInputItem
@@ -13,6 +14,8 @@ interface IInputItem
     public function setName($name);
 
     public function getValue();
+
+    public function setValue($value);
 
     public function __toString();
 

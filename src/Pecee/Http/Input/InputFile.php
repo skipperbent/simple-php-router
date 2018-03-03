@@ -266,6 +266,17 @@ class InputFile implements IInputItem
         return $this->getFilename();
     }
 
+    /**
+     * @param string $value
+     * @return static
+     */
+    public function setValue($value)
+    {
+        $this->filename = $value;
+
+        return $this;
+    }
+
     public function toArray()
     {
         return [
