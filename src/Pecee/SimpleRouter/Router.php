@@ -97,17 +97,39 @@ class Router
     public function addRoute(IRoute $route)
     {
         /*
-         * If a route is currently being processed, that means that the
-         * route being added are rendered from the parent routes callback,
-         * so we add them to the stack instead.
+         * If a route is currently being processed, that means that the route being added are rendered from the parent
+         * routes callback, so we add them to the stack instead.
          */
         if ($this->processingRoute === true) {
             $this->routeStack[] = $route;
-        } else {
-            $this->routes[] = $route;
+            return $route;
         }
 
+        $this->routes[] = $route;
         return $route;
+    }
+
+    /**
+     * Render and process any new routes added.
+     *
+     * @param IRoute $route
+     * @throws NotFoundHttpException
+     */
+    protected function renderAndProcess(IRoute $route) {
+
+        $this->processingRoute = true;
+        $route->renderRoute($this->request);
+        $this->processingRoute = false;
+
+        if (count($this->routeStack) !== 0) {
+
+            /* Pop and grab the routes added when executing group callback earlier */
+            $stack = $this->routeStack;
+            $this->routeStack = [];
+
+            /* Route any routes added to the stack */
+            $this->processRoutes($stack, $route);
+        }
     }
 
     /**
@@ -115,13 +137,11 @@ class Router
      *
      * @param array $routes
      * @param IGroupRoute|null $group
-     * @param IRoute|null $parent
      * @throws NotFoundHttpException
      */
-    protected function processRoutes(array $routes, IGroupRoute $group = null, IRoute $parent = null)
+    protected function processRoutes(array $routes, IGroupRoute $group = null)
     {
         // Loop through each route-request
-
         $exceptionHandlers = [];
 
         // Stop processing routes if no valid route is found.
@@ -131,28 +151,16 @@ class Router
 
         $url = ($this->request->getRewriteUrl() !== null) ? $this->request->getRewriteUrl() : $this->request->getUrl()->getPath();
 
+        /* @var $route IRoute */
         foreach ($routes as $route) {
 
-            if ($parent !== null) {
-
-                /* Add the parent route */
-                $route->setParent($parent);
-
-                /* Add/merge parent settings with child */
-                $route->setSettings($parent->toArray(), true);
-
-            }
-
             if ($group !== null) {
-
                 /* Add the parent group */
                 $route->setGroup($group);
             }
 
             /* @var $route IGroupRoute */
             if ($route instanceof IGroupRoute) {
-
-                $group = $route;
 
                 if ($route->matchRoute($url, $this->request) === true) {
 
@@ -163,35 +171,23 @@ class Router
                     }
 
                     /* Only render partial group if it matches */
-                    if ($route instanceof IPartialGroupRoute) {
-                        $this->processingRoute = true;
-                        $route->renderRoute($this->request);
-                        $this->processingRoute = false;
+                    if ($route instanceof IPartialGroupRoute === true) {
+                        $this->renderAndProcess($route);
                     }
 
                 }
 
-                if (($route instanceof IPartialGroupRoute) === false) {
-                    $this->processingRoute = true;
-                    $route->renderRoute($this->request);
-                    $this->processingRoute = false;
+                if ($route instanceof IPartialGroupRoute === false) {
+                    $this->renderAndProcess($route);
                 }
+
+                continue;
             }
 
-            if ($route instanceof ILoadableRoute) {
+            if ($route instanceof ILoadableRoute === true) {
 
                 /* Add the route to the map, so we can find the active one when all routes has been loaded */
                 $this->processedRoutes[] = $route;
-            }
-
-            if (count($this->routeStack) !== 0) {
-
-                /* Pop and grab the routes added when executing group callback earlier */
-                $stack = $this->routeStack;
-                $this->routeStack = [];
-
-                /* Route any routes added to the stack */
-                $this->processRoutes($stack, $route, $group);
             }
         }
 

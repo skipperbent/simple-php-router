@@ -48,6 +48,10 @@ class RouteGroup extends Route implements IGroupRoute
      */
     public function matchRoute($url, Request $request)
     {
+        if($this->getGroup() !== null && $this->getGroup()->matchRoute($url, $request) === false) {
+            return false;
+        }
+
         /* Skip if prefix doesn't match */
         if ($this->prefix !== null && stripos($url, $this->prefix) === false) {
             return false;

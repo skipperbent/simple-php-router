@@ -1,45 +1,18 @@
 # Simple PHP router
 Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. Heavily inspired by the way Laravel handles routing, with both simplicity and expandability in mind.
 
-**Note: this documentation is currently work-in-progress. Feel free to contribute.**
-
-### Notes
-
-The goal of this project is to create a router that is more or less 100% compatible with the Laravel documentation, while remaining as simple as possible, and as easy to integrate and change without compromising either speed or complexity. Being lightweight is the #1 priority.
-
-### Feedback and development
-
-If you are missing a feature, experience problems or have ideas or feedback that you want us to hear, please feel free to create an issue.
-
-###### Issues guidelines
-
-- Please be as detailed as possible in the description when creating a new issue. This will help others to more easily understand- and solve your issue.
-For example: if you are experiencing issues, you should provide the necessary steps to reproduce the error within your description.
-
-- We love to hear out any ideas or feedback to the library.
-
-[Create a new issue here](https://github.com/skipperbent/simple-php-router/issues/new)
-
-###### Contribution development guidelines
-
-- Please try to follow the PSR-2 codestyle guidelines.
-
-- Please create your pull requests to the development base that matches the version number you want to change.
-For example when pushing changes to version 3, the pull request should use the `v3-development` base/branch.
-
-- Create detailed descriptions for your commits, as these will be used in the changelog for new releases.
-
-- When changing existing functionality, please ensure that the unit-tests working.
-
-- When adding new stuff, please remember to add new unit-tests for the functionality.
+**Please note that this documentation is currently work-in-progress. Feel free to contribute.**
 
 ---
 
 ## Table of Contents
 
 - [Getting started](#getting-started)
-	- [Requirements](#requirements)
 	- [Notes](#notes-1)
+	- [Requirements](#requirements)
+	- [Feedback and development](#feedback-and-development)
+	    - [Issues guidelines](#issues-guidelines)
+	    - [Contribution development guidelines](#contribution-development-guidelines)
 	- [Features](#features)
 	- [Installation](#installation)
 		- [Setting up Apache](#setting-up-apache)
@@ -47,7 +20,6 @@ For example when pushing changes to version 3, the pull request should use the `
 		- [Setting up IIS](#setting-up-iis)
 		- [Configuration](#configuration)
 		- [Helper functions](#helper-functions)
-
 - [Routes](#routes)
 	- [Basic routing](#basic-routing)
 		- [Available methods](#available-methods)
@@ -99,8 +71,7 @@ For example when pushing changes to version 3, the pull request should use the `
 
 - [Advanced](#advanced)
 	- [Url rewriting](#url-rewriting)
-		- [Rewrite using callback](#rewrite-using-callback)
-		- [Rewrite using url](#rewrite-using-url)
+		- [Changing current route](#changing-current-route)
 		- [Bootmanager: loading routes dynamically](#bootmanager-loading-routes-dynamically)
 		- [Adding routes manually](#adding-routes-manually)
 	- [Parameters](#parameters)
@@ -119,11 +90,9 @@ Add the latest version of Simple PHP Router running this command.
 composer require pecee/simple-router
 ```
 
-## Requirements
-
-- PHP 5.5 or greater
-
 ## Notes
+
+The goal of this project is to create a router that is more or less 100% compatible with the Laravel documentation, while remaining as simple as possible, and as easy to integrate and change without compromising either speed or complexity. Being lightweight is the #1 priority.
 
 We've included a simple demo project for the router which can be found in the `demo-project` folder. This project should give you a basic understanding of how to setup and use simple-php-router project.
 
@@ -142,6 +111,36 @@ You can find the demo-project here: [https://github.com/skipperbent/simple-route
 - How to get up and running fast - from scratch.
 - How to get ExceptionHandlers, Middlewares and Controllers working.
 - How to setup your webservers.
+
+## Requirements
+
+- PHP 5.5 or greater
+
+### Feedback and development
+
+If you are missing a feature, experience problems or have ideas or feedback that you want us to hear, please feel free to create an issue.
+
+###### Issues guidelines
+
+- Please be as detailed as possible in the description when creating a new issue. This will help others to more easily understand- and solve your issue.
+For example: if you are experiencing issues, you should provide the necessary steps to reproduce the error within your description.
+
+- We love to hear out any ideas or feedback to the library.
+
+[Create a new issue here](https://github.com/skipperbent/simple-php-router/issues/new)
+
+###### Contribution development guidelines
+
+- Please try to follow the PSR-2 codestyle guidelines.
+
+- Please create your pull requests to the development base that matches the version number you want to change.
+For example when pushing changes to version 3, the pull request should use the `v3-development` base/branch.
+
+- Create detailed descriptions for your commits, as these will be used in the changelog for new releases.
+
+- When changing existing functionality, please ensure that the unit-tests working.
+
+- When adding new stuff, please remember to add new unit-tests for the functionality.
 
 ## Features
 
@@ -598,7 +597,7 @@ SimpleRouter::group(['namespace' => 'Admin'], function () {
 });
 ```
 
-### Sub domain-routing
+### Subdomain-routing
 
 Route groups may also be used to handle sub-domain routing. Sub-domains may be assigned route parameters just like route urls, allowing you to capture a portion of the sub-domain for usage in your route or controller. The sub-domain may be specified using the `domain` key on the group attribute array:
 
@@ -1135,6 +1134,9 @@ $siteId = input('site_id', 2, ['post', 'get']);
 # Advanced
 
 ## Url rewriting
+
+### Changing current route
+
 Sometimes it can be useful to manipulate the route about to be loaded.
 simple-php-router allows you to easily manipulate and change the routes which are about to be rendered.
 All information about the current route is stored in the `\Pecee\SimpleRouter\Router` instance's `loadedRoute` property.
