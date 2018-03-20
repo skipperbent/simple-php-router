@@ -1,9 +1,8 @@
 <?php
 
 require_once 'Dummy/ResourceController.php';
-require_once 'Helpers/TestRouter.php';
 
-class RouterResourceTest extends PHPUnit_Framework_TestCase
+class RouterResourceTest extends \PHPUnit\Framework\TestCase
 {
 
     public function testResourceStore()

@@ -308,6 +308,8 @@ use Pecee\SimpleRouter\SimpleRouter as Router;
  * @param string|array|null $parameters
  * @param array|null $getParams
  * @return string
+ * @throws \InvalidArgumentException
+ * @throws \Pecee\Http\Exceptions\MalformedUrlException
  */
 function url($name = null, $parameters = null, $getParams = null)
 {
@@ -316,6 +318,7 @@ function url($name = null, $parameters = null, $getParams = null)
 
 /**
  * @return \Pecee\Http\Response
+ * @throws \Pecee\Http\Exceptions\MalformedUrlException
  */
 function response()
 {
@@ -324,6 +327,7 @@ function response()
 
 /**
  * @return \Pecee\Http\Request
+ * @throws \Pecee\Http\Exceptions\MalformedUrlException
  */
 function request()
 {
@@ -335,15 +339,16 @@ function request()
  * @param string|null $index Parameter index name
  * @param string|null $defaultValue Default return value
  * @param string|array|null $methods Default method
- * @return \Pecee\Http\Input\Input|string
+ * @return \Pecee\Http\Input\InputHandler|string
+ * @throws \Pecee\Http\Exceptions\MalformedUrlException
  */
 function input($index = null, $defaultValue = null, $methods = null)
 {
     if ($index !== null) {
-        return request()->getInput()->get($index, $defaultValue, $methods);
+        return request()->getInputHandler()->get($index, $defaultValue, $methods);
     }
 
-    return request()->getInput();
+    return request()->getInputHandler();
 }
 
 function redirect($url, $code = null)
@@ -358,12 +363,13 @@ function redirect($url, $code = null)
 /**
  * Get current csrf-token
  * @return string|null
+ * @throws \Pecee\Http\Exceptions\MalformedUrlException
  */
 function csrf_token()
 {
     $baseVerifier = Router::router()->getCsrfVerifier();
     if ($baseVerifier !== null) {
-        return $baseVerifier->getToken();
+        return $baseVerifier->getTokenProvider()->getToken();
     }
 
     return null;

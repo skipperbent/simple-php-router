@@ -1,47 +1,48 @@
 <?php
+
 namespace Pecee\Controllers;
 
 interface IResourceController
 {
 
     /**
-     * @return void
+     * @return string|null
      */
-    public function index();
+    public function index(): ?string;
 
     /**
      * @param mixed $id
-     * @return void
+     * @return string|null
      */
-    public function show($id);
+    public function show($id): ?string;
 
     /**
-     * @return void
+     * @return string|null
      */
-    public function store();
+    public function store(): ?string;
 
     /**
-     * @return void
+     * @return string|null
      */
-    public function create();
+    public function create(): ?string;
 
     /**
      * View
      * @param mixed $id
-     * @return void
+     * @return string|null
      */
-    public function edit($id);
+    public function edit($id): ?string;
 
     /**
      * @param mixed $id
-     * @return void
+     * @return string|null
      */
-    public function update($id);
+    public function update($id): ?string;
 
     /**
      * @param mixed $id
-     * @return void
+     * @return string|null
      */
-    public function destroy($id);
+    public function destroy($id): ?string;
 
 }

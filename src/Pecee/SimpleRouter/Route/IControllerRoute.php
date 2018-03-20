@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee\SimpleRouter\Route;
 
 interface IControllerRoute extends IRoute
@@ -8,7 +9,7 @@ interface IControllerRoute extends IRoute
      *
      * @return string
      */
-    public function getController();
+    public function getController(): string;
 
     /**
      * Set controller class-name
@@ -16,21 +17,6 @@ interface IControllerRoute extends IRoute
      * @param string $controller
      * @return static
      */
-    public function setController($controller);
-
-    /**
-     * Return active method
-     *
-     * @return string
-     */
-    public function getMethod();
-
-    /**
-     * Set active method
-     *
-     * @param string $method
-     * @return static
-     */
-    public function setMethod($method);
+    public function setController($controller): self;
 
 }

@@ -20,12 +20,12 @@ class InputItem implements IInputItem
     /**
      * @return string
      */
-    public function getIndex()
+    public function getIndex(): string
     {
         return $this->index;
     }
 
-    public function setIndex($index)
+    public function setIndex($index): IInputItem
     {
         $this->index = $index;
 
@@ -35,7 +35,7 @@ class InputItem implements IInputItem
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -45,7 +45,7 @@ class InputItem implements IInputItem
      * @param string $name
      * @return static $this
      */
-    public function setName($name)
+    public function setName($name): IInputItem
     {
         $this->name = $name;
 
@@ -55,7 +55,7 @@ class InputItem implements IInputItem
     /**
      * @return string
      */
-    public function getValue()
+    public function getValue(): string
     {
         return $this->value;
     }
@@ -65,7 +65,7 @@ class InputItem implements IInputItem
      * @param string $value
      * @return static $this
      */
-    public function setValue($value)
+    public function setValue($value): IInputItem
     {
         $this->value = $value;
 

@@ -13,7 +13,7 @@ interface IRoute
      * @param Request $request
      * @return bool
      */
-    public function matchRoute($route, Request $request);
+    public function matchRoute($route, Request $request): bool;
 
     /**
      * Called when route is matched.
@@ -23,7 +23,7 @@ interface IRoute
      * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
      * @return string
      */
-    public function renderRoute(Request $request);
+    public function renderRoute(Request $request): ?string;
 
     /**
      * Returns callback name/identifier for the current route based on the callback.
@@ -32,50 +32,50 @@ interface IRoute
      *
      * @return string
      */
-    public function getIdentifier();
+    public function getIdentifier(): string;
 
     /**
      * Set allowed request methods
      *
      * @param array $methods
-     * @return static $this
+     * @return static
      */
-    public function setRequestMethods(array $methods);
+    public function setRequestMethods(array $methods): self;
 
     /**
      * Get allowed request methods
      *
      * @return array
      */
-    public function getRequestMethods();
+    public function getRequestMethods(): array;
 
     /**
      * @return IRoute|null
      */
-    public function getParent();
+    public function getParent(): ?IRoute;
 
     /**
      * Get the group for the route.
      *
      * @return IGroupRoute|null
      */
-    public function getGroup();
+    public function getGroup(): ?IGroupRoute;
 
     /**
      * Set group
      *
      * @param IGroupRoute $group
-     * @return static $this
+     * @return static
      */
-    public function setGroup(IGroupRoute $group);
+    public function setGroup(IGroupRoute $group): self;
 
     /**
      * Set parent route
      *
      * @param IRoute $parent
-     * @return static $this
+     * @return static
      */
-    public function setParent(IRoute $parent);
+    public function setParent(IRoute $parent): self;
 
     /**
      * Set callback
@@ -83,33 +83,44 @@ interface IRoute
      * @param string $callback
      * @return static
      */
-    public function setCallback($callback);
+    public function setCallback($callback): self;
 
     /**
-     * @return string
+     * @return string|callable
      */
     public function getCallback();
 
-    public function getMethod();
+    /**
+     * Return active method
+     *
+     * @return string|null
+     */
+    public function getMethod(): ?string;
+
+    /**
+     * Set active method
+     *
+     * @param string $method
+     * @return static
+     */
+    public function setMethod($method): self;
 
     public function getClass();
 
-    public function setMethod($method);
-
     /**
      * @param string $namespace
-     * @return static $this
+     * @return static
      */
     public function setNamespace($namespace);
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getNamespace();
+    public function getNamespace(): ?string;
 
     /**
      * @param string $namespace
-     * @return static $this
+     * @return static
      */
     public function setDefaultNamespace($namespace);
 
@@ -120,7 +131,7 @@ interface IRoute
      *
      * @return array
      */
-    public function getWhere();
+    public function getWhere(): array;
 
     /**
      * Set parameter names.
@@ -135,7 +146,7 @@ interface IRoute
      *
      * @return array
      */
-    public function getParameters();
+    public function getParameters(): array;
 
     /**
      * Get parameters
@@ -159,14 +170,14 @@ interface IRoute
      *
      * @return array
      */
-    public function toArray();
+    public function toArray(): array;
 
     /**
      * Get middlewares array
      *
      * @return array
      */
-    public function getMiddlewares();
+    public function getMiddlewares(): array;
 
     /**
      * Set middleware class-name
@@ -174,14 +185,14 @@ interface IRoute
      * @param string $middleware
      * @return static
      */
-    public function addMiddleware($middleware);
+    public function addMiddleware($middleware): self;
 
     /**
      * Set middlewares array
      *
      * @param array $middlewares
-     * @return $this
+     * @return static
      */
-    public function setMiddlewares(array $middlewares);
+    public function setMiddlewares(array $middlewares): self;
 
 }

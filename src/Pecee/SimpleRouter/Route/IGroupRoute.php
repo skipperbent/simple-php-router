@@ -13,7 +13,7 @@ interface IGroupRoute extends IRoute
      * @param Request $request
      * @return bool
      */
-    public function matchDomain(Request $request);
+    public function matchDomain(Request $request): bool;
 
     /**
      * Add exception handler
@@ -36,35 +36,35 @@ interface IGroupRoute extends IRoute
      *
      * @return array
      */
-    public function getExceptionHandlers();
+    public function getExceptionHandlers(): array;
 
     /**
      * Get domains for domain.
      *
      * @return array
      */
-    public function getDomains();
+    public function getDomains(): array;
 
     /**
      * Set allowed domains for group.
      *
      * @param array $domains
-     * @return $this
+     * @return static
      */
-    public function setDomains(array $domains);
+    public function setDomains(array $domains): self;
 
     /**
      * Set prefix that child-routes will inherit.
      *
      * @param string $prefix
-     * @return string
+     * @return static
      */
-    public function setPrefix($prefix);
+    public function setPrefix($prefix): self;
 
     /**
      * Get prefix.
      *
-     * @return string
+     * @return string|null
      */
-    public function getPrefix();
+    public function getPrefix(): ?string;
 }

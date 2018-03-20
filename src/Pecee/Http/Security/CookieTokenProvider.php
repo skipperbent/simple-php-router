@@ -6,7 +6,7 @@ use Pecee\Http\Security\Exceptions\SecurityException;
 
 class CookieTokenProvider implements ITokenProvider
 {
-    const CSRF_KEY = 'CSRF-TOKEN';
+    public const CSRF_KEY = 'CSRF-TOKEN';
 
     protected $token;
     protected $cookieTimeoutMinutes = 120;
@@ -30,24 +30,13 @@ class CookieTokenProvider implements ITokenProvider
      * @return string
      * @throws SecurityException
      */
-    public function generateToken()
+    public function generateToken(): string
     {
-        if (function_exists('random_bytes') === true) {
-            try {
-                return bin2hex(random_bytes(32));
-            } catch(\Exception $e) {
-                throw new SecurityException($e->getMessage(), (int)$e->getCode(), $e->getPrevious());
-            }
+        try {
+            return bin2hex(random_bytes(32));
+        } catch (\Exception $e) {
+            throw new SecurityException($e->getMessage(), (int)$e->getCode(), $e->getPrevious());
         }
-
-        $isSourceStrong = false;
-
-        $random = openssl_random_pseudo_bytes(32, $isSourceStrong);
-        if ($isSourceStrong === false || $random === false) {
-            throw new SecurityException('IV generation failed');
-        }
-
-        return $random;
     }
 
     /**
@@ -56,7 +45,7 @@ class CookieTokenProvider implements ITokenProvider
      * @param string $token
      * @return bool
      */
-    public function validate($token)
+    public function validate($token): bool
     {
         if ($token !== null && $this->getToken() !== null) {
             return hash_equals($token, $this->getToken());
@@ -71,7 +60,7 @@ class CookieTokenProvider implements ITokenProvider
      *
      * @param string $token
      */
-    public function setToken($token)
+    public function setToken($token): void
     {
         $this->token = $token;
         setcookie(static::CSRF_KEY, $token, time() + 60 * $this->cookieTimeoutMinutes, '/');
@@ -82,17 +71,17 @@ class CookieTokenProvider implements ITokenProvider
      * @param string|null $defaultValue
      * @return string|null
      */
-    public function getToken($defaultValue = null)
+    public function getToken($defaultValue = null): ?string
     {
         $this->token = ($this->hasToken() === true) ? $_COOKIE[static::CSRF_KEY] : null;
 
-        return ($this->token !== null) ? $this->token : $defaultValue;
+        return $this->token ?? $defaultValue;
     }
 
     /**
      * Refresh existing token
      */
-    public function refresh()
+    public function refresh(): void
     {
         if ($this->token !== null) {
             $this->setToken($this->token);
@@ -103,7 +92,7 @@ class CookieTokenProvider implements ITokenProvider
      * Returns whether the csrf token has been defined
      * @return bool
      */
-    public function hasToken()
+    public function hasToken(): bool
     {
         return isset($_COOKIE[static::CSRF_KEY]);
     }
@@ -112,7 +101,7 @@ class CookieTokenProvider implements ITokenProvider
      * Get timeout for cookie in minutes
      * @return int
      */
-    public function getCookieTimeoutMinutes()
+    public function getCookieTimeoutMinutes(): int
     {
         return $this->cookieTimeoutMinutes;
     }
@@ -121,7 +110,7 @@ class CookieTokenProvider implements ITokenProvider
      * Set cookie timeout in minutes
      * @param $minutes
      */
-    public function setCookieTimeoutMinutes($minutes)
+    public function setCookieTimeoutMinutes($minutes): void
     {
         $this->cookieTimeoutMinutes = $minutes;
     }

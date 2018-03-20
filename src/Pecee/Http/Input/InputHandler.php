@@ -5,7 +5,7 @@ namespace Pecee\Http\Input;
 use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Request;
 
-class Input
+class InputHandler
 {
     /**
      * @var array
@@ -42,26 +42,26 @@ class Input
      * Parse input values
      *
      */
-    public function parseInputs()
+    public function parseInputs() : void
     {
         /* Parse get requests */
-        if (count($_GET) !== 0) {
+        if (\count($_GET) !== 0) {
             $this->get = $this->handleGetPost($_GET);
         }
 
         /* Parse post requests */
         $postVars = $_POST;
 
-        if (in_array($this->request->getMethod(), ['put', 'patch', 'delete'], false) === true) {
+        if (\in_array($this->request->getMethod(), ['put', 'patch', 'delete'], false) === true) {
             parse_str(file_get_contents('php://input'), $postVars);
         }
 
-        if (count($postVars) !== 0) {
+        if (\count($postVars) !== 0) {
             $this->post = $this->handleGetPost($postVars);
         }
 
         /* Parse get requests */
-        if (count($_FILES) !== 0) {
+        if (\count($_FILES) !== 0) {
             $this->file = $this->parseFiles();
         }
     }
@@ -69,14 +69,14 @@ class Input
     /**
      * @return array
      */
-    public function parseFiles()
+    public function parseFiles() : array
     {
         $list = [];
 
         foreach ((array)$_FILES as $key => $value) {
 
             // Handle array input
-            if (is_array($value['name']) === false) {
+            if (\is_array($value['name']) === false) {
                 $values['index'] = $key;
                 try {
                     $list[$key] = InputFile::createFromArray($values + $value);
@@ -101,7 +101,7 @@ class Input
         return $list;
     }
 
-    protected function rearrangeFiles(array $values, &$index, $original)
+    protected function rearrangeFiles(array $values, &$index, $original) : array
     {
 
         $originalIndex = $index[0];
@@ -111,7 +111,7 @@ class Input
 
         foreach ($values as $key => $value) {
 
-            if (is_array($original['name'][$key]) === false) {
+            if (\is_array($original['name'][$key]) === false) {
 
                 try {
 
@@ -152,14 +152,14 @@ class Input
         return $output;
     }
 
-    protected function handleGetPost(array $array)
+    protected function handleGetPost(array $array) : array
     {
         $list = [];
 
         foreach ($array as $key => $value) {
 
             // Handle array input
-            if (is_array($value) === false) {
+            if (\is_array($value) === false) {
                 $list[$key] = new InputItem($key, $value);
                 continue;
             }
@@ -181,7 +181,7 @@ class Input
      */
     public function findPost($index, $defaultValue = null)
     {
-        return isset($this->post[$index]) ? $this->post[$index] : $defaultValue;
+        return $this->post[$index] ?? $defaultValue;
     }
 
     /**
@@ -193,7 +193,7 @@ class Input
      */
     public function findFile($index, $defaultValue = null)
     {
-        return isset($this->file[$index]) ? $this->file[$index] : $defaultValue;
+        return $this->file[$index] ?? $defaultValue;
     }
 
     /**
@@ -205,7 +205,7 @@ class Input
      */
     public function findGet($index, $defaultValue = null)
     {
-        return isset($this->get[$index]) ? $this->get[$index] : $defaultValue;
+        return $this->get[$index] ?? $defaultValue;
     }
 
     /**
@@ -218,25 +218,25 @@ class Input
      */
     public function getObject($index, $defaultValue = null, $methods = null)
     {
-        if ($methods !== null && is_string($methods) === true) {
+        if ($methods !== null && \is_string($methods) === true) {
             $methods = [$methods];
         }
 
         $element = null;
 
-        if ($methods === null || in_array('get', $methods, false) === true) {
+        if ($methods === null || \in_array('get', $methods, true) === true) {
             $element = $this->findGet($index);
         }
 
-        if (($element === null && $methods === null) || ($methods !== null && in_array('post', $methods, false) === true)) {
+        if (($element === null && $methods === null) || ($methods !== null && \in_array('post', $methods, true) === true)) {
             $element = $this->findPost($index);
         }
 
-        if (($element === null && $methods === null) || ($methods !== null && in_array('file', $methods, false) === true)) {
+        if (($element === null && $methods === null) || ($methods !== null && \in_array('file', $methods, true) === true)) {
             $element = $this->findFile($index);
         }
 
-        return ($element !== null) ? $element : $defaultValue;
+        return $element ?? $defaultValue;
     }
 
     /**
@@ -264,7 +264,7 @@ class Input
      * @param string $index
      * @return bool
      */
-    public function exists($index)
+    public function exists($index) : bool
     {
         return ($this->getObject($index) !== null);
     }
@@ -274,7 +274,7 @@ class Input
      * @param array|null $filter Only take items in filter
      * @return array
      */
-    public function all(array $filter = null)
+    public function all(array $filter = null) : array
     {
         $output = $_GET + $_POST;
 

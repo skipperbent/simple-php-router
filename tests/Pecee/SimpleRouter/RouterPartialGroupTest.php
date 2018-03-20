@@ -3,9 +3,8 @@
 require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
 require_once 'Dummy/Handler/ExceptionHandler.php';
-require_once 'Helpers/TestRouter.php';
 
-class RouterPartialGroupTest extends PHPUnit_Framework_TestCase
+class RouterPartialGroupTest extends \PHPUnit\Framework\TestCase
 {
 
     public function testParameters()

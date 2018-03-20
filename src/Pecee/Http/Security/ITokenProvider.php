@@ -8,7 +8,7 @@ interface ITokenProvider
     /**
      * Refresh existing token
      */
-    public function refresh();
+    public function refresh(): void;
 
     /**
      * Validate valid CSRF token
@@ -16,6 +16,14 @@ interface ITokenProvider
      * @param string $token
      * @return bool
      */
-    public function validate($token);
+    public function validate($token): bool;
+
+    /**
+     * Get token token
+     *
+     * @param string|null $defaultValue
+     * @return string|null
+     */
+    public function getToken($defaultValue = null);
 
 }
