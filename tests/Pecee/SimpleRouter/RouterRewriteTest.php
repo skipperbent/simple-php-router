@@ -1,13 +1,12 @@
 <?php
 require_once 'Dummy/DummyController.php';
-require_once 'Dummy/Exceptions/ResponseException.php';
+require_once 'Dummy/Exception/ResponseException.php';
 require_once 'Dummy/Handler/ExceptionHandlerFirst.php';
 require_once 'Dummy/Handler/ExceptionHandlerSecond.php';
 require_once 'Dummy/Handler/ExceptionHandlerThird.php';
-require_once 'Helpers/TestRouter.php';
-require_once 'Dummy/Middlewares/RewriteMiddleware.php';
+require_once 'Dummy/Middleware/RewriteMiddleware.php';
 
-class RouteRewriteTest extends PHPUnit_Framework_TestCase
+class RouteRewriteTest extends \PHPUnit\Framework\TestCase
 {
 
     /**
@@ -61,7 +60,7 @@ class RouteRewriteTest extends PHPUnit_Framework_TestCase
 
     public function testRewriteExceptionMessage()
     {
-        $this->setExpectedException(\Pecee\SimpleRouter\Exceptions\NotFoundHttpException::class);
+        $this->expectException(\Pecee\SimpleRouter\Exceptions\NotFoundHttpException::class);
 
         TestRouter::error(function (\Pecee\Http\Request $request, \Exception $error) {
 

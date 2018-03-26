@@ -25,12 +25,11 @@ class CallbackExceptionHandler implements IExceptionHandler
     /**
      * @param Request $request
      * @param \Exception $error
-     * @return Request|null
      */
-    public function handleError(Request $request, \Exception $error)
+    public function handleError(Request $request, \Exception $error): void
     {
         /* Fire exceptions */
-        return call_user_func($this->callback,
+        \call_user_func($this->callback,
             $request,
             $error
         );

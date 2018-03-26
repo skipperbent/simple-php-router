@@ -14,7 +14,7 @@ class InputFile implements IInputItem
     public $errors;
     public $tmpName;
 
-    public function __construct($index)
+    public function __construct(string $index)
     {
         $this->index = $index;
 
@@ -31,7 +31,7 @@ class InputFile implements IInputItem
      * @throws InvalidArgumentException
      * @return static
      */
-    public static function createFromArray(array $values)
+    public static function createFromArray(array $values): self
     {
         if (isset($values['index']) === false) {
             throw new InvalidArgumentException('Index key is required');
@@ -48,7 +48,7 @@ class InputFile implements IInputItem
         ];
 
         return (new static($values['index']))
-            ->setSize($values['size'])
+            ->setSize((int)$values['size'])
             ->setError($values['error'])
             ->setType($values['type'])
             ->setTmpName($values['tmp_name'])
@@ -59,7 +59,7 @@ class InputFile implements IInputItem
     /**
      * @return string
      */
-    public function getIndex()
+    public function getIndex(): string
     {
         return $this->index;
     }
@@ -67,9 +67,9 @@ class InputFile implements IInputItem
     /**
      * Set input index
      * @param string $index
-     * @return static $this
+     * @return static
      */
-    public function setIndex($index)
+    public function setIndex(string $index): IInputItem
     {
         $this->index = $index;
 
@@ -79,7 +79,7 @@ class InputFile implements IInputItem
     /**
      * @return string
      */
-    public function getSize()
+    public function getSize(): string
     {
         return $this->size;
     }
@@ -87,9 +87,9 @@ class InputFile implements IInputItem
     /**
      * Set file size
      * @param int $size
-     * @return static $this
+     * @return static
      */
-    public function setSize($size)
+    public function setSize(int $size): IInputItem
     {
         $this->size = $size;
 
@@ -100,7 +100,7 @@ class InputFile implements IInputItem
      * Get mime-type of file
      * @return string
      */
-    public function getMime()
+    public function getMime(): string
     {
         return $this->getType();
     }
@@ -108,7 +108,7 @@ class InputFile implements IInputItem
     /**
      * @return string
      */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
@@ -116,9 +116,9 @@ class InputFile implements IInputItem
     /**
      * Set type
      * @param string $type
-     * @return static $this
+     * @return static
      */
-    public function setType($type)
+    public function setType(string $type): IInputItem
     {
         $this->type = $type;
 
@@ -130,7 +130,7 @@ class InputFile implements IInputItem
      *
      * @return string
      */
-    public function getExtension()
+    public function getExtension(): string
     {
         return pathinfo($this->getFilename(), PATHINFO_EXTENSION);
     }
@@ -140,7 +140,7 @@ class InputFile implements IInputItem
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -150,9 +150,9 @@ class InputFile implements IInputItem
      * Useful for adding validation etc.
      *
      * @param string $name
-     * @return static $this
+     * @return static
      */
-    public function setName($name)
+    public function setName(string $name): IInputItem
     {
         $this->name = $name;
 
@@ -163,9 +163,9 @@ class InputFile implements IInputItem
      * Set filename
      *
      * @param string $name
-     * @return static $this
+     * @return static
      */
-    public function setFilename($name)
+    public function setFilename($name): IInputItem
     {
         $this->filename = $name;
 
@@ -177,7 +177,7 @@ class InputFile implements IInputItem
      *
      * @return string mixed
      */
-    public function getFilename()
+    public function getFilename(): string
     {
         return $this->filename;
     }
@@ -188,7 +188,7 @@ class InputFile implements IInputItem
      * @param string $destination
      * @return bool
      */
-    public function move($destination)
+    public function move($destination): bool
     {
         return move_uploaded_file($this->tmpName, $destination);
     }
@@ -198,7 +198,7 @@ class InputFile implements IInputItem
      *
      * @return string
      */
-    public function getContents()
+    public function getContents(): string
     {
         return file_get_contents($this->tmpName);
     }
@@ -208,7 +208,7 @@ class InputFile implements IInputItem
      *
      * @return bool
      */
-    public function hasError()
+    public function hasError(): bool
     {
         return ($this->getError() !== 0);
     }
@@ -218,7 +218,7 @@ class InputFile implements IInputItem
      *
      * @return string
      */
-    public function getError()
+    public function getError(): string
     {
         return $this->errors;
     }
@@ -227,9 +227,9 @@ class InputFile implements IInputItem
      * Set error
      *
      * @param int $error
-     * @return static $this
+     * @return static
      */
-    public function setError($error)
+    public function setError($error): IInputItem
     {
         $this->errors = (int)$error;
 
@@ -239,7 +239,7 @@ class InputFile implements IInputItem
     /**
      * @return string
      */
-    public function getTmpName()
+    public function getTmpName(): string
     {
         return $this->tmpName;
     }
@@ -247,9 +247,9 @@ class InputFile implements IInputItem
     /**
      * Set file temp. name
      * @param string $name
-     * @return static $this
+     * @return static
      */
-    public function setTmpName($name)
+    public function setTmpName($name): IInputItem
     {
         $this->tmpName = $name;
 
@@ -261,7 +261,7 @@ class InputFile implements IInputItem
         return $this->getTmpName();
     }
 
-    public function getValue()
+    public function getValue(): string
     {
         return $this->getFilename();
     }
@@ -270,14 +270,14 @@ class InputFile implements IInputItem
      * @param string $value
      * @return static
      */
-    public function setValue($value)
+    public function setValue(string $value): IInputItem
     {
         $this->filename = $value;
 
         return $this;
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'tmp_name' => $this->tmpName,

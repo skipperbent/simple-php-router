@@ -1,0 +1,13 @@
+sudo: false
+
+language: php
+
+php:
+  - 7.1
+
+before_script:
+  - curl -sS http://getcomposer.org/installer | php
+  - php composer.phar install --prefer-source --no-interaction
+
+script:
+  - ./vendor/bin/phpunit

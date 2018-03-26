@@ -2,15 +2,14 @@
 
 require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
-require_once 'Dummy/Exceptions/ExceptionHandlerException.php';
-require_once 'Helpers/TestRouter.php';
+require_once 'Dummy/Exception/ExceptionHandlerException.php';
 
-class RouterCallbackExceptionHandlerTest extends PHPUnit_Framework_TestCase
+class RouterCallbackExceptionHandlerTest extends \PHPUnit\Framework\TestCase
 {
 
     public function testCallbackExceptionHandler()
     {
-        $this->setExpectedException(ExceptionHandlerException::class);
+        $this->expectException(ExceptionHandlerException::class);
 
         // Match normal route on alias
         TestRouter::get('/my-new-url', 'DummyController@method2');
@@ -22,6 +21,8 @@ class RouterCallbackExceptionHandlerTest extends PHPUnit_Framework_TestCase
 
         TestRouter::debugNoReset('/404-url', 'get');
         TestRouter::router()->reset();
+
+        $this->assertTrue(true);
     }
 
 }
