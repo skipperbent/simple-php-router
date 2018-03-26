@@ -60,10 +60,10 @@ abstract class Route implements IRoute
     /**
      * Load class by name
      * @param string $name
-     * @return object
+     * @return mixed
      * @throws NotFoundHttpException
      */
-    protected function loadClass($name): object
+    protected function loadClass($name)
     {
         if (class_exists($name) === false) {
             throw new NotFoundHttpException(sprintf('Class "%s" does not exist', $name), 404);
