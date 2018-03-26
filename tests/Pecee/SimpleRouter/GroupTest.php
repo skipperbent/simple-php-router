@@ -2,9 +2,8 @@
 
 require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
-require_once 'Helpers/TestRouter.php';
 
-class GroupTest extends PHPUnit_Framework_TestCase
+class GroupTest extends \PHPUnit\Framework\TestCase
 {
     protected $result;
 
@@ -37,6 +36,7 @@ class GroupTest extends PHPUnit_Framework_TestCase
 
         TestRouter::debug('/api/v1/test', 'get');
 
+        $this->assertTrue(true);
     }
 
     public function testMultipleRoutes()
@@ -61,6 +61,8 @@ class GroupTest extends PHPUnit_Framework_TestCase
         });
 
         TestRouter::debug('/my/match', 'get');
+
+        $this->assertTrue(true);
     }
 
     public function testUrls()

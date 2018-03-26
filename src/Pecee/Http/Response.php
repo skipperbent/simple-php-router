@@ -19,7 +19,7 @@ class Response
      * @param int $code
      * @return static
      */
-    public function httpCode($code)
+    public function httpCode(int $code): self
     {
         http_response_code($code);
 
@@ -32,7 +32,7 @@ class Response
      * @param string $url
      * @param int $httpCode
      */
-    public function redirect($url, $httpCode = null)
+    public function redirect(string $url, ?int $httpCode = null): void
     {
         if ($httpCode !== null) {
             $this->httpCode($httpCode);
@@ -42,7 +42,7 @@ class Response
         exit(0);
     }
 
-    public function refresh()
+    public function refresh(): void
     {
         $this->redirect($this->request->getUrl()->getOriginalUrl());
     }
@@ -52,7 +52,7 @@ class Response
      * @param string $name
      * @return static
      */
-    public function auth($name = '')
+    public function auth(string $name = ''): self
     {
         $this->headers([
             'WWW-Authenticate: Basic realm="' . $name . '"',
@@ -62,23 +62,22 @@ class Response
         return $this;
     }
 
-    public function cache($eTag, $lastModified = 2592000)
+    public function cache(string $eTag, int $lastModifiedTime = 2592000): self
     {
 
         $this->headers([
             'Cache-Control: public',
-            'Last-Modified: ' . gmdate('D, d M Y H:i:s', $lastModified) . ' GMT',
-            'Etag: ' . $eTag,
+            sprintf('Last-Modified: %s GMT', gmdate('D, d M Y H:i:s', $lastModifiedTime)),
+            sprintf('Etag: %s', $eTag),
         ]);
 
         $httpModified = $this->request->getHeader('http-if-modified-since');
         $httpIfNoneMatch = $this->request->getHeader('http-if-none-match');
 
-        if (($httpIfNoneMatch !== null && $httpIfNoneMatch === $eTag) || ($httpModified !== null && strtotime($httpModified) === $lastModified)) {
+        if (($httpIfNoneMatch !== null && $httpIfNoneMatch === $eTag) || ($httpModified !== null && strtotime($httpModified) === $lastModifiedTime)) {
 
             $this->header('HTTP/1.1 304 Not Modified');
-
-            exit();
+            exit(0);
         }
 
         return $this;
@@ -91,9 +90,9 @@ class Response
      * @param int $dept JSON debt.
      * @throws InvalidArgumentException
      */
-    public function json($value, $options = null, $dept = 512)
+    public function json($value, ?int $options = null, int $dept = 512): void
     {
-        if (($value instanceof \JsonSerializable) === false && is_array($value) === false) {
+        if (($value instanceof \JsonSerializable) === false && \is_array($value) === false) {
             throw new InvalidArgumentException('Invalid type for parameter "value". Must be of type array or object implementing the \JsonSerializable interface.');
         }
 
@@ -107,7 +106,7 @@ class Response
      * @param string $value
      * @return static
      */
-    public function header($value)
+    public function header(string $value): self
     {
         header($value);
 
@@ -119,7 +118,7 @@ class Response
      * @param array $headers
      * @return static
      */
-    public function headers(array $headers)
+    public function headers(array $headers): self
     {
         foreach ($headers as $header) {
             $this->header($header);

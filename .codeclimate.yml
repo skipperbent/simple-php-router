@@ -1,0 +1,22 @@
+engines:
+  phpmd:
+    enabled: true
+    checks:
+      Design/TooManyPublicMethods:
+        enabled: true
+      Naming/ShortVariable:
+        enabled: true
+      CleanCode/StaticAccess:
+        enabled: true
+      Controversial/CamelCaseMethodName:
+        enabled: true
+  fixme:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - php:
+ratings:
+  paths:
+  - src/**

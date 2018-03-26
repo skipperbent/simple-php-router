@@ -2,10 +2,9 @@
 
 require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
-require_once 'Dummy/Exceptions/ExceptionHandlerException.php';
-require_once 'Helpers/TestRouter.php';
+require_once 'Dummy/Exception/ExceptionHandlerException.php';
 
-class RouterRouteTest extends PHPUnit_Framework_TestCase
+class RouterRouteTest extends \PHPUnit\Framework\TestCase
 {
     protected $result = false;
 
@@ -27,7 +26,7 @@ class RouterRouteTest extends PHPUnit_Framework_TestCase
 
     public function testNotFound()
     {
-        $this->setExpectedException('\Pecee\SimpleRouter\Exceptions\NotFoundHttpException');
+        $this->expectException('\Pecee\SimpleRouter\Exceptions\NotFoundHttpException');
         TestRouter::get('/non-existing-path', 'DummyController@method1');
         TestRouter::debug('/test-param1-param2', 'post');
     }
@@ -36,24 +35,32 @@ class RouterRouteTest extends PHPUnit_Framework_TestCase
     {
         TestRouter::get('/my/test/url', 'DummyController@method1');
         TestRouter::debug('/my/test/url', 'get');
+
+        $this->assertTrue(true);
     }
 
     public function testPost()
     {
         TestRouter::post('/my/test/url', 'DummyController@method1');
         TestRouter::debug('/my/test/url', 'post');
+
+        $this->assertTrue(true);
     }
 
     public function testPut()
     {
         TestRouter::put('/my/test/url', 'DummyController@method1');
         TestRouter::debug('/my/test/url', 'put');
+
+        $this->assertTrue(true);
     }
 
     public function testDelete()
     {
         TestRouter::delete('/my/test/url', 'DummyController@method1');
         TestRouter::debug('/my/test/url', 'delete');
+
+        $this->assertTrue(true);
     }
 
     public function testMethodNotAllowed()
@@ -123,6 +130,8 @@ class RouterRouteTest extends PHPUnit_Framework_TestCase
     {
         TestRouter::get('/my/{path}', 'DummyController@method1')->where(['path' => '[a-zA-Z\-]+']);
         TestRouter::debug('/my/custom-path', 'get');
+
+        $this->assertTrue(true);
     }
 
     public function testParameterDefaultValue() {

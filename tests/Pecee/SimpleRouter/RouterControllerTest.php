@@ -1,9 +1,8 @@
 <?php
 
 require_once 'Dummy/DummyController.php';
-require_once 'Helpers/TestRouter.php';
 
-class RouterControllerTest extends PHPUnit_Framework_TestCase
+class RouterControllerTest extends \PHPUnit\Framework\TestCase
 {
 
     public function testGet()

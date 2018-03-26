@@ -1,7 +1,9 @@
 <?php
+
 namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\Router;
 
 interface ILoadableRoute extends IRoute
 {
@@ -14,25 +16,35 @@ interface ILoadableRoute extends IRoute
      * @param string|null $name
      * @return string
      */
-    public function findUrl($method = null, $parameters = null, $name = null);
+    public function findUrl($method = null, $parameters = null, $name = null): string;
 
     /**
-     * Loads and renders middlewares-classes
+     * Loads and renders middleware-classes
      *
      * @param Request $request
+     * @param Router $router
      */
-    public function loadMiddleware(Request $request);
+    public function loadMiddleware(Request $request, Router $router): void;
 
-    public function getUrl();
+    /**
+     * Get url
+     * @return string
+     */
+    public function getUrl(): string;
 
-    public function setUrl($url);
+    /**
+     * Set url
+     * @param string $url
+     * @return static
+     */
+    public function setUrl(string $url): self;
 
     /**
      * Returns the provided name for the router.
      *
-     * @return string
+     * @return string|null
      */
-    public function getName();
+    public function getName(): ?string;
 
     /**
      * Check if route has given name.
@@ -40,22 +52,22 @@ interface ILoadableRoute extends IRoute
      * @param string $name
      * @return bool
      */
-    public function hasName($name);
+    public function hasName(string $name): bool;
 
     /**
      * Sets the router name, which makes it easier to obtain the url or router at a later point.
      *
      * @param string $name
-     * @return static $this
+     * @return static
      */
-    public function setName($name);
+    public function setName(string $name): self;
 
     /**
      * Get regular expression match used for matching route (if defined).
      *
      * @return string
      */
-    public function getMatch();
+    public function getMatch(): ?string;
 
     /**
      * Add regular expression match for the entire route.
@@ -63,6 +75,6 @@ interface ILoadableRoute extends IRoute
      * @param string $regex
      * @return static
      */
-    public function setMatch($regex);
+    public function setMatch($regex): self;
 
 }

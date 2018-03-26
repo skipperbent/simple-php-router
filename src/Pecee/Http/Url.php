@@ -23,22 +23,23 @@ class Url
      * @param string $url
      * @throws MalformedUrlException
      */
-    public function __construct($url)
+    public function __construct(?string $url)
     {
         $this->originalUrl = $url;
-        $this->data = $this->parseUrl($url) + $this->data;
+        if ($url !== null) {
+            $this->data = $this->parseUrl($url) + $this->data;
 
-        if (isset($this->data['path']) === true && $this->data['path'] !== '/') {
-            $this->data['path'] = rtrim($this->data['path'], '/') . '/';
+            if (isset($this->data['path']) === true && $this->data['path'] !== '/') {
+                $this->data['path'] = rtrim($this->data['path'], '/') . '/';
+            }
         }
-
     }
 
     /**
      * Check if url is using a secure protocol like https
      * @return bool
      */
-    public function isSecure()
+    public function isSecure(): bool
     {
         return (strtolower($this->getScheme()) === 'https');
     }
@@ -47,7 +48,7 @@ class Url
      * Checks if url is relative
      * @return bool
      */
-    public function isRelative()
+    public function isRelative(): bool
     {
         return ($this->getHost() === null);
     }
@@ -56,7 +57,7 @@ class Url
      * Get url scheme
      * @return string|null
      */
-    public function getScheme()
+    public function getScheme(): ?string
     {
         return $this->data['scheme'];
     }
@@ -65,7 +66,7 @@ class Url
      * Get url host
      * @return string|null
      */
-    public function getHost()
+    public function getHost(): ?string
     {
         return $this->data['host'];
     }
@@ -74,7 +75,7 @@ class Url
      * Get url port
      * @return int|null
      */
-    public function getPort()
+    public function getPort(): ?int
     {
         return ($this->data['port'] !== null) ? (int)$this->data['port'] : null;
     }
@@ -83,7 +84,7 @@ class Url
      * Parse username from url
      * @return string|null
      */
-    public function getUserName()
+    public function getUserName(): ?string
     {
         return $this->data['user'];
     }
@@ -92,7 +93,7 @@ class Url
      * Parse password from url
      * @return string|null
      */
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return $this->data['pass'];
     }
@@ -101,16 +102,16 @@ class Url
      * Get path from url
      * @return string
      */
-    public function getPath()
+    public function getPath(): ?string
     {
-        return $this->data['path'];
+        return $this->data['path'] ?? '/';
     }
 
     /**
      * Get querystring from url
      * @return string|null
      */
-    public function getQueryString()
+    public function getQueryString(): ?string
     {
         return $this->data['query'];
     }
@@ -119,7 +120,7 @@ class Url
      * Get fragment from url (everything after #)
      * @return string|null
      */
-    public function getFragment()
+    public function getFragment(): ?string
     {
         return $this->data['fragment'];
     }
@@ -127,7 +128,7 @@ class Url
     /**
      * @return string
      */
-    public function getOriginalUrl()
+    public function getOriginalUrl(): string
     {
         return $this->originalUrl;
     }
@@ -139,7 +140,7 @@ class Url
      * @throws MalformedUrlException
      * @return array
      */
-    public function parseUrl($url, $component = -1)
+    public function parseUrl(string $url, int $component = -1): array
     {
         $encodedUrl = preg_replace_callback(
             '/[^:\/@?&=#]+/u',
@@ -159,10 +160,35 @@ class Url
     }
 
     /**
+     * Get position of value.
+     * Returns -1 on failure.
+     *
+     * @param string $value
+     * @return int
+     */
+    public function indexOf(string $value): int
+    {
+        $index = stripos($this->getOriginalUrl(), $value);
+
+        return ($index === false) ? -1 : $index;
+    }
+
+    /**
+     * Check if url contains value.
+     *
+     * @param string $value
+     * @return bool
+     */
+    public function contains(string $value): bool
+    {
+        return (stripos($this->getOriginalUrl(), $value) !== false);
+    }
+
+    /**
      * Returns data array with information about the url
      * @return array
      */
-    public function getData()
+    public function getData(): array
     {
         return $this->data;
     }
