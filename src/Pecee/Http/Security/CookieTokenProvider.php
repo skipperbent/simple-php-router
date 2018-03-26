@@ -45,9 +45,9 @@ class CookieTokenProvider implements ITokenProvider
      * @param string $token
      * @return bool
      */
-    public function validate($token): bool
+    public function validate(string $token): bool
     {
-        if ($token !== null && $this->getToken() !== null) {
+        if ($this->getToken() !== null) {
             return hash_equals($token, $this->getToken());
         }
 
@@ -60,7 +60,7 @@ class CookieTokenProvider implements ITokenProvider
      *
      * @param string $token
      */
-    public function setToken($token): void
+    public function setToken(string $token): void
     {
         $this->token = $token;
         setcookie(static::CSRF_KEY, $token, time() + 60 * $this->cookieTimeoutMinutes, '/');
@@ -71,7 +71,7 @@ class CookieTokenProvider implements ITokenProvider
      * @param string|null $defaultValue
      * @return string|null
      */
-    public function getToken($defaultValue = null): ?string
+    public function getToken(?string $defaultValue = null): ?string
     {
         $this->token = ($this->hasToken() === true) ? $_COOKIE[static::CSRF_KEY] : null;
 
@@ -108,9 +108,9 @@ class CookieTokenProvider implements ITokenProvider
 
     /**
      * Set cookie timeout in minutes
-     * @param $minutes
+     * @param int $minutes
      */
-    public function setCookieTimeoutMinutes($minutes): void
+    public function setCookieTimeoutMinutes(int $minutes): void
     {
         $this->cookieTimeoutMinutes = $minutes;
     }

@@ -147,7 +147,7 @@ class RouteGroup extends Route implements IGroupRoute
      * @param bool $merge
      * @return static
      */
-    public function setSettings(array $values, $merge = false): IRoute
+    public function setSettings(array $values, bool $merge = false): IRoute
     {
 
         if (isset($values['prefix']) === true) {

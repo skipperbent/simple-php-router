@@ -42,7 +42,7 @@ class InputHandler
      * Parse input values
      *
      */
-    public function parseInputs() : void
+    public function parseInputs(): void
     {
         /* Parse get requests */
         if (\count($_GET) !== 0) {
@@ -69,7 +69,7 @@ class InputHandler
     /**
      * @return array
      */
-    public function parseFiles() : array
+    public function parseFiles(): array
     {
         $list = [];
 
@@ -80,7 +80,7 @@ class InputHandler
                 $values['index'] = $key;
                 try {
                     $list[$key] = InputFile::createFromArray($values + $value);
-                } catch(InvalidArgumentException $e ){
+                } catch (InvalidArgumentException $e) {
 
                 }
                 continue;
@@ -101,7 +101,7 @@ class InputHandler
         return $list;
     }
 
-    protected function rearrangeFiles(array $values, &$index, $original) : array
+    protected function rearrangeFiles(array $values, &$index, $original): array
     {
 
         $originalIndex = $index[0];
@@ -132,7 +132,7 @@ class InputHandler
                     $output[$key] = $file;
                     continue;
 
-                } catch(InvalidArgumentException $e) {
+                } catch (InvalidArgumentException $e) {
 
                 }
             }
@@ -152,7 +152,7 @@ class InputHandler
         return $output;
     }
 
-    protected function handleGetPost(array $array) : array
+    protected function handleGetPost(array $array): array
     {
         $list = [];
 
@@ -179,7 +179,7 @@ class InputHandler
      * @param string|null $defaultValue
      * @return InputItem|string
      */
-    public function findPost($index, $defaultValue = null)
+    public function findPost(string $index, ?string $defaultValue = null)
     {
         return $this->post[$index] ?? $defaultValue;
     }
@@ -191,7 +191,7 @@ class InputHandler
      * @param string|null $defaultValue
      * @return InputFile|string
      */
-    public function findFile($index, $defaultValue = null)
+    public function findFile(string $index, ?string $defaultValue = null)
     {
         return $this->file[$index] ?? $defaultValue;
     }
@@ -203,7 +203,7 @@ class InputHandler
      * @param string|null $defaultValue
      * @return InputItem|string
      */
-    public function findGet($index, $defaultValue = null)
+    public function findGet(string $index, ?string $defaultValue = null)
     {
         return $this->get[$index] ?? $defaultValue;
     }
@@ -216,7 +216,7 @@ class InputHandler
      * @param array|string|null $methods
      * @return IInputItem|string
      */
-    public function getObject($index, $defaultValue = null, $methods = null)
+    public function getObject(string $index, ?string $defaultValue = null, $methods = null)
     {
         if ($methods !== null && \is_string($methods) === true) {
             $methods = [$methods];
@@ -247,7 +247,7 @@ class InputHandler
      * @param array|string|null $methods
      * @return InputItem|string
      */
-    public function get($index, $defaultValue = null, $methods = null)
+    public function get(string $index, ?string $defaultValue = null, $methods = null)
     {
         $input = $this->getObject($index, $defaultValue, $methods);
 
@@ -264,7 +264,7 @@ class InputHandler
      * @param string $index
      * @return bool
      */
-    public function exists($index) : bool
+    public function exists(string $index): bool
     {
         return ($this->getObject($index) !== null);
     }
@@ -274,7 +274,7 @@ class InputHandler
      * @param array|null $filter Only take items in filter
      * @return array
      */
-    public function all(array $filter = null) : array
+    public function all(array $filter = null): array
     {
         $output = $_GET + $_POST;
 

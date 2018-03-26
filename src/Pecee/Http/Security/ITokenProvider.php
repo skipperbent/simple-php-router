@@ -16,7 +16,7 @@ interface ITokenProvider
      * @param string $token
      * @return bool
      */
-    public function validate($token): bool;
+    public function validate(string $token): bool;
 
     /**
      * Get token token
@@ -24,6 +24,6 @@ interface ITokenProvider
      * @param string|null $defaultValue
      * @return string|null
      */
-    public function getToken($defaultValue = null);
+    public function getToken(?string $defaultValue = null): ?string;
 
 }

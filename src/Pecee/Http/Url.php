@@ -23,15 +23,16 @@ class Url
      * @param string $url
      * @throws MalformedUrlException
      */
-    public function __construct($url)
+    public function __construct(?string $url)
     {
         $this->originalUrl = $url;
-        $this->data = $this->parseUrl($url) + $this->data;
+        if ($url !== null) {
+            $this->data = $this->parseUrl($url) + $this->data;
 
-        if (isset($this->data['path']) === true && $this->data['path'] !== '/') {
-            $this->data['path'] = rtrim($this->data['path'], '/') . '/';
+            if (isset($this->data['path']) === true && $this->data['path'] !== '/') {
+                $this->data['path'] = rtrim($this->data['path'], '/') . '/';
+            }
         }
-
     }
 
     /**
@@ -103,7 +104,7 @@ class Url
      */
     public function getPath(): ?string
     {
-        return $this->data['path'];
+        return $this->data['path'] ?? '/';
     }
 
     /**
@@ -139,7 +140,7 @@ class Url
      * @throws MalformedUrlException
      * @return array
      */
-    public function parseUrl($url, $component = -1): array
+    public function parseUrl(string $url, int $component = -1): array
     {
         $encodedUrl = preg_replace_callback(
             '/[^:\/@?&=#]+/u',
@@ -158,9 +159,29 @@ class Url
         return array_map('urldecode', $parts);
     }
 
-    public function contains($value): bool
+    /**
+     * Get position of value.
+     * Returns -1 on failure.
+     *
+     * @param string $value
+     * @return int
+     */
+    public function indexOf(string $value): int
     {
-        return (stripos($this->getOriginalUrl(), $value) === false);
+        $index = stripos($this->getOriginalUrl(), $value);
+
+        return ($index === false) ? -1 : $index;
+    }
+
+    /**
+     * Check if url contains value.
+     *
+     * @param string $value
+     * @return bool
+     */
+    public function contains(string $value): bool
+    {
+        return (stripos($this->getOriginalUrl(), $value) !== false);
     }
 
     /**

@@ -14,7 +14,7 @@ class InputFile implements IInputItem
     public $errors;
     public $tmpName;
 
-    public function __construct($index)
+    public function __construct(string $index)
     {
         $this->index = $index;
 
@@ -48,7 +48,7 @@ class InputFile implements IInputItem
         ];
 
         return (new static($values['index']))
-            ->setSize($values['size'])
+            ->setSize((int)$values['size'])
             ->setError($values['error'])
             ->setType($values['type'])
             ->setTmpName($values['tmp_name'])
@@ -69,7 +69,7 @@ class InputFile implements IInputItem
      * @param string $index
      * @return static
      */
-    public function setIndex($index): IInputItem
+    public function setIndex(string $index): IInputItem
     {
         $this->index = $index;
 
@@ -89,7 +89,7 @@ class InputFile implements IInputItem
      * @param int $size
      * @return static
      */
-    public function setSize($size): IInputItem
+    public function setSize(int $size): IInputItem
     {
         $this->size = $size;
 
@@ -118,7 +118,7 @@ class InputFile implements IInputItem
      * @param string $type
      * @return static
      */
-    public function setType($type): IInputItem
+    public function setType(string $type): IInputItem
     {
         $this->type = $type;
 
@@ -152,7 +152,7 @@ class InputFile implements IInputItem
      * @param string $name
      * @return static
      */
-    public function setName($name): IInputItem
+    public function setName(string $name): IInputItem
     {
         $this->name = $name;
 
@@ -270,7 +270,7 @@ class InputFile implements IInputItem
      * @param string $value
      * @return static
      */
-    public function setValue($value): IInputItem
+    public function setValue(string $value): IInputItem
     {
         $this->filename = $value;
 

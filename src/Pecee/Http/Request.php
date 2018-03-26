@@ -10,7 +10,7 @@ use Pecee\SimpleRouter\SimpleRouter;
 class Request
 {
     private $data = [];
-    protected $headers;
+    protected $headers = [];
     protected $host;
     protected $url;
     protected $method;
@@ -35,7 +35,11 @@ class Request
      */
     public function __construct()
     {
-        $this->parseHeaders();
+        foreach ($_SERVER as $key => $value) {
+            $this->headers[strtolower($key)] = $value;
+            $this->headers[strtolower(str_replace('_', '-', $key))] = $value;
+        }
+
         $this->setHost($this->getHeader('http-host'));
 
         // Check if special IIS header exist, otherwise use default.
@@ -43,17 +47,6 @@ class Request
 
         $this->inputHandler = new InputHandler($this);
         $this->method = strtolower($this->inputHandler->get('_method', $this->getHeader('request-method')));
-    }
-
-    protected function parseHeaders(): void
-    {
-        $this->headers = [];
-
-        foreach ($_SERVER as $key => $value) {
-            $this->headers[strtolower($key)] = $value;
-            $this->headers[strtolower(str_replace('_', '-', $key))] = $value;
-        }
-
     }
 
     public function isSecure(): bool
@@ -221,9 +214,9 @@ class Request
     }
 
     /**
-     * @param string $host
+     * @param string|null $host
      */
-    public function setHost($host): void
+    public function setHost(?string $host): void
     {
         $this->host = $host;
     }
@@ -231,7 +224,7 @@ class Request
     /**
      * @param string $method
      */
-    public function setMethod($method): void
+    public function setMethod(string $method): void
     {
         $this->method = $method;
     }
@@ -341,26 +334,32 @@ class Request
         return $this;
     }
 
+    /**
+     * Returns true if the request contains a rewrite
+     *
+     * @return bool
+     */
     public function hasRewrite(): bool
     {
         return $this->hasRewrite;
     }
 
-    public function setHasRewrite($value): self
+    /**
+     * Defines if the current request contains a rewrite.
+     *
+     * @param bool $boolean
+     * @return Request
+     */
+    public function setHasRewrite(bool $boolean): self
     {
-        $this->hasRewrite = $value;
+        $this->hasRewrite = $boolean;
 
         return $this;
     }
 
-    public function isRewrite($url): bool
-    {
-        return ($this->rewriteUrl === $url);
-    }
-
     public function __isset($name)
     {
-        return array_key_exists($name, $this->data);
+        return array_key_exists($name, $this->data) === true;
     }
 
     public function __set($name, $value = null)

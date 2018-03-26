@@ -67,6 +67,32 @@ class Router
     protected $exceptionHandlers;
 
     /**
+     * List of loaded exception that has been loaded.
+     * Used to ensure that exception-handlers aren't loaded twice when rewriting route.
+     *
+     * @var array
+     */
+    protected $loadedExceptionHandlers;
+
+    /**
+     * Enable or disabled debugging
+     * @var bool
+     */
+    protected $debugEnabled = false;
+
+    /**
+     * The start time used when debugging is enabled
+     * @var float
+     */
+    protected $debugStartTime;
+
+    /**
+     * List containing all debug messages
+     * @var array
+     */
+    protected $debugList = [];
+
+    /**
      * Router constructor.
      * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
@@ -78,7 +104,7 @@ class Router
     /**
      * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public function reset() : void
+    public function reset(): void
     {
         $this->processingRoute = false;
         $this->request = new Request();
@@ -87,6 +113,7 @@ class Router
         $this->routeStack = [];
         $this->processedRoutes = [];
         $this->exceptionHandlers = [];
+        $this->loadedExceptionHandlers = [];
     }
 
     /**
@@ -94,7 +121,7 @@ class Router
      * @param IRoute $route
      * @return IRoute
      */
-    public function addRoute(IRoute $route) : IRoute
+    public function addRoute(IRoute $route): IRoute
     {
         /*
          * If a route is currently being processed, that means that the route being added are rendered from the parent
@@ -102,10 +129,12 @@ class Router
          */
         if ($this->processingRoute === true) {
             $this->routeStack[] = $route;
+
             return $route;
         }
 
         $this->routes[] = $route;
+
         return $route;
     }
 
@@ -115,10 +144,11 @@ class Router
      * @param IRoute $route
      * @throws NotFoundHttpException
      */
-    protected function renderAndProcess(IRoute $route) : void {
+    protected function renderAndProcess(IRoute $route): void
+    {
 
         $this->processingRoute = true;
-        $route->renderRoute($this->request);
+        $route->renderRoute($this->request, $this);
         $this->processingRoute = false;
 
         if (\count($this->routeStack) !== 0) {
@@ -139,13 +169,17 @@ class Router
      * @param IGroupRoute|null $group
      * @throws NotFoundHttpException
      */
-    protected function processRoutes(array $routes, IGroupRoute $group = null) : void
+    protected function processRoutes(array $routes, ?IGroupRoute $group = null): void
     {
+        $this->debug('Processing routes');
+
         // Loop through each route-request
         $exceptionHandlers = [];
 
         // Stop processing routes if no valid route is found.
-        if($this->request->getRewriteRoute() === null && $this->request->getUrl() === null) {
+        if ($this->request->getRewriteRoute() === null && $this->request->getUrl() === null) {
+            $this->debug('Halted route-processing as no valid route was found');
+
             return;
         }
 
@@ -153,6 +187,8 @@ class Router
 
         /* @var $route IRoute */
         foreach ($routes as $route) {
+
+            $this->debug('Processing route "%s"', \get_class($route));
 
             if ($group !== null) {
                 /* Add the parent group */
@@ -199,16 +235,22 @@ class Router
      * @throws NotFoundHttpException
      * @return void
      */
-    public function loadRoutes() : void
+    public function loadRoutes(): void
     {
+        $this->debug('Loading routes');
+
         /* Initialize boot-managers */
         /* @var $manager IRouterBootManager */
         foreach ($this->bootManagers as $manager) {
+            $this->debug('Rendering bootmanager %s', \get_class($manager));
             $manager->boot($this->request);
+            $this->debug('Finished rendering bootmanager');
         }
 
         /* Loop through each route-request */
         $this->processRoutes($this->routes);
+
+        $this->debug('Finished loading routes');
     }
 
     /**
@@ -219,9 +261,11 @@ class Router
      * @throws HttpException
      * @throws \Exception
      */
-    public function routeRequest($rewrite = false) : ?string
+    public function routeRequest(bool $rewrite = false): ?string
     {
-        $routeNotAllowed = false;
+        $this->debug('Started routing request (rewrite: %s)', $rewrite === true ? 'yes' : 'no');
+
+        $methodNotAllowed = false;
 
         try {
 
@@ -233,8 +277,6 @@ class Router
                     /* Verify csrf token for request */
                     $this->csrfVerifier->handle($this->request);
                 }
-            } else {
-                $this->request->setHasRewrite(false);
             }
 
             $url = $this->request->getRewriteUrl() ?? $this->request->getUrl()->getPath();
@@ -242,38 +284,39 @@ class Router
             /* @var $route ILoadableRoute */
             foreach ($this->processedRoutes as $key => $route) {
 
+                $this->debug('Matching route "%s"', \get_class($route));
+
                 /* If the route matches */
                 if ($route->matchRoute($url, $this->request) === true) {
 
                     /* Check if request method matches */
                     if (\count($route->getRequestMethods()) !== 0 && \in_array($this->request->getMethod(), $route->getRequestMethods(), true) === false) {
-                        $routeNotAllowed = true;
+                        $this->debug('Method "%s" not allowed', $this->request->getMethod());
+                        $methodNotAllowed = true;
                         continue;
                     }
 
-                    $route->loadMiddleware($this->request);
+                    $route->loadMiddleware($this->request, $this);
 
-                    if ($this->hasRewrite($url) === true) {
-                        unset($this->processedRoutes[$key]);
-
-                        return $this->routeRequest(true);
+                    $output = $this->handleRouteRewrite($key, $url);
+                    if ($output !== null) {
+                        return $output;
                     }
 
                     /* Render route */
-                    $routeNotAllowed = false;
+                    $methodNotAllowed = false;
 
                     $this->request->addLoadedRoute($route);
 
-                    $output = $route->renderRoute($this->request);
+                    $output = $route->renderRoute($this->request, $this);
 
                     if ($output !== null) {
                         return $output;
                     }
 
-                    if ($this->hasRewrite($url) === true) {
-                        unset($this->processedRoutes[$key]);
-
-                        return $this->routeRequest(true);
+                    $output = $this->handleRouteRewrite($key, $url);
+                    if ($output !== null) {
+                        return $output;
                     }
                 }
             }
@@ -282,7 +325,7 @@ class Router
             $this->handleException($e);
         }
 
-        if ($routeNotAllowed === true) {
+        if ($methodNotAllowed === true) {
             $message = sprintf('Route "%s" or method "%s" not allowed.', $this->request->getUrl()->getPath(), $this->request->getMethod());
             $this->handleException(new HttpException($message, 403));
         }
@@ -297,35 +340,45 @@ class Router
                 $message = sprintf('Route not found: "%s"', $this->request->getUrl()->getPath());
             }
 
-            $this->handleException(new NotFoundHttpException($message, 404));
+            $this->debug($message);
+
+            return $this->handleException(new NotFoundHttpException($message, 404));
         }
 
         return null;
     }
 
-    protected function hasRewrite($url) : bool
+    /**
+     * Handle route-rewrite
+     *
+     * @param string $key
+     * @param string $url
+     * @return string|null
+     * @throws HttpException
+     * @throws \Exception
+     */
+    protected function handleRouteRewrite($key, string $url): ?string
     {
-
         /* If the request has changed */
-        if ($this->request->hasRewrite() === true) {
-
-            if ($this->request->getRewriteRoute() !== null) {
-                /* Render rewrite-route */
-                $this->processedRoutes[] = $this->request->getRewriteRoute();
-
-                return true;
-            }
-
-            if ($this->request->isRewrite($url) === false) {
-
-                /* Render rewrite-url */
-                $this->processedRoutes = array_values($this->processedRoutes);
-
-                return true;
-            }
+        if ($this->request->hasRewrite() === false) {
+            return null;
         }
 
-        return false;
+        $route = $this->request->getRewriteRoute();
+
+        if ($route !== null) {
+            /* Add rewrite route */
+            $this->processedRoutes[] = $route;
+        }
+
+        if ($this->request->getRewriteUrl() !== $url) {
+            unset($this->processedRoutes[$key]);
+            $this->request->setHasRewrite(false);
+
+            return $this->routeRequest(true);
+        }
+
+        return null;
     }
 
     /**
@@ -334,8 +387,10 @@ class Router
      * @throws \Exception
      * @return string|null
      */
-    protected function handleException(\Exception $e) : ?string
+    protected function handleException(\Exception $e): ?string
     {
+        $this->debug('Starting exception handling for "%s"', \get_class($e));
+
         /* @var $handler IExceptionHandler */
         foreach ($this->exceptionHandlers as $key => $handler) {
 
@@ -343,17 +398,22 @@ class Router
                 $handler = new $handler();
             }
 
+            $this->debug('Processing exception-handler "%s"', \get_class($handler));
+
             if (($handler instanceof IExceptionHandler) === false) {
                 throw new HttpException('Exception handler must implement the IExceptionHandler interface.', 500);
             }
 
             try {
 
+                $this->debug('Start rendering exception handler');
                 $handler->handleError($this->request, $e);
+                $this->debug('Finished rendering exception-handler');
 
-                if ($this->request->hasRewrite() === true) {
-                    unset($this->exceptionHandlers[$key]);
-                    $this->exceptionHandlers = array_values($this->exceptionHandlers);
+                if (isset($this->loadedExceptionHandlers[$key]) === false && $this->request->hasRewrite() === true) {
+                    $this->loadedExceptionHandlers[$key] = $handler;
+
+                    $this->debug('Exception handler contains rewrite, reloading routes');
 
                     return $this->routeRequest(true);
                 }
@@ -361,12 +421,15 @@ class Router
             } catch (\Exception $e) {
 
             }
+
+            $this->debug('Finished processing');
         }
 
+        $this->debug('Finished exception handling - exception not handled, throwing');
         throw $e;
     }
 
-    public function arrayToParams(array $getParams = [], $includeEmpty = true) : string
+    public function arrayToParams(array $getParams = [], bool $includeEmpty = true): string
     {
         if (\count($getParams) !== 0) {
 
@@ -388,18 +451,25 @@ class Router
      * @param string $name
      * @return ILoadableRoute|null
      */
-    public function findRoute($name) : ?ILoadableRoute
+    public function findRoute(string $name): ?ILoadableRoute
     {
+
+        $this->debug('Finding route by name "%s"', $name);
+
         /* @var $route ILoadableRoute */
         foreach ($this->processedRoutes as $route) {
 
             /* Check if the name matches with a name on the route. Should match either router alias or controller alias. */
             if ($route->hasName($name) === true) {
+                $this->debug('Found route "%s" by name "%s"', $route->getUrl(), $name);
+
                 return $route;
             }
 
             /* Direct match to controller */
             if ($route instanceof IControllerRoute && strtolower($route->getController()) === strtolower($name)) {
+                $this->debug('Found route "%s" by controller "%s"', $route->getUrl(), $name);
+
                 return $route;
             }
 
@@ -408,6 +478,8 @@ class Router
                 [$controller, $method] = array_map('strtolower', explode('@', $name));
 
                 if ($controller === strtolower($route->getClass()) && $method === strtolower($route->getMethod())) {
+                    $this->debug('Found route "%s" by controller "%s" and method "%s"', $route->getUrl(), $controller, $method);
+
                     return $route;
                 }
             }
@@ -417,15 +489,21 @@ class Router
 
                 /* Check if the entire callback is matching */
                 if (strpos($route->getCallback(), $name) === 0 || strtolower($route->getCallback()) === strtolower($name)) {
+                    $this->debug('Found route "%s" by callback "%s"', $route->getUrl(), $name);
+
                     return $route;
                 }
 
                 /* Check if the class part of the callback matches (class@method) */
                 if (strtolower($name) === strtolower($route->getClass())) {
+                    $this->debug('Found route "%s" by class "%s"', $route->getUrl(), $name);
+
                     return $route;
                 }
             }
         }
+
+        $this->debug('Route not found');
 
         return null;
     }
@@ -448,8 +526,10 @@ class Router
      * @throws InvalidArgumentException
      * @return string
      */
-    public function getUrl($name = null, $parameters = null, $getParams = null) : string
+    public function getUrl(?string $name = null, $parameters = null, $getParams = null): string
     {
+        $this->debug('Finding url', \func_get_args());
+
         if ($getParams !== null && \is_array($getParams) === false) {
             throw new InvalidArgumentException('Invalid type for getParams. Must be array or null');
         }
@@ -513,28 +593,28 @@ class Router
     }
 
     /**
-     * Get bootmanagers
+     * Get BootManagers
      * @return array
      */
-    public function getBootManagers() : array
+    public function getBootManagers(): array
     {
         return $this->bootManagers;
     }
 
     /**
-     * Set bootmanagers
+     * Set BootManagers
      * @param array $bootManagers
      */
-    public function setBootManagers(array $bootManagers) : void
+    public function setBootManagers(array $bootManagers): void
     {
         $this->bootManagers = $bootManagers;
     }
 
     /**
-     * Add bootmanager
+     * Add BootManager
      * @param IRouterBootManager $bootManager
      */
-    public function addBootManager(IRouterBootManager $bootManager) : void
+    public function addBootManager(IRouterBootManager $bootManager): void
     {
         $this->bootManagers[] = $bootManager;
     }
@@ -544,7 +624,7 @@ class Router
      *
      * @return array
      */
-    public function getProcessedRoutes() : array
+    public function getProcessedRoutes(): array
     {
         return $this->processedRoutes;
     }
@@ -552,7 +632,7 @@ class Router
     /**
      * @return array
      */
-    public function getRoutes() : array
+    public function getRoutes(): array
     {
         return $this->routes;
     }
@@ -563,7 +643,7 @@ class Router
      * @param array $routes
      * @return static
      */
-    public function setRoutes(array $routes) : self
+    public function setRoutes(array $routes): self
     {
         $this->routes = $routes;
 
@@ -575,7 +655,7 @@ class Router
      *
      * @return Request
      */
-    public function getRequest() : Request
+    public function getRequest(): Request
     {
         return $this->request;
     }
@@ -584,7 +664,7 @@ class Router
      * Get csrf verifier class
      * @return BaseCsrfVerifier
      */
-    public function getCsrfVerifier() : BaseCsrfVerifier
+    public function getCsrfVerifier(): ?BaseCsrfVerifier
     {
         return $this->csrfVerifier;
     }
@@ -600,6 +680,49 @@ class Router
         $this->csrfVerifier = $csrfVerifier;
 
         return $this;
+    }
+
+    /**
+     * Add new debug message
+     * @param string $message
+     * @param array $args
+     */
+    public function debug(string $message, ...$args): void
+    {
+        if ($this->debugEnabled === false) {
+            return;
+        }
+
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+        $this->debugList[] = [
+            'message' => vsprintf($message, $args),
+            'time'    => number_format(microtime(true) - $this->debugStartTime, 10),
+            'trace'   => end($trace),
+        ];
+    }
+
+    /**
+     * Enable or disables debugging
+     *
+     * @param bool $boolean
+     */
+    public function setDebugEnabled(bool $boolean): void
+    {
+        if ($boolean === true) {
+            $this->debugStartTime = microtime(true);
+        }
+
+        $this->debugEnabled = $boolean;
+    }
+
+    /**
+     * Get the list containing all debug messages.
+     *
+     * @return array
+     */
+    public function getDebugLog(): array
+    {
+        return $this->debugList;
     }
 
 }

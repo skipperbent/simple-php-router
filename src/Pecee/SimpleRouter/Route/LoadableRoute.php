@@ -5,6 +5,7 @@ namespace Pecee\SimpleRouter\Route;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\HttpException;
+use Pecee\SimpleRouter\Router;
 
 abstract class LoadableRoute extends Route implements ILoadableRoute
 {
@@ -24,10 +25,13 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * Loads and renders middlewares-classes
      *
      * @param Request $request
+     * @param Router $router
      * @throws HttpException
      */
-    public function loadMiddleware(Request $request) : void
+    public function loadMiddleware(Request $request, Router $router): void
     {
+        $router->debug('Loading middlewares');
+
         foreach ($this->getMiddlewares() as $middleware) {
 
             if (\is_object($middleware) === false) {
@@ -38,11 +42,15 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
                 throw new HttpException($middleware . ' must be inherit the IMiddleware interface');
             }
 
+            $router->debug('Loading middleware "%s"', \get_class($middleware));
             $middleware->handle($request);
+            $router->debug('Finished loading middleware');
         }
+
+        $router->debug('Finished loading middlewares');
     }
 
-    public function matchRegex(Request $request, $url) : ?bool
+    public function matchRegex(Request $request, $url): ?bool
     {
         /* Match on custom defined regular expression */
 
@@ -59,7 +67,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @param string $url
      * @return static
      */
-    public function setUrl($url) : self
+    public function setUrl(string $url): ILoadableRoute
     {
         $this->url = ($url === '/') ? '/' : '/' . trim($url, '/') . '/';
 
@@ -75,7 +83,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         return $this;
     }
 
-    public function getUrl() : string
+    public function getUrl(): string
     {
         return $this->url;
     }
@@ -89,7 +97,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @param string|null $name
      * @return string
      */
-    public function findUrl($method = null, $parameters = null, $name = null) : string
+    public function findUrl($method = null, $parameters = null, $name = null): string
     {
         $url = $this->getUrl();
 
@@ -144,7 +152,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      *
      * @return string
      */
-    public function getName() : string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -155,7 +163,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @param string $name
      * @return bool
      */
-    public function hasName($name) : bool
+    public function hasName(string $name): bool
     {
         return strtolower($this->name) === strtolower($name);
     }
@@ -166,7 +174,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @param string $regex
      * @return static
      */
-    public function setMatch($regex) : ILoadableRoute
+    public function setMatch($regex): ILoadableRoute
     {
         $this->regex = $regex;
 
@@ -178,7 +186,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      *
      * @return string
      */
-    public function getMatch() : string
+    public function getMatch(): string
     {
         return $this->regex;
     }
@@ -191,7 +199,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @param string|array $name
      * @return static
      */
-    public function name($name) : ILoadableRoute
+    public function name($name): ILoadableRoute
     {
         return $this->setName($name);
     }
@@ -202,7 +210,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @param string $name
      * @return static
      */
-    public function setName($name) : ILoadableRoute
+    public function setName(string $name): ILoadableRoute
     {
         $this->name = $name;
 
@@ -216,7 +224,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @param bool $merge
      * @return static
      */
-    public function setSettings(array $values, $merge = false): IRoute
+    public function setSettings(array $values, bool $merge = false): IRoute
     {
         if (isset($values['as']) === true) {
 

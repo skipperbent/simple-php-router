@@ -8,7 +8,7 @@ class InputItem implements IInputItem
     public $name;
     public $value;
 
-    public function __construct($index, $value = null)
+    public function __construct(string $index, ?string $value = null)
     {
         $this->index = $index;
         $this->value = $value;
@@ -25,7 +25,7 @@ class InputItem implements IInputItem
         return $this->index;
     }
 
-    public function setIndex($index): IInputItem
+    public function setIndex(string $index): IInputItem
     {
         $this->index = $index;
 
@@ -43,9 +43,9 @@ class InputItem implements IInputItem
     /**
      * Set input name
      * @param string $name
-     * @return static $this
+     * @return static
      */
-    public function setName($name): IInputItem
+    public function setName(string $name): IInputItem
     {
         $this->name = $name;
 
@@ -63,9 +63,9 @@ class InputItem implements IInputItem
     /**
      * Set input value
      * @param string $value
-     * @return static $this
+     * @return static
      */
-    public function setValue($value): IInputItem
+    public function setValue(string $value): IInputItem
     {
         $this->value = $value;
 

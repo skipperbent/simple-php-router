@@ -1,5 +1,6 @@
 # Simple PHP router
-Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. Heavily inspired by the way Laravel handles routing, with both simplicity and expandability in mind.
+
+Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. Heavily inspired by the way Laravel handles routing, with both simplicity and expand-ability in mind.
 
 **Please note that this documentation is currently work-in-progress. Feel free to contribute.**
 
@@ -11,7 +12,6 @@ Simple, fast and yet powerful PHP router that is easy to get integrated and in a
 	- [Notes](#notes-1)
 	- [Requirements](#requirements)
 	- [Feedback and development](#feedback-and-development)
-	    - [Issues guidelines](#issues-guidelines)
 	    - [Contribution development guidelines](#contribution-development-guidelines)
 	- [Features](#features)
 	- [Installation](#installation)
@@ -20,6 +20,14 @@ Simple, fast and yet powerful PHP router that is easy to get integrated and in a
 		- [Setting up IIS](#setting-up-iis)
 		- [Configuration](#configuration)
 		- [Helper functions](#helper-functions)
+- [Help and support](#help-and-support)
+    - [How to debug](#how-to-debug)
+        - [Creating unit-tests](#creating-unit-tests) 
+        - [Debug information](#debug-information)
+        - [Benchmark and log-info](#benchmark-and-log-info)
+    - [Reporting a new issue](#reporting-a-new-issue)
+        - [Procedure for reporting a new issue](#procedure-for-reporting-a-new-issue)
+        - [Issue template](#issue-template)
 - [Routes](#routes)
 	- [Basic routing](#basic-routing)
 		- [Available methods](#available-methods)
@@ -118,18 +126,14 @@ You can find the demo-project here: [https://github.com/skipperbent/simple-route
 
 ### Feedback and development
 
-If you are missing a feature, experience problems or have ideas or feedback that you want us to hear, please feel free to create an issue.
+If the library is missing a feature that you need in your project or if you have feedback, we'd love to hear from you. 
+Feel free to leave us feedback by [creating a new issue](https://github.com/skipperbent/simple-php-router/issues/new).
 
-###### Issues guidelines
+**Experiencing an issue?**
 
-- Please be as detailed as possible in the description when creating a new issue. This will help others to more easily understand- and solve your issue.
-For example: if you are experiencing issues, you should provide the necessary steps to reproduce the error within your description.
+Please refer to our [Help and support](#help-and-support) section in the documentation before reporting a new issue.
 
-- We love to hear out any ideas or feedback to the library.
-
-[Create a new issue here](https://github.com/skipperbent/simple-php-router/issues/new)
-
-###### Contribution development guidelines
+##### Contribution development guidelines
 
 - Please try to follow the PSR-2 codestyle guidelines.
 
@@ -206,7 +210,7 @@ Below is an example of an working `web.config` file used by simple-php-router.
 
 Simply create a new `web.config` file in your projects `public` directory and paste the contents below in your newly created file. This will redirect all requests to your `index.php` file (see Configuration section below). If the `web.config` file already exists, add the `<rewrite>` section inside the `<system.webServer>` branch.
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <system.webServer>
@@ -375,6 +379,379 @@ function csrf_token()
     return null;
 }
 ```
+
+---
+
+# Help and support
+
+This section will go into details on how to debug the router and answer some of the commonly asked questions- and issues.
+
+## How to debug
+
+This section will show you how to write unit-tests for the router, view useful debugging information and answer some of the frequently asked questions. 
+
+It will also covers how to report any issue you might encounter. 
+
+### Creating unit-tests
+
+The easiest and fastest way to debug any issues with the router, is to create a unit-test that represents the issue you are experiencing.
+
+Unit-tests use a special `TestRouter` class, which simulates a request-method and requested url of a browser.
+
+The `TestRouter` class can return the output directly or render a route silently.
+
+```php
+public function testUnicodeCharacters()
+{
+    // Add route containing two optional paramters with special spanish characters like "í".
+    TestRouter::get('/cursos/listado/{listado?}/{category?}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s-]+']);
+    
+    // Start the routing and simulate the url "/cursos/listado/especialidad/cirugía local".
+    TestRouter::debugNoReset('/cursos/listado/especialidad/cirugía local', 'GET');
+    
+    // Verify that the url for the loaded route matches the expected route.
+    $this->assertEquals('/cursos/listado/{listado?}/{category?}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+    
+    // Start the routing and simulate the url "/test/Dermatología" using "GET" as request-method.
+    TestRouter::debugNoReset('/test/Dermatología', 'GET');
+
+    // Another route containing one parameter with special spanish characters like "í".
+    TestRouter::get('/test/{param}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s-\í]+']);
+
+    // Get all parameters parsed by the loaded route.
+    $parameters = TestRouter::request()->getLoadedRoute()->getParameters();
+
+    // Check that the parameter named "param" matches the exspected value.
+    $this->assertEquals('Dermatología', $parameters['param']);
+
+    // Add route testing danish special characters like "ø".
+    TestRouter::get('/category/økse', 'DummyController@method1', ['defaultParameterRegex' => '[\w\ø]+']);
+    
+    // Start the routing and simulate the url "/kategory/økse" using "GET" as request-method.
+    TestRouter::debugNoReset('/category/økse', 'GET');
+    
+    // Validate that the URL of the loaded-route matches the expected url.
+    $this->assertEquals('/category/økse/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+
+    // Reset the router, so other tests wont inherit settings or the routes we've added.
+    TestRouter::router()->reset();
+}
+```
+
+#### Using the TestRouter helper
+
+Depending on your test, you can use the methods below when rendering routes in your unit-tests.
+
+
+| Method        | Description  |
+| ------------- |-------------|
+| ```TestRouter::debug($url, $method)``` | Will render the route without returning anything. Exceptions will be thrown and the router will be reset automatically. |
+| ```TestRouter::debugOutput($url, $method)``` | Will render the route and return any value that the route might output. Manual reset required by calling `TestRouter::router()->reset()`. |
+| ```TestRouter::debugNoReset($url, $method);```  | Will render the route without resetting the router. Useful if you need to get loaded route, parameters etc. from the router. Manual reset required by calling `TestRouter::router()->reset()`. |
+
+### Debug information
+
+The library can output debug-information, which contains information like loaded routes, the parsed request-url etc. It also contains info which are important when reporting a new issue like PHP-version, library version, server-variables, router debug log etc.
+
+You can activate the debug-information by calling the alternative start-method. 
+
+The example below will start the routing an return array with debugging-information
+
+**Example:**
+
+```php
+$debugInfo = SimpleRouter::startDebug();
+echo sprintf('<pre>%s</pre>', var_export($debugInfo));
+exit;
+```
+
+**The example above will provide you with an output containing:**
+
+| Key               | Description  |
+| -------------     |------------- |
+| `url`             | The parsed request-uri. This url should match the url in the browser.|
+| `method`          | The browsers request method (example: `GET`, `POST`, `PUT`, `PATCH`, `DELETE` etc).|
+| `host`            | The website host (example: `domain.com`).|
+| `loaded_routes`   | List of all the routes that matched the `url` and that has been rendered/loaded. |
+| `all_routes`      | All available routes |
+| `boot_managers`   | All available BootManagers |
+| `csrf_verifier`   | CsrfVerifier class |
+| `log`             | List of debug messages/log from the router. |
+| `router_output`   | The rendered callback output from the router. |
+| `library_version` | The version of simple-php-router you are using. |
+| `php_version`     | The version of PHP you are using. |
+| `server_params`   | List of all `$_SERVER` variables/headers. | 
+
+#### Benchmark and logging
+
+You can activate benchmark debugging/logging by calling `setDebugEnabled` method on the `Router` instance.
+
+You have to enable debugging BEFORE starting the routing.
+
+**Example:**
+
+```php
+SimpleRouter::router()->setDebugEnabled(true);
+SimpleRouter::start();
+```
+
+When the routing is complete, you can get the debug-log by calling the `getDebugLog()` on the `Router` instance. This will return an `array` of log-messages each containing execution time, trace info and debug-message.
+
+**Example:**
+
+```php
+$messages = SimpleRouter::router()->getDebugLog();
+```
+
+## Reporting a new issue
+
+**Before reporting your issue, make sure that the issue you are experiencing aren't already answered in the [Common errors](#common-errors) section or by searching the [closed issues](https://github.com/skipperbent/simple-php-router/issues?q=is%3Aissue+is%3Aclosed) page on GitHub.**
+
+To avoid confusion and to help you resolve your issue as quickly as possible, you should provide a detailed explanation of the problem you are experiencing.
+
+### Procedure for reporting a new issue
+
+1. Go to [this page](https://github.com/skipperbent/simple-php-router/issues/new) to create a new issue.
+2. Add a title that describes your problems in as few words as possible.
+3. Copy and paste the template below in the description of your issue and replace each step with your own information. If the step is not relevant for your issue you can delete it.
+
+### Issue template
+
+Copy and paste the template below into the description of your new issue and replace it with your own information.
+
+You can check the [Debug information](#debug-information) section to see how to generate the debug-info.
+
+<pre>
+### Description
+
+The library fails to render the route `/user/æsel` which contains one parameter using a custom regular expression for matching special foreign characters. Routes without special characters like `/user/tom` renders correctly.
+
+### Steps to reproduce the error
+
+1. Add the following route:
+
+```php
+SimpleRouter::get('/user/{name}', 'UserController@show')->where(['name' => '[\w]+']);
+```
+
+2. Navigate to `/user/æsel` in browser.
+
+3. `NotFoundHttpException` is thrown by library.
+
+### Route and/or callback for failing route
+
+*Route:*
+
+```php
+SimpleRouter::get('/user/{name}', 'UserController@show')->where(['name' => '[\w]+']);
+```
+
+*Callback:*
+
+```php
+public function show($username) {
+    return sprintf('Username is: %s', $username);
+}
+```
+
+### Debug info
+
+```php
+array (
+  'url' => 
+  Pecee\Http\Url::__set_state(array(
+     'originalUrl' => NULL,
+     'data' => 
+    array (
+      'scheme' => NULL,
+      'host' => NULL,
+      'port' => NULL,
+      'user' => NULL,
+      'pass' => NULL,
+      'path' => NULL,
+      'query' => NULL,
+      'fragment' => NULL,
+    ),
+  )),
+  'method' => '',
+  'host' => NULL,
+  'loaded_routes' => 
+  array (
+  ),
+  'all_routes' => 
+  array (
+    0 => 
+    Pecee\SimpleRouter\Route\RouteUrl::__set_state(array(
+       'url' => '/user/{name}/',
+       'name' => NULL,
+       'regex' => NULL,
+       'filterEmptyParams' => true,
+       'defaultParameterRegex' => NULL,
+       'paramModifiers' => '{}',
+       'paramOptionalSymbol' => '?',
+       'urlRegex' => '/^%s\\/?$/u',
+       'group' => NULL,
+       'parent' => NULL,
+       'callback' => 'UserController@show',
+       'defaultNamespace' => NULL,
+       'namespace' => NULL,
+       'requestMethods' => 
+      array (
+        0 => 'get',
+      ),
+       'where' => 
+      array (
+        'name' => '[\\w]+',
+      ),
+       'parameters' => 
+      array (
+        'name' => NULL,
+      ),
+       'originalParameters' => 
+      array (
+      ),
+       'middlewares' => 
+      array (
+      ),
+    )),
+  ),
+  'boot_managers' => 
+  array (
+  ),
+  'csrf_verifier' => NULL,
+  'log' => 
+  array (
+    0 => 
+    array (
+      'message' => 'Started routing request (rewrite: no)',
+      'time' => '0.0000069141',
+      'trace' => 
+      array (
+        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\SimpleRouter.php',
+        'line' => 57,
+        'function' => 'routeRequest',
+        'class' => 'Pecee\\SimpleRouter\\Router',
+        'type' => '->',
+      ),
+    ),
+    1 => 
+    array (
+      'message' => 'Loading routes',
+      'time' => '0.0036418438',
+      'trace' => 
+      array (
+        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\Router.php',
+        'line' => 273,
+        'function' => 'loadRoutes',
+        'class' => 'Pecee\\SimpleRouter\\Router',
+        'type' => '->',
+      ),
+    ),
+    2 => 
+    array (
+      'message' => 'Processing routes',
+      'time' => '0.0069010258',
+      'trace' => 
+      array (
+        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\Router.php',
+        'line' => 251,
+        'function' => 'processRoutes',
+        'class' => 'Pecee\\SimpleRouter\\Router',
+        'type' => '->',
+      ),
+    ),
+    3 => 
+    array (
+      'message' => 'Processing route "Pecee\\SimpleRouter\\Route\\RouteUrl"',
+      'time' => '0.0099139214',
+      'trace' => 
+      array (
+        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\Router.php',
+        'line' => 251,
+        'function' => 'processRoutes',
+        'class' => 'Pecee\\SimpleRouter\\Router',
+        'type' => '->',
+      ),
+    ),
+    4 => 
+    array (
+      'message' => 'Finished loading routes',
+      'time' => '0.0130679607',
+      'trace' => 
+      array (
+        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\Router.php',
+        'line' => 273,
+        'function' => 'loadRoutes',
+        'class' => 'Pecee\\SimpleRouter\\Router',
+        'type' => '->',
+      ),
+    ),
+    5 => 
+    array (
+      'message' => 'Matching route "Pecee\\SimpleRouter\\Route\\RouteUrl"',
+      'time' => '0.0160858631',
+      'trace' => 
+      array (
+        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\SimpleRouter.php',
+        'line' => 57,
+        'function' => 'routeRequest',
+        'class' => 'Pecee\\SimpleRouter\\Router',
+        'type' => '->',
+      ),
+    ),
+    6 => 
+    array (
+      'message' => 'Route not found: "/"',
+      'time' => '0.0193598270',
+      'trace' => 
+      array (
+        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\SimpleRouter.php',
+        'line' => 57,
+        'function' => 'routeRequest',
+        'class' => 'Pecee\\SimpleRouter\\Router',
+        'type' => '->',
+      ),
+    ),
+    7 => 
+    array (
+      'message' => 'Starting exception handling for "Pecee\\SimpleRouter\\Exceptions\\NotFoundHttpException"',
+      'time' => '0.0229449272',
+      'trace' => 
+      array (
+        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\Router.php',
+        'line' => 345,
+        'function' => 'handleException',
+        'class' => 'Pecee\\SimpleRouter\\Router',
+        'type' => '->',
+      ),
+    ),
+    8 => 
+    array (
+      'message' => 'Finished exception handling - exception not handled, throwing',
+      'time' => '0.0258929729',
+      'trace' => 
+      array (
+        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\Router.php',
+        'line' => 345,
+        'function' => 'handleException',
+        'class' => 'Pecee\\SimpleRouter\\Router',
+        'type' => '->',
+      ),
+    ),
+  ),
+  'router_output' => NULL,
+  'library_version' => false,
+  'php_version' => '7.2.0',
+  'server_params' => 
+  array (),
+)
+```
+
+</pre>
+
+Remember that a more detailed issue- description and debug-info might suck to write, but it will help others understand- and resolve your issue without asking for the information.
+
+**Note:** please be as detailed as possible in the description when creating a new issue. This will help others to more easily understand- and solve your issue. Providing the necessary steps to reproduce the error within your description, adding useful debugging info etc. will help others quickly resolve the issue you are reporting.
 
 ---
 

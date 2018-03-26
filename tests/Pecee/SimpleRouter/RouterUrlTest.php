@@ -31,20 +31,21 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
     {
         // Test spanish characters
         TestRouter::get('/cursos/listado/{listado?}/{category?}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s-]+']);
+        TestRouter::get('/test/{param}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s-\í]+']);
         TestRouter::debugNoReset('/cursos/listado/especialidad/cirugía local', 'get');
+
         $this->assertEquals('/cursos/listado/{listado?}/{category?}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+
+        TestRouter::debugNoReset('/test/Dermatología');
+        $parameters = TestRouter::request()->getLoadedRoute()->getParameters();
+
+        $this->assertEquals('Dermatología', $parameters['param']);
 
         // Test danish characters
         TestRouter::get('/kategori/økse', 'DummyController@method1', ['defaultParameterRegex' => '[\w\ø]+']);
         TestRouter::debugNoReset('/kategori/økse', 'get');
+
         $this->assertEquals('/kategori/økse/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
-
-        TestRouter::get('/test/{param}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s-\í]+']);
-        TestRouter::debugNoReset('/test/Dermatología');
-
-        $parameters = TestRouter::request()->getLoadedRoute()->getParameters();
-
-        $this->assertEquals('Dermatología', $parameters['param']);
 
         TestRouter::router()->reset();
     }

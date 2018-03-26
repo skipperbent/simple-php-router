@@ -5,6 +5,7 @@ namespace Pecee\SimpleRouter\Route;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
+use Pecee\SimpleRouter\Router;
 
 abstract class Route implements IRoute
 {
@@ -59,10 +60,10 @@ abstract class Route implements IRoute
     /**
      * Load class by name
      * @param string $name
-     * @return mixed
+     * @return object
      * @throws NotFoundHttpException
      */
-    protected function loadClass($name)
+    protected function loadClass($name): object
     {
         if (class_exists($name) === false) {
             throw new NotFoundHttpException(sprintf('Class "%s" does not exist', $name), 404);
@@ -75,21 +76,25 @@ abstract class Route implements IRoute
      * Render route
      *
      * @param Request $request
+     * @param Router $router
      * @return string|null
      * @throws NotFoundHttpException
      */
-    public function renderRoute(Request $request): ?string
+    public function renderRoute(Request $request, Router $router): ?string
     {
+        $router->debug('Starting rendering route');
+
         $callback = $this->getCallback();
 
         if ($callback === null) {
             return null;
         }
 
+        $router->debug('Parsing parameters');
         $parameters = $this->getParameters();
+        $router->debug('Finished parsing parameters');
 
         /* Filter parameters with null-value */
-
         if ($this->filterEmptyParams === true) {
             $parameters = array_filter($parameters, function ($var) {
                 return ($var !== null);
@@ -98,7 +103,10 @@ abstract class Route implements IRoute
 
         /* Render callback function */
         if (\is_callable($callback) === true) {
+            $router->debug('Executing callback');
+
             /* When the callback is a function */
+
             return \call_user_func_array($callback, $parameters);
         }
 
@@ -109,12 +117,15 @@ abstract class Route implements IRoute
 
         $className = ($namespace !== null && $controller[0][0] !== '\\') ? $namespace . '\\' . $controller[0] : $controller[0];
 
+        $router->debug('Loading class %s', $className);
         $class = $this->loadClass($className);
         $method = $controller[1];
 
         if (method_exists($class, $method) === false) {
             throw new NotFoundHttpException(sprintf('Method "%s" does not exist in class "%s"', $method, $className), 404);
         }
+
+        $router->debug('Executing callback');
 
         return \call_user_func_array([$class, $method], $parameters);
     }
@@ -300,7 +311,7 @@ abstract class Route implements IRoute
         return null;
     }
 
-    public function getClass()
+    public function getClass(): ?string
     {
         if (\is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             $tmp = explode('@', $this->callback);
@@ -311,14 +322,14 @@ abstract class Route implements IRoute
         return null;
     }
 
-    public function setMethod($method): IRoute
+    public function setMethod(string $method): IRoute
     {
         $this->callback = sprintf('%s@%s', $this->getClass(), $method);
 
         return $this;
     }
 
-    public function setClass($class)
+    public function setClass(string $class): IRoute
     {
         $this->callback = sprintf('%s@%s', $class, $this->getMethod());
 
@@ -327,9 +338,9 @@ abstract class Route implements IRoute
 
     /**
      * @param string $namespace
-     * @return static $this
+     * @return static
      */
-    public function setNamespace($namespace)
+    public function setNamespace(string $namespace): IRoute
     {
         $this->namespace = $namespace;
 
@@ -338,16 +349,16 @@ abstract class Route implements IRoute
 
     /**
      * @param string $namespace
-     * @return static $this
+     * @return static
      */
-    public function setDefaultNamespace($namespace)
+    public function setDefaultNamespace($namespace): IRoute
     {
         $this->defaultNamespace = $namespace;
 
         return $this;
     }
 
-    public function getDefaultNamespace()
+    public function getDefaultNamespace(): ?string
     {
         return $this->defaultNamespace;
     }
@@ -397,9 +408,9 @@ abstract class Route implements IRoute
      *
      * @param array $values
      * @param bool $merge
-     * @return static $this
+     * @return static
      */
-    public function setSettings(array $values, $merge = false)
+    public function setSettings(array $values, bool $merge = false): IRoute
     {
         if ($this->namespace === null && isset($values['namespace']) === true) {
             $this->setNamespace($values['namespace']);
@@ -445,7 +456,7 @@ abstract class Route implements IRoute
      * @param array $options
      * @return static
      */
-    public function setWhere(array $options)
+    public function setWhere(array $options): IRoute
     {
         $this->where = $options;
 
@@ -486,9 +497,9 @@ abstract class Route implements IRoute
      * Get parameters
      *
      * @param array $parameters
-     * @return static $this
+     * @return static
      */
-    public function setParameters(array $parameters)
+    public function setParameters(array $parameters): IRoute
     {
         /*
          * If this is the first time setting parameters we store them so we
@@ -556,7 +567,7 @@ abstract class Route implements IRoute
      * This is used when no custom parameter regex is found.
      *
      * @param string $regex
-     * @return static $this
+     * @return static
      */
     public function setDefaultParameterRegex($regex)
     {

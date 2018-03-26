@@ -46,6 +46,8 @@ class SimpleRouter
     protected static $router;
 
     /**
+     * Start routing
+     *
      * @throws \Pecee\Http\Exceptions\MalformedUrlException
      * @throws HttpException
      * @throws \Exception
@@ -56,21 +58,55 @@ class SimpleRouter
     }
 
     /**
-     * Get debug info array
+     * Start the routing an return array with debugging-information
      *
      * @return array
      * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function debugInfo(): array
+    public static function startDebug(): array
     {
+        $routerOutput = null;
+
+        try {
+            ob_start();
+            static::router()->setDebugEnabled(true);
+            static::start();
+            $routerOutput = ob_get_contents();
+            ob_end_clean();
+        } catch (\Exception $e) {
+
+        }
+
+        // Try to parse library version
+        $composerFile = \dirname(__DIR__, 3) . '/composer.lock';
+        $version = false;
+
+        if (is_file($composerFile) === true) {
+            $composerInfo = json_decode(file_get_contents($composerFile), true);
+
+            if (isset($composerInfo['packages']) === true && \is_array($composerInfo['packages']) === true) {
+                foreach ($composerInfo['packages'] as $package) {
+                    if (isset($package['name']) === true && strtolower($package['name']) === 'pecee/simple-router') {
+                        $version = $package['version'];
+                        break;
+                    }
+                }
+            }
+        }
+
         return [
-            'url'           => static::request()->getUrl(),
-            'method'        => static::request()->getMethod(),
-            'host'          => static::request()->getHost(),
-            'loaded_routes' => static::request()->getLoadedRoutes(),
-            'all_routes'    => static::router()->getRoutes(),
-            'boot_managers' => static::router()->getBootManagers(),
-            'csrf_verifier' => static::router()->getCsrfVerifier(),
+            'url'             => static::request()->getUrl(),
+            'method'          => static::request()->getMethod(),
+            'host'            => static::request()->getHost(),
+            'loaded_routes'   => static::request()->getLoadedRoutes(),
+            'all_routes'      => static::router()->getRoutes(),
+            'boot_managers'   => static::router()->getBootManagers(),
+            'csrf_verifier'   => static::router()->getCsrfVerifier(),
+            'log'             => static::router()->getDebugLog(),
+            'router_output'   => $routerOutput,
+            'library_version' => $version,
+            'php_version'     => PHP_VERSION,
+            'server_params'   => static::request()->getHeaders(),
         ];
     }
 

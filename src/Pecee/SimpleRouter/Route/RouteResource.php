@@ -42,7 +42,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
      * @param string $name
      * @return bool
      */
-    public function hasName($name): bool
+    public function hasName(string $name): bool
     {
         if ($this->name === null) {
             return false;
@@ -154,14 +154,14 @@ class RouteResource extends LoadableRoute implements IControllerRoute
      * @param string $controller
      * @return static
      */
-    public function setController($controller): IControllerRoute
+    public function setController(string $controller): IControllerRoute
     {
         $this->controller = $controller;
 
         return $this;
     }
 
-    public function setName($name): ILoadableRoute
+    public function setName(string $name): ILoadableRoute
     {
         $this->name = $name;
 
@@ -208,7 +208,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
      * @param bool $merge
      * @return static
      */
-    public function setSettings(array $values, $merge = false): IRoute
+    public function setSettings(array $values, bool $merge = false): IRoute
     {
         if (isset($values['names']) === true) {
             $this->names = $values['names'];

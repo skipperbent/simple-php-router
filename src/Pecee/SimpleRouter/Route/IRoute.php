@@ -3,6 +3,7 @@
 namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\Router;
 
 interface IRoute
 {
@@ -20,10 +21,11 @@ interface IRoute
      * Returns class to be rendered.
      *
      * @param Request $request
+     * @param Router $router
      * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
      * @return string
      */
-    public function renderRoute(Request $request): ?string;
+    public function renderRoute(Request $request, Router $router): ?string;
 
     /**
      * Returns callback name/identifier for the current route based on the callback.
@@ -103,15 +105,20 @@ interface IRoute
      * @param string $method
      * @return static
      */
-    public function setMethod($method): self;
+    public function setMethod(string $method): self;
 
-    public function getClass();
+    /**
+     * Get class
+     *
+     * @return string|null
+     */
+    public function getClass(): ?string;
 
     /**
      * @param string $namespace
      * @return static
      */
-    public function setNamespace($namespace);
+    public function setNamespace(string $namespace): self;
 
     /**
      * @return string|null
@@ -122,9 +129,13 @@ interface IRoute
      * @param string $namespace
      * @return static
      */
-    public function setDefaultNamespace($namespace);
+    public function setDefaultNamespace($namespace): IRoute;
 
-    public function getDefaultNamespace();
+    /**
+     * Get default namespace
+     * @return string|null
+     */
+    public function getDefaultNamespace(): ?string;
 
     /**
      * Get parameter names.
@@ -139,7 +150,7 @@ interface IRoute
      * @param array $options
      * @return static
      */
-    public function setWhere(array $options);
+    public function setWhere(array $options): self;
 
     /**
      * Get parameters
@@ -152,18 +163,18 @@ interface IRoute
      * Get parameters
      *
      * @param array $parameters
-     * @return static $this
+     * @return static
      */
-    public function setParameters(array $parameters);
+    public function setParameters(array $parameters): self;
 
     /**
      * Merge with information from another route.
      *
      * @param array $settings
      * @param bool $merge
-     * @return static $this
+     * @return static
      */
-    public function setSettings(array $settings, $merge = false);
+    public function setSettings(array $settings, bool $merge = false): self;
 
     /**
      * Export route settings to array so they can be merged with another route.

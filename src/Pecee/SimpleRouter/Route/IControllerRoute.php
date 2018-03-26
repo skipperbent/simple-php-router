@@ -17,6 +17,6 @@ interface IControllerRoute extends IRoute
      * @param string $controller
      * @return static
      */
-    public function setController($controller): self;
+    public function setController(string $controller): self;
 
 }
