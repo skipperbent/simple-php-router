@@ -2,10 +2,6 @@
 
 Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. Heavily inspired by the way Laravel handles routing, with both simplicity and expand-ability in mind.
 
-**Please note that this documentation is currently work-in-progress. Feel free to contribute.**
-
----
-
 ## Table of Contents
 
 - [Getting started](#getting-started)
