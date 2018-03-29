@@ -331,18 +331,13 @@ function request(): Request
  * Get input class
  * @param string|null $index Parameter index name
  * @param string|null $defaultValue Default return value
- * @param string|array|null $methods Default method
+ * @param array ...$methods Default methods
  * @return \Pecee\Http\Input\InputHandler|\Pecee\Http\Input\IInputItem|string
  */
-function input($index = null, $defaultValue = null, $methods = null)
+function input($index = null, $defaultValue = null, ...$methods)
 {
     if ($index !== null) {
-
-        if ($defaultValue !== null) {
-            return request()->getInputHandler()->getValue($index, $defaultValue, $methods);
-        }
-
-        return request()->getInputHandler()->get($index, $methods);
+        return request()->getInputHandler()->get($index, ...$methods) ?? $defaultValue;
     }
 
     return request()->getInputHandler();
