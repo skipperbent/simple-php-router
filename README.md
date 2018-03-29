@@ -843,7 +843,7 @@ class CustomMiddleware implements Middleware {
         // If authentication failed, redirect request to user-login page.
         if($request->user === null) {
             $request->setRewriteUrl(url('user.login'));
-            return $request;
+            return;
         }
 
     }
@@ -908,7 +908,7 @@ class CustomExceptionHandler implements IExceptionHandler
 			// Render custom 404-page
 
 			$request->setRewriteCallback('Demo\Controllers\PageController@notFound');
-			return $request;
+			return;
 
 		}
 
