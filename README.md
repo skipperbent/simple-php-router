@@ -1664,7 +1664,7 @@ Remember that a more detailed issue- description and debug-info might suck to wr
 
 **Note:** please be as detailed as possible in the description when creating a new issue. This will help others to more easily understand- and solve your issue. Providing the necessary steps to reproduce the error within your description, adding useful debugging info etc. will help others quickly resolve the issue you are reporting.
 
-### Feedback and development
+## Feedback and development
 
 If the library is missing a feature that you need in your project or if you have feedback, we'd love to hear from you. 
 Feel free to leave us feedback by [creating a new issue](https://github.com/skipperbent/simple-php-router/issues/new).
@@ -1673,7 +1673,7 @@ Feel free to leave us feedback by [creating a new issue](https://github.com/skip
 
 Please refer to our [Help and support](#help-and-support) section in the documentation before reporting a new issue.
 
-##### Contribution development guidelines
+### Contribution development guidelines
 
 - Please try to follow the PSR-2 codestyle guidelines.
 
