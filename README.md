@@ -284,9 +284,9 @@ To implement the functions below, simply copy the code to a new file and require
 <?php
 
 use Pecee\SimpleRouter\SimpleRouter as Router;
-use \Pecee\Http\Url;
-use \Pecee\Http\Response;
-use \Pecee\Http\Request;
+use Pecee\Http\Url;
+use Pecee\Http\Response;
+use Pecee\Http\Request;
 
 /**
  * Get url for a route by using either name/alias, class or method name.
@@ -337,7 +337,7 @@ function request(): Request
 function input($index = null, $defaultValue = null, ...$methods)
 {
     if ($index !== null) {
-        return request()->getInputHandler()->get($index, ...$methods) ?? $defaultValue;
+        return request()->getInputHandler()->getValue($index, $defaultValue, ...$methods);
     }
 
     return request()->getInputHandler();
@@ -1172,18 +1172,16 @@ $value = input($index, $defaultValue, $methods);
 
 ### Get parameter object
 
-Will return an instance of `InputItem` or `InputFile` depending on the type.
+The example below will return an instance of `InputItem` or `InputFile` depending on the type.
 
 You can use this in your html as it will render the value of the item.
-However if you want to compare value in your if statements, you have to use
-the `getValue` or use the `input()` instead.
+
+If you want to compare value in your if statements, you have to use the `getValue` or use the `input()` helper function instead.
 
 If items is grouped in the html, it will return an array of items.
 
-**Note:** `getObject` will only return `$defaultValue` if the item doesn't exist. If you want `$defaultValue` to be returned if the item is empty, please use `input()` instead.
-
 ```php
-$object = input()->getObject($index, $defaultValue = null, $methods = null);
+$object = input()->get($index, $defaultValue = null, $methods = null);
 ```
 
 ### Return specific GET parameter (where name is the name of your parameter):
@@ -1205,9 +1203,9 @@ $id = input($index, $defaultValue, $method);
 
 # -- match specific --
 
-$object = input($index, $defaultValue, 'get');
-$object = input($index, $defaultValue, 'post');
-$object = input($index, $defaultValue, 'file');
+$value = input($index, $defaultValue, 'get');
+$value = input($index, $defaultValue, 'post');
+$value = input($index, $defaultValue, 'file');
 
 # -- or --
 

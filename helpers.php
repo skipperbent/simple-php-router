@@ -1,9 +1,9 @@
 <?php
 
 use Pecee\SimpleRouter\SimpleRouter as Router;
-use \Pecee\Http\Url;
-use \Pecee\Http\Response;
-use \Pecee\Http\Request;
+use Pecee\Http\Url;
+use Pecee\Http\Response;
+use Pecee\Http\Request;
 
 /**
  * Get url for a route by using either name/alias, class or method name.
@@ -54,7 +54,7 @@ function request(): Request
 function input($index = null, $defaultValue = null, ...$methods)
 {
     if ($index !== null) {
-        return request()->getInputHandler()->get($index, ...$methods) ?? $defaultValue;
+        return request()->getInputHandler()->getValue($index, $defaultValue, ...$methods);
     }
 
     return request()->getInputHandler();
