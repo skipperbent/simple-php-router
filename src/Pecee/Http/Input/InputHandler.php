@@ -222,11 +222,11 @@ class InputHandler
             $element = $this->findGet($index);
         }
 
-        if (($element === null && \count($methods) === 0) || (\count($methods) === 0 && \in_array('post', $methods, true) === true)) {
+        if (($element === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array('post', $methods, true) === true)) {
             $element = $this->findPost($index);
         }
 
-        if (($element === null && \count($methods) === 0) || (\count($methods) === 0 && \in_array('file', $methods, true) === true)) {
+        if (($element === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array('file', $methods, true) === true)) {
             $element = $this->findFile($index);
         }
 
