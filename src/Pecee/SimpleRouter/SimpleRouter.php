@@ -256,7 +256,6 @@ class SimpleRouter
         $group = new RouteGroup();
         $group->setCallback($callback);
         $group->setSettings($settings);
-        $group = static::addDefaultNamespace($group);
 
         static::router()->addRoute($group);
 
@@ -284,7 +283,6 @@ class SimpleRouter
         $group = new RoutePartialGroup();
         $group->setSettings($settings);
         $group->setCallback($callback);
-        $group = static::addDefaultNamespace($group);
 
         static::router()->addRoute($group);
 
@@ -512,12 +510,6 @@ class SimpleRouter
     public static function addDefaultNamespace(IRoute $route): IRoute
     {
         if (static::$defaultNamespace !== null) {
-
-            if ($route instanceof IGroupRoute) {
-                $route->setNamespace(static::$defaultNamespace . '\\' . ltrim($route->getNamespace(), '\\'));
-
-                return $route;
-            }
 
             $callback = $route->getCallback();
 
