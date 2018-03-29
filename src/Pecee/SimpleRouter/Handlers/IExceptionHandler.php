@@ -1,6 +1,6 @@
 <?php
 
-namespace Pecee\Handlers;
+namespace Pecee\SimpleRouter\Handlers;
 
 use Pecee\Http\Request;
 

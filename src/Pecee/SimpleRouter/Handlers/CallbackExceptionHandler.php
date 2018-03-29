@@ -1,6 +1,6 @@
 <?php
 
-namespace Pecee\Handlers;
+namespace Pecee\SimpleRouter\Handlers;
 
 use Pecee\Http\Request;
 
@@ -10,7 +10,7 @@ use Pecee\Http\Request;
  * Class is used to create callbacks which are fired when an exception is reached.
  * This allows for easy handling 404-exception etc. without creating an custom ExceptionHandler.
  *
- * @package Pecee\Handlers
+ * @package \Pecee\SimpleRouter\Handlers
  */
 class CallbackExceptionHandler implements IExceptionHandler
 {

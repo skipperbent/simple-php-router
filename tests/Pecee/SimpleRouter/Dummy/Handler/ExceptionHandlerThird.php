@@ -1,6 +1,6 @@
 <?php
 
-class ExceptionHandlerThird implements \Pecee\Handlers\IExceptionHandler
+class ExceptionHandlerThird implements \Pecee\SimpleRouter\Handlers\IExceptionHandler
 {
 	public function handleError(\Pecee\Http\Request $request, \Exception $error) : void
 	{

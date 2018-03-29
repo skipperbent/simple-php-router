@@ -35,16 +35,18 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         foreach ($this->getMiddlewares() as $middleware) {
 
             if (\is_object($middleware) === false) {
-                $middleware = $this->loadClass($middleware);
+                $middleware = $router->getClassLoader()->loadClass($middleware);
             }
 
             if (($middleware instanceof IMiddleware) === false) {
                 throw new HttpException($middleware . ' must be inherit the IMiddleware interface');
             }
 
-            $router->debug('Loading middleware "%s"', \get_class($middleware));
+            $className = \get_class($middleware);
+
+            $router->debug('Loading middleware "%s"', $className);
             $middleware->handle($request);
-            $router->debug('Finished loading middleware');
+            $router->debug('Finished loading middleware "%s"', $className);
         }
 
         $router->debug('Finished loading middlewares');
@@ -97,7 +99,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @param string|null $name
      * @return string
      */
-    public function findUrl($method = null, $parameters = null, $name = null): string
+    public function findUrl(?string $method = null, $parameters = null, ?string $name = null): string
     {
         $url = $this->getUrl();
 

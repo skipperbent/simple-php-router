@@ -2,6 +2,7 @@
 
 namespace Pecee\Http;
 
+use Pecee\Http\Exceptions\MalformedUrlException;
 use Pecee\Http\Input\InputHandler;
 use Pecee\SimpleRouter\Route\ILoadableRoute;
 use Pecee\SimpleRouter\Route\RouteUrl;
@@ -9,19 +10,58 @@ use Pecee\SimpleRouter\SimpleRouter;
 
 class Request
 {
+    /**
+     * Additional data
+     *
+     * @var array
+     */
     private $data = [];
+
+    /**
+     * Server headers
+     * @var array
+     */
     protected $headers = [];
+
+    /**
+     * Request host
+     * @var string
+     */
     protected $host;
+
+    /**
+     * Current request url
+     * @var Url
+     */
     protected $url;
+
+    /**
+     * Request method
+     * @var string
+     */
     protected $method;
+
+    /**
+     * Input handler
+     * @var InputHandler
+     */
     protected $inputHandler;
 
-    protected $hasRewrite = false;
+    /**
+     * Defines if request has pending rewrite
+     * @var bool
+     */
+    protected $hasPendingRewrite = false;
 
     /**
      * @var ILoadableRoute|null
      */
     protected $rewriteRoute;
+
+    /**
+     * Rewrite url
+     * @var string|null
+     */
     protected $rewriteUrl;
 
     /**
@@ -31,7 +71,7 @@ class Request
 
     /**
      * Request constructor.
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
+     * @throws MalformedUrlException
      */
     public function __construct()
     {
@@ -43,10 +83,10 @@ class Request
         $this->setHost($this->getHeader('http-host'));
 
         // Check if special IIS header exist, otherwise use default.
-        $this->setUrl($this->getHeader('unencoded-url', $this->getHeader('request-uri')));
+        $this->setUrl(new Url($this->getHeader('unencoded-url', $this->getHeader('request-uri'))));
 
         $this->inputHandler = new InputHandler($this);
-        $this->method = strtolower($this->inputHandler->get('_method', $this->getHeader('request-method')));
+        $this->method = strtolower($this->inputHandler->getValue('_method', $this->getHeader('request-method')));
     }
 
     public function isSecure(): bool
@@ -60,6 +100,16 @@ class Request
     public function getUrl(): Url
     {
         return $this->url;
+    }
+
+    /**
+     * Copy url object
+     *
+     * @return Url
+     */
+    public function getUrlCopy(): Url
+    {
+        return clone $this->url;
     }
 
     /**
@@ -205,12 +255,15 @@ class Request
     }
 
     /**
-     * @param string|Url $url
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
+     * @param Url $url
      */
-    public function setUrl($url): void
+    public function setUrl(Url $url): void
     {
-        $this->url = ($url instanceof Url) ? $url : new Url($url);
+        $this->url = $url;
+
+        if ($this->url->getHost() === null) {
+            $this->url->setHost((string)$this->getHost());
+        }
     }
 
     /**
@@ -237,7 +290,7 @@ class Request
      */
     public function setRewriteRoute(ILoadableRoute $route): self
     {
-        $this->hasRewrite = true;
+        $this->hasPendingRewrite = true;
         $this->rewriteRoute = SimpleRouter::addDefaultNamespace($route);
 
         return $this;
@@ -271,7 +324,7 @@ class Request
      */
     public function setRewriteUrl(string $rewriteUrl): self
     {
-        $this->hasRewrite = true;
+        $this->hasPendingRewrite = true;
         $this->rewriteUrl = rtrim($rewriteUrl, '/') . '/';
 
         return $this;
@@ -284,7 +337,7 @@ class Request
      */
     public function setRewriteCallback($callback): self
     {
-        $this->hasRewrite = true;
+        $this->hasPendingRewrite = true;
 
         return $this->setRewriteRoute(new RouteUrl($this->getUrl()->getPath(), $callback));
     }
@@ -339,9 +392,9 @@ class Request
      *
      * @return bool
      */
-    public function hasRewrite(): bool
+    public function hasPendingRewrite(): bool
     {
-        return $this->hasRewrite;
+        return $this->hasPendingRewrite;
     }
 
     /**
@@ -350,9 +403,9 @@ class Request
      * @param bool $boolean
      * @return Request
      */
-    public function setHasRewrite(bool $boolean): self
+    public function setHasPendingRewrite(bool $boolean): self
     {
-        $this->hasRewrite = $boolean;
+        $this->hasPendingRewrite = $boolean;
 
         return $this;
     }

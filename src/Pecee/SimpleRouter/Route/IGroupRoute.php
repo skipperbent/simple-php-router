@@ -2,8 +2,8 @@
 
 namespace Pecee\SimpleRouter\Route;
 
-use Pecee\Handlers\IExceptionHandler;
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\Handlers\IExceptionHandler;
 
 interface IGroupRoute extends IRoute
 {

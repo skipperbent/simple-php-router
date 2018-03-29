@@ -5,8 +5,10 @@ class TestRouter extends \Pecee\SimpleRouter\SimpleRouter
 
     public static function debugNoReset($testUrl, $testMethod = 'get')
     {
-        static::request()->setUrl($testUrl);
-        static::request()->setMethod($testMethod);
+        $request = static::request();
+
+        $request->setUrl((new \Pecee\Http\Url($testUrl))->setHost('local.unitTest'));
+        $request->setMethod($testMethod);
 
         static::start();
     }

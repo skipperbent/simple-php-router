@@ -87,7 +87,6 @@ class InputHandler
             }
 
             $keys = [$key];
-
             $files = $this->rearrangeFiles($value['name'], $keys, $value);
 
             if (isset($list[$key]) === true) {
@@ -212,31 +211,26 @@ class InputHandler
      * Get input object
      *
      * @param string $index
-     * @param string|null $defaultValue
-     * @param array|string|null $methods
-     * @return IInputItem|string
+     * @param array ...$methods
+     * @return IInputItem|null
      */
-    public function getObject(string $index, ?string $defaultValue = null, $methods = null)
+    public function get(string $index, ...$methods): ?IInputItem
     {
-        if ($methods !== null && \is_string($methods) === true) {
-            $methods = [$methods];
-        }
-
         $element = null;
 
-        if ($methods === null || \in_array('get', $methods, true) === true) {
+        if (\count($methods) === 0 || \in_array('get', $methods, true) === true) {
             $element = $this->findGet($index);
         }
 
-        if (($element === null && $methods === null) || ($methods !== null && \in_array('post', $methods, true) === true)) {
+        if (($element === null && \count($methods) === 0) || (\count($methods) === 0 && \in_array('post', $methods, true) === true)) {
             $element = $this->findPost($index);
         }
 
-        if (($element === null && $methods === null) || ($methods !== null && \in_array('file', $methods, true) === true)) {
+        if (($element === null && \count($methods) === 0) || (\count($methods) === 0 && \in_array('file', $methods, true) === true)) {
             $element = $this->findFile($index);
         }
 
-        return $element ?? $defaultValue;
+        return $element;
     }
 
     /**
@@ -244,14 +238,14 @@ class InputHandler
      *
      * @param string $index
      * @param string|null $defaultValue
-     * @param array|string|null $methods
-     * @return InputItem|string
+     * @param array ...$methods
+     * @return string
      */
-    public function get(string $index, ?string $defaultValue = null, $methods = null)
+    public function getValue(string $index, ?string $defaultValue = null, ...$methods): ?string
     {
-        $input = $this->getObject($index, $defaultValue, $methods);
+        $input = $this->get($index, $methods);
 
-        if ($input instanceof InputItem) {
+        if ($input !== null) {
             return (trim($input->getValue()) === '') ? $defaultValue : $input->getValue();
         }
 
@@ -262,11 +256,12 @@ class InputHandler
      * Check if a input-item exist
      *
      * @param string $index
+     * @param array ...$method
      * @return bool
      */
-    public function exists(string $index): bool
+    public function exists(string $index, ...$method): bool
     {
-        return ($this->getObject($index) !== null);
+        return $this->get($index, $method) !== null;
     }
 
     /**
@@ -276,12 +271,16 @@ class InputHandler
      */
     public function all(array $filter = null): array
     {
-        $output = $_GET + $_POST;
+        $output = $_GET;
 
         if ($this->request->getMethod() === 'post') {
 
+            // Append POST data
+            $output += $_POST;
+
             $contents = file_get_contents('php://input');
 
+            // Append any PHP-input json
             if (strpos(trim($contents), '{') === 0) {
                 $post = json_decode($contents, true);
                 if ($post !== false) {

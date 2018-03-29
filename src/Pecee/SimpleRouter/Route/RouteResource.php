@@ -60,7 +60,13 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         return (strtolower($this->name) === strtolower($name));
     }
 
-    public function findUrl($method = null, $parameters = null, $name = null): string
+    /**
+     * @param string|null $method
+     * @param array|string|null $parameters
+     * @param string|null $name
+     * @return string
+     */
+    public function findUrl(?string $method = null, $parameters = null, ?string $name = null): string
     {
         $url = array_search($name, $this->names, false);
         if ($url !== false) {
