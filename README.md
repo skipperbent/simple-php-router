@@ -7,8 +7,6 @@ Simple, fast and yet powerful PHP router that is easy to get integrated and in a
 - [Getting started](#getting-started)
 	- [Notes](#notes-1)
 	- [Requirements](#requirements)
-	- [Feedback and development](#feedback-and-development)
-	    - [Contribution development guidelines](#contribution-development-guidelines)
 	- [Features](#features)
 	- [Installation](#installation)
 		- [Setting up Apache](#setting-up-apache)
@@ -91,6 +89,8 @@ Simple, fast and yet powerful PHP router that is easy to get integrated and in a
     - [Reporting a new issue](#reporting-a-new-issue)
         - [Procedure for reporting a new issue](#procedure-for-reporting-a-new-issue)
         - [Issue template](#issue-template)
+    - [Feedback and development](#feedback-and-development)
+   	    - [Contribution development guidelines](#contribution-development-guidelines)
 
 - [Credits](#credits)
 	- [Sites](#sites)
@@ -99,7 +99,8 @@ Simple, fast and yet powerful PHP router that is easy to get integrated and in a
 ___
 
 # Getting started
-Add the latest version of Simple PHP Router running this command.
+
+Add the latest version of the simple-router project running this command.
 
 ```
 composer require pecee/simple-router
@@ -129,29 +130,7 @@ You can find the demo-project here: [https://github.com/skipperbent/simple-route
 
 ## Requirements
 
-- PHP 5.5 or greater
-
-### Feedback and development
-
-If the library is missing a feature that you need in your project or if you have feedback, we'd love to hear from you. 
-Feel free to leave us feedback by [creating a new issue](https://github.com/skipperbent/simple-php-router/issues/new).
-
-**Experiencing an issue?**
-
-Please refer to our [Help and support](#help-and-support) section in the documentation before reporting a new issue.
-
-##### Contribution development guidelines
-
-- Please try to follow the PSR-2 codestyle guidelines.
-
-- Please create your pull requests to the development base that matches the version number you want to change.
-For example when pushing changes to version 3, the pull request should use the `v3-development` base/branch.
-
-- Create detailed descriptions for your commits, as these will be used in the changelog for new releases.
-
-- When changing existing functionality, please ensure that the unit-tests working.
-
-- When adding new stuff, please remember to add new unit-tests for the functionality.
+- PHP 7.1 or greater (version 3.x and below supports PHP 5.5+)
 
 ## Features
 
@@ -1684,6 +1663,28 @@ public function show($username) {
 Remember that a more detailed issue- description and debug-info might suck to write, but it will help others understand- and resolve your issue without asking for the information.
 
 **Note:** please be as detailed as possible in the description when creating a new issue. This will help others to more easily understand- and solve your issue. Providing the necessary steps to reproduce the error within your description, adding useful debugging info etc. will help others quickly resolve the issue you are reporting.
+
+### Feedback and development
+
+If the library is missing a feature that you need in your project or if you have feedback, we'd love to hear from you. 
+Feel free to leave us feedback by [creating a new issue](https://github.com/skipperbent/simple-php-router/issues/new).
+
+**Experiencing an issue?**
+
+Please refer to our [Help and support](#help-and-support) section in the documentation before reporting a new issue.
+
+##### Contribution development guidelines
+
+- Please try to follow the PSR-2 codestyle guidelines.
+
+- Please create your pull requests to the development base that matches the version number you want to change.
+For example when pushing changes to version 3, the pull request should use the `v3-development` base/branch.
+
+- Create detailed descriptions for your commits, as these will be used in the changelog for new releases.
+
+- When changing existing functionality, please ensure that the unit-tests working.
+
+- When adding new stuff, please remember to add new unit-tests for the functionality.
 
 ---
 
