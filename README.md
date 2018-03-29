@@ -1238,23 +1238,25 @@ It will also cover the basics of event-handlers; how to use the handlers provide
 
 This section contains all available events that can be registered using the `EventHandler`.
 
-| Name                                      | Description               | 
-| -------------                             |-------------                      | 
-| `EventHandler::EVENT_ALL`                 | Fires when a event is triggered. |
-| `EventHandler::EVENT_INIT`                | Fires when router is initializing and before routes are loaded. |
-| `EventHandler::EVENT_LOAD`                | Fires when all routes has been loaded and rendered, just before the output is returned. |
-| `EventHandler::EVENT_REWRITE`             | Fires when a url-rewrite is and just before the routes are re-initialized. |
-| `EventHandler::EVENT_BOOT`                | Fires when the router is booting. This happens just before boot-managers are rendered and before any routes has been loaded. |
-| `EventHandler::EVENT_RENDER_BOOTMANAGER`  | Fires before a boot-manager is rendered. |
-| `EventHandler::EVENT_LOAD_ROUTES`         | Fires when the router is about to load all routes. |
-| `EventHandler::EVENT_FIND_ROUTE`          | Fires whenever the `findRoute` method is called within the `Router`. This usually happens when the router tries to find routes that contains a certain url, usually after the `EventHandler::EVENT_GET_URL` event. |
-| `EventHandler::EVENT_GET_URL`             | Fires whenever the `Router::getUrl` method or `url`-helper function is called and the router tries to find the route. |
-| `EventHandler::EVENT_MATCH_ROUTE`         | Fires when a route is matched and valid (correct request-type etc). and before the route is rendered. |
-| `EventHandler::EVENT_RENDER_ROUTE`        | Fires before a route is rendered. |
-| `EventHandler::EVENT_LOAD_EXCEPTIONS`     | Fires when the router is loading exception-handlers. |
-| `EventHandler::EVENT_RENDER_EXCEPTION`    | Fires before the router is rendering a exception-handler. |
-| `EventHandler::EVENT_RENDER_MIDDLEWARE`   | Fires before a middleware is rendered. |
-| `EventHandler::EVENT_RENDER_CSRF`         | Fires before the CSRF-verifier is rendered. |
+All event callbacks will retrieve a `EventArgument` object as parameter. This object contains easy access to event-name, router- and request instance and any special event-arguments related to the given event. You can see what special event arguments each event returns in the list below.  
+
+| Name                        | Special arguments | Description               | 
+| -------------               |-----------      | ----                      | 
+| `EVENT_ALL`                 | - | Fires when a event is triggered. |
+| `EVENT_INIT`                | - | Fires when router is initializing and before routes are loaded. |
+| `EVENT_LOAD`                | `loadedRoutes` | Fires when all routes has been loaded and rendered, just before the output is returned. |
+| `EVENT_REWRITE`             | `rewriteUrl`<br>`rewriteRoute` | Fires when a url-rewrite is and just before the routes are re-initialized. |
+| `EVENT_BOOT`                | `bootmanagers` | Fires when the router is booting. This happens just before boot-managers are rendered and before any routes has been loaded. |
+| `EVENT_RENDER_BOOTMANAGER`  | `bootmanagers`<br>`bootmanager` | Fires before a boot-manager is rendered. |
+| `EVENT_LOAD_ROUTES`         | `routes` | Fires when the router is about to load all routes. |
+| `EVENT_FIND_ROUTE`          | `name` | Fires whenever the `findRoute` method is called within the `Router`. This usually happens when the router tries to find routes that contains a certain url, usually after the `EventHandler::EVENT_GET_URL` event. |
+| `EVENT_GET_URL`             | `name`<br>`parameters`<br>`getParams` | Fires whenever the `Router::getUrl` method or `url`-helper function is called and the router tries to find the route. |
+| `EVENT_MATCH_ROUTE`         | `route` | Fires when a route is matched and valid (correct request-type etc). and before the route is rendered. |
+| `EVENT_RENDER_ROUTE`        | `route` | Fires before a route is rendered. |
+| `EVENT_LOAD_EXCEPTIONS`     | `exception`<br>`exceptionHandlers` | Fires when the router is loading exception-handlers. |
+| `EVENT_RENDER_EXCEPTION`    | `exception`<br>`exceptionHandler`<br>`exceptionHandlers` | Fires before the router is rendering a exception-handler. |
+| `EVENT_RENDER_MIDDLEWARES`  | `route`<br>`middlewares` | Fires before middlewares for a route is rendered. |
+| `EVENT_RENDER_CSRF`         | `csrfVerifier` | Fires before the CSRF-verifier is rendered. |
 
 ## Registering new event
 
@@ -1272,9 +1274,14 @@ use Pecee\SimpleRouter\Event\EventArgument;
 // --- your routes goes here ---
 
 $eventHandler = new EventHandler();
+
+// Add event that fires when a route is rendered
 $eventHandler->register(EventHandler::EVENT_RENDER_ROUTE, function(EventArgument $argument) {
    
-   // Fires when route is rendered ...
+   // Get the route by using the special argument for this event.
+   $route = $argument->route;
+   
+   // DO STUFF...
     
 });
 

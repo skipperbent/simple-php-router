@@ -82,7 +82,7 @@ abstract class Route implements IRoute
      */
     public function renderRoute(Request $request, Router $router): ?string
     {
-        $router->debug('Starting rendering route');
+        $router->debug('Starting rendering route "%s"', \get_class($this));
 
         $callback = $this->getCallback();
 

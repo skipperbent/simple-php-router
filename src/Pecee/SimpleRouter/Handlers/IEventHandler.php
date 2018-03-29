@@ -19,8 +19,8 @@ interface IEventHandler {
      *
      * @param Router $router Router instance
      * @param string $name Event name
-     * @param array ...$eventArgs Event arguments
+     * @param array $eventArgs Event arguments
      */
-    public function fireEvents(Router $router, string $name, ...$eventArgs) : void;
+    public function fireEvents(Router $router, string $name, array $eventArgs = []) : void;
 
 }

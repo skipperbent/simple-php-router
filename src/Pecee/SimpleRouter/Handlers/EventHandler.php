@@ -80,7 +80,7 @@ class EventHandler implements IEventHandler
     /**
      * Fires before a middleware is rendered.
      */
-    public const EVENT_RENDER_MIDDLEWARE = 'onRenderMiddleware';
+    public const EVENT_RENDER_MIDDLEWARES = 'onRenderMiddlewares';
 
     /**
      * Fires before the CSRF-verifier is rendered.
@@ -105,7 +105,7 @@ class EventHandler implements IEventHandler
         self::EVENT_RENDER_ROUTE,
         self::EVENT_LOAD_EXCEPTIONS,
         self::EVENT_RENDER_EXCEPTION,
-        self::EVENT_RENDER_MIDDLEWARE,
+        self::EVENT_RENDER_MIDDLEWARES,
         self::EVENT_RENDER_CSRF,
     ];
 
@@ -163,9 +163,9 @@ class EventHandler implements IEventHandler
      *
      * @param Router $router Router instance
      * @param string $name Event name
-     * @param array ...$eventArgs Event arguments
+     * @param array $eventArgs Event arguments
      */
-    public function fireEvents(Router $router, string $name, ...$eventArgs): void
+    public function fireEvents(Router $router, string $name, array $eventArgs = []): void
     {
         $events = $this->getEvents(static::EVENT_ALL, $name);
 

@@ -258,23 +258,31 @@ class Router
     {
         $this->debug('Loading routes');
 
-        $this->fireEvents(EventHandler::EVENT_BOOT);
+        $this->fireEvents(EventHandler::EVENT_BOOT, [
+            'bootmanagers' => $this->bootManagers,
+        ]);
 
         /* Initialize boot-managers */
 
         /* @var $manager IRouterBootManager */
         foreach ($this->bootManagers as $manager) {
 
-            $this->debug('Rendering bootmanager %s', \get_class($manager));
-            $this->fireEvents(EventHandler::EVENT_RENDER_BOOTMANAGER, $manager);
+            $className = \get_class($manager);
+            $this->debug('Rendering bootmanager "%s"', $className);
+            $this->fireEvents(EventHandler::EVENT_RENDER_BOOTMANAGER, [
+                'bootmanagers' => $this->bootManagers,
+                'bootmanager' => $manager,
+            ]);
 
             /* Render bootmanager */
             $manager->boot($this, $this->request);
 
-            $this->debug('Finished rendering bootmanager');
+            $this->debug('Finished rendering bootmanager "%s"', $className);
         }
 
-        $this->fireEvents(EventHandler::EVENT_LOAD_ROUTES);
+        $this->fireEvents(EventHandler::EVENT_LOAD_ROUTES, [
+            'routes' => $this->routes,
+        ]);
 
         /* Loop through each route-request */
         $this->processRoutes($this->routes);
@@ -301,7 +309,9 @@ class Router
 
         if ($this->csrfVerifier !== null) {
 
-            $this->fireEvents(EventHandler::EVENT_RENDER_CSRF);
+            $this->fireEvents(EventHandler::EVENT_RENDER_CSRF, [
+                'csrfVerifier' => $this->csrfVerifier,
+            ]);
 
             /* Verify csrf token for request */
             $this->csrfVerifier->handle($this->request);
@@ -309,7 +319,9 @@ class Router
 
         $output = $this->routeRequest();
 
-        $this->fireEvents(EventHandler::EVENT_LOAD);
+        $this->fireEvents(EventHandler::EVENT_LOAD, [
+            'loadedRoutes' => $this->getRequest()->getLoadedRoutes(),
+        ]);
 
         $this->debug('Routing complete');
 
@@ -340,7 +352,9 @@ class Router
                 /* If the route matches */
                 if ($route->matchRoute($url, $this->request) === true) {
 
-                    $this->fireEvents(EventHandler::EVENT_MATCH_ROUTE);
+                    $this->fireEvents(EventHandler::EVENT_MATCH_ROUTE, [
+                        'route' => $route,
+                    ]);
 
                     /* Check if request method matches */
                     if (\count($route->getRequestMethods()) !== 0 && \in_array($this->request->getMethod(), $route->getRequestMethods(), true) === false) {
@@ -349,7 +363,10 @@ class Router
                         continue;
                     }
 
-                    $this->fireEvents(EventHandler::EVENT_RENDER_MIDDLEWARE);
+                    $this->fireEvents(EventHandler::EVENT_RENDER_MIDDLEWARES, [
+                        'route' => $route,
+                        'middlewares' => $route->getMiddlewares(),
+                    ]);
 
                     $route->loadMiddleware($this->request, $this);
 
@@ -361,6 +378,11 @@ class Router
                     $methodNotAllowed = false;
 
                     $this->request->addLoadedRoute($route);
+
+                    $this->fireEvents(EventHandler::EVENT_RENDER_ROUTE, [
+                        'route' => $route,
+                    ]);
+
                     $output = $route->renderRoute($this->request, $this);
                     if ($output !== null) {
                         return $output;
@@ -427,7 +449,10 @@ class Router
             unset($this->processedRoutes[$key]);
             $this->request->setHasPendingRewrite(false);
 
-            $this->fireEvents(EventHandler::EVENT_REWRITE);
+            $this->fireEvents(EventHandler::EVENT_REWRITE, [
+                'rewriteUrl'   => $this->request->getRewriteUrl(),
+                'rewriteRoute' => $this->request->getRewriteRoute(),
+            ]);
 
             return $this->routeRequest();
         }
@@ -445,7 +470,10 @@ class Router
     {
         $this->debug('Starting exception handling for "%s"', \get_class($e));
 
-        $this->fireEvents(EventHandler::EVENT_LOAD_EXCEPTIONS);
+        $this->fireEvents(EventHandler::EVENT_LOAD_EXCEPTIONS, [
+            'exception'         => $e,
+            'exceptionHandlers' => $this->exceptionHandlers,
+        ]);
 
         /* @var $handler IExceptionHandler */
         foreach ($this->exceptionHandlers as $key => $handler) {
@@ -454,7 +482,11 @@ class Router
                 $handler = new $handler();
             }
 
-            $this->fireEvents(EventHandler::EVENT_RENDER_EXCEPTION);
+            $this->fireEvents(EventHandler::EVENT_RENDER_EXCEPTION, [
+                'exception'        => $e,
+                'exceptionHandler' => $handler,
+                'exceptionHandlers' => $this->exceptionHandlers,
+            ]);
 
             $this->debug('Processing exception-handler "%s"', \get_class($handler));
 
@@ -473,7 +505,10 @@ class Router
 
                     $this->debug('Exception handler contains rewrite, reloading routes');
 
-                    $this->fireEvents(EventHandler::EVENT_REWRITE);
+                    $this->fireEvents(EventHandler::EVENT_REWRITE, [
+                        'rewriteUrl'   => $this->request->getRewriteUrl(),
+                        'rewriteRoute' => $this->request->getRewriteRoute(),
+                    ]);
 
                     return $this->routeRequest();
                 }
@@ -498,7 +533,10 @@ class Router
     public function findRoute(string $name): ?ILoadableRoute
     {
         $this->debug('Finding route by name "%s"', $name);
-        $this->fireEvents(EventHandler::EVENT_FIND_ROUTE);
+
+        $this->fireEvents(EventHandler::EVENT_FIND_ROUTE, [
+            'name' => $name,
+        ]);
 
         /* @var $route ILoadableRoute */
         foreach ($this->processedRoutes as $route) {
@@ -576,7 +614,11 @@ class Router
     {
         $this->debug('Finding url', \func_get_args());
 
-        $this->fireEvents(EventHandler::EVENT_GET_URL);
+        $this->fireEvents(EventHandler::EVENT_GET_URL, [
+            'name'       => $name,
+            'parameters' => $parameters,
+            'getParams'  => $getParams,
+        ]);
 
         if ($getParams !== null && \is_array($getParams) === false) {
             throw new InvalidArgumentException('Invalid type for getParams. Must be array or null');
@@ -772,12 +814,12 @@ class Router
     }
 
     /**
-     * Fire event
+     * Fire event in event-handler.
      *
      * @param string $name
-     * @param array ...$args
+     * @param array $arguments
      */
-    protected function fireEvents($name, ...$args): void
+    protected function fireEvents($name, array $arguments = []): void
     {
         if (\count($this->eventHandlers) === 0) {
             return;
@@ -785,7 +827,7 @@ class Router
 
         /* @var IEventHandler $eventHandler */
         foreach ($this->eventHandlers as $eventHandler) {
-            $eventHandler->fireEvents($this, $name, $args);
+            $eventHandler->fireEvents($this, $name, $arguments);
         }
     }
 

@@ -71,6 +71,34 @@ class EventArgument implements IEventArgument
     }
 
     /**
+     * @param string $name
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        return $this->arguments[$name] ?? null;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function __isset($name)
+    {
+        return array_key_exists($name, $this->arguments);
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @throws \InvalidArgumentException
+     */
+    public function __set($name, $value)
+    {
+        throw new \InvalidArgumentException('Not supported');
+    }
+
+    /**
      * Get arguments
      *
      * @return array

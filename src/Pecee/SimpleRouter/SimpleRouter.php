@@ -51,6 +51,8 @@ class SimpleRouter
     /**
      * Start routing
      *
+     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
+     * @throws \Pecee\Http\Middleware\Exceptions\TokenMismatchException
      * @throws HttpException
      * @throws \Exception
      */
