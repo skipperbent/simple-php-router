@@ -93,6 +93,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
     public function testDomainAllowedRoute()
     {
         $this->result = false;
+        TestRouter::request()->setHost('hello.world.com');
 
         TestRouter::group(['domain' => '{subdomain}.world.com'], function () {
             TestRouter::get('/test', function ($subdomain = null) {
@@ -100,7 +101,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
             });
         });
 
-        TestRouter::request()->setHost('hello.world.com');
+
         TestRouter::debug('/test', 'get');
 
         $this->assertTrue($this->result);
@@ -109,6 +110,8 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
     public function testDomainNotAllowedRoute()
     {
+        TestRouter::request()->setHost('other.world.com');
+
         $this->result = false;
 
         TestRouter::group(['domain' => '{subdomain}.world.com'], function () {
@@ -116,9 +119,6 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
                 $this->result = ($subdomain === 'hello');
             });
         });
-
-        TestRouter::request()->setHost('other.world.com');
-
 
         TestRouter::debug('/test', 'get');
 

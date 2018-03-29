@@ -97,7 +97,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @param string|null $name
      * @return string
      */
-    public function findUrl($method = null, $parameters = null, $name = null): string
+    public function findUrl(?string $method = null, $parameters = null, ?string $name = null): string
     {
         $url = $this->getUrl();
 

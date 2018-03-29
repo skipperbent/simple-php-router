@@ -1,6 +1,9 @@
 <?php
 
 use Pecee\SimpleRouter\SimpleRouter as Router;
+use \Pecee\Http\Url;
+use \Pecee\Http\Response;
+use \Pecee\Http\Request;
 
 /**
  * Get url for a route by using either name/alias, class or method name.
@@ -17,29 +20,26 @@ use Pecee\SimpleRouter\SimpleRouter as Router;
  * @param string|null $name
  * @param string|array|null $parameters
  * @param array|null $getParams
- * @return string
+ * @return \Pecee\Http\Url
  * @throws \InvalidArgumentException
- * @throws \Pecee\Http\Exceptions\MalformedUrlException
  */
-function url($name = null, $parameters = null, $getParams = null)
+function url(?string $name = null, $parameters = null, ?array $getParams = null): Url
 {
     return Router::getUrl($name, $parameters, $getParams);
 }
 
 /**
  * @return \Pecee\Http\Response
- * @throws \Pecee\Http\Exceptions\MalformedUrlException
  */
-function response()
+function response(): Response
 {
     return Router::response();
 }
 
 /**
  * @return \Pecee\Http\Request
- * @throws \Pecee\Http\Exceptions\MalformedUrlException
  */
-function request()
+function request(): Request
 {
     return Router::request();
 }
@@ -49,19 +49,27 @@ function request()
  * @param string|null $index Parameter index name
  * @param string|null $defaultValue Default return value
  * @param string|array|null $methods Default method
- * @return \Pecee\Http\Input\InputHandler|string
- * @throws \Pecee\Http\Exceptions\MalformedUrlException
+ * @return \Pecee\Http\Input\InputHandler|\Pecee\Http\Input\IInputItem|string
  */
 function input($index = null, $defaultValue = null, $methods = null)
 {
     if ($index !== null) {
-        return request()->getInputHandler()->get($index, $defaultValue, $methods);
+
+        if ($defaultValue !== null) {
+            return request()->getInputHandler()->getValue($index, $defaultValue, $methods);
+        }
+
+        return request()->getInputHandler()->get($index, $methods);
     }
 
     return request()->getInputHandler();
 }
 
-function redirect($url, $code = null)
+/**
+ * @param string $url
+ * @param int|null $code
+ */
+function redirect(string $url, ?int $code = null): void
 {
     if ($code !== null) {
         response()->httpCode($code);
@@ -73,9 +81,8 @@ function redirect($url, $code = null)
 /**
  * Get current csrf-token
  * @return string|null
- * @throws \Pecee\Http\Exceptions\MalformedUrlException
  */
-function csrf_token()
+function csrf_token(): ?string
 {
     $baseVerifier = Router::router()->getCsrfVerifier();
     if ($baseVerifier !== null) {

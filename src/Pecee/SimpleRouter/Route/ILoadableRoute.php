@@ -12,11 +12,11 @@ interface ILoadableRoute extends IRoute
      * Used when calling the url() helper.
      *
      * @param string|null $method
-     * @param array|null $parameters
+     * @param array|string|null $parameters
      * @param string|null $name
      * @return string
      */
-    public function findUrl($method = null, $parameters = null, $name = null): string;
+    public function findUrl(?string $method = null, $parameters = null, ?string $name = null): string;
 
     /**
      * Loads and renders middleware-classes

@@ -136,7 +136,7 @@ abstract class Route implements IRoute
 
         $parameters = [];
 
-        // Ensures that hostnames/domains will work with parameters
+        // Ensures that host names/domains will work with parameters
         $url = '/' . ltrim($url, '/');
 
         if ((bool)preg_match_all('/' . $regex . '/u', $route, $parameters) === false) {

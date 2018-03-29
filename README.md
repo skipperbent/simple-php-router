@@ -57,12 +57,14 @@ Simple, fast and yet powerful PHP router that is easy to get integrated and in a
 	- [Using custom exception handlers](#using-custom-exception-handlers)
 
 - [Urls](#urls)
+    - [Get the current url](#get-the-current-url)
  	- [Get by name (single route)](#get-by-name-single-route)
  	- [Get by name (controller route)](#get-by-name-controller-route)
  	- [Get by class](#get-by-class)
- 	- [Get by custom names for methods on a controller/resource route](#using-custom-names-for-methods-on-a-controllerresource-route)
+ 	- [Using custom names for methods on a controller/resource route](#using-custom-names-for-methods-on-a-controllerresource-route)
  	- [Getting REST/resource controller urls](#getting-restresource-controller-urls)
- 	- [Get the current url](#get-the-current-url)
+ 	- [Manipulating url](#manipulating-url)
+ 	- [Useful url tricks](#useful-url-tricks)
 
 - [Input & parameters](#input--parameters)
     - [Using the Input class to manage parameters](#using-the-input-class-to-manage-parameters)
@@ -70,6 +72,11 @@ Simple, fast and yet powerful PHP router that is easy to get integrated and in a
 	    - [Get parameter object](#get-parameter-object)
 	    - [Managing files](#managing-files)
 	    - [Get all parameters](#get-all-parameters)
+	    
+- [Events](#events)
+    - [Available events](#available-events)
+    - [Registering new event](#registering-new-event)
+    - [Custom EventHandlers](#custom-eventhandlers)
 
 - [Advanced](#advanced)
 	- [Url rewriting](#url-rewriting)
@@ -298,7 +305,12 @@ We recommend that you add these helper functions to your project. These will all
 To implement the functions below, simply copy the code to a new file and require the file before initializing the router or copy the `helpers.php` we've included in this library.
 
 ```php
+<?php
+
 use Pecee\SimpleRouter\SimpleRouter as Router;
+use \Pecee\Http\Url;
+use \Pecee\Http\Response;
+use \Pecee\Http\Request;
 
 /**
  * Get url for a route by using either name/alias, class or method name.
@@ -315,29 +327,26 @@ use Pecee\SimpleRouter\SimpleRouter as Router;
  * @param string|null $name
  * @param string|array|null $parameters
  * @param array|null $getParams
- * @return string
+ * @return \Pecee\Http\Url
  * @throws \InvalidArgumentException
- * @throws \Pecee\Http\Exceptions\MalformedUrlException
  */
-function url($name = null, $parameters = null, $getParams = null)
+function url(?string $name = null, $parameters = null, ?array $getParams = null): Url
 {
     return Router::getUrl($name, $parameters, $getParams);
 }
 
 /**
  * @return \Pecee\Http\Response
- * @throws \Pecee\Http\Exceptions\MalformedUrlException
  */
-function response()
+function response(): Response
 {
     return Router::response();
 }
 
 /**
  * @return \Pecee\Http\Request
- * @throws \Pecee\Http\Exceptions\MalformedUrlException
  */
-function request()
+function request(): Request
 {
     return Router::request();
 }
@@ -347,19 +356,27 @@ function request()
  * @param string|null $index Parameter index name
  * @param string|null $defaultValue Default return value
  * @param string|array|null $methods Default method
- * @return \Pecee\Http\Input\InputHandler|string
- * @throws \Pecee\Http\Exceptions\MalformedUrlException
+ * @return \Pecee\Http\Input\InputHandler|\Pecee\Http\Input\IInputItem|string
  */
 function input($index = null, $defaultValue = null, $methods = null)
 {
     if ($index !== null) {
-        return request()->getInputHandler()->get($index, $defaultValue, $methods);
+
+        if ($defaultValue !== null) {
+            return request()->getInputHandler()->getValue($index, $defaultValue, $methods);
+        }
+
+        return request()->getInputHandler()->get($index, $methods);
     }
 
     return request()->getInputHandler();
 }
 
-function redirect($url, $code = null)
+/**
+ * @param string $url
+ * @param int|null $code
+ */
+function redirect(string $url, ?int $code = null): void
 {
     if ($code !== null) {
         response()->httpCode($code);
@@ -371,9 +388,8 @@ function redirect($url, $code = null)
 /**
  * Get current csrf-token
  * @return string|null
- * @throws \Pecee\Http\Exceptions\MalformedUrlException
  */
-function csrf_token()
+function csrf_token(): ?string
 {
     $baseVerifier = Router::router()->getCsrfVerifier();
     if ($baseVerifier !== null) {
@@ -805,7 +821,7 @@ class SessionTokenProvider implements ITokenProvider
     /**
      * Refresh existing token
      */
-    public function refresh()
+    public function refresh(): void
     {
         // Implement your own functionality here...
     }
@@ -816,7 +832,18 @@ class SessionTokenProvider implements ITokenProvider
      * @param string $token
      * @return bool
      */
-    public function validate($token)
+    public function validate($token): bool
+    {
+        // Implement your own functionality here...
+    }
+    
+    /**
+     * Get token token
+     *
+     * @param string|null $defaultValue
+     * @return string|null
+     */
+    public function getToken(?string $defaultValue = null): ?string 
     {
         // Implement your own functionality here...
     }
@@ -847,10 +874,11 @@ namespace Demo\Middlewares;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 
-class CustomMiddleware implements Middleware {
+class CustomMiddleware implements IMiddleware {
 
-    public function handle(Request $request) {
-
+    public function handle(Request $request): void 
+    {
+    
         // Authenticate user, will be available using request()->user
         $request->user = User::authenticate();
 
@@ -882,9 +910,11 @@ The code should be placed in the file that contains your routes.
 Router::get('/not-found', 'PageController@notFound');
 
 Router::error(function(Request $request, \Exception $exception) {
-    if($exception instanceof NotFoundHttpException && $exception->getCode() == 404) {
+
+    if($exception instanceof NotFoundHttpException && $exception->getCode() === 404) {
         response()->redirect('/not-found');
     }
+    
 });
 ```
 
@@ -895,13 +925,13 @@ This is a basic example of an ExceptionHandler implementation (please see "[Easi
 ```php
 namespace Demo\Handlers;
 
-use Pecee\Handlers\IExceptionHandler;
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\Handlers\IExceptionHandler;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 class CustomExceptionHandler implements IExceptionHandler
 {
-	public function handleError(Request $request, \Exception $error)
+	public function handleError(Request $request, \Exception $error): void
 	{
 
 		/* You can use the exception handler to format errors depending on the request and type. */
@@ -937,17 +967,33 @@ class CustomExceptionHandler implements IExceptionHandler
 
 By default all controller and resource routes will use a simplified version of their url as name.
 
+You easily use the `url()` shortcut helper function to retrieve urls for your routes or manipulate the current url.
+
+`url()` will return a `Url` object which will return a `string` when rendered, so it can be used safely in templates etc. but 
+contains all the useful helpers methods in the `Url` class like `contains`, `indexOf` etc. 
+Check the [Useful url tricks](#useful-url-tricks) below.
+
+### Get the current url
+
+It has never been easier to get and/or manipulate the current url.
+
+The example below shows you how to get the current url:
+
+```php
+# output: /current-url
+url();
+```
+
 ### Get by name (single route)
 
 ```php
 SimpleRouter::get('/product-view/{id}', 'ProductsController@show', ['as' => 'product']);
 
+# output: /product-view/22/?category=shoes
 url('product', ['id' => 22], ['category' => 'shoes']);
-url('product', null, ['category' => 'shoes']);
 
-# output
-# /product-view/22/?category=shoes
-# /product-view/?category=shoes
+# output: /product-view/?category=shoes
+url('product', null, ['category' => 'shoes']);
 ```
 
 ### Get by name (controller route)
@@ -955,14 +1001,14 @@ url('product', null, ['category' => 'shoes']);
 ```php
 SimpleRouter::controller('/images', ImagesController::class, ['as' => 'picture']);
 
+# output: /images/view/?category=shows
 url('picture@getView', null, ['category' => 'shoes']);
-url('picture', 'getView', ['category' => 'shoes']);
-url('picture', 'view');
 
-# output
-# /images/view/?category=shows
-# /images/view/?category=shows
-# /images/view/
+# output: /images/view/?category=shows
+url('picture', 'getView', ['category' => 'shoes']);
+
+# output: /images/view/
+url('picture', 'view');
 ```
 
 ### Get by class
@@ -971,12 +1017,11 @@ url('picture', 'view');
 SimpleRouter::get('/product-view/{id}', 'ProductsController@show', ['as' => 'product']);
 SimpleRouter::controller('/images', 'ImagesController');
 
+# output: /product-view/22/?category=shoes
 url('ProductsController@show', ['id' => 22], ['category' => 'shoes']);
-url('ImagesController@getImage', null, ['id' => 22]);
 
-# output
-# /product-view/22/?category=shoes
-# /images/image/?id=22
+# output: /images/image/?id=22
+url('ImagesController@getImage', null, ['id' => 22]);
 ```
 
 ### Using custom names for methods on a controller/resource route
@@ -995,29 +1040,66 @@ url('gadgets.iphone');
 ```php
 SimpleRouter::resource('/phones', PhonesController::class);
 
+# output: /phones/
 url('phones');
+
+# output: /phones/
 url('phones.index');
+
+# output: /phones/create/
 url('phones.create');
+
+# output: /phones/edit/
 url('phones.edit');
-
-// etc..
-
-# output
-# /phones/
-# /phones/create/
-# /phones/edit/
 ```
 
-### Get the current url
+### Manipulating url
+
+You can easily manipulate the query-strings, by adding your get param arguments.
 
 ```php
-url();
-url(null, null, ['q' => 'cars']);
+# output: /current-url?q=cars
 
-# output
-# /CURRENT-URL/
-# /CURRENT-URL/?q=cars
+url(null, null, ['q' => 'cars']);
 ```
+
+You can remove a query-string parameter by setting the value to `null`. 
+
+The example below will remove any query-string parameter named `q` from the url but keep all others query-string parameters:
+
+```php
+$url = url()->removeParam('q');
+```
+
+For more information please check the [Useful url tricks](#useful-url-tricks) section of the documentation.
+
+### Useful url tricks
+
+Calling `url` will always return a `Url` object. Upon rendered it will return a `string` of the relative `url`, so it's safe to use in templates etc.
+
+However this allow us to use the useful methods on the `Url` object like `indexOf` and `contains` or retrieve specific parts of the url like the path, querystring parameters, host etc. You can also manipulate the url like removing- or adding parameters, changing host and more.
+
+In the example below, we check if the current url contains the `/api` part.
+
+```php
+if(url()->contains('/api')) {
+    
+    // ... do stuff
+    
+}
+```
+
+As mentioned earlier, you can also use the `Url` object to show specific parts of the url or control what part of the url you want.
+
+```php
+# Grab the query-string parameter id from the current-url.
+$id = url()->getParam('id');
+
+# Get the absolute url for the current url.
+$absoluteUrl = url()->getAbsoluteUrl();
+```
+
+For more available methods please check the `Pecee\Http\Url` class.
 
 # Input & parameters
 
@@ -1062,7 +1144,7 @@ $object = input()->getObject($index, $defaultValue = null, $methods = null);
  * $defaultValue is returned if the value is empty.
  */
 
-$id = input()->get($index, $defaultValue, $method);
+$id = input()->getValue($index, $defaultValue, $method);
 
 # -- shortcut to above --
 
@@ -1079,6 +1161,10 @@ $object = input($index, $defaultValue, 'file');
 $object = input()->findGet($index, $defaultValue);
 $object = input()->findPost($index, $defaultValue);
 $object = input()->findFile($index, $defaultValue);
+
+# -- get the full object --
+
+$object = input()->get($index, 'post', 'get');
 ```
 
 ### Managing files
@@ -1143,6 +1229,134 @@ $siteId = input('site_id', 2, ['post', 'get']);
 
 ---
 
+# Events
+
+This section will help you understand how to register your own callbacks to events in the router.
+It will also cover the basics of event-handlers; how to use the handlers provided with the router and how to create your own custom event-handlers.
+
+## Available events
+
+This section contains all available events that can be registered using the `EventHandler`.
+
+| Name                                      | Description               | 
+| -------------                             |-------------                      | 
+| `EventHandler::EVENT_ALL`                 | Fires when a event is triggered. |
+| `EventHandler::EVENT_INIT`                | Fires when router is initializing and before routes are loaded. |
+| `EventHandler::EVENT_LOAD`                | Fires when all routes has been loaded and rendered, just before the output is returned. |
+| `EventHandler::EVENT_REWRITE`             | Fires when a url-rewrite is and just before the routes are re-initialized. |
+| `EventHandler::EVENT_BOOT`                | Fires when the router is booting. This happens just before boot-managers are rendered and before any routes has been loaded. |
+| `EventHandler::EVENT_RENDER_BOOTMANAGER`  | Fires before a boot-manager is rendered. |
+| `EventHandler::EVENT_LOAD_ROUTES`         | Fires when the router is about to load all routes. |
+| `EventHandler::EVENT_FIND_ROUTE`          | Fires whenever the `findRoute` method is called within the `Router`. This usually happens when the router tries to find routes that contains a certain url, usually after the `EventHandler::EVENT_GET_URL` event. |
+| `EventHandler::EVENT_GET_URL`             | Fires whenever the `Router::getUrl` method or `url`-helper function is called and the router tries to find the route. |
+| `EventHandler::EVENT_MATCH_ROUTE`         | Fires when a route is matched and valid (correct request-type etc). and before the route is rendered. |
+| `EventHandler::EVENT_RENDER_ROUTE`        | Fires before a route is rendered. |
+| `EventHandler::EVENT_LOAD_EXCEPTIONS`     | Fires when the router is loading exception-handlers. |
+| `EventHandler::EVENT_RENDER_EXCEPTION`    | Fires before the router is rendering a exception-handler. |
+| `EventHandler::EVENT_RENDER_MIDDLEWARE`   | Fires before a middleware is rendered. |
+| `EventHandler::EVENT_RENDER_CSRF`         | Fires before the CSRF-verifier is rendered. |
+
+## Registering new event
+
+To register a new event you need to create a new instance of the `EventHandler` object. On this object you can add as many callbacks as you like by calling the `registerEvent` method.
+
+When you've registered events, make sure to add it to the router by calling 
+`SimpleRouter::addEventHandler()`. We recommend that you add your event-handlers within your `routes.php`.
+
+**Example:**
+
+```php
+use Pecee\SimpleRouter\Handlers\EventHandler;
+use Pecee\SimpleRouter\Event\EventArgument;
+
+// --- your routes goes here ---
+
+$eventHandler = new EventHandler();
+$eventHandler->register(EventHandler::EVENT_RENDER_ROUTE, function(EventArgument $argument) {
+   
+   // Fires when route is rendered ...
+    
+});
+
+SimpleRouter::addEventHandler($eventHandler);
+
+```
+
+## Custom EventHandlers
+
+`EventHandler` is the class that manages events and must inherit from the `IEventHandler` interface. The handler knows how to handle events for the given handler-type. 
+
+Most of the time the basic `\Pecee\SimpleRouter\Handler\EventHandler` class will be more than enough for most people as you simply register an event which fires when triggered.
+
+Let's go over how to create your very own event-handler class.
+
+Below is a basic example of a custom event-handler called `DatabaseDebugHandler`. The idea of the sample below is to logs all events to the database when triggered. Hopefully it will be enough to give you an idea on how the event-handlers work.
+
+```php
+namespace Demo\Handlers;
+
+use Pecee\SimpleRouter\Event\EventArgument;
+use Pecee\SimpleRouter\Router;
+
+class DatabaseDebugHandler implements IEventHandler
+{
+
+    /**
+     * Debug callback
+     * @var \Closure
+     */
+    protected $callback;
+
+    public function __construct()
+    {
+        $this->callback = function (EventArgument $argument) {
+            // todo: store log in database
+        };
+    }
+
+    /**
+     * Get events.
+     *
+     * @param string|null $name Filter events by name.
+     * @return array
+     */
+    public function getEvents(?string $name): array
+    {
+        return [
+            $name => [
+                $this->callback,
+            ],
+        ];
+    }
+
+    /**
+     * Fires any events registered with given event-name
+     *
+     * @param Router $router Router instance
+     * @param string $name Event name
+     * @param array ...$eventArgs Event arguments
+     */
+    public function fireEvents(Router $router, string $name, ...$eventArgs): void
+    {
+        $callback = $this->callback;
+        $callback(new EventArgument($router, $eventArgs));
+    }
+
+    /**
+     * Set debug callback
+     *
+     * @param \Closure $event
+     */
+    public function setCallback(\Closure $event): void
+    {
+        $this->callback = $event;
+    }
+
+}
+```
+
+---
+
 # Advanced
 
 ## Url rewriting
@@ -1173,10 +1387,19 @@ To interfere with the router, we create a class that implements the ```IRouterBo
 ```php
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\IRouterBootManager;
+use Pecee\SimpleRouter\Router;
 
-class CustomRouterRules implement IRouterBootManager {
+class CustomRouterRules implement IRouterBootManager 
+{
 
-    public function boot(Request $request) {
+    /**
+     * Called when router is booting and before the routes is loaded.
+     *
+     * @param \Pecee\SimpleRouter\Router $router
+     * @param \Pecee\Http\Request $request
+     */
+    public function boot(\Pecee\SimpleRouter\Router $router, \Pecee\Http\Request $request): void
+    {
 
         $rewriteRules = [
             '/my-cat-is-beatiful' => '/article/view/1',
@@ -1449,196 +1672,10 @@ public function show($username) {
 ### Debug info
 
 ```php
-array (
-  'url' => 
-  Pecee\Http\Url::__set_state(array(
-     'originalUrl' => NULL,
-     'data' => 
-    array (
-      'scheme' => NULL,
-      'host' => NULL,
-      'port' => NULL,
-      'user' => NULL,
-      'pass' => NULL,
-      'path' => NULL,
-      'query' => NULL,
-      'fragment' => NULL,
-    ),
-  )),
-  'method' => '',
-  'host' => NULL,
-  'loaded_routes' => 
-  array (
-  ),
-  'all_routes' => 
-  array (
-    0 => 
-    Pecee\SimpleRouter\Route\RouteUrl::__set_state(array(
-       'url' => '/user/{name}/',
-       'name' => NULL,
-       'regex' => NULL,
-       'filterEmptyParams' => true,
-       'defaultParameterRegex' => NULL,
-       'paramModifiers' => '{}',
-       'paramOptionalSymbol' => '?',
-       'urlRegex' => '/^%s\\/?$/u',
-       'group' => NULL,
-       'parent' => NULL,
-       'callback' => 'UserController@show',
-       'defaultNamespace' => NULL,
-       'namespace' => NULL,
-       'requestMethods' => 
-      array (
-        0 => 'get',
-      ),
-       'where' => 
-      array (
-        'name' => '[\\w]+',
-      ),
-       'parameters' => 
-      array (
-        'name' => NULL,
-      ),
-       'originalParameters' => 
-      array (
-      ),
-       'middlewares' => 
-      array (
-      ),
-    )),
-  ),
-  'boot_managers' => 
-  array (
-  ),
-  'csrf_verifier' => NULL,
-  'log' => 
-  array (
-    0 => 
-    array (
-      'message' => 'Started routing request (rewrite: no)',
-      'time' => '0.0000069141',
-      'trace' => 
-      array (
-        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\SimpleRouter.php',
-        'line' => 57,
-        'function' => 'routeRequest',
-        'class' => 'Pecee\\SimpleRouter\\Router',
-        'type' => '->',
-      ),
-    ),
-    1 => 
-    array (
-      'message' => 'Loading routes',
-      'time' => '0.0036418438',
-      'trace' => 
-      array (
-        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\Router.php',
-        'line' => 273,
-        'function' => 'loadRoutes',
-        'class' => 'Pecee\\SimpleRouter\\Router',
-        'type' => '->',
-      ),
-    ),
-    2 => 
-    array (
-      'message' => 'Processing routes',
-      'time' => '0.0069010258',
-      'trace' => 
-      array (
-        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\Router.php',
-        'line' => 251,
-        'function' => 'processRoutes',
-        'class' => 'Pecee\\SimpleRouter\\Router',
-        'type' => '->',
-      ),
-    ),
-    3 => 
-    array (
-      'message' => 'Processing route "Pecee\\SimpleRouter\\Route\\RouteUrl"',
-      'time' => '0.0099139214',
-      'trace' => 
-      array (
-        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\Router.php',
-        'line' => 251,
-        'function' => 'processRoutes',
-        'class' => 'Pecee\\SimpleRouter\\Router',
-        'type' => '->',
-      ),
-    ),
-    4 => 
-    array (
-      'message' => 'Finished loading routes',
-      'time' => '0.0130679607',
-      'trace' => 
-      array (
-        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\Router.php',
-        'line' => 273,
-        'function' => 'loadRoutes',
-        'class' => 'Pecee\\SimpleRouter\\Router',
-        'type' => '->',
-      ),
-    ),
-    5 => 
-    array (
-      'message' => 'Matching route "Pecee\\SimpleRouter\\Route\\RouteUrl"',
-      'time' => '0.0160858631',
-      'trace' => 
-      array (
-        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\SimpleRouter.php',
-        'line' => 57,
-        'function' => 'routeRequest',
-        'class' => 'Pecee\\SimpleRouter\\Router',
-        'type' => '->',
-      ),
-    ),
-    6 => 
-    array (
-      'message' => 'Route not found: "/"',
-      'time' => '0.0193598270',
-      'trace' => 
-      array (
-        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\SimpleRouter.php',
-        'line' => 57,
-        'function' => 'routeRequest',
-        'class' => 'Pecee\\SimpleRouter\\Router',
-        'type' => '->',
-      ),
-    ),
-    7 => 
-    array (
-      'message' => 'Starting exception handling for "Pecee\\SimpleRouter\\Exceptions\\NotFoundHttpException"',
-      'time' => '0.0229449272',
-      'trace' => 
-      array (
-        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\Router.php',
-        'line' => 345,
-        'function' => 'handleException',
-        'class' => 'Pecee\\SimpleRouter\\Router',
-        'type' => '->',
-      ),
-    ),
-    8 => 
-    array (
-      'message' => 'Finished exception handling - exception not handled, throwing',
-      'time' => '0.0258929729',
-      'trace' => 
-      array (
-        'file' => 'E:\\Workspace\\simple-php-router\\src\\Pecee\\SimpleRouter\\Router.php',
-        'line' => 345,
-        'function' => 'handleException',
-        'class' => 'Pecee\\SimpleRouter\\Router',
-        'type' => '->',
-      ),
-    ),
-  ),
-  'router_output' => NULL,
-  'library_version' => false,
-  'php_version' => '7.2.0',
-  'server_params' => 
-  array (),
-)
-```
 
+[PASTE YOUR DEBUG-INFO HERE]
+
+```
 </pre>
 
 Remember that a more detailed issue- description and debug-info might suck to write, but it will help others understand- and resolve your issue without asking for the information.
