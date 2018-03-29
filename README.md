@@ -1,6 +1,14 @@
-# Simple PHP router
+# simple-router
 
-Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. Heavily inspired by the way Laravel handles routing, with both simplicity and expand-ability in mind.
+Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. 
+Heavily inspired by the way Laravel handles routing, with both simplicity and expandability in mind.
+
+### Support the project
+
+If you like simple-router and wish to see the continued development and maintenance of the project,
+please consider showing your support by buying me a coffee. Supporters will be listed under the credits section of this documentation.
+
+You can donate any amount of your choice by [clicking here](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NNX4D2RUSALCN).
 
 ## Table of Contents
 
