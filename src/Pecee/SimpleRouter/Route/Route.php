@@ -58,21 +58,6 @@ abstract class Route implements IRoute
     protected $middlewares = [];
 
     /**
-     * Load class by name
-     * @param string $name
-     * @return mixed
-     * @throws NotFoundHttpException
-     */
-    protected function loadClass($name)
-    {
-        if (class_exists($name) === false) {
-            throw new NotFoundHttpException(sprintf('Class "%s" does not exist', $name), 404);
-        }
-
-        return new $name();
-    }
-
-    /**
      * Render route
      *
      * @param Request $request
@@ -107,7 +92,7 @@ abstract class Route implements IRoute
 
             /* When the callback is a function */
 
-            return \call_user_func_array($callback, $parameters);
+            return $router->getClassLoader()->loadClosure($callback, $parameters);
         }
 
         /* When the callback is a class + method */
@@ -118,7 +103,8 @@ abstract class Route implements IRoute
         $className = ($namespace !== null && $controller[0][0] !== '\\') ? $namespace . '\\' . $controller[0] : $controller[0];
 
         $router->debug('Loading class %s', $className);
-        $class = $this->loadClass($className);
+        $class = $router->getClassLoader()->loadClass($className);
+
         $method = $controller[1];
 
         if (method_exists($class, $method) === false) {

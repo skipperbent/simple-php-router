@@ -35,7 +35,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         foreach ($this->getMiddlewares() as $middleware) {
 
             if (\is_object($middleware) === false) {
-                $middleware = $this->loadClass($middleware);
+                $middleware = $router->getClassLoader()->loadClass($middleware);
             }
 
             if (($middleware instanceof IMiddleware) === false) {

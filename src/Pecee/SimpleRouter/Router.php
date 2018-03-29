@@ -4,14 +4,16 @@ namespace Pecee\SimpleRouter;
 
 use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Exceptions\MalformedUrlException;
+use Pecee\Http\Middleware\BaseCsrfVerifier;
+use Pecee\Http\Request;
 use Pecee\Http\Url;
+use Pecee\SimpleRouter\ClassLoader\ClassLoader;
+use Pecee\SimpleRouter\ClassLoader\IClassLoader;
+use Pecee\SimpleRouter\Exceptions\HttpException;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\Handlers\EventHandler;
 use Pecee\SimpleRouter\Handlers\IEventHandler;
 use Pecee\SimpleRouter\Handlers\IExceptionHandler;
-use Pecee\Http\Middleware\BaseCsrfVerifier;
-use Pecee\Http\Request;
-use Pecee\SimpleRouter\Exceptions\HttpException;
-use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\Route\IControllerRoute;
 use Pecee\SimpleRouter\Route\IGroupRoute;
 use Pecee\SimpleRouter\Route\ILoadableRoute;
@@ -103,6 +105,12 @@ class Router
     protected $eventHandlers = [];
 
     /**
+     * Class loader instance
+     * @var ClassLoader
+     */
+    protected $classLoader;
+
+    /**
      * Router constructor.
      */
     public function __construct()
@@ -115,6 +123,7 @@ class Router
      */
     public function reset(): void
     {
+        $this->debugStartTime = microtime(true);
         $this->isProcessingRoute = false;
 
         try {
@@ -132,7 +141,7 @@ class Router
         $this->eventHandlers = [];
         $this->debugList = [];
         $this->csrfVerifier = null;
-        $this->debugStartTime = microtime(true);
+        $this->classLoader = new ClassLoader();
     }
 
     /**
@@ -271,7 +280,7 @@ class Router
             $this->debug('Rendering bootmanager "%s"', $className);
             $this->fireEvents(EventHandler::EVENT_RENDER_BOOTMANAGER, [
                 'bootmanagers' => $this->bootManagers,
-                'bootmanager' => $manager,
+                'bootmanager'  => $manager,
             ]);
 
             /* Render bootmanager */
@@ -364,7 +373,7 @@ class Router
                     }
 
                     $this->fireEvents(EventHandler::EVENT_RENDER_MIDDLEWARES, [
-                        'route' => $route,
+                        'route'       => $route,
                         'middlewares' => $route->getMiddlewares(),
                     ]);
 
@@ -483,8 +492,8 @@ class Router
             }
 
             $this->fireEvents(EventHandler::EVENT_RENDER_EXCEPTION, [
-                'exception'        => $e,
-                'exceptionHandler' => $handler,
+                'exception'         => $e,
+                'exceptionHandler'  => $handler,
                 'exceptionHandlers' => $this->exceptionHandlers,
             ]);
 
@@ -711,20 +720,28 @@ class Router
 
     /**
      * Set BootManagers
+     *
      * @param array $bootManagers
+     * @return static
      */
-    public function setBootManagers(array $bootManagers): void
+    public function setBootManagers(array $bootManagers): self
     {
         $this->bootManagers = $bootManagers;
+
+        return $this;
     }
 
     /**
      * Add BootManager
+     *
      * @param IRouterBootManager $bootManager
+     * @return static
      */
-    public function addBootManager(IRouterBootManager $bootManager): void
+    public function addBootManager(IRouterBootManager $bootManager): self
     {
         $this->bootManagers[] = $bootManager;
+
+        return $this;
     }
 
     /**
@@ -783,11 +800,34 @@ class Router
      * @param BaseCsrfVerifier $csrfVerifier
      * @return static
      */
-    public function setCsrfVerifier(BaseCsrfVerifier $csrfVerifier)
+    public function setCsrfVerifier(BaseCsrfVerifier $csrfVerifier): self
     {
         $this->csrfVerifier = $csrfVerifier;
 
         return $this;
+    }
+
+    /**
+     * Set class loader
+     *
+     * @param IClassLoader $loader
+     * @return static
+     */
+    public function setClassLoader(IClassLoader $loader)
+    {
+        $this->classLoader = $loader;
+
+        return $this;
+    }
+
+    /**
+     * Get class loader
+     *
+     * @return ClassLoader
+     */
+    public function getClassLoader(): IClassLoader
+    {
+        return $this->classLoader;
     }
 
     /**
@@ -853,11 +893,14 @@ class Router
     /**
      * Enable or disables debugging
      *
-     * @param bool $boolean
+     * @param bool $enabled
+     * @return static
      */
-    public function setDebugEnabled(bool $boolean): void
+    public function setDebugEnabled(bool $enabled): self
     {
-        $this->debugEnabled = $boolean;
+        $this->debugEnabled = $enabled;
+
+        return $this;
     }
 
     /**

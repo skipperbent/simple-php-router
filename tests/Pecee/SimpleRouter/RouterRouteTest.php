@@ -6,21 +6,20 @@ require_once 'Dummy/Exception/ExceptionHandlerException.php';
 
 class RouterRouteTest extends \PHPUnit\Framework\TestCase
 {
-    protected $result = false;
-
     public function testMultiParam()
     {
-        TestRouter::get('/test-{param1}-{param2}', function ($param1, $param2) {
+        $result = false;
+        TestRouter::get('/test-{param1}-{param2}', function ($param1, $param2) use(&$result) {
 
             if ($param1 === 'param1' && $param2 === 'param2') {
-                $this->result = true;
+                $result = true;
             }
 
         });
 
         TestRouter::debug('/test-param1-param2', 'get');
 
-        $this->assertTrue($this->result);
+        $this->assertTrue($result);
 
     }
 
@@ -92,19 +91,19 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
     public function testDomainAllowedRoute()
     {
-        $this->result = false;
+        $result = false;
         TestRouter::request()->setHost('hello.world.com');
 
-        TestRouter::group(['domain' => '{subdomain}.world.com'], function () {
-            TestRouter::get('/test', function ($subdomain = null) {
-                $this->result = ($subdomain === 'hello');
+        TestRouter::group(['domain' => '{subdomain}.world.com'], function () use(&$result) {
+            TestRouter::get('/test', function ($subdomain = null) use(&$result) {
+                $result = ($subdomain === 'hello');
             });
         });
 
 
         TestRouter::debug('/test', 'get');
 
-        $this->assertTrue($this->result);
+        $this->assertTrue($result);
 
     }
 
@@ -112,17 +111,17 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
     {
         TestRouter::request()->setHost('other.world.com');
 
-        $this->result = false;
+        $result = false;
 
-        TestRouter::group(['domain' => '{subdomain}.world.com'], function () {
-            TestRouter::get('/test', function ($subdomain = null) {
-                $this->result = ($subdomain === 'hello');
+        TestRouter::group(['domain' => '{subdomain}.world.com'], function () use(&$result) {
+            TestRouter::get('/test', function ($subdomain = null) use(&$result) {
+                $result = ($subdomain === 'hello');
             });
         });
 
         TestRouter::debug('/test', 'get');
 
-        $this->assertFalse($this->result);
+        $this->assertFalse($result);
 
     }
 

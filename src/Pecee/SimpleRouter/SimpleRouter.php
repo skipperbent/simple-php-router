@@ -10,14 +10,16 @@
 
 namespace Pecee\SimpleRouter;
 
+use DI\Container;
 use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Exceptions\MalformedUrlException;
-use Pecee\Http\Url;
-use Pecee\SimpleRouter\Handlers\CallbackExceptionHandler;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
 use Pecee\Http\Response;
+use Pecee\Http\Url;
+use Pecee\SimpleRouter\ClassLoader\IClassLoader;
 use Pecee\SimpleRouter\Exceptions\HttpException;
+use Pecee\SimpleRouter\Handlers\CallbackExceptionHandler;
 use Pecee\SimpleRouter\Handlers\IEventHandler;
 use Pecee\SimpleRouter\Route\IGroupRoute;
 use Pecee\SimpleRouter\Route\IPartialGroupRoute;
@@ -528,6 +530,20 @@ class SimpleRouter
         }
 
         return $route;
+    }
+
+    /**
+     * Enable or disable dependency injection
+     *
+     * @param Container $container
+     * @return IClassLoader
+     */
+    public static function enableDependencyInjection(Container $container): IClassLoader
+    {
+        return static::router()
+            ->getClassLoader()
+            ->useDependencyInjection(true)
+            ->setContainer($container);
     }
 
     /**

@@ -5,14 +5,13 @@ require_once 'Dummy/DummyController.php';
 
 class GroupTest extends \PHPUnit\Framework\TestCase
 {
-    protected $result;
 
     public function testGroupLoad()
     {
-        $this->result = false;
+        $result = false;
 
-        TestRouter::group(['prefix' => '/group'], function () {
-            $this->result = true;
+        TestRouter::group(['prefix' => '/group'], function () use(&$result) {
+            $result = true;
         });
 
         try {
@@ -20,7 +19,7 @@ class GroupTest extends \PHPUnit\Framework\TestCase
         } catch(\Exception $e) {
 
         }
-        $this->assertTrue($this->result);
+        $this->assertTrue($result);
     }
 
     public function testNestedGroup()

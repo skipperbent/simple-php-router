@@ -150,7 +150,7 @@ class EventHandler implements IEventHandler
         $events = [];
 
         foreach ($names as $eventName) {
-            if(isset($this->registeredEvents[$eventName]) === true) {
+            if (isset($this->registeredEvents[$eventName]) === true) {
                 $events += $this->registeredEvents[$eventName];
             }
         }

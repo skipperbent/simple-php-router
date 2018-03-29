@@ -214,7 +214,7 @@ class InputHandler
      * @param array ...$methods
      * @return IInputItem|null
      */
-    public function get(string $index, ...$methods) : ?IInputItem
+    public function get(string $index, ...$methods): ?IInputItem
     {
         $element = null;
 
@@ -241,7 +241,7 @@ class InputHandler
      * @param array ...$methods
      * @return string
      */
-    public function getValue(string $index, ?string $defaultValue = null, ...$methods) : ?string
+    public function getValue(string $index, ?string $defaultValue = null, ...$methods): ?string
     {
         $input = $this->get($index, $methods);
 

@@ -1,7 +1,7 @@
 # simple-router
 
 Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. 
-Heavily inspired by the way Laravel handles routing, with both simplicity and expandability in mind.
+Heavily inspired by the way Laravel handles routing, with both simplicity and expand-ability in mind.
 
 ### Support the project
 
@@ -43,6 +43,9 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 	- [Partial groups](#partial-groups)
 	- [Form Method Spoofing](#form-method-spoofing)
 	- [Accessing The Current Route](#accessing-the-current-route)
+	- [Dependency injection](#dependency-injection)
+	    - [Enabling dependency injection](#enabling-dependency-injection)
+	    - [More reading](#more-reading)
 	- [Other examples](#other-examples)
 
 - [CSRF-protection](#csrf-protection)
@@ -52,7 +55,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 	- [Custom Token-provider](#custom-token-provider)
 
 - [Middlewares](#middlewares)
-	- [Example](#example)
+	- [Example](#example-1)
 	
 - [ExceptionHandlers](#exceptionhandlers)
     - [Handling 404, 403 and other errors](#handling-404-403-and-other-errors)
@@ -673,6 +676,88 @@ You can access information about the current route loaded by using the following
 SimpleRouter::request()->getLoadedRoute();
 request()->getLoadedRoute();
 ```
+
+## Dependency injection
+
+simple-router supports dependency injection using the [`php-di`](http://php-di.org/) library.
+
+Dependency injection allows the framework to automatically "inject" (load) classes added as parameters. This can simplify your code, as you can avoid creating new instances of objects you are using often in your `Controllers` etc.
+
+Here's a basic example of a controller class using dependency injection:
+
+```php
+namespace Demo\Controllers;
+
+class DefaultController {
+    
+    public function login(User $user): string 
+    {
+        // ...
+    }
+    
+}
+```
+
+The example above will automatically create a new instance of the `User` from the `$user` parameter. This means that the `$user` class contains a new instance of the `User` class and we won't need to create a new instance our self.
+
+**WARNING:** dependency injection can have some negative impact in performance. If you experience any performance issues, we recommend disabling this functionality.
+
+### Enabling dependency injection
+
+Dependency injection is disabled per default to avoid any performance issues.
+
+Before enabling dependency injection, we recommend that you read the [Container configuration](http://php-di.org/doc/container-configuration.html) section of the php-di documentation. This section covers how to configure php-di to different environments and speed-up the performance.
+
+#### Enabling for development environment
+
+The example below should ONLY be used on a development environment.
+
+```php
+// Create our new php-di container
+$container = (new \DI\ContainerBuilder())
+            ->useAutowiring(true)
+            ->build();
+
+// Add our container to simple-router and enable dependency injection
+SimpleRouter::enableDependencyInjection($container);
+```
+
+Please check the [More reading](#more-reading) section of the documentation for useful php-di links and tutorials.
+
+#### Enabling for production environment
+
+The example below compiles the injections, which can help speed up performance. 
+
+**Note:** You should change the `$cacheDir` to a cache-storage within your project.
+
+```php
+// Cache directory
+$cacheDir = sys_get_temp_dir('simple-router');
+
+// Create our new php-di container
+$container = (new \DI\ContainerBuilder())
+            ->enableCompilation($cacheDir)
+            ->writeProxiesToFile(true, $cacheDir . '/proxies')
+            ->useAutowiring(true)
+            ->build();
+
+// Add our container to simple-router and enable dependency injection
+SimpleRouter::enableDependencyInjection($container);
+```
+
+Please check the [More reading](#more-reading) section of the documentation for useful php-di links and tutorials.
+
+### More reading
+
+For more information about dependency injection, configuration and settings - we recommend that you check the php-di documentation or some of the useful links we've gathered below.
+
+#### Useful links
+
+- [php-di documentation](http://php-di.org/doc/)
+- [Understanding dependency injection](http://php-di.org/doc/understanding-di.html)
+- [Best practices guide](http://php-di.org/doc/best-practices.html)
+- [Configuring the container](http://php-di.org/doc/container-configuration.html)
+- [Definitions](http://php-di.org/doc/definition.html)
 
 ## Other examples
 
