@@ -510,6 +510,7 @@ class Router
                 $this->debug('Finished rendering exception-handler');
 
                 if (isset($this->loadedExceptionHandlers[$key]) === false && $this->request->hasPendingRewrite() === true) {
+
                     $this->loadedExceptionHandlers[$key] = $handler;
 
                     $this->debug('Exception handler contains rewrite, reloading routes');
@@ -518,6 +519,10 @@ class Router
                         'rewriteUrl'   => $this->request->getRewriteUrl(),
                         'rewriteRoute' => $this->request->getRewriteRoute(),
                     ]);
+
+                    if ($this->request->getRewriteRoute() !== null) {
+                        $this->processedRoutes[] = $this->request->getRewriteRoute();
+                    }
 
                     return $this->routeRequest();
                 }
