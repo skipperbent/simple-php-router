@@ -244,12 +244,7 @@ class InputHandler
     public function getValue(string $index, ?string $defaultValue = null, ...$methods): ?string
     {
         $input = $this->get($index, $methods);
-
-        if ($input !== null) {
-            return (trim($input->getValue()) === '') ? $defaultValue : $input->getValue();
-        }
-
-        return $input;
+        return ($input === null || ($input !== null && trim($input->getValue()) === '')) ? $defaultValue : $input->getValue();
     }
 
     /**
