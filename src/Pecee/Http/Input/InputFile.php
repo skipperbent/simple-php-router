@@ -140,7 +140,7 @@ class InputFile implements IInputItem
      *
      * @return string
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -177,7 +177,7 @@ class InputFile implements IInputItem
      *
      * @return string mixed
      */
-    public function getFilename(): string
+    public function getFilename(): ?string
     {
         return $this->filename;
     }
@@ -256,12 +256,12 @@ class InputFile implements IInputItem
         return $this;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getTmpName();
     }
 
-    public function getValue(): string
+    public function getValue(): ?string
     {
         return $this->getFilename();
     }

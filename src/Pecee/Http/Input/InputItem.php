@@ -35,7 +35,7 @@ class InputItem implements IInputItem
     /**
      * @return string
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -55,7 +55,7 @@ class InputItem implements IInputItem
     /**
      * @return string
      */
-    public function getValue(): string
+    public function getValue(): ?string
     {
         return $this->value;
     }
@@ -72,7 +72,7 @@ class InputItem implements IInputItem
         return $this;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->value;
     }
