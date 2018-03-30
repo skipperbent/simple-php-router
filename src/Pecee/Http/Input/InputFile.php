@@ -49,7 +49,7 @@ class InputFile implements IInputItem
 
         return (new static($values['index']))
             ->setSize((int)$values['size'])
-            ->setError($values['error'])
+            ->setError((int)$values['error'])
             ->setType($values['type'])
             ->setTmpName($values['tmp_name'])
             ->setFilename($values['name']);
@@ -216,11 +216,11 @@ class InputFile implements IInputItem
     /**
      * Get upload-error code.
      *
-     * @return string
+     * @return int
      */
-    public function getError(): string
+    public function getError(): int
     {
-        return $this->errors;
+        return (int)$this->errors;
     }
 
     /**
