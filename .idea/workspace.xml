@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a7058529-bdc4-40b4-a50d-c50564dc83f0" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Input/IInputItem.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Input/IInputItem.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Input/InputFile.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Input/InputFile.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Input/InputItem.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Input/InputItem.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Url.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Url.php" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -63,11 +59,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="InputItem.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="InputItem.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Input/InputItem.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="20">
-              <caret line="4" column="37" lean-forward="true" selection-start-line="4" selection-start-column="37" selection-end-line="4" selection-end-column="37" />
+              <caret line="4" column="37" selection-start-line="4" selection-start-column="37" selection-end-line="4" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -81,11 +77,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="InputFile.php" pinned="false" current-in-tab="false">
+      <file leaf-file-name="InputFile.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Input/InputFile.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="197">
-              <caret line="258" column="40" selection-start-line="258" selection-start-column="40" selection-end-line="258" selection-end-column="40" />
+            <state relative-caret-position="200">
+              <caret line="10" column="21" lean-forward="true" selection-end-line="291" selection-end-column="1" />
             </state>
           </provider>
         </entry>
@@ -103,9 +99,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>function renderRoute</find>
-      <find>-&gt;renderRoute</find>
-      <find>fireEvent</find>
       <find>renderRoute</find>
       <find>findRoute</find>
       <find>-&gt;fireEvents</find>
@@ -133,6 +126,9 @@
       <find>function parti</find>
       <find>__toString</find>
       <find>getValue</find>
+      <find>getError</find>
+      <find>(int)</find>
+      <find>setSize</find>
     </findStrings>
     <dirStrings>
       <dir>D:\Workspace\simple-php-router\src\Pecee\SimpleRouter\Route</dir>
@@ -202,9 +198,9 @@
         <option value="$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/src/Pecee/Http/Input/IInputItem.php" />
-        <option value="$PROJECT_DIR$/src/Pecee/Http/Input/InputFile.php" />
         <option value="$PROJECT_DIR$/src/Pecee/Http/Url.php" />
         <option value="$PROJECT_DIR$/src/Pecee/Http/Input/InputItem.php" />
+        <option value="$PROJECT_DIR$/src/Pecee/Http/Input/InputFile.php" />
       </list>
     </option>
   </component>
@@ -491,7 +487,7 @@
       <workItem from="1522310475899" duration="12840000" />
       <workItem from="1522325810130" duration="30260000" />
       <workItem from="1522360506281" duration="168000" />
-      <workItem from="1522378435862" duration="1346000" />
+      <workItem from="1522378435862" duration="1993000" />
     </task>
     <servers />
   </component>
@@ -528,7 +524,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="136391000" />
+    <option name="totallyTimeSpent" value="137038000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -870,13 +866,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Input/InputFile.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="197">
-          <caret line="258" column="40" selection-start-line="258" selection-start-column="40" selection-end-line="258" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Url.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="398">
@@ -887,7 +876,14 @@
     <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Input/InputItem.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="20">
-          <caret line="4" column="37" lean-forward="true" selection-start-line="4" selection-start-column="37" selection-end-line="4" selection-end-column="37" />
+          <caret line="4" column="37" selection-start-line="4" selection-start-column="37" selection-end-line="4" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Input/InputFile.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="200">
+          <caret line="10" column="21" lean-forward="true" selection-end-line="291" selection-end-column="1" />
         </state>
       </provider>
     </entry>
