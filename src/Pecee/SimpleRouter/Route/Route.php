@@ -192,7 +192,7 @@ abstract class Route implements IRoute
             return $this->callback;
         }
 
-        return 'function_' . md5($this->callback);
+        return 'function:' . md5($this->callback);
     }
 
     /**
