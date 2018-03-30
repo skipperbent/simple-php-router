@@ -154,7 +154,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      *
      * @return string
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
