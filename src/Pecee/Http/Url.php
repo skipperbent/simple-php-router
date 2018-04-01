@@ -314,25 +314,36 @@ class Url implements \JsonSerializable
      */
     public function hasParam(string $name): bool
     {
-        return \in_array($name, $this->getParams(), true);
+        return array_key_exists($name, $this->getParams());
     }
 
     /**
-     * Removes parameter from query-string
+     * Removes multiple parameters from the query-string
+     *
+     * @param array ...$names
+     * @return static
+     */
+    public function removeParams(...$names): self
+    {
+        $params = array_diff_key($this->getParams(), array_flip($names));
+        $this->setParams($params);
+
+        return $this;
+    }
+
+    /**
+     * Removes parameter from the query-string
      *
      * @param string $name
+     * @return static
      */
-    public function removeParam(string $name): void
+    public function removeParam(string $name): self
     {
-        if ($this->hasParam($name) === true) {
-            $params = $this->getParams();
-            $key = \array_search($name, $params, true);
+        $params = $this->getParams();
+        unset($params[$name]);
+        $this->setParams($params);
 
-            if ($key === true) {
-                unset($params[$key]);
-                $this->setParams($params);
-            }
-        }
+        return $this;
     }
 
     /**
@@ -345,18 +356,7 @@ class Url implements \JsonSerializable
      */
     public function getParam(string $name, ?string $defaultValue = null): ?string
     {
-        $output = null;
-
-        if ($this->hasParam($name) === true) {
-            $params = $this->getParams();
-            $key = \array_search($name, $params, true);
-
-            if ($key === true) {
-                $output = $params[$key];
-            }
-        }
-
-        return $output ?? $defaultValue;
+        return isset($this->getParams()[$name]) ?? $defaultValue;
     }
 
     /**
