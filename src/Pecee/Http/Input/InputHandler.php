@@ -251,12 +251,12 @@ class InputHandler
      * Check if a input-item exist
      *
      * @param string $index
-     * @param array ...$method
+     * @param array ...$methods
      * @return bool
      */
-    public function exists(string $index, ...$method): bool
+    public function exists(string $index, ...$methods): bool
     {
-        return $this->get($index, $method) !== null;
+        return $this->get($index, ...$methods) !== null;
     }
 
     /**
