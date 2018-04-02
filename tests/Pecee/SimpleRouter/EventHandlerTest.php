@@ -6,8 +6,8 @@ require_once 'Dummy/Handler/ExceptionHandler.php';
 require_once 'Dummy/Security/SilentTokenProvider.php';
 require_once 'Dummy/Managers/TestBootManager.php';
 
-use \Pecee\SimpleRouter\Handlers\EventHandler;
-use \Pecee\SimpleRouter\Event\EventArgument;
+use Pecee\SimpleRouter\Event\EventArgument;
+use Pecee\SimpleRouter\Handlers\EventHandler;
 
 class EventHandlerTest extends \PHPUnit\Framework\TestCase
 {
@@ -76,6 +76,32 @@ class EventHandlerTest extends \PHPUnit\Framework\TestCase
 
         // All event should fire for each other event
         $this->assertEquals(true, $status);
+    }
+
+    public function testPrefixEvent()
+    {
+
+        $eventHandler = new EventHandler();
+        $eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function (EventArgument $arg) use (&$status) {
+
+            if ($arg->route instanceof \Pecee\SimpleRouter\Route\LoadableRoute) {
+                $arg->route->prependUrl('/local-path');
+            }
+
+        });
+
+        TestRouter::addEventHandler($eventHandler);
+
+        $status = false;
+
+        TestRouter::get('/', function () use (&$status) {
+            $status = true;
+        });
+
+        TestRouter::debug('/local-path');
+
+        $this->assertTrue($status);
+
     }
 
 }

@@ -40,6 +40,13 @@ interface ILoadableRoute extends IRoute
     public function setUrl(string $url): self;
 
     /**
+     * Prepend url
+     * @param string $url
+     * @return ILoadableRoute
+     */
+    public function prependUrl(string $url): self;
+
+    /**
      * Returns the provided name for the router.
      *
      * @return string|null

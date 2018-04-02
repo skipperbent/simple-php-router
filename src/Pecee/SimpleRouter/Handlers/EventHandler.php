@@ -23,6 +23,11 @@ class EventHandler implements IEventHandler
     public const EVENT_LOAD = 'onLoad';
 
     /**
+     * Fires when route is added to the router
+     */
+    public const EVENT_ADD_ROUTE = 'onAddRoute';
+
+    /**
      * Fires when a url-rewrite is and just before the routes are re-initialized.
      */
     public const EVENT_REWRITE = 'onRewrite';
@@ -95,6 +100,7 @@ class EventHandler implements IEventHandler
         self::EVENT_ALL,
         self::EVENT_INIT,
         self::EVENT_LOAD,
+        self::EVENT_ADD_ROUTE,
         self::EVENT_REWRITE,
         self::EVENT_BOOT,
         self::EVENT_RENDER_BOOTMANAGER,

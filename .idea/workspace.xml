@@ -3,7 +3,12 @@
   <component name="ChangeListManager">
     <list default="true" id="a7058529-bdc4-40b4-a50d-c50564dc83f0" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/EventHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/EventHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/ILoadableRoute.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/ILoadableRoute.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/LoadableRoute.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/LoadableRoute.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Router.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Router.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/EventHandlerTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/EventHandlerTest.php" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -17,42 +22,12 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="helpers.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/helpers.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="355">
-              <caret line="79" column="30" lean-forward="true" selection-start-line="79" selection-start-column="30" selection-end-line="79" selection-end-column="30" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="InputHandler.php" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="191">
-              <caret line="255" column="7" lean-forward="true" selection-start-line="255" selection-start-column="7" selection-end-line="255" selection-end-column="7" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SimpleRouter.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/SimpleRouter.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="8480">
-              <caret line="449" column="77" selection-start-line="449" selection-start-column="77" selection-end-line="449" selection-end-column="77" />
-              <folding>
-                <element signature="e#302#319#0#PHP" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="22680">
-                <caret line="1134" column="75" selection-start-line="1134" selection-start-column="75" selection-end-line="1134" selection-end-column="75" />
+              <first_editor relative-caret-position="230">
+                <caret line="1298" column="39" selection-start-line="1298" selection-start-column="39" selection-end-line="1298" selection-end-column="39" />
               </first_editor>
               <second_editor />
             </state>
@@ -62,8 +37,38 @@
       <file leaf-file-name="LoadableRoute.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/LoadableRoute.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3140">
-              <caret line="160" selection-start-line="160" selection-end-line="160" />
+            <state relative-caret-position="146">
+              <caret line="92" column="7" lean-forward="true" selection-start-line="92" selection-start-column="7" selection-end-line="92" selection-end-column="7" />
+              <folding>
+                <element signature="e#44#82#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RouteController.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteController.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="213">
+              <caret line="15" column="13" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RouteResource.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteResource.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="213">
+              <caret line="33" column="13" selection-start-line="33" selection-start-column="13" selection-end-line="33" selection-end-column="13" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RouteUrl.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteUrl.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="300">
+              <caret line="21" column="50" lean-forward="true" selection-start-line="21" selection-start-column="50" selection-end-line="21" selection-end-column="50" />
             </state>
           </provider>
         </entry>
@@ -71,8 +76,11 @@
       <file leaf-file-name="ILoadableRoute.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/ILoadableRoute.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="900">
-              <caret line="46" column="20" selection-start-line="46" selection-start-column="20" selection-end-line="46" selection-end-column="20" />
+            <state relative-caret-position="362">
+              <caret line="42" column="18" selection-start-line="42" selection-start-column="18" selection-end-line="42" selection-end-column="18" />
+              <folding>
+                <element signature="e#44#67#0#PHP" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -80,17 +88,8 @@
       <file leaf-file-name="Route.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/Route.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4280">
-              <caret line="217" column="37" selection-start-line="217" selection-start-column="37" selection-end-line="217" selection-end-column="37" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Url.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Url.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-917">
-              <caret line="308" column="7" selection-start-line="308" selection-start-column="7" selection-end-line="308" selection-end-column="7" />
+            <state relative-caret-position="211">
+              <caret line="239" column="10" selection-start-line="239" selection-start-column="10" selection-end-line="239" selection-end-column="10" />
             </state>
           </provider>
         </entry>
@@ -98,8 +97,8 @@
       <file leaf-file-name="Router.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Router.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="205">
-              <caret line="509" column="45" selection-start-line="509" selection-start-column="45" selection-end-line="509" selection-end-column="45" />
+            <state relative-caret-position="245">
+              <caret line="156" selection-start-line="156" selection-end-line="156" />
               <folding>
                 <element signature="e#38#84#0#PHP" expanded="true" />
               </folding>
@@ -107,11 +106,26 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="InputFile.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Input/InputFile.php">
+      <file leaf-file-name="EventHandler.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/EventHandler.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="9" column="17" selection-start-line="9" selection-start-column="17" selection-end-line="9" selection-end-column="17" />
+            <state relative-caret-position="-742">
+              <caret line="28" selection-start-line="28" selection-end-line="28" />
+              <folding>
+                <element signature="e#47#90#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="EventHandlerTest.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/Pecee/SimpleRouter/EventHandlerTest.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="278">
+              <caret line="88" column="13" lean-forward="true" selection-start-line="88" selection-start-column="13" selection-end-line="88" selection-end-column="13" />
+              <folding>
+                <element signature="e#249#292#0#PHP" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -120,12 +134,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find># Advan</find>
-      <find># Feed</find>
-      <find>call_user_func_array</find>
-      <find>loadClass</find>
-      <find>$this-&gt;</find>
-      <find>$this-&gt;result</find>
       <find>$this-&gt;r</find>
       <find>getInput</find>
       <find>input()-&gt;get</find>
@@ -150,6 +158,12 @@
       <find>set</find>
       <find>hasParam</find>
       <find>csrf_token</find>
+      <find>static function start</find>
+      <find>fireEvents(</find>
+      <find>EVENT_LOAD</find>
+      <find>-&gt;setUrl</find>
+      <find>setUrl</find>
+      <find>addRoute</find>
     </findStrings>
     <dirStrings>
       <dir>D:\Workspace\simple-php-router\src\Pecee\SimpleRouter\Route</dir>
@@ -184,18 +198,14 @@
         <option value="$PROJECT_DIR$/src/Pecee/Http/Security/ITokenProvider.php" />
         <option value="$PROJECT_DIR$/src/Pecee/Http/Request.php" />
         <option value="$PROJECT_DIR$/src/Pecee/Http/Response.php" />
-        <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/ILoadableRoute.php" />
         <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/IRoute.php" />
         <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteController.php" />
         <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteGroup.php" />
         <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RoutePartialGroup.php" />
-        <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteUrl.php" />
         <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteResource.php" />
         <option value="$PROJECT_DIR$/tests/Pecee/SimpleRouter/InputHandlerTest.php" />
-        <option value="$PROJECT_DIR$/tests/Pecee/SimpleRouter/EventHandlerTest.php" />
         <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/IEventHandler.php" />
         <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/DebugEventHandler.php" />
-        <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/EventHandler.php" />
         <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Event/EventArgument.php" />
         <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/ClassHandler.php" />
         <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/ClassLoader.php" />
@@ -215,13 +225,17 @@
         <option value="$PROJECT_DIR$/src/Pecee/Http/Input/InputItem.php" />
         <option value="$PROJECT_DIR$/src/Pecee/Http/Input/InputFile.php" />
         <option value="$PROJECT_DIR$/helpers.php" />
-        <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/LoadableRoute.php" />
         <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/Route.php" />
         <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/SimpleRouter.php" />
         <option value="$PROJECT_DIR$/src/Pecee/Http/Url.php" />
-        <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Router.php" />
         <option value="$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php" />
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/ILoadableRoute.php" />
+        <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/LoadableRoute.php" />
+        <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Router.php" />
+        <option value="$PROJECT_DIR$/tests/Pecee/SimpleRouter/EventHandlerTest.php" />
+        <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/EventHandler.php" />
+        <option value="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteUrl.php" />
       </list>
     </option>
   </component>
@@ -385,7 +399,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../dscuz-v1" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../pecee-pixie" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.standard" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -423,7 +437,10 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="PHPUnit.phpunit.xml">
+  <component name="RunManager" selected="PHPUnit.EventHandlerTest">
+    <configuration name="EventHandlerTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
+      <TestRunner class="EventHandlerTest" file="$PROJECT_DIR$/tests/Pecee/SimpleRouter/EventHandlerTest.php" scope="Class" />
+    </configuration>
     <configuration name="RouterUrlTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
       <TestRunner class="RouterUrlTest" file="$PROJECT_DIR$/tests/Pecee/SimpleRouter/RouterUrlTest.php" scope="Class" />
     </configuration>
@@ -439,9 +456,11 @@
       <item itemvalue="PHPUnit.RouterUrlTest" />
       <item itemvalue="PHPUnit.phpunit.xml" />
       <item itemvalue="PHP Script.debug.php" />
+      <item itemvalue="PHPUnit.EventHandlerTest" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="PHPUnit.EventHandlerTest" />
         <item itemvalue="PHPUnit.phpunit.xml" />
         <item itemvalue="PHPUnit.tests" />
         <item itemvalue="PHP Script.debug.php" />
@@ -519,44 +538,45 @@
       <workItem from="1522385007533" duration="313000" />
       <workItem from="1522507670882" duration="309000" />
       <workItem from="1522508007514" duration="2427000" />
-      <workItem from="1522530661439" duration="2179000" />
+      <workItem from="1522530661439" duration="3502000" />
+      <workItem from="1522668357317" duration="2371000" />
     </task>
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="phpunit_xml - 2018.03.29 at 20h 47m 20s.xml">
+    <history-entry file="phpunit_xml - 2018.04.02 at 13h 40m 00s.xml">
       <configuration name="phpunit.xml" configurationId="PHPUnitRunConfigurationType" />
     </history-entry>
-    <history-entry file="phpunit_xml - 2018.03.29 at 20h 48m 57s.xml">
+    <history-entry file="phpunit_xml - 2018.04.02 at 13h 40m 14s.xml">
       <configuration name="phpunit.xml" configurationId="PHPUnitRunConfigurationType" />
     </history-entry>
-    <history-entry file="phpunit_xml - 2018.03.29 at 20h 49m 08s.xml">
+    <history-entry file="phpunit_xml - 2018.04.02 at 13h 40m 37s.xml">
       <configuration name="phpunit.xml" configurationId="PHPUnitRunConfigurationType" />
     </history-entry>
-    <history-entry file="phpunit_xml - 2018.03.29 at 20h 50m 04s.xml">
+    <history-entry file="phpunit_xml - 2018.04.02 at 13h 40m 42s.xml">
       <configuration name="phpunit.xml" configurationId="PHPUnitRunConfigurationType" />
     </history-entry>
-    <history-entry file="phpunit_xml - 2018.03.29 at 20h 50m 18s.xml">
+    <history-entry file="phpunit_xml - 2018.04.02 at 13h 43m 05s.xml">
       <configuration name="phpunit.xml" configurationId="PHPUnitRunConfigurationType" />
     </history-entry>
-    <history-entry file="phpunit_xml - 2018.03.29 at 20h 50m 23s.xml">
+    <history-entry file="phpunit_xml - 2018.04.02 at 13h 43m 07s.xml">
       <configuration name="phpunit.xml" configurationId="PHPUnitRunConfigurationType" />
     </history-entry>
-    <history-entry file="phpunit_xml - 2018.03.29 at 21h 12m 55s.xml">
+    <history-entry file="phpunit_xml - 2018.04.02 at 14h 48m 41s.xml">
       <configuration name="phpunit.xml" configurationId="PHPUnitRunConfigurationType" />
     </history-entry>
-    <history-entry file="phpunit_xml - 2018.03.29 at 23h 09m 02s.xml">
-      <configuration name="phpunit.xml" configurationId="PHPUnitRunConfigurationType" />
+    <history-entry file="EventHandlerTest - 2018.04.02 at 14h 50m 26s.xml">
+      <configuration name="EventHandlerTest" configurationId="PHPUnitRunConfigurationType" />
     </history-entry>
-    <history-entry file="phpunit_xml - 2018.03.29 at 23h 09m 18s.xml">
-      <configuration name="phpunit.xml" configurationId="PHPUnitRunConfigurationType" />
+    <history-entry file="EventHandlerTest - 2018.04.02 at 14h 50m 34s.xml">
+      <configuration name="EventHandlerTest" configurationId="PHPUnitRunConfigurationType" />
     </history-entry>
-    <history-entry file="phpunit_xml - 2018.03.29 at 23h 09m 37s.xml">
-      <configuration name="phpunit.xml" configurationId="PHPUnitRunConfigurationType" />
+    <history-entry file="EventHandlerTest - 2018.04.02 at 14h 51m 17s.xml">
+      <configuration name="EventHandlerTest" configurationId="PHPUnitRunConfigurationType" />
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="143045000" />
+    <option name="totallyTimeSpent" value="146739000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -574,26 +594,26 @@
       <window_info anchor="bottom" id="TODO" order="11" weight="0.32983023" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.50919265" side_tool="true" weight="0.32902184" />
       <window_info anchor="bottom" id="Database Changes" order="13" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49080735" weight="0.327405" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49080735" visible="true" weight="0.3272727" />
       <window_info anchor="bottom" id="Version Control" order="14" weight="0.32902184" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="12" sideWeight="0.49680257" visible="true" weight="0.28282827" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2002997" />
+      <window_info anchor="bottom" id="Terminal" order="12" sideWeight="0.49680257" weight="0.28282827" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2027972" />
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Inspection Results" order="15" weight="0.32828283" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.48880896" weight="0.3272727" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="PHP-CGI Server" order="10" />
-      <window_info anchor="right" id="Commander" order="0" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="bottom" id="REST Client" order="5" weight="0.32929292" />
-      <window_info anchor="bottom" id="Command Line Tools Console" order="9" weight="0.32928804" />
       <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="right" id="Commander" order="0" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="PHP-CGI Server" order="10" />
+      <window_info anchor="bottom" id="Inspection Results" order="15" weight="0.32828283" />
+      <window_info anchor="bottom" id="REST Client" order="5" weight="0.32929292" />
+      <window_info anchor="bottom" id="Command Line Tools Console" order="9" weight="0.32928804" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -608,27 +628,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Input/InputItem.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="80">
-          <caret line="4" column="37" selection-start-line="4" selection-start-column="37" selection-end-line="4" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Url.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9100">
-          <caret line="455" column="20" selection-end-line="460" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Input/InputFile.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="9" column="17" lean-forward="true" selection-start-line="9" selection-start-column="17" selection-end-line="9" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Input/IInputItem.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="380">
@@ -717,24 +716,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/EventHandler.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="436">
-          <caret line="107" column="38" selection-start-line="107" selection-start-column="38" selection-end-line="107" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Event/EventArgument.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="54">
           <caret line="45" column="26" lean-forward="true" selection-start-line="45" selection-start-column="26" selection-end-line="45" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/Pecee/SimpleRouter/EventHandlerTest.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="258">
-          <caret line="16" column="36" lean-forward="true" selection-end-line="80" selection-end-column="1" />
         </state>
       </provider>
     </entry>
@@ -882,31 +867,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/LoadableRoute.php">
+    <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Url.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3140">
-          <caret line="160" selection-start-line="160" selection-end-line="160" />
+        <state relative-caret-position="6160">
+          <caret line="308" column="7" selection-start-line="308" selection-start-column="7" selection-end-line="308" selection-end-column="7" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/ILoadableRoute.php">
+    <entry file="file://$PROJECT_DIR$/helpers.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="900">
-          <caret line="46" column="20" selection-start-line="46" selection-start-column="20" selection-end-line="46" selection-end-column="20" />
+        <state relative-caret-position="1520">
+          <caret line="79" column="30" selection-start-line="79" selection-start-column="30" selection-end-line="79" selection-end-column="30" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/Route.php">
+    <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4280">
-          <caret line="217" column="37" selection-start-line="217" selection-start-column="37" selection-end-line="217" selection-end-column="37" />
+        <state relative-caret-position="191">
+          <caret line="255" column="7" selection-start-line="255" selection-start-column="7" selection-end-line="255" selection-end-column="7" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/SimpleRouter.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="8480">
-          <caret line="449" column="77" selection-start-line="449" selection-start-column="77" selection-end-line="449" selection-end-column="77" />
+        <state relative-caret-position="165">
+          <caret line="60" column="4" lean-forward="true" selection-start-line="60" selection-start-column="4" selection-end-line="63" selection-end-column="5" />
           <folding>
             <element signature="e#302#319#0#PHP" expanded="true" />
           </folding>
@@ -916,41 +901,88 @@
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="22680">
-            <caret line="1134" column="75" selection-start-line="1134" selection-start-column="75" selection-end-line="1134" selection-end-column="75" />
+          <first_editor relative-caret-position="230">
+            <caret line="1298" column="39" selection-start-line="1298" selection-start-column="39" selection-end-line="1298" selection-end-column="39" />
           </first_editor>
           <second_editor />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Url.php">
+    <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/ILoadableRoute.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-917">
-          <caret line="308" column="7" selection-start-line="308" selection-start-column="7" selection-end-line="308" selection-end-column="7" />
+        <state relative-caret-position="362">
+          <caret line="42" column="18" selection-start-line="42" selection-start-column="18" selection-end-line="42" selection-end-column="18" />
+          <folding>
+            <element signature="e#44#67#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="213">
+          <caret line="15" column="13" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteResource.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="213">
+          <caret line="33" column="13" selection-start-line="33" selection-start-column="13" selection-end-line="33" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/LoadableRoute.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="146">
+          <caret line="92" column="7" lean-forward="true" selection-start-line="92" selection-start-column="7" selection-end-line="92" selection-end-column="7" />
+          <folding>
+            <element signature="e#44#82#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/Route.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="211">
+          <caret line="239" column="10" selection-start-line="239" selection-start-column="10" selection-end-line="239" selection-end-column="10" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Router.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="205">
-          <caret line="509" column="45" selection-start-line="509" selection-start-column="45" selection-end-line="509" selection-end-column="45" />
+        <state relative-caret-position="245">
+          <caret line="156" selection-start-line="156" selection-end-line="156" />
           <folding>
             <element signature="e#38#84#0#PHP" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/helpers.php">
+    <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/EventHandler.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="355">
-          <caret line="79" column="30" lean-forward="true" selection-start-line="79" selection-start-column="30" selection-end-line="79" selection-end-column="30" />
+        <state relative-caret-position="-742">
+          <caret line="28" selection-start-line="28" selection-end-line="28" />
+          <folding>
+            <element signature="e#47#90#0#PHP" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php">
+    <entry file="file://$PROJECT_DIR$/tests/Pecee/SimpleRouter/EventHandlerTest.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="191">
-          <caret line="255" column="7" lean-forward="true" selection-start-line="255" selection-start-column="7" selection-end-line="255" selection-end-column="7" />
+        <state relative-caret-position="278">
+          <caret line="88" column="13" lean-forward="true" selection-start-line="88" selection-start-column="13" selection-end-line="88" selection-end-column="13" />
+          <folding>
+            <element signature="e#249#292#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteUrl.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="21" column="50" lean-forward="true" selection-start-line="21" selection-start-column="50" selection-end-line="21" selection-end-column="50" />
         </state>
       </provider>
     </entry>

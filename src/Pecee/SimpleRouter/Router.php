@@ -151,17 +151,19 @@ class Router
      */
     public function addRoute(IRoute $route): IRoute
     {
+        $this->fireEvents(EventHandler::EVENT_ADD_ROUTE, [
+            'route' => $route,
+        ]);
+
         /*
          * If a route is currently being processed, that means that the route being added are rendered from the parent
          * routes callback, so we add them to the stack instead.
          */
         if ($this->isProcessingRoute === true) {
             $this->routeStack[] = $route;
-
-            return $route;
+        } else {
+            $this->routes[] = $route;
         }
-
-        $this->routes[] = $route;
 
         return $route;
     }

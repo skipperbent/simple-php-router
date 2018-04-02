@@ -1296,6 +1296,7 @@ All event callbacks will retrieve a `EventArgument` object as parameter. This ob
 | `EVENT_ALL`                 | - | Fires when a event is triggered. |
 | `EVENT_INIT`                | - | Fires when router is initializing and before routes are loaded. |
 | `EVENT_LOAD`                | `loadedRoutes` | Fires when all routes has been loaded and rendered, just before the output is returned. |
+| `EVENT_ADD_ROUTE`           | `route` | Fires when route is added to the router. |
 | `EVENT_REWRITE`             | `rewriteUrl`<br>`rewriteRoute` | Fires when a url-rewrite is and just before the routes are re-initialized. |
 | `EVENT_BOOT`                | `bootmanagers` | Fires when the router is booting. This happens just before boot-managers are rendered and before any routes has been loaded. |
 | `EVENT_RENDER_BOOTMANAGER`  | `bootmanagers`<br>`bootmanager` | Fires before a boot-manager is rendered. |
