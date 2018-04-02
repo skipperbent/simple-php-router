@@ -85,6 +85,17 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         return $this;
     }
 
+    /**
+     * Prepend url
+     *
+     * @param string $url
+     * @return ILoadableRoute
+     */
+    public function prependUrl(string $url): ILoadableRoute
+    {
+        return $this->setUrl(rtrim($url, '/') . $this->url);
+    }
+
     public function getUrl(): string
     {
         return $this->url;
@@ -240,7 +251,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         }
 
         if (isset($values['prefix']) === true) {
-            $this->setUrl($values['prefix'] . $this->getUrl());
+            $this->prependUrl($values['prefix']);
         }
 
         parent::setSettings($values, $merge);
