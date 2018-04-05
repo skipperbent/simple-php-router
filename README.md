@@ -1,18 +1,20 @@
-# Simple PHP router
-Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. Heavily inspired by the way Laravel handles routing, with both simplicity and expandability in mind.
+# simple-router
 
-**Please note that this documentation is currently work-in-progress. Feel free to contribute.**
+Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. 
+Heavily inspired by the way Laravel handles routing, with both simplicity and expand-ability in mind.
 
----
+### Support the project
+
+If you like simple-router and wish to see the continued development and maintenance of the project,
+please consider showing your support by buying me a coffee. Supporters will be listed under the credits section of this documentation.
+
+You can donate any amount of your choice by [clicking here](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NNX4D2RUSALCN).
 
 ## Table of Contents
 
 - [Getting started](#getting-started)
 	- [Notes](#notes-1)
 	- [Requirements](#requirements)
-	- [Feedback and development](#feedback-and-development)
-	    - [Issues guidelines](#issues-guidelines)
-	    - [Contribution development guidelines](#contribution-development-guidelines)
 	- [Features](#features)
 	- [Installation](#installation)
 		- [Setting up Apache](#setting-up-apache)
@@ -40,35 +42,39 @@ Simple, fast and yet powerful PHP router that is easy to get integrated and in a
 	- [Partial groups](#partial-groups)
 	- [Form Method Spoofing](#form-method-spoofing)
 	- [Accessing The Current Route](#accessing-the-current-route)
+	- [Dependency injection](#dependency-injection)
+	    - [Enabling dependency injection](#enabling-dependency-injection)
+	    - [More reading](#more-reading)
 	- [Other examples](#other-examples)
-
 - [CSRF-protection](#csrf-protection)
 	- [Adding CSRF-verifier](#adding-csrf-verifier)
 	- [Getting CSRF-token](#getting-csrf-token)
 	- [Custom CSRF-verifier](#custom-csrf-verifier)
 	- [Custom Token-provider](#custom-token-provider)
-
 - [Middlewares](#middlewares)
-	- [Example](#example)
+	- [Example](#example-1)
 - [ExceptionHandlers](#exceptionhandlers)
     - [Handling 404, 403 and other errors](#handling-404-403-and-other-errors)
 	- [Using custom exception handlers](#using-custom-exception-handlers)
-
 - [Urls](#urls)
+    - [Get the current url](#get-the-current-url)
  	- [Get by name (single route)](#get-by-name-single-route)
  	- [Get by name (controller route)](#get-by-name-controller-route)
  	- [Get by class](#get-by-class)
- 	- [Get by custom names for methods on a controller/resource route](#using-custom-names-for-methods-on-a-controllerresource-route)
+ 	- [Using custom names for methods on a controller/resource route](#using-custom-names-for-methods-on-a-controllerresource-route)
  	- [Getting REST/resource controller urls](#getting-restresource-controller-urls)
- 	- [Get the current url](#get-the-current-url)
-
+ 	- [Manipulating url](#manipulating-url)
+ 	- [Useful url tricks](#useful-url-tricks)
 - [Input & parameters](#input--parameters)
     - [Using the Input class to manage parameters](#using-the-input-class-to-manage-parameters)
 	    - [Get single parameter value](#get-single-parameter-value)
 	    - [Get parameter object](#get-parameter-object)
 	    - [Managing files](#managing-files)
 	    - [Get all parameters](#get-all-parameters)
-
+- [Events](#events)
+    - [Available events](#available-events)
+    - [Registering new event](#registering-new-event)
+    - [Custom EventHandlers](#custom-eventhandlers)
 - [Advanced](#advanced)
 	- [Url rewriting](#url-rewriting)
 		- [Changing current route](#changing-current-route)
@@ -76,7 +82,17 @@ Simple, fast and yet powerful PHP router that is easy to get integrated and in a
 		- [Adding routes manually](#adding-routes-manually)
 	- [Parameters](#parameters)
 	- [Extending](#extending)
-
+- [Help and support](#help-and-support)
+    - [Common issues and fixes](#common-issues-and-fixes)
+    - [Debugging](#debugging)
+        - [Creating unit-tests](#creating-unit-tests) 
+        - [Debug information](#debug-information)
+        - [Benchmark and log-info](#benchmark-and-log-info)
+    - [Reporting a new issue](#reporting-a-new-issue)
+        - [Procedure for reporting a new issue](#procedure-for-reporting-a-new-issue)
+        - [Issue template](#issue-template)
+    - [Feedback and development](#feedback-and-development)
+   	    - [Contribution development guidelines](#contribution-development-guidelines)
 - [Credits](#credits)
 	- [Sites](#sites)
 	- [License](#license)
@@ -84,7 +100,8 @@ Simple, fast and yet powerful PHP router that is easy to get integrated and in a
 ___
 
 # Getting started
-Add the latest version of Simple PHP Router running this command.
+
+Add the latest version of the simple-router project running this command.
 
 ```
 composer require pecee/simple-router
@@ -114,33 +131,7 @@ You can find the demo-project here: [https://github.com/skipperbent/simple-route
 
 ## Requirements
 
-- PHP 5.5 or greater
-
-### Feedback and development
-
-If you are missing a feature, experience problems or have ideas or feedback that you want us to hear, please feel free to create an issue.
-
-###### Issues guidelines
-
-- Please be as detailed as possible in the description when creating a new issue. This will help others to more easily understand- and solve your issue.
-For example: if you are experiencing issues, you should provide the necessary steps to reproduce the error within your description.
-
-- We love to hear out any ideas or feedback to the library.
-
-[Create a new issue here](https://github.com/skipperbent/simple-php-router/issues/new)
-
-###### Contribution development guidelines
-
-- Please try to follow the PSR-2 codestyle guidelines.
-
-- Please create your pull requests to the development base that matches the version number you want to change.
-For example when pushing changes to version 3, the pull request should use the `v3-development` base/branch.
-
-- Create detailed descriptions for your commits, as these will be used in the changelog for new releases.
-
-- When changing existing functionality, please ensure that the unit-tests working.
-
-- When adding new stuff, please remember to add new unit-tests for the functionality.
+- PHP 7.1 or greater (version 3.x and below supports PHP 5.5+)
 
 ## Features
 
@@ -206,7 +197,7 @@ Below is an example of an working `web.config` file used by simple-php-router.
 
 Simply create a new `web.config` file in your projects `public` directory and paste the contents below in your newly created file. This will redirect all requests to your `index.php` file (see Configuration section below). If the `web.config` file already exists, add the `<rewrite>` section inside the `<system.webServer>` branch.
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <system.webServer>
@@ -290,7 +281,12 @@ We recommend that you add these helper functions to your project. These will all
 To implement the functions below, simply copy the code to a new file and require the file before initializing the router or copy the `helpers.php` we've included in this library.
 
 ```php
+<?php
+
 use Pecee\SimpleRouter\SimpleRouter as Router;
+use Pecee\Http\Url;
+use Pecee\Http\Response;
+use Pecee\Http\Request;
 
 /**
  * Get url for a route by using either name/alias, class or method name.
@@ -307,9 +303,10 @@ use Pecee\SimpleRouter\SimpleRouter as Router;
  * @param string|null $name
  * @param string|array|null $parameters
  * @param array|null $getParams
- * @return string
+ * @return \Pecee\Http\Url
+ * @throws \InvalidArgumentException
  */
-function url($name = null, $parameters = null, $getParams = null)
+function url(?string $name = null, $parameters = null, ?array $getParams = null): Url
 {
     return Router::getUrl($name, $parameters, $getParams);
 }
@@ -317,7 +314,7 @@ function url($name = null, $parameters = null, $getParams = null)
 /**
  * @return \Pecee\Http\Response
  */
-function response()
+function response(): Response
 {
     return Router::response();
 }
@@ -325,7 +322,7 @@ function response()
 /**
  * @return \Pecee\Http\Request
  */
-function request()
+function request(): Request
 {
     return Router::request();
 }
@@ -334,19 +331,23 @@ function request()
  * Get input class
  * @param string|null $index Parameter index name
  * @param string|null $defaultValue Default return value
- * @param string|array|null $methods Default method
- * @return \Pecee\Http\Input\Input|string
+ * @param array ...$methods Default methods
+ * @return \Pecee\Http\Input\InputHandler|string
  */
-function input($index = null, $defaultValue = null, $methods = null)
+function input($index = null, $defaultValue = null, ...$methods)
 {
     if ($index !== null) {
-        return request()->getInput()->get($index, $defaultValue, $methods);
+        return request()->getInputHandler()->getValue($index, $defaultValue, ...$methods);
     }
 
-    return request()->getInput();
+    return request()->getInputHandler();
 }
 
-function redirect($url, $code = null)
+/**
+ * @param string $url
+ * @param int|null $code
+ */
+function redirect(string $url, ?int $code = null): void
 {
     if ($code !== null) {
         response()->httpCode($code);
@@ -359,11 +360,11 @@ function redirect($url, $code = null)
  * Get current csrf-token
  * @return string|null
  */
-function csrf_token()
+function csrf_token(): ?string
 {
     $baseVerifier = Router::router()->getCsrfVerifier();
     if ($baseVerifier !== null) {
-        return $baseVerifier->getToken();
+        return $baseVerifier->getTokenProvider()->getToken();
     }
 
     return null;
@@ -661,6 +662,88 @@ SimpleRouter::request()->getLoadedRoute();
 request()->getLoadedRoute();
 ```
 
+## Dependency injection
+
+simple-router supports dependency injection using the [`php-di`](http://php-di.org/) library.
+
+Dependency injection allows the framework to automatically "inject" (load) classes added as parameters. This can simplify your code, as you can avoid creating new instances of objects you are using often in your `Controllers` etc.
+
+Here's a basic example of a controller class using dependency injection:
+
+```php
+namespace Demo\Controllers;
+
+class DefaultController {
+    
+    public function login(User $user): string 
+    {
+        // ...
+    }
+    
+}
+```
+
+The example above will automatically create a new instance of the `User` from the `$user` parameter. This means that the `$user` class contains a new instance of the `User` class and we won't need to create a new instance our self.
+
+**WARNING:** dependency injection can have some negative impact in performance. If you experience any performance issues, we recommend disabling this functionality.
+
+### Enabling dependency injection
+
+Dependency injection is disabled per default to avoid any performance issues.
+
+Before enabling dependency injection, we recommend that you read the [Container configuration](http://php-di.org/doc/container-configuration.html) section of the php-di documentation. This section covers how to configure php-di to different environments and speed-up the performance.
+
+#### Enabling for development environment
+
+The example below should ONLY be used on a development environment.
+
+```php
+// Create our new php-di container
+$container = (new \DI\ContainerBuilder())
+            ->useAutowiring(true)
+            ->build();
+
+// Add our container to simple-router and enable dependency injection
+SimpleRouter::enableDependencyInjection($container);
+```
+
+Please check the [More reading](#more-reading) section of the documentation for useful php-di links and tutorials.
+
+#### Enabling for production environment
+
+The example below compiles the injections, which can help speed up performance. 
+
+**Note:** You should change the `$cacheDir` to a cache-storage within your project.
+
+```php
+// Cache directory
+$cacheDir = sys_get_temp_dir('simple-router');
+
+// Create our new php-di container
+$container = (new \DI\ContainerBuilder())
+            ->enableCompilation($cacheDir)
+            ->writeProxiesToFile(true, $cacheDir . '/proxies')
+            ->useAutowiring(true)
+            ->build();
+
+// Add our container to simple-router and enable dependency injection
+SimpleRouter::enableDependencyInjection($container);
+```
+
+Please check the [More reading](#more-reading) section of the documentation for useful php-di links and tutorials.
+
+### More reading
+
+For more information about dependency injection, configuration and settings - we recommend that you check the php-di documentation or some of the useful links we've gathered below.
+
+#### Useful links
+
+- [php-di documentation](http://php-di.org/doc/)
+- [Understanding dependency injection](http://php-di.org/doc/understanding-di.html)
+- [Best practices guide](http://php-di.org/doc/best-practices.html)
+- [Configuring the container](http://php-di.org/doc/container-configuration.html)
+- [Definitions](http://php-di.org/doc/definition.html)
+
 ## Other examples
 
 You can find many more examples in the `routes.php` example-file below:
@@ -791,7 +874,7 @@ class SessionTokenProvider implements ITokenProvider
     /**
      * Refresh existing token
      */
-    public function refresh()
+    public function refresh(): void
     {
         // Implement your own functionality here...
     }
@@ -802,7 +885,18 @@ class SessionTokenProvider implements ITokenProvider
      * @param string $token
      * @return bool
      */
-    public function validate($token)
+    public function validate($token): bool
+    {
+        // Implement your own functionality here...
+    }
+    
+    /**
+     * Get token token
+     *
+     * @param string|null $defaultValue
+     * @return string|null
+     */
+    public function getToken(?string $defaultValue = null): ?string 
     {
         // Implement your own functionality here...
     }
@@ -833,17 +927,17 @@ namespace Demo\Middlewares;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 
-class CustomMiddleware implements Middleware {
+class CustomMiddleware implements IMiddleware {
 
-    public function handle(Request $request) {
-
+    public function handle(Request $request): void 
+    {
+    
         // Authenticate user, will be available using request()->user
         $request->user = User::authenticate();
 
         // If authentication failed, redirect request to user-login page.
         if($request->user === null) {
             $request->setRewriteUrl(url('user.login'));
-            return $request;
         }
 
     }
@@ -869,9 +963,11 @@ The code should be placed in the file that contains your routes.
 Router::get('/not-found', 'PageController@notFound');
 
 Router::error(function(Request $request, \Exception $exception) {
-    if($exception instanceof NotFoundHttpException && $exception->getCode() == 404) {
+
+    if($exception instanceof NotFoundHttpException && $exception->getCode() === 404) {
         response()->redirect('/not-found');
     }
+    
 });
 ```
 
@@ -882,18 +978,18 @@ This is a basic example of an ExceptionHandler implementation (please see "[Easi
 ```php
 namespace Demo\Handlers;
 
-use Pecee\Handlers\IExceptionHandler;
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\Handlers\IExceptionHandler;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 class CustomExceptionHandler implements IExceptionHandler
 {
-	public function handleError(Request $request, \Exception $error)
+	public function handleError(Request $request, \Exception $error): void
 	{
 
 		/* You can use the exception handler to format errors depending on the request and type. */
 
-		if (stripos($request->getUrl()->getPath(), '/api') !== false) {
+		if ($request->getUrl()->contains('/api')) {
 
 			response()->json([
 				'error' => $error->getMessage(),
@@ -906,10 +1002,9 @@ class CustomExceptionHandler implements IExceptionHandler
 		if($error instanceof NotFoundHttpException) {
 
 			// Render custom 404-page
-
 			$request->setRewriteCallback('Demo\Controllers\PageController@notFound');
-			return $request;
-
+			return;
+			
 		}
 
 		throw $error;
@@ -925,17 +1020,33 @@ class CustomExceptionHandler implements IExceptionHandler
 
 By default all controller and resource routes will use a simplified version of their url as name.
 
+You easily use the `url()` shortcut helper function to retrieve urls for your routes or manipulate the current url.
+
+`url()` will return a `Url` object which will return a `string` when rendered, so it can be used safely in templates etc. but 
+contains all the useful helpers methods in the `Url` class like `contains`, `indexOf` etc. 
+Check the [Useful url tricks](#useful-url-tricks) below.
+
+### Get the current url
+
+It has never been easier to get and/or manipulate the current url.
+
+The example below shows you how to get the current url:
+
+```php
+# output: /current-url
+url();
+```
+
 ### Get by name (single route)
 
 ```php
 SimpleRouter::get('/product-view/{id}', 'ProductsController@show', ['as' => 'product']);
 
+# output: /product-view/22/?category=shoes
 url('product', ['id' => 22], ['category' => 'shoes']);
-url('product', null, ['category' => 'shoes']);
 
-# output
-# /product-view/22/?category=shoes
-# /product-view/?category=shoes
+# output: /product-view/?category=shoes
+url('product', null, ['category' => 'shoes']);
 ```
 
 ### Get by name (controller route)
@@ -943,14 +1054,14 @@ url('product', null, ['category' => 'shoes']);
 ```php
 SimpleRouter::controller('/images', ImagesController::class, ['as' => 'picture']);
 
+# output: /images/view/?category=shows
 url('picture@getView', null, ['category' => 'shoes']);
-url('picture', 'getView', ['category' => 'shoes']);
-url('picture', 'view');
 
-# output
-# /images/view/?category=shows
-# /images/view/?category=shows
-# /images/view/
+# output: /images/view/?category=shows
+url('picture', 'getView', ['category' => 'shoes']);
+
+# output: /images/view/
+url('picture', 'view');
 ```
 
 ### Get by class
@@ -959,12 +1070,11 @@ url('picture', 'view');
 SimpleRouter::get('/product-view/{id}', 'ProductsController@show', ['as' => 'product']);
 SimpleRouter::controller('/images', 'ImagesController');
 
+# output: /product-view/22/?category=shoes
 url('ProductsController@show', ['id' => 22], ['category' => 'shoes']);
-url('ImagesController@getImage', null, ['id' => 22]);
 
-# output
-# /product-view/22/?category=shoes
-# /images/image/?id=22
+# output: /images/image/?id=22
+url('ImagesController@getImage', null, ['id' => 22]);
 ```
 
 ### Using custom names for methods on a controller/resource route
@@ -983,29 +1093,66 @@ url('gadgets.iphone');
 ```php
 SimpleRouter::resource('/phones', PhonesController::class);
 
+# output: /phones/
 url('phones');
+
+# output: /phones/
 url('phones.index');
+
+# output: /phones/create/
 url('phones.create');
+
+# output: /phones/edit/
 url('phones.edit');
-
-// etc..
-
-# output
-# /phones/
-# /phones/create/
-# /phones/edit/
 ```
 
-### Get the current url
+### Manipulating url
+
+You can easily manipulate the query-strings, by adding your get param arguments.
 
 ```php
-url();
-url(null, null, ['q' => 'cars']);
+# output: /current-url?q=cars
 
-# output
-# /CURRENT-URL/
-# /CURRENT-URL/?q=cars
+url(null, null, ['q' => 'cars']);
 ```
+
+You can remove a query-string parameter by setting the value to `null`. 
+
+The example below will remove any query-string parameter named `q` from the url but keep all others query-string parameters:
+
+```php
+$url = url()->removeParam('q');
+```
+
+For more information please check the [Useful url tricks](#useful-url-tricks) section of the documentation.
+
+### Useful url tricks
+
+Calling `url` will always return a `Url` object. Upon rendered it will return a `string` of the relative `url`, so it's safe to use in templates etc.
+
+However this allow us to use the useful methods on the `Url` object like `indexOf` and `contains` or retrieve specific parts of the url like the path, querystring parameters, host etc. You can also manipulate the url like removing- or adding parameters, changing host and more.
+
+In the example below, we check if the current url contains the `/api` part.
+
+```php
+if(url()->contains('/api')) {
+    
+    // ... do stuff
+    
+}
+```
+
+As mentioned earlier, you can also use the `Url` object to show specific parts of the url or control what part of the url you want.
+
+```php
+# Grab the query-string parameter id from the current-url.
+$id = url()->getParam('id');
+
+# Get the absolute url for the current url.
+$absoluteUrl = url()->getAbsoluteUrl();
+```
+
+For more available methods please check the `Pecee\Http\Url` class.
 
 # Input & parameters
 
@@ -1025,18 +1172,16 @@ $value = input($index, $defaultValue, $methods);
 
 ### Get parameter object
 
-Will return an instance of `InputItem` or `InputFile` depending on the type.
+The example below will return an instance of `InputItem` or `InputFile` depending on the type.
 
 You can use this in your html as it will render the value of the item.
-However if you want to compare value in your if statements, you have to use
-the `getValue` or use the `input()` instead.
+
+If you want to compare value in your if statements, you have to use the `getValue` or use the `input()` helper function instead.
 
 If items is grouped in the html, it will return an array of items.
 
-**Note:** `getObject` will only return `$defaultValue` if the item doesn't exist. If you want `$defaultValue` to be returned if the item is empty, please use `input()` instead.
-
 ```php
-$object = input()->getObject($index, $defaultValue = null, $methods = null);
+$object = input()->get($index, $defaultValue = null, $methods = null);
 ```
 
 ### Return specific GET parameter (where name is the name of your parameter):
@@ -1050,7 +1195,7 @@ $object = input()->getObject($index, $defaultValue = null, $methods = null);
  * $defaultValue is returned if the value is empty.
  */
 
-$id = input()->get($index, $defaultValue, $method);
+$id = input()->getValue($index, $defaultValue, $method);
 
 # -- shortcut to above --
 
@@ -1058,15 +1203,19 @@ $id = input($index, $defaultValue, $method);
 
 # -- match specific --
 
-$object = input($index, $defaultValue, 'get');
-$object = input($index, $defaultValue, 'post');
-$object = input($index, $defaultValue, 'file');
+$value = input($index, $defaultValue, 'get');
+$value = input($index, $defaultValue, 'post');
+$value = input($index, $defaultValue, 'file');
 
 # -- or --
 
 $object = input()->findGet($index, $defaultValue);
 $object = input()->findPost($index, $defaultValue);
 $object = input()->findFile($index, $defaultValue);
+
+# -- get the full object --
+
+$object = input()->get($index, 'post', 'get');
 ```
 
 ### Managing files
@@ -1131,6 +1280,142 @@ $siteId = input('site_id', 2, ['post', 'get']);
 
 ---
 
+# Events
+
+This section will help you understand how to register your own callbacks to events in the router.
+It will also cover the basics of event-handlers; how to use the handlers provided with the router and how to create your own custom event-handlers.
+
+## Available events
+
+This section contains all available events that can be registered using the `EventHandler`.
+
+All event callbacks will retrieve a `EventArgument` object as parameter. This object contains easy access to event-name, router- and request instance and any special event-arguments related to the given event. You can see what special event arguments each event returns in the list below.  
+
+| Name                        | Special arguments | Description               | 
+| -------------               |-----------      | ----                      | 
+| `EVENT_ALL`                 | - | Fires when a event is triggered. |
+| `EVENT_INIT`                | - | Fires when router is initializing and before routes are loaded. |
+| `EVENT_LOAD`                | `loadedRoutes` | Fires when all routes has been loaded and rendered, just before the output is returned. |
+| `EVENT_ADD_ROUTE`           | `route` | Fires when route is added to the router. |
+| `EVENT_REWRITE`             | `rewriteUrl`<br>`rewriteRoute` | Fires when a url-rewrite is and just before the routes are re-initialized. |
+| `EVENT_BOOT`                | `bootmanagers` | Fires when the router is booting. This happens just before boot-managers are rendered and before any routes has been loaded. |
+| `EVENT_RENDER_BOOTMANAGER`  | `bootmanagers`<br>`bootmanager` | Fires before a boot-manager is rendered. |
+| `EVENT_LOAD_ROUTES`         | `routes` | Fires when the router is about to load all routes. |
+| `EVENT_FIND_ROUTE`          | `name` | Fires whenever the `findRoute` method is called within the `Router`. This usually happens when the router tries to find routes that contains a certain url, usually after the `EventHandler::EVENT_GET_URL` event. |
+| `EVENT_GET_URL`             | `name`<br>`parameters`<br>`getParams` | Fires whenever the `Router::getUrl` method or `url`-helper function is called and the router tries to find the route. |
+| `EVENT_MATCH_ROUTE`         | `route` | Fires when a route is matched and valid (correct request-type etc). and before the route is rendered. |
+| `EVENT_RENDER_ROUTE`        | `route` | Fires before a route is rendered. |
+| `EVENT_LOAD_EXCEPTIONS`     | `exception`<br>`exceptionHandlers` | Fires when the router is loading exception-handlers. |
+| `EVENT_RENDER_EXCEPTION`    | `exception`<br>`exceptionHandler`<br>`exceptionHandlers` | Fires before the router is rendering a exception-handler. |
+| `EVENT_RENDER_MIDDLEWARES`  | `route`<br>`middlewares` | Fires before middlewares for a route is rendered. |
+| `EVENT_RENDER_CSRF`         | `csrfVerifier` | Fires before the CSRF-verifier is rendered. |
+
+## Registering new event
+
+To register a new event you need to create a new instance of the `EventHandler` object. On this object you can add as many callbacks as you like by calling the `registerEvent` method.
+
+When you've registered events, make sure to add it to the router by calling 
+`SimpleRouter::addEventHandler()`. We recommend that you add your event-handlers within your `routes.php`.
+
+**Example:**
+
+```php
+use Pecee\SimpleRouter\Handlers\EventHandler;
+use Pecee\SimpleRouter\Event\EventArgument;
+
+// --- your routes goes here ---
+
+$eventHandler = new EventHandler();
+
+// Add event that fires when a route is rendered
+$eventHandler->register(EventHandler::EVENT_RENDER_ROUTE, function(EventArgument $argument) {
+   
+   // Get the route by using the special argument for this event.
+   $route = $argument->route;
+   
+   // DO STUFF...
+    
+});
+
+SimpleRouter::addEventHandler($eventHandler);
+
+```
+
+## Custom EventHandlers
+
+`EventHandler` is the class that manages events and must inherit from the `IEventHandler` interface. The handler knows how to handle events for the given handler-type. 
+
+Most of the time the basic `\Pecee\SimpleRouter\Handler\EventHandler` class will be more than enough for most people as you simply register an event which fires when triggered.
+
+Let's go over how to create your very own event-handler class.
+
+Below is a basic example of a custom event-handler called `DatabaseDebugHandler`. The idea of the sample below is to logs all events to the database when triggered. Hopefully it will be enough to give you an idea on how the event-handlers work.
+
+```php
+namespace Demo\Handlers;
+
+use Pecee\SimpleRouter\Event\EventArgument;
+use Pecee\SimpleRouter\Router;
+
+class DatabaseDebugHandler implements IEventHandler
+{
+
+    /**
+     * Debug callback
+     * @var \Closure
+     */
+    protected $callback;
+
+    public function __construct()
+    {
+        $this->callback = function (EventArgument $argument) {
+            // todo: store log in database
+        };
+    }
+
+    /**
+     * Get events.
+     *
+     * @param string|null $name Filter events by name.
+     * @return array
+     */
+    public function getEvents(?string $name): array
+    {
+        return [
+            $name => [
+                $this->callback,
+            ],
+        ];
+    }
+
+    /**
+     * Fires any events registered with given event-name
+     *
+     * @param Router $router Router instance
+     * @param string $name Event name
+     * @param array ...$eventArgs Event arguments
+     */
+    public function fireEvents(Router $router, string $name, ...$eventArgs): void
+    {
+        $callback = $this->callback;
+        $callback(new EventArgument($router, $eventArgs));
+    }
+
+    /**
+     * Set debug callback
+     *
+     * @param \Closure $event
+     */
+    public function setCallback(\Closure $event): void
+    {
+        $this->callback = $event;
+    }
+
+}
+```
+
+---
+
 # Advanced
 
 ## Url rewriting
@@ -1161,10 +1446,19 @@ To interfere with the router, we create a class that implements the ```IRouterBo
 ```php
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\IRouterBootManager;
+use Pecee\SimpleRouter\Router;
 
-class CustomRouterRules implement IRouterBootManager {
+class CustomRouterRules implement IRouterBootManager 
+{
 
-    public function boot(Request $request) {
+    /**
+     * Called when router is booting and before the routes is loaded.
+     *
+     * @param \Pecee\SimpleRouter\Router $router
+     * @param \Pecee\Http\Request $request
+     */
+    public function boot(\Pecee\SimpleRouter\Router $router, \Pecee\Http\Request $request): void
+    {
 
         $rewriteRules = [
             '/my-cat-is-beatiful' => '/article/view/1',
@@ -1255,6 +1549,219 @@ class Router extends SimpleRouter {
 
 }
 ```
+
+---
+
+# Help and support
+
+This section will go into details on how to debug the router and answer some of the commonly asked questions- and issues.
+
+## Common issues and fixes
+
+This section will go over common issues and how to resolve them.
+
+## Debugging
+
+This section will show you how to write unit-tests for the router, view useful debugging information and answer some of the frequently asked questions. 
+
+It will also covers how to report any issue you might encounter. 
+
+### Creating unit-tests
+
+The easiest and fastest way to debug any issues with the router, is to create a unit-test that represents the issue you are experiencing.
+
+Unit-tests use a special `TestRouter` class, which simulates a request-method and requested url of a browser.
+
+The `TestRouter` class can return the output directly or render a route silently.
+
+```php
+public function testUnicodeCharacters()
+{
+    // Add route containing two optional paramters with special spanish characters like "í".
+    TestRouter::get('/cursos/listado/{listado?}/{category?}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s-]+']);
+    
+    // Start the routing and simulate the url "/cursos/listado/especialidad/cirugía local".
+    TestRouter::debugNoReset('/cursos/listado/especialidad/cirugía local', 'GET');
+    
+    // Verify that the url for the loaded route matches the expected route.
+    $this->assertEquals('/cursos/listado/{listado?}/{category?}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+    
+    // Start the routing and simulate the url "/test/Dermatología" using "GET" as request-method.
+    TestRouter::debugNoReset('/test/Dermatología', 'GET');
+
+    // Another route containing one parameter with special spanish characters like "í".
+    TestRouter::get('/test/{param}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s-\í]+']);
+
+    // Get all parameters parsed by the loaded route.
+    $parameters = TestRouter::request()->getLoadedRoute()->getParameters();
+
+    // Check that the parameter named "param" matches the exspected value.
+    $this->assertEquals('Dermatología', $parameters['param']);
+
+    // Add route testing danish special characters like "ø".
+    TestRouter::get('/category/økse', 'DummyController@method1', ['defaultParameterRegex' => '[\w\ø]+']);
+    
+    // Start the routing and simulate the url "/kategory/økse" using "GET" as request-method.
+    TestRouter::debugNoReset('/category/økse', 'GET');
+    
+    // Validate that the URL of the loaded-route matches the expected url.
+    $this->assertEquals('/category/økse/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
+
+    // Reset the router, so other tests wont inherit settings or the routes we've added.
+    TestRouter::router()->reset();
+}
+```
+
+#### Using the TestRouter helper
+
+Depending on your test, you can use the methods below when rendering routes in your unit-tests.
+
+
+| Method        | Description  |
+| ------------- |-------------|
+| ```TestRouter::debug($url, $method)``` | Will render the route without returning anything. Exceptions will be thrown and the router will be reset automatically. |
+| ```TestRouter::debugOutput($url, $method)``` | Will render the route and return any value that the route might output. Manual reset required by calling `TestRouter::router()->reset()`. |
+| ```TestRouter::debugNoReset($url, $method);```  | Will render the route without resetting the router. Useful if you need to get loaded route, parameters etc. from the router. Manual reset required by calling `TestRouter::router()->reset()`. |
+
+### Debug information
+
+The library can output debug-information, which contains information like loaded routes, the parsed request-url etc. It also contains info which are important when reporting a new issue like PHP-version, library version, server-variables, router debug log etc.
+
+You can activate the debug-information by calling the alternative start-method. 
+
+The example below will start the routing an return array with debugging-information
+
+**Example:**
+
+```php
+$debugInfo = SimpleRouter::startDebug();
+echo sprintf('<pre>%s</pre>', var_export($debugInfo));
+exit;
+```
+
+**The example above will provide you with an output containing:**
+
+| Key               | Description  |
+| -------------     |------------- |
+| `url`             | The parsed request-uri. This url should match the url in the browser.|
+| `method`          | The browsers request method (example: `GET`, `POST`, `PUT`, `PATCH`, `DELETE` etc).|
+| `host`            | The website host (example: `domain.com`).|
+| `loaded_routes`   | List of all the routes that matched the `url` and that has been rendered/loaded. |
+| `all_routes`      | All available routes |
+| `boot_managers`   | All available BootManagers |
+| `csrf_verifier`   | CsrfVerifier class |
+| `log`             | List of debug messages/log from the router. |
+| `router_output`   | The rendered callback output from the router. |
+| `library_version` | The version of simple-php-router you are using. |
+| `php_version`     | The version of PHP you are using. |
+| `server_params`   | List of all `$_SERVER` variables/headers. | 
+
+#### Benchmark and logging
+
+You can activate benchmark debugging/logging by calling `setDebugEnabled` method on the `Router` instance.
+
+You have to enable debugging BEFORE starting the routing.
+
+**Example:**
+
+```php
+SimpleRouter::router()->setDebugEnabled(true);
+SimpleRouter::start();
+```
+
+When the routing is complete, you can get the debug-log by calling the `getDebugLog()` on the `Router` instance. This will return an `array` of log-messages each containing execution time, trace info and debug-message.
+
+**Example:**
+
+```php
+$messages = SimpleRouter::router()->getDebugLog();
+```
+
+## Reporting a new issue
+
+**Before reporting your issue, make sure that the issue you are experiencing aren't already answered in the [Common errors](#common-errors) section or by searching the [closed issues](https://github.com/skipperbent/simple-php-router/issues?q=is%3Aissue+is%3Aclosed) page on GitHub.**
+
+To avoid confusion and to help you resolve your issue as quickly as possible, you should provide a detailed explanation of the problem you are experiencing.
+
+### Procedure for reporting a new issue
+
+1. Go to [this page](https://github.com/skipperbent/simple-php-router/issues/new) to create a new issue.
+2. Add a title that describes your problems in as few words as possible.
+3. Copy and paste the template below in the description of your issue and replace each step with your own information. If the step is not relevant for your issue you can delete it.
+
+### Issue template
+
+Copy and paste the template below into the description of your new issue and replace it with your own information.
+
+You can check the [Debug information](#debug-information) section to see how to generate the debug-info.
+
+<pre>
+### Description
+
+The library fails to render the route `/user/æsel` which contains one parameter using a custom regular expression for matching special foreign characters. Routes without special characters like `/user/tom` renders correctly.
+
+### Steps to reproduce the error
+
+1. Add the following route:
+
+```php
+SimpleRouter::get('/user/{name}', 'UserController@show')->where(['name' => '[\w]+']);
+```
+
+2. Navigate to `/user/æsel` in browser.
+
+3. `NotFoundHttpException` is thrown by library.
+
+### Route and/or callback for failing route
+
+*Route:*
+
+```php
+SimpleRouter::get('/user/{name}', 'UserController@show')->where(['name' => '[\w]+']);
+```
+
+*Callback:*
+
+```php
+public function show($username) {
+    return sprintf('Username is: %s', $username);
+}
+```
+
+### Debug info
+
+```php
+
+[PASTE YOUR DEBUG-INFO HERE]
+
+```
+</pre>
+
+Remember that a more detailed issue- description and debug-info might suck to write, but it will help others understand- and resolve your issue without asking for the information.
+
+**Note:** please be as detailed as possible in the description when creating a new issue. This will help others to more easily understand- and solve your issue. Providing the necessary steps to reproduce the error within your description, adding useful debugging info etc. will help others quickly resolve the issue you are reporting.
+
+## Feedback and development
+
+If the library is missing a feature that you need in your project or if you have feedback, we'd love to hear from you. 
+Feel free to leave us feedback by [creating a new issue](https://github.com/skipperbent/simple-php-router/issues/new).
+
+**Experiencing an issue?**
+
+Please refer to our [Help and support](#help-and-support) section in the documentation before reporting a new issue.
+
+### Contribution development guidelines
+
+- Please try to follow the PSR-2 codestyle guidelines.
+
+- Please create your pull requests to the development base that matches the version number you want to change.
+For example when pushing changes to version 3, the pull request should use the `v3-development` base/branch.
+
+- Create detailed descriptions for your commits, as these will be used in the changelog for new releases.
+
+- When changing existing functionality, please ensure that the unit-tests working.
+
+- When adding new stuff, please remember to add new unit-tests for the functionality.
 
 ---
 

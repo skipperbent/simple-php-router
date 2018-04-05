@@ -9,8 +9,8 @@ use Pecee\Http\Security\ITokenProvider;
 
 class BaseCsrfVerifier implements IMiddleware
 {
-    const POST_KEY = 'csrf-token';
-    const HEADER_KEY = 'X-CSRF-TOKEN';
+    public const POST_KEY = 'csrf-token';
+    public const HEADER_KEY = 'X-CSRF-TOKEN';
 
     protected $except;
     protected $tokenProvider;
@@ -29,21 +29,21 @@ class BaseCsrfVerifier implements IMiddleware
      * @param Request $request
      * @return bool
      */
-    protected function skip(Request $request)
+    protected function skip(Request $request): bool
     {
-        if ($this->except === null || count($this->except) === 0) {
+        if ($this->except === null || \count($this->except) === 0) {
             return false;
         }
 
-        $max = count($this->except) - 1;
+        $max = \count($this->except) - 1;
 
         for ($i = $max; $i >= 0; $i--) {
             $url = $this->except[$i];
 
             $url = rtrim($url, '/');
-            if ($url[strlen($url) - 1] === '*') {
+            if ($url[\strlen($url) - 1] === '*') {
                 $url = rtrim($url, '*');
-                $skip = (stripos($request->getUrl()->getOriginalUrl(), $url) === 0);
+                $skip = $request->getUrl()->contains($url);
             } else {
                 $skip = ($url === $request->getUrl()->getOriginalUrl());
             }
@@ -62,19 +62,18 @@ class BaseCsrfVerifier implements IMiddleware
      * @param Request $request
      * @throws TokenMismatchException
      */
-    public function handle(Request $request)
+    public function handle(Request $request): void
     {
 
-        if ($this->skip($request) === false && in_array($request->getMethod(), ['post', 'put', 'delete'], false) === true) {
+        if ($this->skip($request) === false && \in_array($request->getMethod(), ['post', 'put', 'delete'], true) === true) {
 
-            $token = $request->getInput()->get(static::POST_KEY, null, 'post');
+            $token = $request->getInputHandler()->getValue(
+                static::POST_KEY,
+                $request->getHeader(static::HEADER_KEY),
+                'post'
+            );
 
-            // If the token is not posted, check headers for valid x-csrf-token
-            if ($token === null) {
-                $token = $request->getHeader(static::HEADER_KEY);
-            }
-
-            if ($this->tokenProvider->validate($token) === false) {
+            if ($this->tokenProvider->validate((string)$token) === false) {
                 throw new TokenMismatchException('Invalid CSRF-token.');
             }
 
@@ -85,7 +84,7 @@ class BaseCsrfVerifier implements IMiddleware
 
     }
 
-    public function getTokenProvider()
+    public function getTokenProvider(): ITokenProvider
     {
         return $this->tokenProvider;
     }
@@ -94,7 +93,7 @@ class BaseCsrfVerifier implements IMiddleware
      * Set token provider
      * @param ITokenProvider $provider
      */
-    public function setTokenProvider(ITokenProvider $provider)
+    public function setTokenProvider(ITokenProvider $provider): void
     {
         $this->tokenProvider = $provider;
     }

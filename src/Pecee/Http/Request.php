@@ -2,61 +2,94 @@
 
 namespace Pecee\Http;
 
-use Pecee\Http\Input\Input;
+use Pecee\Http\Exceptions\MalformedUrlException;
+use Pecee\Http\Input\InputHandler;
 use Pecee\SimpleRouter\Route\ILoadableRoute;
 use Pecee\SimpleRouter\Route\RouteUrl;
 use Pecee\SimpleRouter\SimpleRouter;
 
 class Request
 {
+    /**
+     * Additional data
+     *
+     * @var array
+     */
     private $data = [];
-    protected $headers;
-    protected $host;
-    protected $url;
-    protected $method;
-    protected $input;
 
-    protected $hasRewrite = false;
+    /**
+     * Server headers
+     * @var array
+     */
+    protected $headers = [];
+
+    /**
+     * Request host
+     * @var string
+     */
+    protected $host;
+
+    /**
+     * Current request url
+     * @var Url
+     */
+    protected $url;
+
+    /**
+     * Request method
+     * @var string
+     */
+    protected $method;
+
+    /**
+     * Input handler
+     * @var InputHandler
+     */
+    protected $inputHandler;
+
+    /**
+     * Defines if request has pending rewrite
+     * @var bool
+     */
+    protected $hasPendingRewrite = false;
 
     /**
      * @var ILoadableRoute|null
      */
     protected $rewriteRoute;
+
+    /**
+     * Rewrite url
+     * @var string|null
+     */
     protected $rewriteUrl;
 
     /**
-     * @var ILoadableRoute|null
+     * @var array
      */
-    protected $loadedRoute;
+    protected $loadedRoutes = [];
 
     /**
      * Request constructor.
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
+     * @throws MalformedUrlException
      */
     public function __construct()
     {
-        $this->parseHeaders();
-        $this->setHost($this->getHeader('http-host'));
-
-        // Check if special IIS header exist, otherwise use default.
-        $this->setUrl($this->getHeader('unencoded-url', $this->getHeader('request-uri')));
-
-        $this->input = new Input($this);
-        $this->method = strtolower($this->input->get('_method', $this->getHeader('request-method')));
-    }
-
-    protected function parseHeaders()
-    {
-        $this->headers = [];
-
         foreach ($_SERVER as $key => $value) {
             $this->headers[strtolower($key)] = $value;
             $this->headers[strtolower(str_replace('_', '-', $key))] = $value;
         }
 
+        $this->setHost($this->getHeader('http-host'));
+
+        // Check if special IIS header exist, otherwise use default.
+        $this->setUrl(new Url($this->getHeader('unencoded-url', $this->getHeader('request-uri'))));
+
+        $this->inputHandler = new InputHandler($this);
+        $this->method = strtolower($this->inputHandler->getValue('_method', $this->getHeader('request-method')));
     }
 
-    public function isSecure()
+    public function isSecure(): bool
     {
         return $this->getHeader('http-x-forwarded-proto') === 'https' || $this->getHeader('https') !== null || $this->getHeader('server-port') === 443;
     }
@@ -64,23 +97,33 @@ class Request
     /**
      * @return Url
      */
-    public function getUrl()
+    public function getUrl(): Url
     {
         return $this->url;
     }
 
     /**
-     * @return string
+     * Copy url object
+     *
+     * @return Url
      */
-    public function getHost()
+    public function getUrlCopy(): Url
+    {
+        return clone $this->url;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getHost(): ?string
     {
         return $this->host;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getMethod()
+    public function getMethod(): ?string
     {
         return $this->method;
     }
@@ -89,7 +132,7 @@ class Request
      * Get http basic auth user
      * @return string|null
      */
-    public function getUser()
+    public function getUser(): ?string
     {
         return $this->getHeader('php-auth-user');
     }
@@ -98,7 +141,7 @@ class Request
      * Get http basic auth password
      * @return string|null
      */
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return $this->getHeader('php-auth-pw');
     }
@@ -107,16 +150,16 @@ class Request
      * Get all headers
      * @return array
      */
-    public function getHeaders()
+    public function getHeaders(): array
     {
         return $this->headers;
     }
 
     /**
      * Get id address
-     * @return string
+     * @return string|null
      */
-    public function getIp()
+    public function getIp(): ?string
     {
         if ($this->getHeader('http-cf-connecting-ip') !== null) {
             return $this->getHeader('http-cf-connecting-ip');
@@ -133,27 +176,27 @@ class Request
      * Get remote address/ip
      *
      * @alias static::getIp
-     * @return string
+     * @return string|null
      */
-    public function getRemoteAddr()
+    public function getRemoteAddr(): ?string
     {
         return $this->getIp();
     }
 
     /**
      * Get referer
-     * @return string
+     * @return string|null
      */
-    public function getReferer()
+    public function getReferer(): ?string
     {
         return $this->getHeader('http-referer');
     }
 
     /**
      * Get user agent
-     * @return string
+     * @return string|null
      */
-    public function getUserAgent()
+    public function getUserAgent(): ?string
     {
         return $this->getHeader('http-user-agent');
     }
@@ -166,18 +209,18 @@ class Request
      *
      * @return string|null
      */
-    public function getHeader($name, $defaultValue = null)
+    public function getHeader($name, $defaultValue = null): ?string
     {
-        return isset($this->headers[strtolower($name)]) ? $this->headers[strtolower($name)] : $defaultValue;
+        return $this->headers[strtolower($name)] ?? $defaultValue;
     }
 
     /**
      * Get input class
-     * @return Input
+     * @return InputHandler
      */
-    public function getInput()
+    public function getInputHandler(): InputHandler
     {
-        return $this->input;
+        return $this->inputHandler;
     }
 
     /**
@@ -187,9 +230,9 @@ class Request
      *
      * @return bool
      */
-    public function isFormatAccepted($format)
+    public function isFormatAccepted($format): bool
     {
-        return ($this->getHeader('http-accept') !== null && stripos($this->getHeader('http-accept'), $format) > -1);
+        return ($this->getHeader('http-accept') !== null && stripos($this->getHeader('http-accept'), $format) !== false);
     }
 
     /**
@@ -197,7 +240,7 @@ class Request
      *
      * @return bool
      */
-    public function isAjax()
+    public function isAjax(): bool
     {
         return (strtolower($this->getHeader('http-x-requested-with')) === 'xmlhttprequest');
     }
@@ -206,24 +249,27 @@ class Request
      * Get accept formats
      * @return array
      */
-    public function getAcceptFormats()
+    public function getAcceptFormats(): array
     {
         return explode(',', $this->getHeader('http-accept'));
     }
 
     /**
-     * @param string|Url $url
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
+     * @param Url $url
      */
-    public function setUrl($url)
+    public function setUrl(Url $url): void
     {
-        $this->url = ($url instanceof Url) ? $url : new Url($url);
+        $this->url = $url;
+
+        if ($this->url->getHost() === null) {
+            $this->url->setHost((string)$this->getHost());
+        }
     }
 
     /**
-     * @param string $host
+     * @param string|null $host
      */
-    public function setHost($host)
+    public function setHost(?string $host): void
     {
         $this->host = $host;
     }
@@ -231,7 +277,7 @@ class Request
     /**
      * @param string $method
      */
-    public function setMethod($method)
+    public function setMethod(string $method): void
     {
         $this->method = $method;
     }
@@ -242,9 +288,9 @@ class Request
      * @param ILoadableRoute $route
      * @return static
      */
-    public function setRewriteRoute(ILoadableRoute $route)
+    public function setRewriteRoute(ILoadableRoute $route): self
     {
-        $this->hasRewrite = true;
+        $this->hasPendingRewrite = true;
         $this->rewriteRoute = SimpleRouter::addDefaultNamespace($route);
 
         return $this;
@@ -255,7 +301,7 @@ class Request
      *
      * @return ILoadableRoute|null
      */
-    public function getRewriteRoute()
+    public function getRewriteRoute(): ?ILoadableRoute
     {
         return $this->rewriteRoute;
     }
@@ -263,9 +309,9 @@ class Request
     /**
      * Get rewrite url
      *
-     * @return string
+     * @return string|null
      */
-    public function getRewriteUrl()
+    public function getRewriteUrl(): ?string
     {
         return $this->rewriteUrl;
     }
@@ -276,9 +322,9 @@ class Request
      * @param string $rewriteUrl
      * @return static
      */
-    public function setRewriteUrl($rewriteUrl)
+    public function setRewriteUrl(string $rewriteUrl): self
     {
-        $this->hasRewrite = true;
+        $this->hasPendingRewrite = true;
         $this->rewriteUrl = rtrim($rewriteUrl, '/') . '/';
 
         return $this;
@@ -286,12 +332,12 @@ class Request
 
     /**
      * Set rewrite callback
-     * @param string $callback
+     * @param string|\Closure $callback
      * @return static
      */
-    public function setRewriteCallback($callback)
+    public function setRewriteCallback($callback): self
     {
-        $this->hasRewrite = true;
+        $this->hasPendingRewrite = true;
 
         return $this->setRewriteRoute(new RouteUrl($this->getUrl()->getPath(), $callback));
     }
@@ -300,44 +346,73 @@ class Request
      * Get loaded route
      * @return ILoadableRoute|null
      */
-    public function getLoadedRoute()
+    public function getLoadedRoute(): ?ILoadableRoute
     {
-        return $this->loadedRoute;
+        return (\count($this->loadedRoutes) > 0) ? end($this->loadedRoutes) : null;
     }
 
     /**
-     * Set loaded route
+     * Get all loaded routes
+     *
+     * @return array
+     */
+    public function getLoadedRoutes(): array
+    {
+        return $this->loadedRoutes;
+    }
+
+    /**
+     * Set loaded routes
+     *
+     * @param array $routes
+     * @return static
+     */
+    public function setLoadedRoutes(array $routes): self
+    {
+        $this->loadedRoutes = $routes;
+
+        return $this;
+    }
+
+    /**
+     * Added loaded route
      *
      * @param ILoadableRoute $route
      * @return static
      */
-    public function setLoadedRoute(ILoadableRoute $route)
+    public function addLoadedRoute(ILoadableRoute $route): self
     {
-        $this->loadedRoute = $route;
+        $this->loadedRoutes[] = $route;
 
         return $this;
     }
 
-    public function hasRewrite()
+    /**
+     * Returns true if the request contains a rewrite
+     *
+     * @return bool
+     */
+    public function hasPendingRewrite(): bool
     {
-        return $this->hasRewrite;
+        return $this->hasPendingRewrite;
     }
 
-    public function setHasRewrite($value)
+    /**
+     * Defines if the current request contains a rewrite.
+     *
+     * @param bool $boolean
+     * @return Request
+     */
+    public function setHasPendingRewrite(bool $boolean): self
     {
-        $this->hasRewrite = $value;
+        $this->hasPendingRewrite = $boolean;
 
         return $this;
-    }
-
-    public function isRewrite($url)
-    {
-        return ($this->rewriteUrl === $url);
     }
 
     public function __isset($name)
     {
-        return array_key_exists($name, $this->data);
+        return array_key_exists($name, $this->data) === true;
     }
 
     public function __set($name, $value = null)
@@ -347,7 +422,7 @@ class Request
 
     public function __get($name)
     {
-        return isset($this->data[$name]) ? $this->data[$name] : null;
+        return $this->data[$name] ?? null;
     }
 
 }

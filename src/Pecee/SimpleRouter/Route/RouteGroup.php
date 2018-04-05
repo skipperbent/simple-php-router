@@ -2,8 +2,8 @@
 
 namespace Pecee\SimpleRouter\Route;
 
-use Pecee\Handlers\IExceptionHandler;
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\Handlers\IExceptionHandler;
 
 class RouteGroup extends Route implements IGroupRoute
 {
@@ -18,9 +18,9 @@ class RouteGroup extends Route implements IGroupRoute
      * @param Request $request
      * @return bool
      */
-    public function matchDomain(Request $request)
+    public function matchDomain(Request $request): bool
     {
-        if ($this->domains === null || count($this->domains) === 0) {
+        if ($this->domains === null || \count($this->domains) === 0) {
             return true;
         }
 
@@ -28,7 +28,7 @@ class RouteGroup extends Route implements IGroupRoute
 
             $parameters = $this->parseParameters($domain, $request->getHost(), '.*');
 
-            if ($parameters !== null && count($parameters) !== 0) {
+            if ($parameters !== null && \count($parameters) !== 0) {
 
                 $this->parameters = $parameters;
 
@@ -46,9 +46,9 @@ class RouteGroup extends Route implements IGroupRoute
      * @param Request $request
      * @return bool
      */
-    public function matchRoute($url, Request $request)
+    public function matchRoute($url, Request $request): bool
     {
-        if($this->getGroup() !== null && $this->getGroup()->matchRoute($url, $request) === false) {
+        if ($this->getGroup() !== null && $this->getGroup()->matchRoute($url, $request) === false) {
             return false;
         }
 
@@ -64,9 +64,9 @@ class RouteGroup extends Route implements IGroupRoute
      * Add exception handler
      *
      * @param IExceptionHandler|string $handler
-     * @return static $this
+     * @return static
      */
-    public function addExceptionHandler($handler)
+    public function addExceptionHandler($handler): IGroupRoute
     {
         $this->exceptionHandlers[] = $handler;
 
@@ -77,9 +77,9 @@ class RouteGroup extends Route implements IGroupRoute
      * Set exception-handlers for group
      *
      * @param array $handlers
-     * @return static $this
+     * @return static
      */
-    public function setExceptionHandlers(array $handlers)
+    public function setExceptionHandlers(array $handlers): IGroupRoute
     {
         $this->exceptionHandlers = $handlers;
 
@@ -91,7 +91,7 @@ class RouteGroup extends Route implements IGroupRoute
      *
      * @return array
      */
-    public function getExceptionHandlers()
+    public function getExceptionHandlers(): array
     {
         return $this->exceptionHandlers;
     }
@@ -101,7 +101,7 @@ class RouteGroup extends Route implements IGroupRoute
      *
      * @return array
      */
-    public function getDomains()
+    public function getDomains(): array
     {
         return $this->domains;
     }
@@ -110,9 +110,9 @@ class RouteGroup extends Route implements IGroupRoute
      * Set allowed domains for group.
      *
      * @param array $domains
-     * @return $this
+     * @return static
      */
-    public function setDomains(array $domains)
+    public function setDomains(array $domains): IGroupRoute
     {
         $this->domains = $domains;
 
@@ -123,7 +123,7 @@ class RouteGroup extends Route implements IGroupRoute
      * @param string $prefix
      * @return static
      */
-    public function setPrefix($prefix)
+    public function setPrefix($prefix): IGroupRoute
     {
         $this->prefix = '/' . trim($prefix, '/');
 
@@ -133,9 +133,9 @@ class RouteGroup extends Route implements IGroupRoute
     /**
      * Set prefix that child-routes will inherit.
      *
-     * @return string
+     * @return string|null
      */
-    public function getPrefix()
+    public function getPrefix(): ?string
     {
         return $this->prefix;
     }
@@ -147,7 +147,7 @@ class RouteGroup extends Route implements IGroupRoute
      * @param bool $merge
      * @return static
      */
-    public function setSettings(array $values, $merge = false)
+    public function setSettings(array $values, bool $merge = false): IRoute
     {
 
         if (isset($values['prefix']) === true) {
@@ -183,7 +183,7 @@ class RouteGroup extends Route implements IGroupRoute
      *
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         $values = [];
 
@@ -195,7 +195,7 @@ class RouteGroup extends Route implements IGroupRoute
             $values['as'] = $this->name;
         }
 
-        if (count($this->parameters) !== 0) {
+        if (\count($this->parameters) !== 0) {
             $values['parameters'] = $this->parameters;
         }
 

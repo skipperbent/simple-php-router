@@ -3,6 +3,7 @@
 namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\Router;
 
 interface IRoute
 {
@@ -13,17 +14,18 @@ interface IRoute
      * @param Request $request
      * @return bool
      */
-    public function matchRoute($route, Request $request);
+    public function matchRoute($route, Request $request): bool;
 
     /**
      * Called when route is matched.
      * Returns class to be rendered.
      *
      * @param Request $request
+     * @param Router $router
      * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
      * @return string
      */
-    public function renderRoute(Request $request);
+    public function renderRoute(Request $request, Router $router): ?string;
 
     /**
      * Returns callback name/identifier for the current route based on the callback.
@@ -32,50 +34,50 @@ interface IRoute
      *
      * @return string
      */
-    public function getIdentifier();
+    public function getIdentifier(): string;
 
     /**
      * Set allowed request methods
      *
      * @param array $methods
-     * @return static $this
+     * @return static
      */
-    public function setRequestMethods(array $methods);
+    public function setRequestMethods(array $methods): self;
 
     /**
      * Get allowed request methods
      *
      * @return array
      */
-    public function getRequestMethods();
+    public function getRequestMethods(): array;
 
     /**
      * @return IRoute|null
      */
-    public function getParent();
+    public function getParent(): ?IRoute;
 
     /**
      * Get the group for the route.
      *
      * @return IGroupRoute|null
      */
-    public function getGroup();
+    public function getGroup(): ?IGroupRoute;
 
     /**
      * Set group
      *
      * @param IGroupRoute $group
-     * @return static $this
+     * @return static
      */
-    public function setGroup(IGroupRoute $group);
+    public function setGroup(IGroupRoute $group): self;
 
     /**
      * Set parent route
      *
      * @param IRoute $parent
-     * @return static $this
+     * @return static
      */
-    public function setParent(IRoute $parent);
+    public function setParent(IRoute $parent): self;
 
     /**
      * Set callback
@@ -83,44 +85,64 @@ interface IRoute
      * @param string $callback
      * @return static
      */
-    public function setCallback($callback);
+    public function setCallback($callback): self;
 
     /**
-     * @return string
+     * @return string|callable
      */
     public function getCallback();
 
-    public function getMethod();
+    /**
+     * Return active method
+     *
+     * @return string|null
+     */
+    public function getMethod(): ?string;
 
-    public function getClass();
+    /**
+     * Set active method
+     *
+     * @param string $method
+     * @return static
+     */
+    public function setMethod(string $method): self;
 
-    public function setMethod($method);
+    /**
+     * Get class
+     *
+     * @return string|null
+     */
+    public function getClass(): ?string;
 
     /**
      * @param string $namespace
-     * @return static $this
+     * @return static
      */
-    public function setNamespace($namespace);
+    public function setNamespace(string $namespace): self;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getNamespace();
+    public function getNamespace(): ?string;
 
     /**
      * @param string $namespace
-     * @return static $this
+     * @return static
      */
-    public function setDefaultNamespace($namespace);
+    public function setDefaultNamespace($namespace): IRoute;
 
-    public function getDefaultNamespace();
+    /**
+     * Get default namespace
+     * @return string|null
+     */
+    public function getDefaultNamespace(): ?string;
 
     /**
      * Get parameter names.
      *
      * @return array
      */
-    public function getWhere();
+    public function getWhere(): array;
 
     /**
      * Set parameter names.
@@ -128,45 +150,45 @@ interface IRoute
      * @param array $options
      * @return static
      */
-    public function setWhere(array $options);
+    public function setWhere(array $options): self;
 
     /**
      * Get parameters
      *
      * @return array
      */
-    public function getParameters();
+    public function getParameters(): array;
 
     /**
      * Get parameters
      *
      * @param array $parameters
-     * @return static $this
+     * @return static
      */
-    public function setParameters(array $parameters);
+    public function setParameters(array $parameters): self;
 
     /**
      * Merge with information from another route.
      *
      * @param array $settings
      * @param bool $merge
-     * @return static $this
+     * @return static
      */
-    public function setSettings(array $settings, $merge = false);
+    public function setSettings(array $settings, bool $merge = false): self;
 
     /**
      * Export route settings to array so they can be merged with another route.
      *
      * @return array
      */
-    public function toArray();
+    public function toArray(): array;
 
     /**
      * Get middlewares array
      *
      * @return array
      */
-    public function getMiddlewares();
+    public function getMiddlewares(): array;
 
     /**
      * Set middleware class-name
@@ -174,14 +196,14 @@ interface IRoute
      * @param string $middleware
      * @return static
      */
-    public function addMiddleware($middleware);
+    public function addMiddleware($middleware): self;
 
     /**
      * Set middlewares array
      *
      * @param array $middlewares
-     * @return $this
+     * @return static
      */
-    public function setMiddlewares(array $middlewares);
+    public function setMiddlewares(array $middlewares): self;
 
 }

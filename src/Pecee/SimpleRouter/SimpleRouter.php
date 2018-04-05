@@ -10,15 +10,23 @@
 
 namespace Pecee\SimpleRouter;
 
+use DI\Container;
 use Pecee\Exceptions\InvalidArgumentException;
-use Pecee\Handlers\CallbackExceptionHandler;
+use Pecee\Http\Exceptions\MalformedUrlException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
+use Pecee\Http\Request;
 use Pecee\Http\Response;
+use Pecee\Http\Url;
+use Pecee\SimpleRouter\ClassLoader\IClassLoader;
 use Pecee\SimpleRouter\Exceptions\HttpException;
+use Pecee\SimpleRouter\Handlers\CallbackExceptionHandler;
+use Pecee\SimpleRouter\Handlers\IEventHandler;
+use Pecee\SimpleRouter\Route\IGroupRoute;
+use Pecee\SimpleRouter\Route\IPartialGroupRoute;
 use Pecee\SimpleRouter\Route\IRoute;
-use Pecee\SimpleRouter\Route\RoutePartialGroup;
 use Pecee\SimpleRouter\Route\RouteController;
 use Pecee\SimpleRouter\Route\RouteGroup;
+use Pecee\SimpleRouter\Route\RoutePartialGroup;
 use Pecee\SimpleRouter\Route\RouteResource;
 use Pecee\SimpleRouter\Route\RouteUrl;
 
@@ -26,7 +34,7 @@ class SimpleRouter
 {
     /**
      * Default namespace added to all routes
-     * @var string
+     * @var string|null
      */
     protected static $defaultNamespace;
 
@@ -43,13 +51,72 @@ class SimpleRouter
     protected static $router;
 
     /**
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
+     * Start routing
+     *
+     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
+     * @throws \Pecee\Http\Middleware\Exceptions\TokenMismatchException
      * @throws HttpException
      * @throws \Exception
      */
-    public static function start()
+    public static function start(): void
     {
-        echo static::router()->routeRequest();
+        echo static::router()->start();
+    }
+
+    /**
+     * Start the routing an return array with debugging-information
+     *
+     * @return array
+     */
+    public static function startDebug(): array
+    {
+        $routerOutput = null;
+
+        try {
+            ob_start();
+            static::router()->setDebugEnabled(true);
+            static::start();
+            $routerOutput = ob_get_contents();
+            ob_end_clean();
+        } catch (\Exception $e) {
+
+        }
+
+        // Try to parse library version
+        $composerFile = \dirname(__DIR__, 3) . '/composer.lock';
+        $version = false;
+
+        if (is_file($composerFile) === true) {
+            $composerInfo = json_decode(file_get_contents($composerFile), true);
+
+            if (isset($composerInfo['packages']) === true && \is_array($composerInfo['packages']) === true) {
+                foreach ($composerInfo['packages'] as $package) {
+                    if (isset($package['name']) === true && strtolower($package['name']) === 'pecee/simple-router') {
+                        $version = $package['version'];
+                        break;
+                    }
+                }
+            }
+        }
+
+        $request = static::request();
+        $router = static::router();
+
+        return [
+            'url'             => $request->getUrl(),
+            'method'          => $request->getMethod(),
+            'host'            => $request->getHost(),
+            'loaded_routes'   => $request->getLoadedRoutes(),
+            'all_routes'      => $router->getRoutes(),
+            'boot_managers'   => $router->getBootManagers(),
+            'csrf_verifier'   => $router->getCsrfVerifier(),
+            'log'             => $router->getDebugLog(),
+            'event_handlers'  => $router->getEventHandlers(),
+            'router_output'   => $routerOutput,
+            'library_version' => $version,
+            'php_version'     => PHP_VERSION,
+            'server_params'   => $request->getHeaders(),
+        ];
     }
 
     /**
@@ -57,7 +124,7 @@ class SimpleRouter
      *
      * @param string $defaultNamespace
      */
-    public static function setDefaultNamespace($defaultNamespace)
+    public static function setDefaultNamespace(string $defaultNamespace): void
     {
         static::$defaultNamespace = $defaultNamespace;
     }
@@ -66,11 +133,20 @@ class SimpleRouter
      * Base CSRF verifier
      *
      * @param BaseCsrfVerifier $baseCsrfVerifier
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function csrfVerifier(BaseCsrfVerifier $baseCsrfVerifier)
+    public static function csrfVerifier(BaseCsrfVerifier $baseCsrfVerifier): void
     {
         static::router()->setCsrfVerifier($baseCsrfVerifier);
+    }
+
+    /**
+     * Add new event handler to the router
+     *
+     * @param IEventHandler $eventHandler
+     */
+    public static function addEventHandler(IEventHandler $eventHandler): void
+    {
+        static::router()->addEventHandler($eventHandler);
     }
 
     /**
@@ -78,9 +154,8 @@ class SimpleRouter
      * Perfect if you want to load pretty-urls from a file or database.
      *
      * @param IRouterBootManager $bootManager
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function addBootManager(IRouterBootManager $bootManager)
+    public static function addBootManager(IRouterBootManager $bootManager): void
     {
         static::router()->addBootManager($bootManager);
     }
@@ -93,9 +168,8 @@ class SimpleRouter
      * @param array|null $settings
      *
      * @return RouteUrl
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function get($url, $callback, array $settings = null)
+    public static function get(string $url, $callback, array $settings = null): IRoute
     {
         return static::match(['get'], $url, $callback, $settings);
     }
@@ -107,9 +181,8 @@ class SimpleRouter
      * @param string|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function post($url, $callback, array $settings = null)
+    public static function post(string $url, $callback, array $settings = null): IRoute
     {
         return static::match(['post'], $url, $callback, $settings);
     }
@@ -121,9 +194,8 @@ class SimpleRouter
      * @param string|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function put($url, $callback, array $settings = null)
+    public static function put(string $url, $callback, array $settings = null): IRoute
     {
         return static::match(['put'], $url, $callback, $settings);
     }
@@ -135,9 +207,8 @@ class SimpleRouter
      * @param string|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function patch($url, $callback, array $settings = null)
+    public static function patch(string $url, $callback, array $settings = null): IRoute
     {
         return static::match(['patch'], $url, $callback, $settings);
     }
@@ -149,9 +220,8 @@ class SimpleRouter
      * @param string|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function options($url, $callback, array $settings = null)
+    public static function options(string $url, $callback, array $settings = null): IRoute
     {
         return static::match(['options'], $url, $callback, $settings);
     }
@@ -163,9 +233,8 @@ class SimpleRouter
      * @param string|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function delete($url, $callback, array $settings = null)
+    public static function delete(string $url, $callback, array $settings = null): IRoute
     {
         return static::match(['delete'], $url, $callback, $settings);
     }
@@ -176,12 +245,11 @@ class SimpleRouter
      * @param array $settings
      * @param \Closure $callback
      * @return RouteGroup
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      * @throws InvalidArgumentException
      */
-    public static function group(array $settings = [], \Closure $callback)
+    public static function group(array $settings = [], \Closure $callback): IGroupRoute
     {
-        if (is_callable($callback) === false) {
+        if (\is_callable($callback) === false) {
             throw new InvalidArgumentException('Invalid callback provided. Only functions or methods supported');
         }
 
@@ -202,12 +270,11 @@ class SimpleRouter
      * @param \Closure $callback
      * @param array $settings
      * @return RoutePartialGroup
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      * @throws InvalidArgumentException
      */
-    public static function partialGroup($url, \Closure $callback, array $settings = [])
+    public static function partialGroup(string $url, \Closure $callback, array $settings = []): IPartialGroupRoute
     {
-        if (is_callable($callback) === false) {
+        if (\is_callable($callback) === false) {
             throw new InvalidArgumentException('Invalid callback provided. Only functions or methods supported');
         }
 
@@ -230,9 +297,8 @@ class SimpleRouter
      * @param array|null $settings
      * @see SimpleRouter::form
      * @return RouteUrl
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function basic($url, $callback, array $settings = null)
+    public static function basic(string $url, $callback, array $settings = null): IRoute
     {
         return static::match(['get', 'post'], $url, $callback, $settings);
     }
@@ -246,9 +312,8 @@ class SimpleRouter
      * @param array|null $settings
      * @see SimpleRouter::form
      * @return RouteUrl
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function form($url, $callback, array $settings = null)
+    public static function form(string $url, $callback, array $settings = null): IRoute
     {
         return static::match(['get', 'post'], $url, $callback, $settings);
     }
@@ -261,9 +326,8 @@ class SimpleRouter
      * @param string|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl|IRoute
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function match(array $requestMethods, $url, $callback, array $settings = null)
+    public static function match(array $requestMethods, string $url, $callback, array $settings = null)
     {
         $route = new RouteUrl($url, $callback);
         $route->setRequestMethods($requestMethods);
@@ -285,9 +349,8 @@ class SimpleRouter
      * @param string|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl|IRoute
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function all($url, $callback, array $settings = null)
+    public static function all(string $url, $callback, array $settings = null)
     {
         $route = new RouteUrl($url, $callback);
         $route = static::addDefaultNamespace($route);
@@ -308,9 +371,8 @@ class SimpleRouter
      * @param string $controller
      * @param array|null $settings
      * @return RouteController|IRoute
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function controller($url, $controller, array $settings = null)
+    public static function controller(string $url, $controller, array $settings = null)
     {
         $route = new RouteController($url, $controller);
         $route = static::addDefaultNamespace($route);
@@ -331,9 +393,8 @@ class SimpleRouter
      * @param string $controller
      * @param array|null $settings
      * @return RouteResource|IRoute
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function resource($url, $controller, array $settings = null)
+    public static function resource(string $url, $controller, array $settings = null)
     {
         $route = new RouteResource($url, $controller);
         $route = static::addDefaultNamespace($route);
@@ -352,9 +413,8 @@ class SimpleRouter
      *
      * @param \Closure $callback
      * @return CallbackExceptionHandler $callbackHandler
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function error(\Closure $callback)
+    public static function error(\Closure $callback): CallbackExceptionHandler
     {
         $routes = static::router()->getRoutes();
 
@@ -385,22 +445,30 @@ class SimpleRouter
      * @param string|null $name
      * @param string|array|null $parameters
      * @param array|null $getParams
-     * @throws \Pecee\Exceptions\InvalidArgumentException
-     * @return string
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
+     * @return Url
      */
-    public static function getUrl($name = null, $parameters = null, $getParams = null)
+    public static function getUrl(?string $name = null, $parameters = null, ?array $getParams = null): Url
     {
-        return static::router()->getUrl($name, $parameters, $getParams);
+        try {
+            return static::router()->getUrl($name, $parameters, $getParams);
+        } catch (\Exception $e) {
+            try {
+                return new Url('/');
+            } catch (MalformedUrlException $e) {
+
+            }
+        }
+
+        // This will never happen...
+        return null;
     }
 
     /**
      * Get the request
      *
      * @return \Pecee\Http\Request
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function request()
+    public static function request(): Request
     {
         return static::router()->getRequest();
     }
@@ -409,9 +477,8 @@ class SimpleRouter
      * Get the response object
      *
      * @return Response
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function response()
+    public static function response(): Response
     {
         if (static::$response === null) {
             static::$response = new Response(static::request());
@@ -424,9 +491,8 @@ class SimpleRouter
      * Returns the router instance
      *
      * @return Router
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
-    public static function router()
+    public static function router(): Router
     {
         if (static::$router === null) {
             static::$router = new Router();
@@ -441,14 +507,14 @@ class SimpleRouter
      * @param IRoute $route
      * @return IRoute
      */
-    public static function addDefaultNamespace(IRoute $route)
+    public static function addDefaultNamespace(IRoute $route): IRoute
     {
         if (static::$defaultNamespace !== null) {
 
             $callback = $route->getCallback();
 
             /* Only add default namespace on relative callbacks */
-            if ($callback === null || (is_string($callback) === true && $callback[0] !== '\\')) {
+            if ($callback === null || (\is_string($callback) === true && $callback[0] !== '\\')) {
 
                 $namespace = static::$defaultNamespace;
 
@@ -467,10 +533,24 @@ class SimpleRouter
     }
 
     /**
-     * Get default namespace
-     * @return string
+     * Enable or disable dependency injection
+     *
+     * @param Container $container
+     * @return IClassLoader
      */
-    public static function getDefaultNamespace()
+    public static function enableDependencyInjection(Container $container): IClassLoader
+    {
+        return static::router()
+            ->getClassLoader()
+            ->useDependencyInjection(true)
+            ->setContainer($container);
+    }
+
+    /**
+     * Get default namespace
+     * @return string|null
+     */
+    public static function getDefaultNamespace(): ?string
     {
         return static::$defaultNamespace;
     }

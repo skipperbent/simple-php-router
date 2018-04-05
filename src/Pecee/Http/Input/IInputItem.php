@@ -5,18 +5,18 @@ namespace Pecee\Http\Input;
 interface IInputItem
 {
 
-    public function getIndex();
+    public function getIndex(): string;
 
-    public function setIndex($index);
+    public function setIndex(string $index): self;
 
-    public function getName();
+    public function getName(): ?string;
 
-    public function setName($name);
+    public function setName(string $name): self;
 
-    public function getValue();
+    public function getValue(): ?string;
 
-    public function setValue($value);
+    public function setValue(string $value): self;
 
-    public function __toString();
+    public function __toString(): string;
 
 }
