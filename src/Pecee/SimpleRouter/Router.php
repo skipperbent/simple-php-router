@@ -506,7 +506,6 @@ class Router
             }
 
             try {
-
                 $this->debug('Start rendering exception handler');
                 $handler->handleError($this->request, $e);
                 $this->debug('Finished rendering exception-handler');
@@ -565,7 +564,7 @@ class Router
             }
 
             /* Direct match to controller */
-            if ($route instanceof IControllerRoute && strtolower($route->getController()) === strtolower($name)) {
+            if ($route instanceof IControllerRoute && strtoupper($route->getController()) === strtoupper($name)) {
                 $this->debug('Found route "%s" by controller "%s"', $route->getUrl(), $name);
 
                 return $route;
@@ -805,26 +804,20 @@ class Router
      * Set csrf verifier class
      *
      * @param BaseCsrfVerifier $csrfVerifier
-     * @return static
      */
-    public function setCsrfVerifier(BaseCsrfVerifier $csrfVerifier): self
+    public function setCsrfVerifier(BaseCsrfVerifier $csrfVerifier): void
     {
         $this->csrfVerifier = $csrfVerifier;
-
-        return $this;
     }
 
     /**
      * Set class loader
      *
      * @param IClassLoader $loader
-     * @return static
      */
-    public function setClassLoader(IClassLoader $loader)
+    public function setClassLoader(IClassLoader $loader): void
     {
         $this->classLoader = $loader;
-
-        return $this;
     }
 
     /**
@@ -841,13 +834,10 @@ class Router
      * Register event handler
      *
      * @param IEventHandler $handler
-     * @return static
      */
-    public function addEventHandler(IEventHandler $handler): self
+    public function addEventHandler(IEventHandler $handler): void
     {
         $this->eventHandlers[] = $handler;
-
-        return $this;
     }
 
     /**

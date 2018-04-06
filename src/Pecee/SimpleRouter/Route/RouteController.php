@@ -95,7 +95,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
         /* Match global regular-expression for route */
         $regexMatch = $this->matchRegex($request, $url);
 
-        if ($regexMatch === false || (stripos($url, $this->url) !== 0 && strtolower($url) !== strtolower($this->url))) {
+        if ($regexMatch === false || (stripos($url, $this->url) !== 0 && strtoupper($url) !== strtoupper($this->url))) {
             return false;
         }
 
@@ -177,9 +177,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
             $this->names = $values['names'];
         }
 
-        parent::setSettings($values, $merge);
-
-        return $this;
+        return parent::setSettings($values, $merge);
     }
 
 }

@@ -1,7 +1,16 @@
 # simple-router
 
-Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. 
-Heavily inspired by the way Laravel handles routing, with both simplicity and expand-ability in mind.
+Simple, fast and yet powerful PHP router that is easy to get integrated and in any project. Heavily inspired by the way Laravel handles routing, with both simplicity and expand-ability in mind.
+
+With simple-router you can create a new project fast, without depending on a framework.
+
+**It only takes a few lines of code to get started:**
+
+```php
+SimpleRouter::get('/', function() {
+    return 'Hello world';
+});
+```
 
 ### Support the project
 
@@ -84,6 +93,9 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 	- [Extending](#extending)
 - [Help and support](#help-and-support)
     - [Common issues and fixes](#common-issues-and-fixes)
+        - [Multiple routes matches? Which one has the priority?](#multiple-routes-matches-which-one-has-the-priority)
+        - [Parameters won't match or route not working with special characters](#parameters-wont-match-or-route-not-working-with-special-characters)
+        - [Using the router on sub-paths](#using-the-router-on-sub-paths)
     - [Debugging](#debugging)
         - [Creating unit-tests](#creating-unit-tests) 
         - [Debug information](#debug-information)
@@ -229,7 +241,9 @@ Simply create a new `web.config` file in your projects `public` directory and pa
 #### Troubleshooting
 
 If you do not have a `favicon.ico` file in your project, you can get a `NotFoundHttpException` (404 - not found).
+
 To add `favicon.ico` to the IIS ignore-list, add the following line to the `<conditions>` group:
+
 ```
 <add input="{REQUEST_FILENAME}" negate="true" pattern="favicon.ico" ignoreCase="true" />
 ```
@@ -239,7 +253,9 @@ You can also make one exception for files with some extensions:
 <add input="{REQUEST_FILENAME}" pattern="\.ico|\.png|\.css|\.jpg" negate="true" ignoreCase="true" />
 ```
 
-If you are using `$_SERVER['ORIG_PATH_INFO']`, you will get `\index.php\` as part of the returned value. For example:
+If you are using `$_SERVER['ORIG_PATH_INFO']`, you will get `\index.php\` as part of the returned value. 
+
+**Example:**
 ```
 /index.php/test/mypage.php
 ```
@@ -332,12 +348,12 @@ function request(): Request
  * @param string|null $index Parameter index name
  * @param string|null $defaultValue Default return value
  * @param array ...$methods Default methods
- * @return \Pecee\Http\Input\InputHandler|string
+ * @return \Pecee\Http\Input\InputHandler|array|string|null
  */
 function input($index = null, $defaultValue = null, ...$methods)
 {
     if ($index !== null) {
-        return request()->getInputHandler()->getValue($index, $defaultValue, ...$methods);
+        return request()->getInputHandler()->value($index, $defaultValue, ...$methods);
     }
 
     return request()->getInputHandler();
@@ -383,7 +399,7 @@ Below is a very basic example of setting up a route. First parameter is the url 
 
 ```php
 SimpleRouter::get('/', function() {
-	return 'Hello world';
+    return 'Hello world';
 });
 ```
 
@@ -406,11 +422,11 @@ Sometimes you might need to create a route that accepts multiple HTTP-verbs. If 
 
 ```php
 SimpleRouter::match(['get', 'post'], '/', function() {
-	// ...
+    // ...
 });
 
 SimpleRouter::any('foo', function() {
-	// ...
+    // ...
 });
 ```
 
@@ -418,7 +434,7 @@ We've created a simple method which matches `GET` and `POST` which is most commo
 
 ```php
 SimpleRouter::form('foo', function() {
-	// ...
+    // ...
 });
 ```
 
@@ -430,7 +446,7 @@ You'll properly wondering by know how you parse parameters from your urls. For e
 
 ```php
 SimpleRouter::get('/user/{id}', function ($userId) {
-	return 'User with id: ' . $userId;
+    return 'User with id: ' . $userId;
 });
 ```
 
@@ -438,7 +454,7 @@ You may define as many route parameters as required by your route:
 
 ```php
 SimpleRouter::get('/posts/{post}/comments/{comment}', function ($postId, $commentId) {
-	// ...
+    // ...
 });
 ```
 
@@ -450,11 +466,11 @@ Occasionally you may need to specify a route parameter, but make the presence of
 
 ```php
 SimpleRouter::get('/user/{name?}', function ($name = null) {
-	return $name;
+    return $name;
 });
 
 SimpleRouter::get('/user/{name?}', function ($name = 'Simon') {
-	return $name;
+    return $name;
 });
 ```
 
@@ -464,15 +480,21 @@ You may constrain the format of your route parameters using the where method on 
 
 ```php
 SimpleRouter::get('/user/{name}', function ($name) {
-    //
+    
+    // ... do stuff
+    
 })->where('name', '[A-Za-z]+');
 
 SimpleRouter::get('/user/{id}', function ($id) {
-    //
+    
+    // ... do stuff
+    
 })->where('id', '[0-9]+');
 
 SimpleRouter::get('/user/{id}/{name}', function ($id, $name) {
-    //
+    
+    // ... do stuff
+    
 })->where(['id' => '[0-9]+', 'name' => '[a-z]+']);
 ```
 
@@ -1136,9 +1158,7 @@ In the example below, we check if the current url contains the `/api` part.
 
 ```php
 if(url()->contains('/api')) {
-    
     // ... do stuff
-    
 }
 ```
 
@@ -1156,86 +1176,82 @@ For more available methods please check the `Pecee\Http\Url` class.
 
 # Input & parameters
 
+simple-router offers libraries and helpers that makes it easy to manage and manipulate input-parameters like `$_POST`, `$_GET` and `$_FILE`.
+
 ## Using the Input class to manage parameters
 
-We've added the `Input` class to easy access and manage parameters from your Controller-classes.
+You can use the `InputHandler` class to easily access and manage parameters from your request. The `InputHandler` class offers extended features such as copying/moving uploaded files directly on the object, getting file-extension, mime-type etc.
 
-### Get single parameter value:
+### Get single parameter value
 
-If items is grouped in the html, it will return an array of items.
+```input($index, $defaultValue, ...$methods);```
 
-**Note:** `get` will automatically trim the value and ensure that it's not empty. If it's empty the `$defaultValue` will be returned.
+To quickly get a value from a parameter, you can use the `input` helper function.
+
+This will automatically trim the value and ensure that it's not empty. If it's empty the `$defaultValue` will be returned instead.
+
+**Note:** 
+This function returns a `string` unless the parameters are grouped together, in that case it will return an `array` of values.
+
+**Example:**
+
+This example matches both POST and GET request-methods and if name is empty the default-value "Guest" will be returned. 
 
 ```php
-$value = input($index, $defaultValue, $methods);
+$name = input('name', 'Guest', 'post', 'get');
 ```
 
 ### Get parameter object
 
-The example below will return an instance of `InputItem` or `InputFile` depending on the type.
+When dealing with file-uploads it can be useful to retrieve the raw parameter object.
 
-You can use this in your html as it will render the value of the item.
+**Search for object with default-value across multiple or specific request-methods:**
 
-If you want to compare value in your if statements, you have to use the `getValue` or use the `input()` helper function instead.
-
-If items is grouped in the html, it will return an array of items.
+The example below will return an `InputItem` object if the parameter was found or return the `$defaultValue`. If parameters are grouped, it will return an array of `InputItem` objects.
 
 ```php
-$object = input()->get($index, $defaultValue = null, $methods = null);
+$object = input()->find($index, $defaultValue = null, ...$methods);
 ```
 
-### Return specific GET parameter (where name is the name of your parameter):
+**Getting specific `$_GET` parameter as `InputItem` object:**
+
+The example below will return an `InputItem` object if the parameter was found or return the `$defaultValue`. If parameters are grouped, it will return an array of `InputItem` objects.
 
 ```php
-# -- match any (default) --
+$object = input()->get($index, $defaultValue = null);
+```
 
-/*
- * This is the recommended way to go for normal usage
- * as it will strip empty values, ensuring that
- * $defaultValue is returned if the value is empty.
- */
+**Getting specific `$_POST` parameter as `InputItem` object:**
 
-$id = input()->getValue($index, $defaultValue, $method);
+The example below will return an `InputItem` object if the parameter was found or return the `$defaultValue`. If parameters are grouped, it will return an array of `InputItem` objects.
 
-# -- shortcut to above --
+```php
+$object = input()->post($index, $defaultValue = null);
+```
 
-$id = input($index, $defaultValue, $method);
+**Getting specific `$_FILE` parameter as `InputFile` object:**
 
-# -- match specific --
+The example below will return an `InputFile` object if the parameter was found or return the `$defaultValue`. If parameters are grouped, it will return an array of `InputFile` objects.
 
-$value = input($index, $defaultValue, 'get');
-$value = input($index, $defaultValue, 'post');
-$value = input($index, $defaultValue, 'file');
-
-# -- or --
-
-$object = input()->findGet($index, $defaultValue);
-$object = input()->findPost($index, $defaultValue);
-$object = input()->findFile($index, $defaultValue);
-
-# -- get the full object --
-
-$object = input()->get($index, 'post', 'get');
+```php
+$object = input()->file($index, $defaultValue = null);
 ```
 
 ### Managing files
 
 ```php
 /**
- * In this small example we loop through a collection of files
- * added on the page like this
+ * Loop through a collection of files uploaded from a form on the page like this
  * <input type="file" name="images[]" />
  */
 
 /* @var $image \Pecee\Http\Input\InputFile */
-foreach(input('images', []) as $image)
+foreach(input()->file('images', []) as $image)
 {
-    if($image->getMime() === 'image/jpeg') {
-
+    if($image->getMime() === 'image/jpeg') 
+    {
         $destinationFilname = sprintf('%s.%s', uniqid(), $image->getExtension());
-
-        $image->move('/uploads/' . $destinationFilename);
-
+        $image->move(sprintf('/uploads/%s', $destinationFilename));
     }
 }
 
@@ -1244,10 +1260,10 @@ foreach(input('images', []) as $image)
 ### Get all parameters
 
 ```php
-// Get all
+# Get all
 $values = input()->all();
 
-// Only match certain keys
+# Only match specific keys
 $values = input()->all([
     'company_name',
     'user_id'
@@ -1261,6 +1277,7 @@ All object implements the `IInputItem` interface and will always contain these m
 - `getValue()` - returns the value of the input.
 
 `InputFile` has the same methods as above along with some other file-specific methods like:
+
 - `getFilename` - get the filename.
 - `getTmpName()` - get file temporary name.
 - `getSize()` - get file size.
@@ -1268,15 +1285,8 @@ All object implements the `IInputItem` interface and will always contain these m
 - `getContents()` - get file content.
 - `getType()` - get mime-type for file.
 - `getError()` - get file upload error.
-- `hasError()` - returns `bool` if an error occurred while uploading (if getError is not 0).
+- `hasError()` - returns `bool` if an error occurred while uploading (if `getError` is not 0).
 - `toArray()` - returns raw array
-
-Below example requires you to have the helper functions added. Please refer to the helper functions section in the documentation.
-
-```php
-/* Get parameter site_id or default-value 2 from either post-value or query-string */
-$siteId = input('site_id', 2, ['post', 'get']);
-```
 
 ---
 
@@ -1559,6 +1569,51 @@ This section will go into details on how to debug the router and answer some of 
 ## Common issues and fixes
 
 This section will go over common issues and how to resolve them.
+
+### Parameters won't match or route not working with special characters
+
+Often people experience this issue when one or more parameters contains special characters. The router uses a sparse regular-expression that matches letters from a-z along with numbers when matching parameters, to improve performance. 
+
+All other characters has to be defined via the `defaultParameterRegex` option on your route.
+
+You can read more about adding your own custom regular expression for matching parameters by [clicking here](#custom-regex-for-matching-parameters).
+
+### Multiple routes matches? Which one has the priority?
+
+The router will match routes in the order they're added.
+
+It's possible to render multiple routes.
+
+If you want the router to stop when a route is matched, you simply return a value in your callback or stop the execution manually (using `response()->json()` etc.). 
+
+Any returned objects that implements the `__toString()` magic method will also prevent other routes from being rendered. 
+
+### Using the router on sub-paths
+
+Using the library on a sub-path like `localhost/project/` is not officially supported, however it is possible to get it working quite easily.
+
+Add an event that appends your sub-path when a new loadable route is added.
+
+**Example:**
+
+```php
+// ... your routes.php file
+
+if($isRunningLocally) {
+
+    $eventHandler = new EventHandler();
+    $eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function (EventArgument $arg) use (&$status) {
+
+        if ($arg->route instanceof \Pecee\SimpleRouter\Route\LoadableRoute) {
+            $arg->route->prependUrl('/local-path');
+        }
+
+    });
+
+    TestRouter::addEventHandler($eventHandler);
+
+}
+```
 
 ## Debugging
 

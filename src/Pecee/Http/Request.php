@@ -86,7 +86,7 @@ class Request
         $this->setUrl(new Url($this->getHeader('unencoded-url', $this->getHeader('request-uri'))));
 
         $this->inputHandler = new InputHandler($this);
-        $this->method = strtolower($this->inputHandler->getValue('_method', $this->getHeader('request-method')));
+        $this->method = strtolower($this->inputHandler->value('_method', $this->getHeader('request-method')));
     }
 
     public function isSecure(): bool
@@ -279,7 +279,7 @@ class Request
      */
     public function setMethod(string $method): void
     {
-        $this->method = $method;
+        $this->method = strtolower($method);
     }
 
     /**
