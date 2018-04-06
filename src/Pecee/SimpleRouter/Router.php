@@ -412,7 +412,7 @@ class Router
 
         if ($methodNotAllowed === true) {
             $message = sprintf('Route "%s" or method "%s" not allowed.', $this->request->getUrl()->getPath(), $this->request->getMethod());
-            $this->handleException(new HttpException($message, 403));
+            $this->handleException(new NotFoundHttpException($message, 403));
         }
 
         if (\count($this->request->getLoadedRoutes()) === 0) {
@@ -457,7 +457,9 @@ class Router
         }
 
         if ($this->request->getRewriteUrl() !== $url) {
+
             unset($this->processedRoutes[$key]);
+
             $this->request->setHasPendingRewrite(false);
 
             $this->fireEvents(EventHandler::EVENT_REWRITE, [
@@ -644,11 +646,7 @@ class Router
         }
 
         /* Only merge $_GET when all parameters are null */
-        if ($name === null && $parameters === null && $getParams === null) {
-            $getParams = $_GET;
-        } else {
-            $getParams = (array)$getParams;
-        }
+        $getParams = ($name === null && $parameters === null && $getParams === null) ? $_GET : (array)$getParams;
 
         /* Return current route if no options has been specified */
         if ($name === null && $parameters === null) {

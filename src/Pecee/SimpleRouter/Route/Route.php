@@ -18,6 +18,7 @@ abstract class Route implements IRoute
     public const REQUEST_TYPE_PATCH = 'patch';
     public const REQUEST_TYPE_OPTIONS = 'options';
     public const REQUEST_TYPE_DELETE = 'delete';
+    public const REQUEST_TYPE_HEAD = 'head';
 
     public static $requestTypes = [
         self::REQUEST_TYPE_GET,
@@ -26,6 +27,7 @@ abstract class Route implements IRoute
         self::REQUEST_TYPE_PATCH,
         self::REQUEST_TYPE_OPTIONS,
         self::REQUEST_TYPE_DELETE,
+        self::REQUEST_TYPE_HEAD,
     ];
 
     /**
@@ -120,23 +122,25 @@ abstract class Route implements IRoute
 
     protected function parseParameters($route, $url, $parameterRegex = null)
     {
-        $regex = null;
-        if (strpos($route, $this->paramModifiers[0]) !== false) {
-            $regex = sprintf(static::PARAMETERS_REGEX_FORMAT, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
-        }
+        $regex = (strpos($route, $this->paramModifiers[0]) === false) ? null :
+            sprintf
+            (
+                static::PARAMETERS_REGEX_FORMAT,
+                $this->paramModifiers[0],
+                $this->paramOptionalSymbol,
+                $this->paramModifiers[1]
+            );
 
         // Ensures that host names/domains will work with parameters
         $url = '/' . ltrim($url, '/');
-        $urlRegex = null;
+        $urlRegex = '';
         $parameters = [];
 
         if ($regex === null || (bool)preg_match_all('/' . $regex . '/u', $route, $parameters) === false) {
             $urlRegex = preg_quote($route, '/');
         } else {
 
-            $urlParts = preg_split('/((\-?\/?)\{[^}]+\})/', $route);
-
-            foreach ($urlParts as $key => $t) {
+            foreach (preg_split('/((\-?\/?)\{[^}]+\})/', $route) as $key => $t) {
 
                 $regex = '';
 
@@ -164,7 +168,7 @@ abstract class Route implements IRoute
             }
         }
 
-        if ($urlRegex === null || (bool)preg_match(sprintf($this->urlRegex, $urlRegex), $url, $matches) === false) {
+        if (trim($urlRegex) === '' || (bool)preg_match(sprintf($this->urlRegex, $urlRegex), $url, $matches) === false) {
             return null;
         }
 
@@ -174,7 +178,7 @@ abstract class Route implements IRoute
 
             /* Only take matched parameters with name */
             foreach ((array)$parameters[1] as $name) {
-                $values[$name] = (isset($matches[$name]) && $matches[$name] !== '') ? $matches[$name] : null;
+                $values[$name] = (isset($matches[$name]) === true && $matches[$name] !== '') ? $matches[$name] : null;
             }
         }
 

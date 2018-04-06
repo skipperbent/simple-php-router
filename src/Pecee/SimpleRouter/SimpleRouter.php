@@ -24,7 +24,6 @@ use Pecee\SimpleRouter\Handlers\IEventHandler;
 use Pecee\SimpleRouter\Route\IGroupRoute;
 use Pecee\SimpleRouter\Route\IPartialGroupRoute;
 use Pecee\SimpleRouter\Route\IRoute;
-use Pecee\SimpleRouter\Route\Route;
 use Pecee\SimpleRouter\Route\RouteController;
 use Pecee\SimpleRouter\Route\RouteGroup;
 use Pecee\SimpleRouter\Route\RoutePartialGroup;
@@ -75,8 +74,7 @@ class SimpleRouter
 
         try {
             ob_start();
-            static::router()->setDebugEnabled(true);
-            static::start();
+            static::router()->setDebugEnabled(true)->start();
             $routerOutput = ob_get_contents();
             ob_end_clean();
         } catch (\Exception $e) {
@@ -187,7 +185,7 @@ class SimpleRouter
      */
     public static function get(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match([Route::REQUEST_TYPE_GET], $url, $callback, $settings);
+        return static::match(['get'], $url, $callback, $settings);
     }
 
     /**
@@ -200,7 +198,7 @@ class SimpleRouter
      */
     public static function post(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match([Route::REQUEST_TYPE_POST], $url, $callback, $settings);
+        return static::match(['post'], $url, $callback, $settings);
     }
 
     /**
@@ -213,7 +211,7 @@ class SimpleRouter
      */
     public static function put(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match([Route::REQUEST_TYPE_PUT], $url, $callback, $settings);
+        return static::match(['put'], $url, $callback, $settings);
     }
 
     /**
@@ -226,7 +224,7 @@ class SimpleRouter
      */
     public static function patch(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match([Route::REQUEST_TYPE_PATCH], $url, $callback, $settings);
+        return static::match(['patch'], $url, $callback, $settings);
     }
 
     /**
@@ -239,7 +237,7 @@ class SimpleRouter
      */
     public static function options(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match([Route::REQUEST_TYPE_OPTIONS], $url, $callback, $settings);
+        return static::match(['options'], $url, $callback, $settings);
     }
 
     /**
