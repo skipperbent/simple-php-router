@@ -14,7 +14,7 @@ class Url implements \JsonSerializable
     private $username;
     private $password;
     private $path;
-    private $params;
+    private $params = [];
     private $fragment;
 
     /**
@@ -43,9 +43,7 @@ class Url implements \JsonSerializable
             $this->fragment = $data['fragment'] ?? null;
 
             if (isset($data['query']) === true) {
-                $params = [];
-                parse_str($data['query'], $params);
-                $this->setParams($params);
+                $this->setQueryString($data['query']);
             }
         }
     }
@@ -236,6 +234,23 @@ class Url implements \JsonSerializable
     public function setParams(array $params): self
     {
         $this->params = $params;
+
+        return $this;
+    }
+
+    /**
+     * Set raw query-string parameters as string
+     *
+     * @param string $queryString
+     * @return static
+     */
+    public function setQueryString(string $queryString): self
+    {
+        $params = [];
+
+        if(parse_str($queryString, $params) !== false) {
+            return $this->setParams($params);
+        }
 
         return $this;
     }

@@ -24,6 +24,7 @@ use Pecee\SimpleRouter\Handlers\IEventHandler;
 use Pecee\SimpleRouter\Route\IGroupRoute;
 use Pecee\SimpleRouter\Route\IPartialGroupRoute;
 use Pecee\SimpleRouter\Route\IRoute;
+use Pecee\SimpleRouter\Route\Route;
 use Pecee\SimpleRouter\Route\RouteController;
 use Pecee\SimpleRouter\Route\RouteGroup;
 use Pecee\SimpleRouter\Route\RoutePartialGroup;
@@ -161,6 +162,21 @@ class SimpleRouter
     }
 
     /**
+     * Redirect to when route matches.
+     *
+     * @param string $where
+     * @param string $to
+     * @param int $httpCode
+     * @return IRoute
+     */
+    public static function redirect($where, $to, $httpCode = 301): IRoute
+    {
+        return static::get($where, function () use ($to, $httpCode) {
+            static::response()->redirect($to, $httpCode);
+        });
+    }
+
+    /**
      * Route the given url to your callback on GET request method.
      *
      * @param string $url
@@ -171,7 +187,7 @@ class SimpleRouter
      */
     public static function get(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['get'], $url, $callback, $settings);
+        return static::match([Route::REQUEST_TYPE_GET], $url, $callback, $settings);
     }
 
     /**
@@ -184,7 +200,7 @@ class SimpleRouter
      */
     public static function post(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['post'], $url, $callback, $settings);
+        return static::match([Route::REQUEST_TYPE_POST], $url, $callback, $settings);
     }
 
     /**
@@ -197,7 +213,7 @@ class SimpleRouter
      */
     public static function put(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['put'], $url, $callback, $settings);
+        return static::match([Route::REQUEST_TYPE_PUT], $url, $callback, $settings);
     }
 
     /**
@@ -210,7 +226,7 @@ class SimpleRouter
      */
     public static function patch(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['patch'], $url, $callback, $settings);
+        return static::match([Route::REQUEST_TYPE_PATCH], $url, $callback, $settings);
     }
 
     /**
@@ -223,7 +239,7 @@ class SimpleRouter
      */
     public static function options(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['options'], $url, $callback, $settings);
+        return static::match([Route::REQUEST_TYPE_OPTIONS], $url, $callback, $settings);
     }
 
     /**
@@ -337,9 +353,7 @@ class SimpleRouter
             $route->setSettings($settings);
         }
 
-        static::router()->addRoute($route);
-
-        return $route;
+        return static::router()->addRoute($route);
     }
 
     /**
@@ -359,9 +373,7 @@ class SimpleRouter
             $route->setSettings($settings);
         }
 
-        static::router()->addRoute($route);
-
-        return $route;
+        return static::router()->addRoute($route);
     }
 
     /**
@@ -381,9 +393,7 @@ class SimpleRouter
             $route->setSettings($settings);
         }
 
-        static::router()->addRoute($route);
-
-        return $route;
+        return static::router()->addRoute($route);
     }
 
     /**
@@ -403,9 +413,7 @@ class SimpleRouter
             $route->setSettings($settings);
         }
 
-        static::router()->addRoute($route);
-
-        return $route;
+        return static::router()->addRoute($route);
     }
 
     /**

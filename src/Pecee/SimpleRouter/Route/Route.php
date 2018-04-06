@@ -76,7 +76,9 @@ abstract class Route implements IRoute
         }
 
         $router->debug('Parsing parameters');
+
         $parameters = $this->getParameters();
+
         $router->debug('Finished parsing parameters');
 
         /* Filter parameters with null-value */
@@ -118,14 +120,17 @@ abstract class Route implements IRoute
 
     protected function parseParameters($route, $url, $parameterRegex = null)
     {
-        $regex = sprintf(static::PARAMETERS_REGEX_FORMAT, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
-
-        $parameters = [];
+        $regex = null;
+        if (strpos($route, $this->paramModifiers[0]) !== false) {
+            $regex = sprintf(static::PARAMETERS_REGEX_FORMAT, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
+        }
 
         // Ensures that host names/domains will work with parameters
         $url = '/' . ltrim($url, '/');
+        $urlRegex = null;
+        $parameters = [];
 
-        if ((bool)preg_match_all('/' . $regex . '/u', $route, $parameters) === false) {
+        if ($regex === null || (bool)preg_match_all('/' . $regex . '/u', $route, $parameters) === false) {
             $urlRegex = preg_quote($route, '/');
         } else {
 
@@ -155,14 +160,11 @@ abstract class Route implements IRoute
                     $regex = sprintf('(?:\/|\-)%1$s(?P<%2$s>%3$s)%1$s', $parameters[2][$key], $name, $regex);
                 }
 
-                $urlParts[$key] = preg_quote($t, '/') . $regex;
+                $urlRegex .= preg_quote($t, '/') . $regex;
             }
-
-            $urlRegex = implode('', $urlParts);
-
         }
 
-        if ((bool)preg_match(sprintf($this->urlRegex, $urlRegex), $url, $matches) === false) {
+        if ($urlRegex === null || (bool)preg_match(sprintf($this->urlRegex, $urlRegex), $url, $matches) === false) {
             return null;
         }
 
@@ -247,9 +249,8 @@ abstract class Route implements IRoute
         $this->group = $group;
 
         /* Add/merge parent settings with child */
-        $this->setSettings($group->toArray(), true);
 
-        return $this;
+        return $this->setSettings($group->toArray(), true);
     }
 
     /**
