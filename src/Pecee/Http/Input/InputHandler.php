@@ -290,7 +290,7 @@ class InputHandler
      * @param array $filter Only take items in filter
      * @return array
      */
-    public function all(array $filter): array
+    public function all(array $filter = []): array
     {
         $output = $_GET;
 
@@ -314,6 +314,39 @@ class InputHandler
         }
 
         return ($filter !== null) ? array_intersect_key($output, array_flip($filter)) : $output;
+    }
+
+    /**
+     * Add GET parameter
+     *
+     * @param string $key
+     * @param InputItem $item
+     */
+    public function addGet(string $key, InputItem $item): void
+    {
+        $this->get[$key] = $item;
+    }
+
+    /**
+     * Add POST parameter
+     *
+     * @param string $key
+     * @param InputItem $item
+     */
+    public function addPost(string $key, InputItem $item): void
+    {
+        $this->post[$key] = $item;
+    }
+
+    /**
+     * Add FILE parameter
+     *
+     * @param string $key
+     * @param InputFile $item
+     */
+    public function addFile(string $key, InputFile $item): void
+    {
+        $this->file[$key] = $item;
     }
 
 }
