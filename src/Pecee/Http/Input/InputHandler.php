@@ -313,7 +313,7 @@ class InputHandler
             }
         }
 
-        return ($filter !== null) ? array_intersect_key($output, array_flip($filter)) : $output;
+        return (\count($filter) > 0) ? array_intersect_key($output, array_flip($filter)) : $output;
     }
 
     /**
