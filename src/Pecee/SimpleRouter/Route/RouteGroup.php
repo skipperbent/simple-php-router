@@ -173,9 +173,7 @@ class RouteGroup extends Route implements IGroupRoute
             $this->name = $name;
         }
 
-        parent::setSettings($values, $merge);
-
-        return $this;
+        return parent::setSettings($values, $merge);
     }
 
     /**

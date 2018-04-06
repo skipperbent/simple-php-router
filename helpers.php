@@ -49,12 +49,12 @@ function request(): Request
  * @param string|null $index Parameter index name
  * @param string|null $defaultValue Default return value
  * @param array ...$methods Default methods
- * @return \Pecee\Http\Input\InputHandler|string
+ * @return \Pecee\Http\Input\InputHandler|array|string|null
  */
 function input($index = null, $defaultValue = null, ...$methods)
 {
     if ($index !== null) {
-        return request()->getInputHandler()->getValue($index, $defaultValue, ...$methods);
+        return request()->getInputHandler()->value($index, $defaultValue, ...$methods);
     }
 
     return request()->getInputHandler();

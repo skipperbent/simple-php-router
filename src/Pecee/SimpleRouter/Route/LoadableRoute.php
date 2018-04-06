@@ -120,9 +120,6 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             $url = '//' . $group->getDomains()[0] . $url;
         }
 
-        /* Contains parameters that aren't recognized and will be appended at the end of the url */
-        $unknownParams = [];
-
         /* Create the param string - {parameter} */
         $param1 = $this->paramModifiers[0] . '%s' . $this->paramModifiers[1];
 
@@ -142,7 +139,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
                 $value = array_key_exists($param, $p) ? $p[$param] : $params[$param];
 
                 /* If parameter is specifically set to null - use the original-defined value */
-                if ($value === null && isset($this->originalParameters[$param])) {
+                if ($value === null && isset($this->originalParameters[$param]) === true) {
                     $value = $this->originalParameters[$param];
                 }
             }
@@ -151,13 +148,12 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
                 /* Add parameter to the correct position */
                 $url = str_ireplace([sprintf($param1, $param), sprintf($param2, $param)], $value, $url);
             } else {
-                $unknownParams[$param] = $value;
+                /* Parameter aren't recognized and will be appended at the end of the url */
+                $url .= $value . '/';
             }
         }
 
-        $url = '/' . ltrim($url, '/') . implode('/', $unknownParams);
-
-        return rtrim($url, '/') . '/';
+        return rtrim('/' . ltrim($url, '/'), '/') . '/';
     }
 
     /**
@@ -254,9 +250,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             $this->prependUrl($values['prefix']);
         }
 
-        parent::setSettings($values, $merge);
-
-        return $this;
+        return parent::setSettings($values, $merge);
     }
 
 }
