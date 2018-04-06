@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a7058529-bdc4-40b4-a50d-c50564dc83f0" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -77,8 +76,8 @@
       <file leaf-file-name="InputHandler.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="582">
-              <caret line="346" column="35" selection-start-line="346" selection-start-column="35" selection-end-line="346" selection-end-column="35" />
+            <state relative-caret-position="162">
+              <caret line="292" column="42" selection-start-line="292" selection-start-column="42" selection-end-line="292" selection-end-column="42" />
               <folding>
                 <element signature="e#36#82#0#PHP" expanded="true" />
               </folding>
@@ -528,7 +527,7 @@
       <workItem from="1522508007514" duration="2427000" />
       <workItem from="1522530661439" duration="3502000" />
       <workItem from="1522668357317" duration="4847000" />
-      <workItem from="1523014652739" duration="14274000" />
+      <workItem from="1523014652739" duration="14327000" />
     </task>
     <servers />
   </component>
@@ -565,7 +564,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="163489000" />
+    <option name="totallyTimeSpent" value="163542000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -967,8 +966,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="582">
-          <caret line="346" column="35" selection-start-line="346" selection-start-column="35" selection-end-line="346" selection-end-column="35" />
+        <state relative-caret-position="162">
+          <caret line="292" column="42" selection-start-line="292" selection-start-column="42" selection-end-line="292" selection-end-column="42" />
           <folding>
             <element signature="e#36#82#0#PHP" expanded="true" />
           </folding>

@@ -290,7 +290,7 @@ class InputHandler
      * @param array $filter Only take items in filter
      * @return array
      */
-    public function all(array $filter): array
+    public function all(array $filter = []): array
     {
         $output = $_GET;
 
