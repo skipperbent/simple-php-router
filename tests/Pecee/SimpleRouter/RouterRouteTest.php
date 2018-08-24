@@ -6,10 +6,28 @@ require_once 'Dummy/Exception/ExceptionHandlerException.php';
 
 class RouterRouteTest extends \PHPUnit\Framework\TestCase
 {
+
+    /**
+     * Issue #421: Incorrectly optional character in route
+     *
+     * @throws Exception
+     */
+    public function testOptionalCharacterRoute()
+    {
+        $result = false;
+        TestRouter::get('/api/v1/users/{userid}/projects/{id}/pages/{pageid?}', function () use (&$result) {
+            $result = true;
+        });
+
+        TestRouter::debug('/api/v1/users/1/projects/8399421535/pages/43/', 'get');
+
+        $this->assertTrue($result);
+    }
+
     public function testMultiParam()
     {
         $result = false;
-        TestRouter::get('/test-{param1}-{param2}', function ($param1, $param2) use(&$result) {
+        TestRouter::get('/test-{param1}-{param2}', function ($param1, $param2) use (&$result) {
 
             if ($param1 === 'param1' && $param2 === 'param2') {
                 $result = true;
@@ -94,12 +112,11 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
         $result = false;
         TestRouter::request()->setHost('hello.world.com');
 
-        TestRouter::group(['domain' => '{subdomain}.world.com'], function () use(&$result) {
-            TestRouter::get('/test', function ($subdomain = null) use(&$result) {
+        TestRouter::group(['domain' => '{subdomain}.world.com'], function () use (&$result) {
+            TestRouter::get('/test', function ($subdomain = null) use (&$result) {
                 $result = ($subdomain === 'hello');
             });
         });
-
 
         TestRouter::debug('/test', 'get');
 
@@ -113,8 +130,8 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
         $result = false;
 
-        TestRouter::group(['domain' => '{subdomain}.world.com'], function () use(&$result) {
-            TestRouter::get('/test', function ($subdomain = null) use(&$result) {
+        TestRouter::group(['domain' => '{subdomain}.world.com'], function () use (&$result) {
+            TestRouter::get('/test', function ($subdomain = null) use (&$result) {
                 $result = ($subdomain === 'hello');
             });
         });
@@ -133,11 +150,12 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue(true);
     }
 
-    public function testParameterDefaultValue() {
+    public function testParameterDefaultValue()
+    {
 
         $defaultVariable = null;
 
-        TestRouter::get('/my/{path?}', function($path = 'working') use(&$defaultVariable) {
+        TestRouter::get('/my/{path?}', function ($path = 'working') use (&$defaultVariable) {
             $defaultVariable = $path;
         });
 
@@ -157,7 +175,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
     public function testDefaultParameterRegexGroup()
     {
-        TestRouter::group(['defaultParameterRegex' => '[\w\-]+'], function() {
+        TestRouter::group(['defaultParameterRegex' => '[\w\-]+'], function () {
             TestRouter::get('/my/{path}', 'DummyController@param');
         });
 
