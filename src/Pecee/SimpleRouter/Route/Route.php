@@ -152,8 +152,6 @@ abstract class Route implements IRoute
                     if (isset($this->where[$name]) === true) {
                         $regex = $this->where[$name];
                     } else {
-
-                        /* If method specific regex is defined use that, otherwise use the default parameter regex */
                         if ($parameterRegex !== null) {
                             $regex = $parameterRegex;
                         } else {
@@ -161,7 +159,7 @@ abstract class Route implements IRoute
                         }
                     }
 
-                    $regex = sprintf('(?:\/|\-)%1$s(?P<%2$s>%3$s)%1$s', $parameters[2][$key], $name, $regex);
+                    $regex = sprintf('((\/|\-)(?P<%2$s>%3$s))%1$s', $parameters[2][$key], $name, $regex);
                 }
 
                 $urlRegex .= preg_quote($t, '/') . $regex;
