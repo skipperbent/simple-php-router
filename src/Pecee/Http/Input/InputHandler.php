@@ -298,17 +298,13 @@ class InputHandler
 
             // Append POST data
             $output += $_POST;
+            $contents = file_get_contents('php://input');
 
-            if (\in_array($this->request->getMethod(), ['put', 'patch', 'delete'], false) === true) {
-
-                $contents = file_get_contents('php://input');
-
-                // Append any PHP-input json
-                if (strpos(trim($contents), '{') === 0) {
-                    $post = json_decode($contents, true);
-                    if ($post !== false) {
-                        $output += $post;
-                    }
+            // Append any PHP-input json
+            if (strpos(trim($contents), '{') === 0) {
+                $post = json_decode($contents, true);
+                if ($post !== false) {
+                    $output += $post;
                 }
             }
         }
