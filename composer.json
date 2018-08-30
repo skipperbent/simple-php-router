@@ -28,6 +28,7 @@
   ],
   "require": {
     "php": ">=7.1",
+    "ext-json": "*",
     "php-di/php-di": "^6.0"
   },
   "require-dev": {
