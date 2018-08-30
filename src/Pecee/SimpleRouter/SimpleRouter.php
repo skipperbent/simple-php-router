@@ -261,7 +261,7 @@ class SimpleRouter
      * @return RouteGroup
      * @throws InvalidArgumentException
      */
-    public static function group(array $settings = [], \Closure $callback): IGroupRoute
+    public static function group(array $settings, \Closure $callback): IGroupRoute
     {
         if (\is_callable($callback) === false) {
             throw new InvalidArgumentException('Invalid callback provided. Only functions or methods supported');
