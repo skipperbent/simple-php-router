@@ -151,12 +151,10 @@ abstract class Route implements IRoute
                     /* If custom regex is defined, use that */
                     if (isset($this->where[$name]) === true) {
                         $regex = $this->where[$name];
+                    } else if ($parameterRegex !== null) {
+                        $regex = $parameterRegex;
                     } else {
-                        if ($parameterRegex !== null) {
-                            $regex = $parameterRegex;
-                        } else {
-                            $regex = $this->defaultParameterRegex ?? static::PARAMETERS_DEFAULT_REGEX;
-                        }
+                        $regex = $this->defaultParameterRegex ?? static::PARAMETERS_DEFAULT_REGEX;
                     }
 
                     $regex = sprintf('((\/|\-)(?P<%2$s>%3$s))%1$s', $parameters[2][$key], $name, $regex);
