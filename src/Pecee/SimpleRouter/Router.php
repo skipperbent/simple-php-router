@@ -188,7 +188,7 @@ class Router
             $this->routeStack = [];
 
             /* Route any routes added to the stack */
-            $this->processRoutes($stack, $route);
+            $this->processRoutes($stack, ($route instanceof IGroupRoute) ? $route : null);
         }
     }
 
