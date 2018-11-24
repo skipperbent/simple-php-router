@@ -9,7 +9,7 @@ use Pecee\Http\Security\ITokenProvider;
 
 class BaseCsrfVerifier implements IMiddleware
 {
-    public const POST_KEY = 'csrf-token';
+    public const POST_KEY = 'csrf_token';
     public const HEADER_KEY = 'X-CSRF-TOKEN';
 
     protected $except;
