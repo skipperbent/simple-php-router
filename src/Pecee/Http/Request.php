@@ -84,7 +84,8 @@ class Request
 
         // Check if special IIS header exist, otherwise use default.
         $this->setUrl(new Url($this->getHeader('unencoded-url', $this->getHeader('request-uri'))));
-
+        
+        $this->method = strtolower($this->getHeader('request-method'));
         $this->inputHandler = new InputHandler($this);
         $this->method = strtolower($this->inputHandler->value('_method', $this->getHeader('request-method')));
     }
