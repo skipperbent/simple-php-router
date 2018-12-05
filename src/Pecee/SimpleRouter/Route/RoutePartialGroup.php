@@ -4,9 +4,13 @@ namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
 
+/**
+ * Class RoutePartialGroup
+ *
+ * @package Pecee\SimpleRouter\Route
+ */
 class RoutePartialGroup extends RouteGroup implements IPartialGroupRoute
 {
-
     /**
      * RoutePartialGroup constructor.
      */
@@ -16,9 +20,7 @@ class RoutePartialGroup extends RouteGroup implements IPartialGroupRoute
     }
 
     /**
-     * Method called to check if route matches
-     *
-     * @param string $url
+     * @param $url
      * @param Request $request
      * @return bool
      */
@@ -43,5 +45,4 @@ class RoutePartialGroup extends RouteGroup implements IPartialGroupRoute
 
         return $this->matchDomain($request);
     }
-
 }

@@ -2,10 +2,10 @@
 
 namespace Pecee\SimpleRouter\Route;
 
-use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
-use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\Router;
+use Pecee\Http\Middleware\IMiddleware;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 abstract class Route implements IRoute
 {
@@ -31,15 +31,11 @@ abstract class Route implements IRoute
     ];
 
     /**
-     * If enabled parameters containing null-value
-     * will not be passed along to the callback.
-     *
      * @var bool
      */
     protected $filterEmptyParams = true;
 
     /**
-     * Default regular expression used for parsing parameters.
      * @var string|null
      */
     protected $defaultParameterRegex;
@@ -60,11 +56,9 @@ abstract class Route implements IRoute
     protected $middlewares = [];
 
     /**
-     * Render route
-     *
      * @param Request $request
      * @param Router $router
-     * @return string|null
+     * @return null|string
      * @throws NotFoundHttpException
      */
     public function renderRoute(Request $request, Router $router): ?string
@@ -78,9 +72,7 @@ abstract class Route implements IRoute
         }
 
         $router->debug('Parsing parameters');
-
         $parameters = $this->getParameters();
-
         $router->debug('Finished parsing parameters');
 
         /* Filter parameters with null-value */
@@ -93,7 +85,6 @@ abstract class Route implements IRoute
         /* Render callback function */
         if (\is_callable($callback) === true) {
             $router->debug('Executing callback');
-
             /* When the callback is a function */
 
             return $router->getClassLoader()->loadClosure($callback, $parameters);
@@ -101,11 +92,8 @@ abstract class Route implements IRoute
 
         /* When the callback is a class + method */
         $controller = explode('@', $callback);
-
         $namespace = $this->getNamespace();
-
         $className = ($namespace !== null && $controller[0][0] !== '\\') ? $namespace . '\\' . $controller[0] : $controller[0];
-
         $router->debug('Loading class %s', $className);
         $class = $router->getClassLoader()->loadClass($className);
 
@@ -124,6 +112,12 @@ abstract class Route implements IRoute
         return \call_user_func_array([$class, $method], $parameters);
     }
 
+    /**
+     * @param $route
+     * @param $url
+     * @param null $parameterRegex
+     * @return array|null
+     */
     protected function parseParameters($route, $url, $parameterRegex = null)
     {
         $regex = (strpos($route, $this->paramModifiers[0]) === false) ? null :
@@ -143,11 +137,8 @@ abstract class Route implements IRoute
         if ($regex === null || (bool)preg_match_all('/' . $regex . '/u', $route, $parameters) === false) {
             $urlRegex = preg_quote($route, '/');
         } else {
-
             foreach (preg_split('/((\-?\/?)\{[^}]+\})/', $route) as $key => $t) {
-
                 $regex = '';
-
                 if ($key < \count($parameters[1])) {
 
                     $name = $parameters[1][$key];
@@ -160,10 +151,8 @@ abstract class Route implements IRoute
                     } else {
                         $regex = $this->defaultParameterRegex ?? static::PARAMETERS_DEFAULT_REGEX;
                     }
-
                     $regex = sprintf('((\/|\-)(?P<%2$s>%3$s))%1$s', $parameters[2][$key], $name, $regex);
                 }
-
                 $urlRegex .= preg_quote($t, '/') . $regex;
             }
         }
@@ -186,10 +175,6 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Returns callback name/identifier for the current route based on the callback.
-     * Useful if you need to get a unique identifier for the loaded route, for instance
-     * when using translations etc.
-     *
      * @return string
      */
     public function getIdentifier(): string
@@ -202,10 +187,8 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Set allowed request methods
-     *
      * @param array $methods
-     * @return static
+     * @return IRoute
      */
     public function setRequestMethods(array $methods): IRoute
     {
@@ -215,8 +198,6 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Get allowed request methods
-     *
      * @return array
      */
     public function getRequestMethods(): array
@@ -225,7 +206,7 @@ abstract class Route implements IRoute
     }
 
     /**
-     * @return IRoute|null
+     * @return null|IRoute
      */
     public function getParent(): ?IRoute
     {
@@ -233,9 +214,7 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Get the group for the route.
-     *
-     * @return IGroupRoute|null
+     * @return null|IGroupRoute
      */
     public function getGroup(): ?IGroupRoute
     {
@@ -243,25 +222,20 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Set group
-     *
      * @param IGroupRoute $group
-     * @return static
+     * @return IRoute
      */
     public function setGroup(IGroupRoute $group): IRoute
     {
         $this->group = $group;
-
         /* Add/merge parent settings with child */
 
         return $this->setSettings($group->toArray(), true);
     }
 
     /**
-     * Set parent route
-     *
      * @param IRoute $parent
-     * @return static
+     * @return IRoute
      */
     public function setParent(IRoute $parent): IRoute
     {
@@ -271,10 +245,8 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Set callback
-     *
-     * @param string $callback
-     * @return static
+     * @param $callback
+     * @return IRoute
      */
     public function setCallback($callback): IRoute
     {
@@ -284,13 +256,16 @@ abstract class Route implements IRoute
     }
 
     /**
-     * @return string|callable
+     * @return callable|string
      */
     public function getCallback()
     {
         return $this->callback;
     }
 
+    /**
+     * @return null|string
+     */
     public function getMethod(): ?string
     {
         if (\is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
@@ -302,6 +277,9 @@ abstract class Route implements IRoute
         return null;
     }
 
+    /**
+     * @return null|string
+     */
     public function getClass(): ?string
     {
         if (\is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
@@ -313,6 +291,10 @@ abstract class Route implements IRoute
         return null;
     }
 
+    /**
+     * @param string $method
+     * @return IRoute
+     */
     public function setMethod(string $method): IRoute
     {
         $this->callback = sprintf('%s@%s', $this->getClass(), $method);
@@ -320,6 +302,10 @@ abstract class Route implements IRoute
         return $this;
     }
 
+    /**
+     * @param string $class
+     * @return IRoute
+     */
     public function setClass(string $class): IRoute
     {
         $this->callback = sprintf('%s@%s', $class, $this->getMethod());
@@ -329,7 +315,7 @@ abstract class Route implements IRoute
 
     /**
      * @param string $namespace
-     * @return static
+     * @return IRoute
      */
     public function setNamespace(string $namespace): IRoute
     {
@@ -339,8 +325,8 @@ abstract class Route implements IRoute
     }
 
     /**
-     * @param string $namespace
-     * @return static
+     * @param $namespace
+     * @return IRoute
      */
     public function setDefaultNamespace($namespace): IRoute
     {
@@ -349,13 +335,16 @@ abstract class Route implements IRoute
         return $this;
     }
 
+    /**
+     * @return null|string
+     */
     public function getDefaultNamespace(): ?string
     {
         return $this->defaultNamespace;
     }
 
     /**
-     * @return string|null
+     * @return null|string
      */
     public function getNamespace(): ?string
     {
@@ -363,8 +352,6 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Export route settings to array so they can be merged with another route.
-     *
      * @return array
      */
     public function toArray(): array
@@ -395,11 +382,9 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Merge with information from another route.
-     *
      * @param array $values
      * @param bool $merge
-     * @return static
+     * @return IRoute
      */
     public function setSettings(array $values, bool $merge = false): IRoute
     {
@@ -432,8 +417,6 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Get parameter names.
-     *
      * @return array
      */
     public function getWhere(): array
@@ -442,10 +425,8 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Set parameter names.
-     *
      * @param array $options
-     * @return static
+     * @return IRoute
      */
     public function setWhere(array $options): IRoute
     {
@@ -455,12 +436,8 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Add regular expression parameter match.
-     * Alias for LoadableRoute::where()
-     *
-     * @see LoadableRoute::where()
      * @param array $options
-     * @return static
+     * @return IRoute
      */
     public function where(array $options)
     {
@@ -468,8 +445,6 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Get parameters
-     *
      * @return array
      */
     public function getParameters(): array
@@ -485,10 +460,8 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Get parameters
-     *
      * @param array $parameters
-     * @return static
+     * @return IRoute
      */
     public function setParameters(array $parameters): IRoute
     {
@@ -506,11 +479,8 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Add middleware class-name
-     *
-     * @deprecated This method is deprecated and will be removed in the near future.
-     * @param IMiddleware|string $middleware
-     * @return static
+     * @param $middleware
+     * @return $this
      */
     public function setMiddleware($middleware)
     {
@@ -520,10 +490,8 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Add middleware class-name
-     *
-     * @param IMiddleware|string $middleware
-     * @return static
+     * @param $middleware
+     * @return IRoute
      */
     public function addMiddleware($middleware): IRoute
     {
@@ -533,10 +501,8 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Set middlewares array
-     *
      * @param array $middlewares
-     * @return static
+     * @return IRoute
      */
     public function setMiddlewares(array $middlewares): IRoute
     {
@@ -554,11 +520,8 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Set default regular expression used when matching parameters.
-     * This is used when no custom parameter regex is found.
-     *
-     * @param string $regex
-     * @return static
+     * @param $regex
+     * @return $this
      */
     public function setDefaultParameterRegex($regex)
     {
@@ -568,13 +531,10 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Get default regular expression used when matching parameters.
-     *
      * @return string
      */
     public function getDefaultParameterRegex(): string
     {
         return $this->defaultParameterRegex;
     }
-
 }

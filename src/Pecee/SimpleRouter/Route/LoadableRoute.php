@@ -2,11 +2,16 @@
 
 namespace Pecee\SimpleRouter\Route;
 
-use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
-use Pecee\SimpleRouter\Exceptions\HttpException;
 use Pecee\SimpleRouter\Router;
+use Pecee\Http\Middleware\IMiddleware;
+use Pecee\SimpleRouter\Exceptions\HttpException;
 
+/**
+ * Class LoadableRoute
+ *
+ * @package Pecee\SimpleRouter\Route
+ */
 abstract class LoadableRoute extends Route implements ILoadableRoute
 {
     /**
@@ -18,15 +23,13 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @var string
      */
     protected $name;
-
     protected $regex;
 
     /**
-     * Loads and renders middlewares-classes
-     *
      * @param Request $request
      * @param Router $router
      * @throws HttpException
+     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
      */
     public function loadMiddleware(Request $request, Router $router): void
     {
@@ -52,10 +55,14 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         $router->debug('Finished loading middlewares');
     }
 
+    /**
+     * @param Request $request
+     * @param $url
+     * @return bool|null
+     */
     public function matchRegex(Request $request, $url): ?bool
     {
         /* Match on custom defined regular expression */
-
         if ($this->regex === null) {
             return null;
         }
@@ -64,10 +71,8 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     }
 
     /**
-     * Set url
-     *
      * @param string $url
-     * @return static
+     * @return ILoadableRoute
      */
     public function setUrl(string $url): ILoadableRoute
     {
@@ -86,8 +91,6 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     }
 
     /**
-     * Prepend url
-     *
      * @param string $url
      * @return ILoadableRoute
      */
@@ -102,12 +105,9 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     }
 
     /**
-     * Find url that matches method, parameters or name.
-     * Used when calling the url() helper.
-     *
-     * @param string|null $method
-     * @param string|array|null $parameters
-     * @param string|null $name
+     * @param null|string $method
+     * @param null $parameters
+     * @param null|string $name
      * @return string
      */
     public function findUrl(?string $method = null, $parameters = null, ?string $name = null): string
@@ -122,12 +122,9 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
         /* Create the param string - {parameter} */
         $param1 = $this->paramModifiers[0] . '%s' . $this->paramModifiers[1];
-
         /* Create the param string with the optional symbol - {parameter?} */
         $param2 = $this->paramModifiers[0] . '%s' . $this->paramOptionalSymbol . $this->paramModifiers[1];
-
         /* Replace any {parameter} in the url with the correct value */
-
         $params = $this->getParameters();
 
         foreach (array_keys($params) as $param) {
@@ -157,9 +154,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     }
 
     /**
-     * Returns the provided name for the router.
-     *
-     * @return string
+     * @return null|string
      */
     public function getName(): ?string
     {
@@ -167,8 +162,6 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     }
 
     /**
-     * Check if route has given name.
-     *
      * @param string $name
      * @return bool
      */
@@ -178,10 +171,8 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     }
 
     /**
-     * Add regular expression match for the entire route.
-     *
-     * @param string $regex
-     * @return static
+     * @param $regex
+     * @return ILoadableRoute
      */
     public function setMatch($regex): ILoadableRoute
     {
@@ -191,8 +182,6 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     }
 
     /**
-     * Get regular expression match used for matching route (if defined).
-     *
      * @return string
      */
     public function getMatch(): string
@@ -201,12 +190,8 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     }
 
     /**
-     * Sets the router name, which makes it easier to obtain the url or router at a later point.
-     * Alias for LoadableRoute::setName().
-     *
-     * @see LoadableRoute::setName()
-     * @param string|array $name
-     * @return static
+     * @param $name
+     * @return ILoadableRoute
      */
     public function name($name): ILoadableRoute
     {
@@ -214,10 +199,8 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     }
 
     /**
-     * Sets the router name, which makes it easier to obtain the url or router at a later point.
-     *
      * @param string $name
-     * @return static
+     * @return ILoadableRoute
      */
     public function setName(string $name): ILoadableRoute
     {
@@ -227,11 +210,9 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     }
 
     /**
-     * Merge with information from another route.
-     *
      * @param array $values
      * @param bool $merge
-     * @return static
+     * @return IRoute
      */
     public function setSettings(array $values, bool $merge = false): IRoute
     {
@@ -252,5 +233,4 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
         return parent::setSettings($values, $merge);
     }
-
 }

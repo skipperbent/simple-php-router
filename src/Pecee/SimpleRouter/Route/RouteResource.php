@@ -4,31 +4,47 @@ namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
 
+/**
+ * Class RouteResource
+ *
+ * @package Pecee\SimpleRouter\Route
+ */
 class RouteResource extends LoadableRoute implements IControllerRoute
 {
+    /**
+     * @var array
+     */
     protected $urls = [
-        'index'   => '',
-        'create'  => 'create',
-        'store'   => '',
-        'show'    => '',
-        'edit'    => 'edit',
-        'update'  => '',
+        'index' => '',
+        'create' => 'create',
+        'store' => '',
+        'show' => '',
+        'edit' => 'edit',
+        'update' => '',
         'destroy' => '',
     ];
 
+    /**
+     * @var array
+     */
     protected $methodNames = [
-        'index'   => 'index',
-        'create'  => 'create',
-        'store'   => 'store',
-        'show'    => 'show',
-        'edit'    => 'edit',
-        'update'  => 'update',
+        'index' => 'index',
+        'create' => 'create',
+        'store' => 'store',
+        'show' => 'show',
+        'edit' => 'edit',
+        'update' => 'update',
         'destroy' => 'destroy',
     ];
 
     protected $names = [];
     protected $controller;
 
+    /**
+     * RouteResource constructor.
+     * @param $url
+     * @param $controller
+     */
     public function __construct($url, $controller)
     {
         $this->setUrl($url);
@@ -37,8 +53,6 @@ class RouteResource extends LoadableRoute implements IControllerRoute
     }
 
     /**
-     * Check if route has given name.
-     *
      * @param string $name
      * @return bool
      */
@@ -61,9 +75,9 @@ class RouteResource extends LoadableRoute implements IControllerRoute
     }
 
     /**
-     * @param string|null $method
-     * @param array|string|null $parameters
-     * @param string|null $name
+     * @param null|string $method
+     * @param null $parameters
+     * @param null|string $name
      * @return string
      */
     public function findUrl(?string $method = null, $parameters = null, ?string $name = null): string
@@ -76,6 +90,10 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         return $this->url;
     }
 
+    /**
+     * @param $method
+     * @return bool
+     */
     protected function call($method)
     {
         $this->setCallback($this->controller . '@' . $method);
@@ -83,12 +101,16 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         return true;
     }
 
+    /**
+     * @param $url
+     * @param Request $request
+     * @return bool
+     */
     public function matchRoute($url, Request $request): bool
     {
         if ($this->getGroup() !== null && $this->getGroup()->matchRoute($url, $request) === false) {
             return false;
         }
-
         /* Match global regular-expression for route */
         $regexMatch = $this->matchRegex($request, $url);
 
@@ -158,7 +180,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
 
     /**
      * @param string $controller
-     * @return static
+     * @return IControllerRoute
      */
     public function setController(string $controller): IControllerRoute
     {
@@ -167,17 +189,21 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         return $this;
     }
 
+    /**
+     * @param string $name
+     * @return ILoadableRoute
+     */
     public function setName(string $name): ILoadableRoute
     {
         $this->name = $name;
 
         $this->names = [
-            'index'   => $this->name . '.index',
-            'create'  => $this->name . '.create',
-            'store'   => $this->name . '.store',
-            'show'    => $this->name . '.show',
-            'edit'    => $this->name . '.edit',
-            'update'  => $this->name . '.update',
+            'index' => $this->name . '.index',
+            'create' => $this->name . '.create',
+            'store' => $this->name . '.store',
+            'show' => $this->name . '.show',
+            'edit' => $this->name . '.edit',
+            'update' => $this->name . '.update',
             'destroy' => $this->name . '.destroy',
         ];
 
@@ -185,10 +211,8 @@ class RouteResource extends LoadableRoute implements IControllerRoute
     }
 
     /**
-     * Define custom method name for resource controller
-     *
      * @param array $names
-     * @return static $this
+     * @return $this
      */
     public function setMethodNames(array $names)
     {
@@ -198,8 +222,6 @@ class RouteResource extends LoadableRoute implements IControllerRoute
     }
 
     /**
-     * Get method names
-     *
      * @return array
      */
     public function getMethodNames(): array
@@ -208,11 +230,9 @@ class RouteResource extends LoadableRoute implements IControllerRoute
     }
 
     /**
-     * Merge with information from another route.
-     *
      * @param array $values
      * @param bool $merge
-     * @return static
+     * @return IRoute
      */
     public function setSettings(array $values, bool $merge = false): IRoute
     {
@@ -226,5 +246,4 @@ class RouteResource extends LoadableRoute implements IControllerRoute
 
         return parent::setSettings($values, $merge);
     }
-
 }

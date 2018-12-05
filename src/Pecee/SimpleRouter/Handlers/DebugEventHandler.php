@@ -2,18 +2,19 @@
 
 namespace Pecee\SimpleRouter\Handlers;
 
-use Pecee\SimpleRouter\Event\EventArgument;
 use Pecee\SimpleRouter\Router;
+use Pecee\SimpleRouter\Event\EventArgument;
 
 class DebugEventHandler implements IEventHandler
 {
-
     /**
-     * Debug callback
      * @var \Closure
      */
     protected $callback;
 
+    /**
+     * DebugEventHandler constructor.
+     */
     public function __construct()
     {
         $this->callback = function (EventArgument $argument) {
@@ -22,9 +23,7 @@ class DebugEventHandler implements IEventHandler
     }
 
     /**
-     * Get events.
-     *
-     * @param string|null $name Filter events by name.
+     * @param null|string $name
      * @return array
      */
     public function getEvents(?string $name): array
@@ -37,11 +36,9 @@ class DebugEventHandler implements IEventHandler
     }
 
     /**
-     * Fires any events registered with given event-name
-     *
-     * @param Router $router Router instance
-     * @param string $name Event name
-     * @param array $eventArgs Event arguments
+     * @param Router $router
+     * @param string $name
+     * @param array $eventArgs
      */
     public function fireEvents(Router $router, string $name, array $eventArgs = []): void
     {
@@ -50,13 +47,10 @@ class DebugEventHandler implements IEventHandler
     }
 
     /**
-     * Set debug callback
-     *
      * @param \Closure $event
      */
     public function setCallback(\Closure $event): void
     {
         $this->callback = $event;
     }
-
 }

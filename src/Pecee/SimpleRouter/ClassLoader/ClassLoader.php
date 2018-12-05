@@ -5,22 +5,20 @@ namespace Pecee\SimpleRouter\ClassLoader;
 use DI\Container;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
+/**
+ * Class ClassLoader
+ *
+ * @package Pecee\SimpleRouter\ClassLoader
+ */
 class ClassLoader implements IClassLoader
 {
     /**
-     * Dependency injection enabled
      * @var bool
      */
     protected $useDependencyInjection = false;
-
-    /**
-     * @var Container|null
-     */
     protected $container;
 
     /**
-     * Load class
-     *
      * @param string $class
      * @return mixed
      * @throws NotFoundHttpException
@@ -46,8 +44,6 @@ class ClassLoader implements IClassLoader
     }
 
     /**
-     * Load closure
-     *
      * @param \Closure $closure
      * @param array $parameters
      * @return mixed
@@ -70,8 +66,6 @@ class ClassLoader implements IClassLoader
     }
 
     /**
-     * Get dependency injector container.
-     *
      * @return Container|null
      */
     public function getContainer(): ?Container
@@ -80,8 +74,6 @@ class ClassLoader implements IClassLoader
     }
 
     /**
-     * Set the dependency-injector container.
-     *
      * @param Container $container
      * @return ClassLoader
      */
@@ -93,10 +85,8 @@ class ClassLoader implements IClassLoader
     }
 
     /**
-     * Enable or disable dependency injection.
-     *
      * @param bool $enabled
-     * @return static
+     * @return ClassLoader
      */
     public function useDependencyInjection(bool $enabled): self
     {
@@ -106,13 +96,10 @@ class ClassLoader implements IClassLoader
     }
 
     /**
-     * Return true if dependency injection is enabled.
-     *
      * @return bool
      */
     public function isDependencyInjectionEnabled(): bool
     {
         return $this->useDependencyInjection;
     }
-
 }

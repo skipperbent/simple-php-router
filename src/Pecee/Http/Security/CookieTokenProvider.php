@@ -4,6 +4,11 @@ namespace Pecee\Http\Security;
 
 use Pecee\Http\Security\Exceptions\SecurityException;
 
+/**
+ * Class CookieTokenProvider
+ *
+ * @package Pecee\Http\Security
+ */
 class CookieTokenProvider implements ITokenProvider
 {
     public const CSRF_KEY = 'CSRF-TOKEN';
@@ -25,8 +30,6 @@ class CookieTokenProvider implements ITokenProvider
     }
 
     /**
-     * Generate random identifier for CSRF token
-     *
      * @return string
      * @throws SecurityException
      */
@@ -40,8 +43,6 @@ class CookieTokenProvider implements ITokenProvider
     }
 
     /**
-     * Validate valid CSRF token
-     *
      * @param string $token
      * @return bool
      */
@@ -55,9 +56,6 @@ class CookieTokenProvider implements ITokenProvider
     }
 
     /**
-     * Set csrf token cookie
-     * Overwrite this method to save the token to another storage like session etc.
-     *
      * @param string $token
      */
     public function setToken(string $token): void
@@ -67,9 +65,8 @@ class CookieTokenProvider implements ITokenProvider
     }
 
     /**
-     * Get csrf token
-     * @param string|null $defaultValue
-     * @return string|null
+     * @param null|string $defaultValue
+     * @return null|string
      */
     public function getToken(?string $defaultValue = null): ?string
     {
@@ -78,9 +75,6 @@ class CookieTokenProvider implements ITokenProvider
         return $this->token ?? $defaultValue;
     }
 
-    /**
-     * Refresh existing token
-     */
     public function refresh(): void
     {
         if ($this->token !== null) {
@@ -89,7 +83,6 @@ class CookieTokenProvider implements ITokenProvider
     }
 
     /**
-     * Returns whether the csrf token has been defined
      * @return bool
      */
     public function hasToken(): bool
@@ -98,7 +91,6 @@ class CookieTokenProvider implements ITokenProvider
     }
 
     /**
-     * Get timeout for cookie in minutes
      * @return int
      */
     public function getCookieTimeoutMinutes(): int
@@ -107,12 +99,10 @@ class CookieTokenProvider implements ITokenProvider
     }
 
     /**
-     * Set cookie timeout in minutes
      * @param int $minutes
      */
     public function setCookieTimeoutMinutes(int $minutes): void
     {
         $this->cookieTimeoutMinutes = $minutes;
     }
-
 }

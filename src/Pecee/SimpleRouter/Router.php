@@ -2,110 +2,96 @@
 
 namespace Pecee\SimpleRouter;
 
-use Pecee\Exceptions\InvalidArgumentException;
-use Pecee\Http\Exceptions\MalformedUrlException;
-use Pecee\Http\Middleware\BaseCsrfVerifier;
-use Pecee\Http\Request;
 use Pecee\Http\Url;
+use Pecee\Http\Request;
+use Pecee\SimpleRouter\Route\IRoute;
+use Pecee\SimpleRouter\Route\IGroupRoute;
+use Pecee\Http\Middleware\BaseCsrfVerifier;
+use Pecee\SimpleRouter\Handlers\EventHandler;
+use Pecee\SimpleRouter\Route\IControllerRoute;
+use Pecee\SimpleRouter\Handlers\IEventHandler;
+use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\SimpleRouter\ClassLoader\ClassLoader;
 use Pecee\SimpleRouter\ClassLoader\IClassLoader;
+use Pecee\Http\Exceptions\MalformedUrlException;
 use Pecee\SimpleRouter\Exceptions\HttpException;
-use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
-use Pecee\SimpleRouter\Handlers\EventHandler;
-use Pecee\SimpleRouter\Handlers\IEventHandler;
-use Pecee\SimpleRouter\Handlers\IExceptionHandler;
-use Pecee\SimpleRouter\Route\IControllerRoute;
-use Pecee\SimpleRouter\Route\IGroupRoute;
-use Pecee\SimpleRouter\Route\ILoadableRoute;
 use Pecee\SimpleRouter\Route\IPartialGroupRoute;
-use Pecee\SimpleRouter\Route\IRoute;
+use Pecee\SimpleRouter\Handlers\IExceptionHandler;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
+/**
+ * Class Router
+ *
+ * @package Pecee\SimpleRouter
+ */
 class Router
 {
-
     /**
-     * Current request
      * @var Request
      */
     protected $request;
 
     /**
-     * Defines if a route is currently being processed.
      * @var bool
      */
     protected $isProcessingRoute;
 
     /**
-     * All added routes
      * @var array
      */
     protected $routes = [];
 
     /**
-     * List of processed routes
      * @var array
      */
     protected $processedRoutes = [];
 
     /**
-     * Stack of routes used to keep track of sub-routes added
-     * when a route is being processed.
      * @var array
      */
     protected $routeStack = [];
 
     /**
-     * List of added bootmanagers
      * @var array
      */
     protected $bootManagers = [];
 
     /**
-     * Csrf verifier class
      * @var BaseCsrfVerifier
      */
     protected $csrfVerifier;
 
     /**
-     * Get exception handlers
      * @var array
      */
     protected $exceptionHandlers = [];
 
     /**
-     * List of loaded exception that has been loaded.
-     * Used to ensure that exception-handlers aren't loaded twice when rewriting route.
-     *
      * @var array
      */
     protected $loadedExceptionHandlers = [];
 
     /**
-     * Enable or disabled debugging
      * @var bool
      */
     protected $debugEnabled = false;
 
     /**
-     * The start time used when debugging is enabled
      * @var float
      */
     protected $debugStartTime;
 
     /**
-     * List containing all debug messages
      * @var array
      */
     protected $debugList = [];
 
     /**
-     * Contains any registered event-handler.
      * @var array
      */
     protected $eventHandlers = [];
 
     /**
-     * Class loader instance
      * @var ClassLoader
      */
     protected $classLoader;
@@ -118,9 +104,6 @@ class Router
         $this->reset();
     }
 
-    /**
-     * Resets the router by reloading request and clearing all routes and data.
-     */
     public function reset(): void
     {
         $this->debugStartTime = microtime(true);
@@ -145,7 +128,6 @@ class Router
     }
 
     /**
-     * Add route
      * @param IRoute $route
      * @return IRoute
      */
@@ -169,8 +151,6 @@ class Router
     }
 
     /**
-     * Render and process any new routes added.
-     *
      * @param IRoute $route
      * @throws NotFoundHttpException
      */
@@ -182,7 +162,6 @@ class Router
         $this->isProcessingRoute = false;
 
         if (\count($this->routeStack) !== 0) {
-
             /* Pop and grab the routes added when executing group callback earlier */
             $stack = $this->routeStack;
             $this->routeStack = [];
@@ -193,10 +172,8 @@ class Router
     }
 
     /**
-     * Process added routes.
-     *
      * @param array $routes
-     * @param IGroupRoute|null $group
+     * @param null|IGroupRoute $group
      * @throws NotFoundHttpException
      */
     protected function processRoutes(array $routes, ?IGroupRoute $group = null): void
@@ -261,9 +238,7 @@ class Router
     }
 
     /**
-     * Load routes
      * @throws NotFoundHttpException
-     * @return void
      */
     public function loadRoutes(): void
     {
@@ -282,7 +257,7 @@ class Router
             $this->debug('Rendering bootmanager "%s"', $className);
             $this->fireEvents(EventHandler::EVENT_RENDER_BOOTMANAGER, [
                 'bootmanagers' => $this->bootManagers,
-                'bootmanager'  => $manager,
+                'bootmanager' => $manager,
             ]);
 
             /* Render bootmanager */
@@ -302,13 +277,10 @@ class Router
     }
 
     /**
-     * Start the routing
-     *
-     * @return string|null
-     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
-     * @throws \Pecee\Http\Middleware\Exceptions\TokenMismatchException
+     * @return null|string
      * @throws HttpException
-     * @throws \Exception
+     * @throws NotFoundHttpException
+     * @throws \Pecee\Http\Middleware\Exceptions\TokenMismatchException
      */
     public function start(): ?string
     {
@@ -340,11 +312,8 @@ class Router
     }
 
     /**
-     * Routes the request
-     *
-     * @return string|null
+     * @return null|string
      * @throws HttpException
-     * @throws \Exception
      */
     public function routeRequest(): ?string
     {
@@ -375,7 +344,7 @@ class Router
                     }
 
                     $this->fireEvents(EventHandler::EVENT_RENDER_MIDDLEWARES, [
-                        'route'       => $route,
+                        'route' => $route,
                         'middlewares' => $route->getMiddlewares(),
                     ]);
 
@@ -434,13 +403,10 @@ class Router
     }
 
     /**
-     * Handle route-rewrite
-     *
-     * @param string $key
+     * @param $key
      * @param string $url
-     * @return string|null
+     * @return null|string
      * @throws HttpException
-     * @throws \Exception
      */
     protected function handleRouteRewrite($key, string $url): ?string
     {
@@ -463,7 +429,7 @@ class Router
             $this->request->setHasPendingRewrite(false);
 
             $this->fireEvents(EventHandler::EVENT_REWRITE, [
-                'rewriteUrl'   => $this->request->getRewriteUrl(),
+                'rewriteUrl' => $this->request->getRewriteUrl(),
                 'rewriteRoute' => $this->request->getRewriteRoute(),
             ]);
 
@@ -475,16 +441,15 @@ class Router
 
     /**
      * @param \Exception $e
+     * @return null|string
      * @throws HttpException
-     * @throws \Exception
-     * @return string|null
      */
     protected function handleException(\Exception $e): ?string
     {
         $this->debug('Starting exception handling for "%s"', \get_class($e));
 
         $this->fireEvents(EventHandler::EVENT_LOAD_EXCEPTIONS, [
-            'exception'         => $e,
+            'exception' => $e,
             'exceptionHandlers' => $this->exceptionHandlers,
         ]);
 
@@ -496,8 +461,8 @@ class Router
             }
 
             $this->fireEvents(EventHandler::EVENT_RENDER_EXCEPTION, [
-                'exception'         => $e,
-                'exceptionHandler'  => $handler,
+                'exception' => $e,
+                'exceptionHandler' => $handler,
                 'exceptionHandlers' => $this->exceptionHandlers,
             ]);
 
@@ -519,7 +484,7 @@ class Router
                     $this->debug('Exception handler contains rewrite, reloading routes');
 
                     $this->fireEvents(EventHandler::EVENT_REWRITE, [
-                        'rewriteUrl'   => $this->request->getRewriteUrl(),
+                        'rewriteUrl' => $this->request->getRewriteUrl(),
                         'rewriteRoute' => $this->request->getRewriteRoute(),
                     ]);
 
@@ -542,10 +507,8 @@ class Router
     }
 
     /**
-     * Find route by alias, class, callback or method.
-     *
      * @param string $name
-     * @return ILoadableRoute|null
+     * @return null|ILoadableRoute
      */
     public function findRoute(string $name): ?ILoadableRoute
     {
@@ -632,9 +595,9 @@ class Router
         $this->debug('Finding url', \func_get_args());
 
         $this->fireEvents(EventHandler::EVENT_GET_URL, [
-            'name'       => $name,
+            'name' => $name,
             'parameters' => $parameters,
-            'getParams'  => $getParams,
+            'getParams' => $getParams,
         ]);
 
         if ($getParams !== null && \is_array($getParams) === false) {
@@ -714,7 +677,6 @@ class Router
     }
 
     /**
-     * Get BootManagers
      * @return array
      */
     public function getBootManagers(): array
@@ -723,10 +685,8 @@ class Router
     }
 
     /**
-     * Set BootManagers
-     *
      * @param array $bootManagers
-     * @return static
+     * @return Router
      */
     public function setBootManagers(array $bootManagers): self
     {
@@ -736,10 +696,8 @@ class Router
     }
 
     /**
-     * Add BootManager
-     *
      * @param IRouterBootManager $bootManager
-     * @return static
+     * @return Router
      */
     public function addBootManager(IRouterBootManager $bootManager): self
     {
@@ -749,8 +707,6 @@ class Router
     }
 
     /**
-     * Get routes that has been processed.
-     *
      * @return array
      */
     public function getProcessedRoutes(): array
@@ -767,10 +723,8 @@ class Router
     }
 
     /**
-     * Set routes
-     *
      * @param array $routes
-     * @return static
+     * @return Router
      */
     public function setRoutes(array $routes): self
     {
@@ -780,8 +734,6 @@ class Router
     }
 
     /**
-     * Get current request
-     *
      * @return Request
      */
     public function getRequest(): Request
@@ -790,8 +742,7 @@ class Router
     }
 
     /**
-     * Get csrf verifier class
-     * @return BaseCsrfVerifier
+     * @return null|BaseCsrfVerifier
      */
     public function getCsrfVerifier(): ?BaseCsrfVerifier
     {
@@ -799,8 +750,6 @@ class Router
     }
 
     /**
-     * Set csrf verifier class
-     *
      * @param BaseCsrfVerifier $csrfVerifier
      */
     public function setCsrfVerifier(BaseCsrfVerifier $csrfVerifier): void
@@ -809,8 +758,6 @@ class Router
     }
 
     /**
-     * Set class loader
-     *
      * @param IClassLoader $loader
      */
     public function setClassLoader(IClassLoader $loader): void
@@ -819,9 +766,7 @@ class Router
     }
 
     /**
-     * Get class loader
-     *
-     * @return ClassLoader
+     * @return IClassLoader
      */
     public function getClassLoader(): IClassLoader
     {
@@ -829,8 +774,6 @@ class Router
     }
 
     /**
-     * Register event handler
-     *
      * @param IEventHandler $handler
      */
     public function addEventHandler(IEventHandler $handler): void
@@ -839,8 +782,6 @@ class Router
     }
 
     /**
-     * Get registered event-handler.
-     *
      * @return array
      */
     public function getEventHandlers(): array
@@ -849,9 +790,7 @@ class Router
     }
 
     /**
-     * Fire event in event-handler.
-     *
-     * @param string $name
+     * @param $name
      * @param array $arguments
      */
     protected function fireEvents($name, array $arguments = []): void
@@ -867,9 +806,8 @@ class Router
     }
 
     /**
-     * Add new debug message
      * @param string $message
-     * @param array $args
+     * @param mixed ...$args
      */
     public function debug(string $message, ...$args): void
     {
@@ -880,16 +818,14 @@ class Router
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
         $this->debugList[] = [
             'message' => vsprintf($message, $args),
-            'time'    => number_format(microtime(true) - $this->debugStartTime, 10),
-            'trace'   => end($trace),
+            'time' => number_format(microtime(true) - $this->debugStartTime, 10),
+            'trace' => end($trace),
         ];
     }
 
     /**
-     * Enable or disables debugging
-     *
      * @param bool $enabled
-     * @return static
+     * @return Router
      */
     public function setDebugEnabled(bool $enabled): self
     {
@@ -899,13 +835,10 @@ class Router
     }
 
     /**
-     * Get the list containing all debug messages.
-     *
      * @return array
      */
     public function getDebugLog(): array
     {
         return $this->debugList;
     }
-
 }

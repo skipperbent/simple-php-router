@@ -5,66 +5,55 @@ namespace Pecee\SimpleRouter\Route;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Handlers\IExceptionHandler;
 
+/**
+ * Interface IGroupRoute
+ *
+ * @package Pecee\SimpleRouter\Route
+ */
 interface IGroupRoute extends IRoute
 {
     /**
-     * Method called to check if a domain matches
-     *
      * @param Request $request
      * @return bool
      */
     public function matchDomain(Request $request): bool;
 
     /**
-     * Add exception handler
-     *
      * @param IExceptionHandler|string $handler
      * @return static
      */
     public function addExceptionHandler($handler): self;
 
     /**
-     * Set exception-handlers for group
-     *
      * @param array $handlers
-     * @return static
+     * @return mixed
      */
     public function setExceptionHandlers(array $handlers);
 
     /**
-     * Get exception-handlers for group
-     *
      * @return array
      */
     public function getExceptionHandlers(): array;
 
     /**
-     * Get domains for domain.
-     *
      * @return array
      */
     public function getDomains(): array;
 
     /**
-     * Set allowed domains for group.
-     *
      * @param array $domains
-     * @return static
+     * @return IGroupRoute
      */
     public function setDomains(array $domains): self;
 
     /**
-     * Set prefix that child-routes will inherit.
-     *
-     * @param string $prefix
-     * @return static
+     * @param $prefix
+     * @return IGroupRoute
      */
     public function setPrefix($prefix): self;
 
     /**
-     * Get prefix.
-     *
-     * @return string|null
+     * @return null|string
      */
     public function getPrefix(): ?string;
 }

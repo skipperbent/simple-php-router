@@ -2,66 +2,47 @@
 
 namespace Pecee\Http;
 
-use Pecee\Http\Exceptions\MalformedUrlException;
 use Pecee\Http\Input\InputHandler;
-use Pecee\SimpleRouter\Route\ILoadableRoute;
-use Pecee\SimpleRouter\Route\RouteUrl;
 use Pecee\SimpleRouter\SimpleRouter;
+use Pecee\SimpleRouter\Route\RouteUrl;
+use Pecee\SimpleRouter\Route\ILoadableRoute;
+use Pecee\Http\Exceptions\MalformedUrlException;
 
+/**
+ * Class Request
+ *
+ * @package Pecee\Http
+ */
 class Request
 {
     /**
-     * Additional data
-     *
      * @var array
      */
     private $data = [];
 
     /**
-     * Server headers
      * @var array
      */
     protected $headers = [];
 
-    /**
-     * Request host
-     * @var string
-     */
     protected $host;
-
-    /**
-     * Current request url
-     * @var Url
-     */
     protected $url;
 
     /**
-     * Request method
      * @var string
      */
     protected $method;
 
     /**
-     * Input handler
      * @var InputHandler
      */
     protected $inputHandler;
 
     /**
-     * Defines if request has pending rewrite
      * @var bool
      */
     protected $hasPendingRewrite = false;
-
-    /**
-     * @var ILoadableRoute|null
-     */
     protected $rewriteRoute;
-
-    /**
-     * Rewrite url
-     * @var string|null
-     */
     protected $rewriteUrl;
 
     /**
@@ -81,15 +62,16 @@ class Request
         }
 
         $this->setHost($this->getHeader('http-host'));
-
         // Check if special IIS header exist, otherwise use default.
         $this->setUrl(new Url($this->getHeader('unencoded-url', $this->getHeader('request-uri'))));
-        
         $this->method = strtolower($this->getHeader('request-method'));
         $this->inputHandler = new InputHandler($this);
         $this->method = strtolower($this->inputHandler->value('_method', $this->getHeader('request-method')));
     }
 
+    /**
+     * @return bool
+     */
     public function isSecure(): bool
     {
         return $this->getHeader('http-x-forwarded-proto') === 'https' || $this->getHeader('https') !== null || $this->getHeader('server-port') === 443;
@@ -104,8 +86,6 @@ class Request
     }
 
     /**
-     * Copy url object
-     *
      * @return Url
      */
     public function getUrlCopy(): Url
@@ -114,7 +94,7 @@ class Request
     }
 
     /**
-     * @return string|null
+     * @return null|string
      */
     public function getHost(): ?string
     {
@@ -122,7 +102,7 @@ class Request
     }
 
     /**
-     * @return string|null
+     * @return null|string
      */
     public function getMethod(): ?string
     {
@@ -130,8 +110,7 @@ class Request
     }
 
     /**
-     * Get http basic auth user
-     * @return string|null
+     * @return null|string
      */
     public function getUser(): ?string
     {
@@ -139,8 +118,7 @@ class Request
     }
 
     /**
-     * Get http basic auth password
-     * @return string|null
+     * @return null|string
      */
     public function getPassword(): ?string
     {
@@ -148,7 +126,6 @@ class Request
     }
 
     /**
-     * Get all headers
      * @return array
      */
     public function getHeaders(): array
@@ -157,8 +134,7 @@ class Request
     }
 
     /**
-     * Get id address
-     * @return string|null
+     * @return null|string
      */
     public function getIp(): ?string
     {
@@ -174,10 +150,7 @@ class Request
     }
 
     /**
-     * Get remote address/ip
-     *
-     * @alias static::getIp
-     * @return string|null
+     * @return null|string
      */
     public function getRemoteAddr(): ?string
     {
@@ -185,8 +158,7 @@ class Request
     }
 
     /**
-     * Get referer
-     * @return string|null
+     * @return null|string
      */
     public function getReferer(): ?string
     {
@@ -194,8 +166,7 @@ class Request
     }
 
     /**
-     * Get user agent
-     * @return string|null
+     * @return null|string
      */
     public function getUserAgent(): ?string
     {
@@ -203,12 +174,9 @@ class Request
     }
 
     /**
-     * Get header value by name
-     *
-     * @param string $name
-     * @param string|null $defaultValue
-     *
-     * @return string|null
+     * @param $name
+     * @param null $defaultValue
+     * @return null|string
      */
     public function getHeader($name, $defaultValue = null): ?string
     {
@@ -216,7 +184,6 @@ class Request
     }
 
     /**
-     * Get input class
      * @return InputHandler
      */
     public function getInputHandler(): InputHandler
@@ -225,10 +192,7 @@ class Request
     }
 
     /**
-     * Is format accepted
-     *
-     * @param string $format
-     *
+     * @param $format
      * @return bool
      */
     public function isFormatAccepted($format): bool
@@ -237,8 +201,6 @@ class Request
     }
 
     /**
-     * Returns true if the request is made through Ajax
-     *
      * @return bool
      */
     public function isAjax(): bool
@@ -247,7 +209,6 @@ class Request
     }
 
     /**
-     * Get accept formats
      * @return array
      */
     public function getAcceptFormats(): array
@@ -268,7 +229,7 @@ class Request
     }
 
     /**
-     * @param string|null $host
+     * @param null|string $host
      */
     public function setHost(?string $host): void
     {
@@ -284,10 +245,8 @@ class Request
     }
 
     /**
-     * Set rewrite route
-     *
      * @param ILoadableRoute $route
-     * @return static
+     * @return Request
      */
     public function setRewriteRoute(ILoadableRoute $route): self
     {
@@ -298,9 +257,7 @@ class Request
     }
 
     /**
-     * Get rewrite route
-     *
-     * @return ILoadableRoute|null
+     * @return null|ILoadableRoute
      */
     public function getRewriteRoute(): ?ILoadableRoute
     {
@@ -308,9 +265,7 @@ class Request
     }
 
     /**
-     * Get rewrite url
-     *
-     * @return string|null
+     * @return null|string
      */
     public function getRewriteUrl(): ?string
     {
@@ -318,10 +273,8 @@ class Request
     }
 
     /**
-     * Set rewrite url
-     *
      * @param string $rewriteUrl
-     * @return static
+     * @return Request
      */
     public function setRewriteUrl(string $rewriteUrl): self
     {
@@ -332,9 +285,8 @@ class Request
     }
 
     /**
-     * Set rewrite callback
-     * @param string|\Closure $callback
-     * @return static
+     * @param $callback
+     * @return Request
      */
     public function setRewriteCallback($callback): self
     {
@@ -344,8 +296,7 @@ class Request
     }
 
     /**
-     * Get loaded route
-     * @return ILoadableRoute|null
+     * @return null|ILoadableRoute
      */
     public function getLoadedRoute(): ?ILoadableRoute
     {
@@ -353,8 +304,6 @@ class Request
     }
 
     /**
-     * Get all loaded routes
-     *
      * @return array
      */
     public function getLoadedRoutes(): array
@@ -363,10 +312,8 @@ class Request
     }
 
     /**
-     * Set loaded routes
-     *
      * @param array $routes
-     * @return static
+     * @return Request
      */
     public function setLoadedRoutes(array $routes): self
     {
@@ -376,10 +323,8 @@ class Request
     }
 
     /**
-     * Added loaded route
-     *
      * @param ILoadableRoute $route
-     * @return static
+     * @return Request
      */
     public function addLoadedRoute(ILoadableRoute $route): self
     {
@@ -389,8 +334,6 @@ class Request
     }
 
     /**
-     * Returns true if the request contains a rewrite
-     *
      * @return bool
      */
     public function hasPendingRewrite(): bool
@@ -399,8 +342,6 @@ class Request
     }
 
     /**
-     * Defines if the current request contains a rewrite.
-     *
      * @param bool $boolean
      * @return Request
      */
@@ -411,19 +352,30 @@ class Request
         return $this;
     }
 
+    /**
+     * @param $name
+     * @return bool
+     */
     public function __isset($name)
     {
         return array_key_exists($name, $this->data) === true;
     }
 
+    /**
+     * @param $name
+     * @param null $value
+     */
     public function __set($name, $value = null)
     {
         $this->data[$name] = $value;
     }
 
+    /**
+     * @param $name
+     * @return mixed|null
+     */
     public function __get($name)
     {
         return $this->data[$name] ?? null;
     }
-
 }

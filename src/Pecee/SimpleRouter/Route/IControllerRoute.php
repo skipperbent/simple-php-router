@@ -2,21 +2,21 @@
 
 namespace Pecee\SimpleRouter\Route;
 
+/**
+ * Interface IControllerRoute
+ *
+ * @package Pecee\SimpleRouter\Route
+ */
 interface IControllerRoute extends IRoute
 {
     /**
-     * Get controller class-name
-     *
      * @return string
      */
     public function getController(): string;
 
     /**
-     * Set controller class-name
-     *
      * @param string $controller
-     * @return static
+     * @return IControllerRoute
      */
     public function setController(string $controller): self;
-
 }

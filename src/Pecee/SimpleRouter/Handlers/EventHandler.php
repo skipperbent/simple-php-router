@@ -2,8 +2,8 @@
 
 namespace Pecee\SimpleRouter\Handlers;
 
-use Pecee\SimpleRouter\Event\EventArgument;
 use Pecee\SimpleRouter\Router;
+use Pecee\SimpleRouter\Event\EventArgument;
 
 class EventHandler implements IEventHandler
 {
@@ -116,17 +116,14 @@ class EventHandler implements IEventHandler
     ];
 
     /**
-     * List of all registered events
      * @var array
      */
     private $registeredEvents = [];
 
     /**
-     * Register new event
-     *
      * @param string $name
      * @param \Closure $callback
-     * @return static
+     * @return IEventHandler
      */
     public function register(string $name, \Closure $callback): IEventHandler
     {
@@ -140,10 +137,8 @@ class EventHandler implements IEventHandler
     }
 
     /**
-     * Get events.
-     *
-     * @param string|null $name Filter events by name.
-     * @param array ...$names Add multiple names...
+     * @param null|string $name
+     * @param mixed ...$names
      * @return array
      */
     public function getEvents(?string $name, ...$names): array
@@ -165,11 +160,9 @@ class EventHandler implements IEventHandler
     }
 
     /**
-     * Fires any events registered with given event-name
-     *
-     * @param Router $router Router instance
-     * @param string $name Event name
-     * @param array $eventArgs Event arguments
+     * @param Router $router
+     * @param string $name
+     * @param array $eventArgs
      */
     public function fireEvents(Router $router, string $name, array $eventArgs = []): void
     {
@@ -180,5 +173,4 @@ class EventHandler implements IEventHandler
             $event(new EventArgument($name, $router, $eventArgs));
         }
     }
-
 }

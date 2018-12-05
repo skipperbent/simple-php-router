@@ -2,47 +2,49 @@
 
 namespace Pecee\Controllers;
 
+/**
+ * Interface IResourceController
+ *
+ * @package Pecee\Controllers
+ */
 interface IResourceController
 {
-
     /**
      * @return string|null
      */
     public function index(): ?string;
 
     /**
-     * @param mixed $id
-     * @return string|null
+     * @param $id
+     * @return null|string
      */
     public function show($id): ?string;
 
     /**
-     * @return string|null
+     * @return null|string
      */
     public function store(): ?string;
 
     /**
-     * @return string|null
+     * @return null|string
      */
     public function create(): ?string;
 
     /**
-     * View
-     * @param mixed $id
-     * @return string|null
+     * @param $id
+     * @return null|string
      */
     public function edit($id): ?string;
 
     /**
-     * @param mixed $id
-     * @return string|null
+     * @param $id
+     * @return null|string
      */
     public function update($id): ?string;
 
     /**
-     * @param mixed $id
-     * @return string|null
+     * @param $id
+     * @return null|string
      */
     public function destroy($id): ?string;
-
 }

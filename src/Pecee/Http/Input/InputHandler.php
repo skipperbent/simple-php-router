@@ -2,8 +2,8 @@
 
 namespace Pecee\Http\Input;
 
-use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Request;
+use Pecee\Exceptions\InvalidArgumentException;
 
 class InputHandler
 {
@@ -34,22 +34,15 @@ class InputHandler
     public function __construct(Request $request)
     {
         $this->request = $request;
-
         $this->parseInputs();
     }
 
-    /**
-     * Parse input values
-     *
-     */
     public function parseInputs(): void
     {
-        /* Parse get requests */
         if (\count($_GET) !== 0) {
             $this->get = $this->parseInputItem($_GET);
         }
 
-        /* Parse post requests */
         $postVars = $_POST;
 
         if (\in_array($this->request->getMethod(), ['put', 'patch', 'delete'], false) === true) {
@@ -60,7 +53,6 @@ class InputHandler
             $this->post = $this->parseInputItem($postVars);
         }
 
-        /* Parse get requests */
         if (\count($_FILES) !== 0) {
             $this->file = $this->parseFiles();
         }
@@ -72,112 +64,85 @@ class InputHandler
     public function parseFiles(): array
     {
         $list = [];
-
         foreach ((array)$_FILES as $key => $value) {
-
-            // Handle array input
             if (\is_array($value['name']) === false) {
                 $values['index'] = $key;
                 try {
                     $list[$key] = InputFile::createFromArray($values + $value);
                 } catch (InvalidArgumentException $e) {
-
+                    //
                 }
                 continue;
             }
-
             $keys = [$key];
             $files = $this->rearrangeFile($value['name'], $keys, $value);
-
             if (isset($list[$key]) === true) {
                 $list[$key][] = $files;
             } else {
                 $list[$key] = $files;
             }
-
         }
 
         return $list;
     }
 
     /**
-     * Rearrange multi-dimensional file object created by PHP.
-     *
      * @param array $values
-     * @param array $index
-     * @param array|null $original
+     * @param $index
+     * @param $original
      * @return array
      */
     protected function rearrangeFile(array $values, &$index, $original): array
     {
         $originalIndex = $index[0];
         array_shift($index);
-
         $output = [];
-
         foreach ($values as $key => $value) {
-
             if (\is_array($original['name'][$key]) === false) {
-
                 try {
-
                     $file = InputFile::createFromArray([
-                        'index'    => (empty($key) === true && empty($originalIndex) === false) ? $originalIndex : $key,
-                        'name'     => $original['name'][$key],
-                        'error'    => $original['error'][$key],
+                        'index' => (empty($key) === true && empty($originalIndex) === false) ? $originalIndex : $key,
+                        'name' => $original['name'][$key],
+                        'error' => $original['error'][$key],
                         'tmp_name' => $original['tmp_name'][$key],
-                        'type'     => $original['type'][$key],
-                        'size'     => $original['size'][$key],
+                        'type' => $original['type'][$key],
+                        'size' => $original['size'][$key],
                     ]);
-
                     if (isset($output[$key]) === true) {
                         $output[$key][] = $file;
                         continue;
                     }
-
                     $output[$key] = $file;
                     continue;
-
                 } catch (InvalidArgumentException $e) {
-
+                    //
                 }
             }
-
             $index[] = $key;
-
             $files = $this->rearrangeFile($value, $index, $original);
-
             if (isset($output[$key]) === true) {
                 $output[$key][] = $files;
             } else {
                 $output[$key] = $files;
             }
-
         }
 
         return $output;
     }
 
     /**
-     * Parse input item from array
-     *
      * @param array $array
      * @return array
      */
     protected function parseInputItem(array $array): array
     {
         $list = [];
-
         foreach ($array as $key => $value) {
-
-            // Handle array input
             if (\is_array($value) === false) {
                 $list[$key] = new InputItem($key, $value);
                 continue;
             }
-
             $output = $this->parseInputItem($value);
-
             $list[$key] = $output;
         }
 
@@ -185,11 +150,9 @@ class InputHandler
     }
 
     /**
-     * Find input object
-     *
      * @param string $index
-     * @param array ...$methods
-     * @return IInputItem|array|null
+     * @param mixed ...$methods
+     * @return array|null|InputFile|InputItem|string
      */
     public function find(string $index, ...$methods)
     {
@@ -211,12 +174,10 @@ class InputHandler
     }
 
     /**
-     * Get input element value matching index
-     *
      * @param string $index
-     * @param string|null $defaultValue
-     * @param array ...$methods
-     * @return string|array
+     * @param null|string $defaultValue
+     * @param mixed ...$methods
+     * @return array|null|string
      */
     public function value(string $index, ?string $defaultValue = null, ...$methods)
     {
@@ -224,7 +185,6 @@ class InputHandler
 
         $output = [];
 
-        /* Handle collection */
         if (\is_array($input) === true) {
             /* @var $item InputItem */
             foreach ($input as $item) {
@@ -238,10 +198,8 @@ class InputHandler
     }
 
     /**
-     * Check if a input-item exist
-     *
      * @param string $index
-     * @param array ...$methods
+     * @param mixed ...$methods
      * @return bool
      */
     public function exists(string $index, ...$methods): bool
@@ -250,11 +208,9 @@ class InputHandler
     }
 
     /**
-     * Find post-value by index or return default value.
-     *
      * @param string $index
-     * @param string|null $defaultValue
-     * @return InputItem|array|string|null
+     * @param null|string $defaultValue
+     * @return mixed|null|string
      */
     public function post(string $index, ?string $defaultValue = null)
     {
@@ -262,11 +218,9 @@ class InputHandler
     }
 
     /**
-     * Find file by index or return default value.
-     *
      * @param string $index
-     * @param string|null $defaultValue
-     * @return InputFile|array|string|null
+     * @param null|string $defaultValue
+     * @return mixed|null|string
      */
     public function file(string $index, ?string $defaultValue = null)
     {
@@ -274,11 +228,9 @@ class InputHandler
     }
 
     /**
-     * Find parameter/query-string by index or return default value.
-     *
      * @param string $index
-     * @param string|null $defaultValue
-     * @return InputItem|array|string|null
+     * @param null|string $defaultValue
+     * @return mixed|null|string
      */
     public function get(string $index, ?string $defaultValue = null)
     {
@@ -286,8 +238,7 @@ class InputHandler
     }
 
     /**
-     * Get all get/post items
-     * @param array $filter Only take items in filter
+     * @param array $filter
      * @return array
      */
     public function all(array $filter = []): array
@@ -313,8 +264,6 @@ class InputHandler
     }
 
     /**
-     * Add GET parameter
-     *
      * @param string $key
      * @param InputItem $item
      */
@@ -324,8 +273,6 @@ class InputHandler
     }
 
     /**
-     * Add POST parameter
-     *
      * @param string $key
      * @param InputItem $item
      */
@@ -335,8 +282,6 @@ class InputHandler
     }
 
     /**
-     * Add FILE parameter
-     *
      * @param string $key
      * @param InputFile $item
      */
