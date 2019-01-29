@@ -61,7 +61,7 @@ class RouteGroup extends Route implements IGroupRoute
 
     /**
      * @param IExceptionHandler|string $handler
-     * @return IGroupRoute
+     * @return static
      */
     public function addExceptionHandler($handler): IGroupRoute
     {
@@ -72,7 +72,7 @@ class RouteGroup extends Route implements IGroupRoute
 
     /**
      * @param array $handlers
-     * @return IGroupRoute
+     * @return static
      */
     public function setExceptionHandlers(array $handlers): IGroupRoute
     {
@@ -99,7 +99,7 @@ class RouteGroup extends Route implements IGroupRoute
 
     /**
      * @param array $domains
-     * @return IGroupRoute
+     * @return static
      */
     public function setDomains(array $domains): IGroupRoute
     {
@@ -110,7 +110,7 @@ class RouteGroup extends Route implements IGroupRoute
 
     /**
      * @param $prefix
-     * @return IGroupRoute
+     * @return static
      */
     public function setPrefix($prefix): IGroupRoute
     {
@@ -130,7 +130,7 @@ class RouteGroup extends Route implements IGroupRoute
     /**
      * @param array $values
      * @param bool $merge
-     * @return IRoute
+     * @return static
      */
     public function setSettings(array $values, bool $merge = false): IRoute
     {

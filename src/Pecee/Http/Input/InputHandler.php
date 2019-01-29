@@ -88,11 +88,11 @@ class InputHandler
 
     /**
      * @param array $values
-     * @param $index
-     * @param $original
+     * @param array $index
+     * @param array|null $original
      * @return array
      */
-    protected function rearrangeFile(array $values, &$index, $original): array
+    protected function rearrangeFile(array $values, array &$index, ?array $original): array
     {
         $originalIndex = $index[0];
         array_shift($index);
@@ -102,11 +102,11 @@ class InputHandler
                 try {
                     $file = InputFile::createFromArray([
                         'index' => (empty($key) === true && empty($originalIndex) === false) ? $originalIndex : $key,
+                        'type' => $original['type'][$key],
+                        'size' => $original['size'][$key],
                         'name' => $original['name'][$key],
                         'error' => $original['error'][$key],
                         'tmp_name' => $original['tmp_name'][$key],
-                        'type' => $original['type'][$key],
-                        'size' => $original['size'][$key],
                     ]);
                     if (isset($output[$key]) === true) {
                         $output[$key][] = $file;
@@ -176,10 +176,10 @@ class InputHandler
     /**
      * @param string $index
      * @param null|string $defaultValue
-     * @param mixed ...$methods
+     * @param array ...$methods
      * @return array|null|string
      */
-    public function value(string $index, ?string $defaultValue = null, ...$methods)
+    public function value(string $index, ?string $defaultValue = null, array ...$methods)
     {
         $input = $this->find($index, ...$methods);
 
@@ -199,10 +199,10 @@ class InputHandler
 
     /**
      * @param string $index
-     * @param mixed ...$methods
+     * @param array ...$methods
      * @return bool
      */
-    public function exists(string $index, ...$methods): bool
+    public function exists(string $index, array ...$methods): bool
     {
         return $this->value($index, null, ...$methods) !== null;
     }

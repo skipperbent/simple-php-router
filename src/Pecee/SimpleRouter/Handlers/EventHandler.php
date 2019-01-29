@@ -123,7 +123,7 @@ class EventHandler implements IEventHandler
     /**
      * @param string $name
      * @param \Closure $callback
-     * @return IEventHandler
+     * @return static
      */
     public function register(string $name, \Closure $callback): IEventHandler
     {

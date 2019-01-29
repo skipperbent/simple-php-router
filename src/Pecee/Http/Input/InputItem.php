@@ -15,6 +15,7 @@ class InputItem implements IInputItem
 
     /**
      * InputItem constructor.
+     *
      * @param string $index
      * @param null|string $value
      */
@@ -36,7 +37,7 @@ class InputItem implements IInputItem
 
     /**
      * @param string $index
-     * @return IInputItem
+     * @return static
      */
     public function setIndex(string $index): IInputItem
     {
@@ -55,7 +56,7 @@ class InputItem implements IInputItem
 
     /**
      * @param string $name
-     * @return IInputItem
+     * @return static
      */
     public function setName(string $name): IInputItem
     {
@@ -74,7 +75,7 @@ class InputItem implements IInputItem
 
     /**
      * @param string $value
-     * @return IInputItem
+     * @return static
      */
     public function setValue(string $value): IInputItem
     {

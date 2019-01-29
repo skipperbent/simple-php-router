@@ -139,7 +139,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
 
     /**
      * @param string $controller
-     * @return IControllerRoute
+     * @return static
      */
     public function setController(string $controller): IControllerRoute
     {
@@ -158,7 +158,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
 
     /**
      * @param string $method
-     * @return IRoute
+     * @return static
      */
     public function setMethod(string $method): IRoute
     {
@@ -170,7 +170,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
     /**
      * @param array $values
      * @param bool $merge
-     * @return IRoute
+     * @return static
      */
     public function setSettings(array $values, bool $merge = false): IRoute
     {

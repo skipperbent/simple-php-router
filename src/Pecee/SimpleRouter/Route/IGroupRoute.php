@@ -26,7 +26,7 @@ interface IGroupRoute extends IRoute
 
     /**
      * @param array $handlers
-     * @return mixed
+     * @return static
      */
     public function setExceptionHandlers(array $handlers);
 
@@ -42,7 +42,7 @@ interface IGroupRoute extends IRoute
 
     /**
      * @param array $domains
-     * @return IGroupRoute
+     * @return static
      */
     public function setDomains(array $domains): self;
 

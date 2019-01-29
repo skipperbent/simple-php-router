@@ -188,7 +188,7 @@ abstract class Route implements IRoute
 
     /**
      * @param array $methods
-     * @return IRoute
+     * @return static
      */
     public function setRequestMethods(array $methods): IRoute
     {
@@ -223,7 +223,7 @@ abstract class Route implements IRoute
 
     /**
      * @param IGroupRoute $group
-     * @return IRoute
+     * @return static
      */
     public function setGroup(IGroupRoute $group): IRoute
     {
@@ -235,7 +235,7 @@ abstract class Route implements IRoute
 
     /**
      * @param IRoute $parent
-     * @return IRoute
+     * @return static
      */
     public function setParent(IRoute $parent): IRoute
     {
@@ -246,7 +246,7 @@ abstract class Route implements IRoute
 
     /**
      * @param $callback
-     * @return IRoute
+     * @return static
      */
     public function setCallback($callback): IRoute
     {
@@ -293,7 +293,7 @@ abstract class Route implements IRoute
 
     /**
      * @param string $method
-     * @return IRoute
+     * @return static
      */
     public function setMethod(string $method): IRoute
     {
@@ -304,7 +304,7 @@ abstract class Route implements IRoute
 
     /**
      * @param string $class
-     * @return IRoute
+     * @return static
      */
     public function setClass(string $class): IRoute
     {
@@ -315,7 +315,7 @@ abstract class Route implements IRoute
 
     /**
      * @param string $namespace
-     * @return IRoute
+     * @return static
      */
     public function setNamespace(string $namespace): IRoute
     {
@@ -326,7 +326,7 @@ abstract class Route implements IRoute
 
     /**
      * @param $namespace
-     * @return IRoute
+     * @return static
      */
     public function setDefaultNamespace($namespace): IRoute
     {
@@ -384,7 +384,7 @@ abstract class Route implements IRoute
     /**
      * @param array $values
      * @param bool $merge
-     * @return IRoute
+     * @return static
      */
     public function setSettings(array $values, bool $merge = false): IRoute
     {
@@ -426,7 +426,7 @@ abstract class Route implements IRoute
 
     /**
      * @param array $options
-     * @return IRoute
+     * @return static
      */
     public function setWhere(array $options): IRoute
     {
@@ -461,7 +461,7 @@ abstract class Route implements IRoute
 
     /**
      * @param array $parameters
-     * @return IRoute
+     * @return static
      */
     public function setParameters(array $parameters): IRoute
     {
@@ -480,7 +480,7 @@ abstract class Route implements IRoute
 
     /**
      * @param $middleware
-     * @return $this
+     * @return static
      */
     public function setMiddleware($middleware)
     {
@@ -491,7 +491,7 @@ abstract class Route implements IRoute
 
     /**
      * @param $middleware
-     * @return IRoute
+     * @return static
      */
     public function addMiddleware($middleware): IRoute
     {
@@ -502,7 +502,7 @@ abstract class Route implements IRoute
 
     /**
      * @param array $middlewares
-     * @return IRoute
+     * @return static
      */
     public function setMiddlewares(array $middlewares): IRoute
     {
@@ -521,7 +521,7 @@ abstract class Route implements IRoute
 
     /**
      * @param $regex
-     * @return $this
+     * @return static
      */
     public function setDefaultParameterRegex($regex)
     {

@@ -18,6 +18,7 @@ class Response
 
     /**
      * Response constructor.
+     *
      * @param Request $request
      */
     public function __construct(Request $request)
@@ -27,7 +28,7 @@ class Response
 
     /**
      * @param int $code
-     * @return Response
+     * @return static
      */
     public function httpCode(int $code): self
     {
@@ -57,7 +58,7 @@ class Response
 
     /**
      * @param string $name
-     * @return Response
+     * @return static
      */
     public function auth(string $name = ''): self
     {
@@ -112,7 +113,7 @@ class Response
 
     /**
      * @param string $value
-     * @return Response
+     * @return static
      */
     public function header(string $value): self
     {

@@ -33,7 +33,7 @@ interface ILoadableRoute extends IRoute
 
     /**
      * @param string $url
-     * @return ILoadableRoute
+     * @return static
      */
     public function setUrl(string $url): self;
 
@@ -56,7 +56,7 @@ interface ILoadableRoute extends IRoute
 
     /**
      * @param string $name
-     * @return ILoadableRoute
+     * @return static
      */
     public function setName(string $name): self;
 

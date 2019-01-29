@@ -6,6 +6,7 @@ use Pecee\Http\Request;
 use Pecee\SimpleRouter\Router;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\SimpleRouter\Exceptions\HttpException;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 /**
  * Class LoadableRoute
@@ -29,7 +30,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @param Request $request
      * @param Router $router
      * @throws HttpException
-     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
+     * @throws NotFoundHttpException
      */
     public function loadMiddleware(Request $request, Router $router): void
     {
@@ -72,7 +73,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
     /**
      * @param string $url
-     * @return ILoadableRoute
+     * @return static
      */
     public function setUrl(string $url): ILoadableRoute
     {
@@ -172,7 +173,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
     /**
      * @param $regex
-     * @return ILoadableRoute
+     * @return static
      */
     public function setMatch($regex): ILoadableRoute
     {
@@ -200,7 +201,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
     /**
      * @param string $name
-     * @return ILoadableRoute
+     * @return static
      */
     public function setName(string $name): ILoadableRoute
     {
@@ -212,7 +213,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     /**
      * @param array $values
      * @param bool $merge
-     * @return IRoute
+     * @return static
      */
     public function setSettings(array $values, bool $merge = false): IRoute
     {

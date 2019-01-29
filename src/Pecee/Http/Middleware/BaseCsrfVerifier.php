@@ -5,6 +5,7 @@ namespace Pecee\Http\Middleware;
 use Pecee\Http\Request;
 use Pecee\Http\Security\ITokenProvider;
 use Pecee\Http\Security\CookieTokenProvider;
+use Pecee\Http\Security\Exceptions\SecurityException;
 use Pecee\Http\Middleware\Exceptions\TokenMismatchException;
 
 /**
@@ -22,7 +23,8 @@ class BaseCsrfVerifier implements IMiddleware
 
     /**
      * BaseCsrfVerifier constructor.
-     * @throws \Pecee\Http\Security\Exceptions\SecurityException
+     *
+     * @throws SecurityException
      */
     public function __construct()
     {

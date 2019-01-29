@@ -33,7 +33,8 @@ class InputFile implements IInputItem
 
     /**
      * @param array $values
-     * @return InputFile
+     * @throws InvalidArgumentException
+     * @return static
      */
     public static function createFromArray(array $values): self
     {
@@ -67,7 +68,7 @@ class InputFile implements IInputItem
 
     /**
      * @param string $index
-     * @return IInputItem
+     * @return static
      */
     public function setIndex(string $index): IInputItem
     {
@@ -113,7 +114,7 @@ class InputFile implements IInputItem
 
     /**
      * @param string $type
-     * @return IInputItem
+     * @return static
      */
     public function setType(string $type): IInputItem
     {
@@ -140,7 +141,7 @@ class InputFile implements IInputItem
 
     /**
      * @param string $name
-     * @return IInputItem
+     * @return static
      */
     public function setName(string $name): IInputItem
     {
@@ -151,7 +152,7 @@ class InputFile implements IInputItem
 
     /**
      * @param $name
-     * @return IInputItem
+     * @return static
      */
     public function setFilename($name): IInputItem
     {
@@ -169,10 +170,10 @@ class InputFile implements IInputItem
     }
 
     /**
-     * @param $destination
+     * @param string $destination
      * @return bool
      */
-    public function move($destination): bool
+    public function move(string $destination): bool
     {
         return move_uploaded_file($this->tmpName, $destination);
     }
@@ -202,10 +203,10 @@ class InputFile implements IInputItem
     }
 
     /**
-     * @param $error
-     * @return IInputItem
+     * @param int $error
+     * @return static
      */
-    public function setError($error): IInputItem
+    public function setError(int $error): IInputItem
     {
         $this->errors = (int)$error;
 
@@ -221,10 +222,10 @@ class InputFile implements IInputItem
     }
 
     /**
-     * @param $name
-     * @return IInputItem
+     * @param string $name
+     * @return static
      */
-    public function setTmpName($name): IInputItem
+    public function setTmpName(string $name): IInputItem
     {
         $this->tmpName = $name;
 
@@ -249,7 +250,7 @@ class InputFile implements IInputItem
 
     /**
      * @param string $value
-     * @return IInputItem
+     * @return static
      */
     public function setValue(string $value): IInputItem
     {
@@ -264,11 +265,11 @@ class InputFile implements IInputItem
     public function toArray(): array
     {
         return [
-            'tmp_name' => $this->tmpName,
             'type' => $this->type,
             'size' => $this->size,
             'name' => $this->name,
             'error' => $this->errors,
+            'tmp_name' => $this->tmpName,
             'filename' => $this->filename,
         ];
     }

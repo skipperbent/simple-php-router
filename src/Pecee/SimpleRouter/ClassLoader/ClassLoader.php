@@ -86,7 +86,7 @@ class ClassLoader implements IClassLoader
 
     /**
      * @param bool $enabled
-     * @return ClassLoader
+     * @return static
      */
     public function useDependencyInjection(bool $enabled): self
     {

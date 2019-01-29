@@ -686,7 +686,7 @@ class Router
 
     /**
      * @param array $bootManagers
-     * @return Router
+     * @return static
      */
     public function setBootManagers(array $bootManagers): self
     {
@@ -697,7 +697,7 @@ class Router
 
     /**
      * @param IRouterBootManager $bootManager
-     * @return Router
+     * @return static
      */
     public function addBootManager(IRouterBootManager $bootManager): self
     {
@@ -724,7 +724,7 @@ class Router
 
     /**
      * @param array $routes
-     * @return Router
+     * @return static
      */
     public function setRoutes(array $routes): self
     {
@@ -825,7 +825,7 @@ class Router
 
     /**
      * @param bool $enabled
-     * @return Router
+     * @return static
      */
     public function setDebugEnabled(bool $enabled): self
     {

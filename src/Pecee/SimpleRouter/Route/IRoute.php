@@ -33,7 +33,7 @@ interface IRoute
 
     /**
      * @param array $methods
-     * @return IRoute
+     * @return static
      */
     public function setRequestMethods(array $methods): self;
 
@@ -54,13 +54,13 @@ interface IRoute
 
     /**
      * @param IGroupRoute $group
-     * @return IRoute
+     * @return static
      */
     public function setGroup(IGroupRoute $group): self;
 
     /**
      * @param IRoute $parent
-     * @return IRoute
+     * @return static
      */
     public function setParent(IRoute $parent): self;
 
@@ -82,7 +82,7 @@ interface IRoute
 
     /**
      * @param string $method
-     * @return IRoute
+     * @return static
      */
     public function setMethod(string $method): self;
 
@@ -93,7 +93,7 @@ interface IRoute
 
     /**
      * @param string $namespace
-     * @return IRoute
+     * @return static
      */
     public function setNamespace(string $namespace): self;
 
@@ -104,7 +104,7 @@ interface IRoute
 
     /**
      * @param $namespace
-     * @return IRoute
+     * @return static
      */
     public function setDefaultNamespace($namespace): IRoute;
 
@@ -120,7 +120,7 @@ interface IRoute
 
     /**
      * @param array $options
-     * @return IRoute
+     * @return static
      */
     public function setWhere(array $options): self;
 
@@ -131,14 +131,14 @@ interface IRoute
 
     /**
      * @param array $parameters
-     * @return IRoute
+     * @return static
      */
     public function setParameters(array $parameters): self;
 
     /**
      * @param array $settings
      * @param bool $merge
-     * @return IRoute
+     * @return static
      */
     public function setSettings(array $settings, bool $merge = false): self;
 
@@ -154,7 +154,7 @@ interface IRoute
 
     /**
      * @param $middleware
-     * @return IRoute
+     * @return static
      */
     public function addMiddleware($middleware): self;
 

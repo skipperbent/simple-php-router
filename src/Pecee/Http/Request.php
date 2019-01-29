@@ -25,7 +25,14 @@ class Request
      */
     protected $headers = [];
 
+    /**
+     * @var string
+     */
     protected $host;
+
+    /**
+     * @var Url
+     */
     protected $url;
 
     /**
@@ -42,7 +49,15 @@ class Request
      * @var bool
      */
     protected $hasPendingRewrite = false;
+
+    /**
+     * @var ILoadableRoute|null
+     */
     protected $rewriteRoute;
+
+    /**
+     * @var string|null
+     */
     protected $rewriteUrl;
 
     /**
@@ -52,6 +67,7 @@ class Request
 
     /**
      * Request constructor.
+     *
      * @throws MalformedUrlException
      */
     public function __construct()
@@ -62,7 +78,6 @@ class Request
         }
 
         $this->setHost($this->getHeader('http-host'));
-        // Check if special IIS header exist, otherwise use default.
         $this->setUrl(new Url($this->getHeader('unencoded-url', $this->getHeader('request-uri'))));
         $this->method = strtolower($this->getHeader('request-method'));
         $this->inputHandler = new InputHandler($this);
@@ -174,11 +189,11 @@ class Request
     }
 
     /**
-     * @param $name
-     * @param null $defaultValue
+     * @param string $name
+     * @param string|null $defaultValue
      * @return null|string
      */
-    public function getHeader($name, $defaultValue = null): ?string
+    public function getHeader(string $name, ?string $defaultValue = null): ?string
     {
         return $this->headers[strtolower($name)] ?? $defaultValue;
     }
@@ -246,7 +261,7 @@ class Request
 
     /**
      * @param ILoadableRoute $route
-     * @return Request
+     * @return static
      */
     public function setRewriteRoute(ILoadableRoute $route): self
     {
@@ -274,7 +289,7 @@ class Request
 
     /**
      * @param string $rewriteUrl
-     * @return Request
+     * @return static
      */
     public function setRewriteUrl(string $rewriteUrl): self
     {
@@ -313,7 +328,7 @@ class Request
 
     /**
      * @param array $routes
-     * @return Request
+     * @return static
      */
     public function setLoadedRoutes(array $routes): self
     {
@@ -324,7 +339,7 @@ class Request
 
     /**
      * @param ILoadableRoute $route
-     * @return Request
+     * @return static
      */
     public function addLoadedRoute(ILoadableRoute $route): self
     {
@@ -362,19 +377,19 @@ class Request
     }
 
     /**
-     * @param $name
+     * @param string $name
      * @param null $value
      */
-    public function __set($name, $value = null)
+    public function __set(string $name, $value = null)
     {
         $this->data[$name] = $value;
     }
 
     /**
-     * @param $name
+     * @param string $name
      * @return mixed|null
      */
-    public function __get($name)
+    public function __get(string $name)
     {
         return $this->data[$name] ?? null;
     }

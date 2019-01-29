@@ -7,22 +7,59 @@ use Pecee\Http\Exceptions\MalformedUrlException;
 
 /**
  * Class Url
+ *
  * @package Pecee\Http
  */
 class Url implements JsonSerializable
 {
+    /**
+     * @var string|null
+     */
     private $originalUrl;
+
+    /**
+     * @var mixed|null
+     */
     private $scheme;
+
+    /**
+     * @var mixed|null
+     */
     private $host;
+
+    /**
+     * @var mixed|null
+     */
     private $port;
+
+    /**
+     * @var mixed|null
+     */
     private $username;
+
+    /**
+     * @var mixed|null
+     */
     private $password;
+
+    /**
+     * @var string
+     */
     private $path;
+
+    /**
+     * @var array
+     */
     private $params = [];
+
+    /**
+     * @var mixed|null
+     */
     private $fragment;
 
     /**
      * Url constructor.
+     *
      * @param null|string $url
      * @throws MalformedUrlException
      */
@@ -77,7 +114,7 @@ class Url implements JsonSerializable
 
     /**
      * @param string $scheme
-     * @return Url
+     * @return static
      */
     public function setScheme(string $scheme): self
     {
@@ -96,7 +133,7 @@ class Url implements JsonSerializable
 
     /**
      * @param string $host
-     * @return Url
+     * @return static
      */
     public function setHost(string $host): self
     {
@@ -115,7 +152,7 @@ class Url implements JsonSerializable
 
     /**
      * @param int $port
-     * @return Url
+     * @return static
      */
     public function setPort(int $port): self
     {
@@ -134,7 +171,7 @@ class Url implements JsonSerializable
 
     /**
      * @param string $username
-     * @return Url
+     * @return static
      */
     public function setUsername(string $username): self
     {
@@ -153,7 +190,7 @@ class Url implements JsonSerializable
 
     /**
      * @param string $password
-     * @return Url
+     * @return static
      */
     public function setPassword(string $password): self
     {
@@ -172,7 +209,7 @@ class Url implements JsonSerializable
 
     /**
      * @param string $path
-     * @return Url
+     * @return static
      */
     public function setPath(string $path): self
     {
@@ -191,7 +228,7 @@ class Url implements JsonSerializable
 
     /**
      * @param array $params
-     * @return Url
+     * @return static
      */
     public function mergeParams(array $params): self
     {
@@ -200,7 +237,7 @@ class Url implements JsonSerializable
 
     /**
      * @param array $params
-     * @return Url
+     * @return static
      */
     public function setParams(array $params): self
     {
@@ -211,7 +248,7 @@ class Url implements JsonSerializable
 
     /**
      * @param string $queryString
-     * @return Url
+     * @return static
      */
     public function setQueryString(string $queryString): self
     {
@@ -242,7 +279,7 @@ class Url implements JsonSerializable
 
     /**
      * @param string $fragment
-     * @return Url
+     * @return static
      */
     public function setFragment(string $fragment): self
     {
@@ -290,7 +327,7 @@ class Url implements JsonSerializable
 
     /**
      * @param mixed ...$names
-     * @return Url
+     * @return static
      */
     public function removeParams(...$names): self
     {
