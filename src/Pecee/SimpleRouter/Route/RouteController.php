@@ -4,6 +4,10 @@ namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
 
+/**
+ * Class RouteController
+ * @package Pecee\SimpleRouter\Route
+ */
 class RouteController extends LoadableRoute implements IControllerRoute
 {
     protected $defaultMethod = 'index';
@@ -11,6 +15,11 @@ class RouteController extends LoadableRoute implements IControllerRoute
     protected $method;
     protected $names = [];
 
+    /**
+     * RouteController constructor.
+     * @param $url
+     * @param $controller
+     */
     public function __construct($url, $controller)
     {
         $this->setUrl($url);
@@ -19,8 +28,6 @@ class RouteController extends LoadableRoute implements IControllerRoute
     }
 
     /**
-     * Check if route has given name.
-     *
      * @param string $name
      * @return bool
      */
@@ -29,7 +36,6 @@ class RouteController extends LoadableRoute implements IControllerRoute
         if ($this->name === null) {
             return false;
         }
-
         /* Remove method/type */
         if (strpos($name, '.') !== false) {
             $method = substr($name, strrpos($name, '.') + 1);
@@ -44,9 +50,9 @@ class RouteController extends LoadableRoute implements IControllerRoute
     }
 
     /**
-     * @param string|null $method
-     * @param string|array|null $parameters
-     * @param string|null $name
+     * @param null|string $method
+     * @param null $parameters
+     * @param null|string $name
      * @return string
      */
     public function findUrl(?string $method = null, $parameters = null, ?string $name = null): string
@@ -86,6 +92,11 @@ class RouteController extends LoadableRoute implements IControllerRoute
         return '/' . trim($url, '/') . '/';
     }
 
+    /**
+     * @param $url
+     * @param Request $request
+     * @return bool
+     */
     public function matchRoute($url, Request $request): bool
     {
         if ($this->getGroup() !== null && $this->getGroup()->matchRoute($url, $request) === false) {
@@ -119,8 +130,6 @@ class RouteController extends LoadableRoute implements IControllerRoute
     }
 
     /**
-     * Get controller class-name.
-     *
      * @return string
      */
     public function getController(): string
@@ -129,8 +138,6 @@ class RouteController extends LoadableRoute implements IControllerRoute
     }
 
     /**
-     * Get controller class-name.
-     *
      * @param string $controller
      * @return static
      */
@@ -142,9 +149,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
     }
 
     /**
-     * Return active method
-     *
-     * @return string|null
+     * @return null|string
      */
     public function getMethod(): ?string
     {
@@ -152,8 +157,6 @@ class RouteController extends LoadableRoute implements IControllerRoute
     }
 
     /**
-     * Set active method
-     *
      * @param string $method
      * @return static
      */
@@ -165,8 +168,6 @@ class RouteController extends LoadableRoute implements IControllerRoute
     }
 
     /**
-     * Merge with information from another route.
-     *
      * @param array $values
      * @param bool $merge
      * @return static
@@ -179,5 +180,4 @@ class RouteController extends LoadableRoute implements IControllerRoute
 
         return parent::setSettings($values, $merge);
     }
-
 }

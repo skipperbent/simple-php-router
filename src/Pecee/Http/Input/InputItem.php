@@ -2,17 +2,27 @@
 
 namespace Pecee\Http\Input;
 
+/**
+ * Class InputItem
+ *
+ * @package Pecee\Http\Input
+ */
 class InputItem implements IInputItem
 {
     public $index;
     public $name;
     public $value;
 
+    /**
+     * InputItem constructor.
+     *
+     * @param string $index
+     * @param null|string $value
+     */
     public function __construct(string $index, ?string $value = null)
     {
         $this->index = $index;
         $this->value = $value;
-
         // Make the name human friendly, by replace _ with space
         $this->name = ucfirst(str_replace('_', ' ', strtolower($this->index)));
     }
@@ -25,6 +35,10 @@ class InputItem implements IInputItem
         return $this->index;
     }
 
+    /**
+     * @param string $index
+     * @return static
+     */
     public function setIndex(string $index): IInputItem
     {
         $this->index = $index;
@@ -41,7 +55,6 @@ class InputItem implements IInputItem
     }
 
     /**
-     * Set input name
      * @param string $name
      * @return static
      */
@@ -61,7 +74,6 @@ class InputItem implements IInputItem
     }
 
     /**
-     * Set input value
      * @param string $value
      * @return static
      */
@@ -72,6 +84,9 @@ class InputItem implements IInputItem
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function __toString(): string
     {
         return (string)$this->value;

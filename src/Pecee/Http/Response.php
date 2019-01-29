@@ -4,18 +4,29 @@ namespace Pecee\Http;
 
 use Pecee\Exceptions\InvalidArgumentException;
 
+/**
+ * Class Response
+ *
+ * @package Pecee\Http
+ */
 class Response
 {
+    /**
+     * @var Request
+     */
     protected $request;
 
+    /**
+     * Response constructor.
+     *
+     * @param Request $request
+     */
     public function __construct(Request $request)
     {
         $this->request = $request;
     }
 
     /**
-     * Set the http status code
-     *
      * @param int $code
      * @return static
      */
@@ -27,10 +38,8 @@ class Response
     }
 
     /**
-     * Redirect the response
-     *
      * @param string $url
-     * @param int $httpCode
+     * @param int|null $httpCode
      */
     public function redirect(string $url, ?int $httpCode = null): void
     {
@@ -48,7 +57,6 @@ class Response
     }
 
     /**
-     * Add http authorisation
      * @param string $name
      * @return static
      */
@@ -62,9 +70,13 @@ class Response
         return $this;
     }
 
+    /**
+     * @param string $eTag
+     * @param int $lastModifiedTime
+     * @return Response
+     */
     public function cache(string $eTag, int $lastModifiedTime = 2592000): self
     {
-
         $this->headers([
             'Cache-Control: public',
             sprintf('Last-Modified: %s GMT', gmdate('D, d M Y H:i:s', $lastModifiedTime)),
@@ -84,11 +96,9 @@ class Response
     }
 
     /**
-     * Json encode
-     * @param array|\JsonSerializable $value
-     * @param int $options JSON options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_PRESERVE_ZERO_FRACTION, JSON_UNESCAPED_UNICODE, JSON_PARTIAL_OUTPUT_ON_ERROR.
-     * @param int $dept JSON debt.
-     * @throws InvalidArgumentException
+     * @param $value
+     * @param int|null $options
+     * @param int $dept
      */
     public function json($value, ?int $options = null, int $dept = 512): void
     {
@@ -102,7 +112,6 @@ class Response
     }
 
     /**
-     * Add header to response
      * @param string $value
      * @return static
      */
@@ -114,9 +123,8 @@ class Response
     }
 
     /**
-     * Add multiple headers to response
      * @param array $headers
-     * @return static
+     * @return Response
      */
     public function headers(array $headers): self
     {

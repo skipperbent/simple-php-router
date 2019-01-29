@@ -5,6 +5,11 @@ namespace Pecee\SimpleRouter\Route;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Handlers\IExceptionHandler;
 
+/**
+ * Class RouteGroup
+ *
+ * @package Pecee\SimpleRouter\Route
+ */
 class RouteGroup extends Route implements IGroupRoute
 {
     protected $prefix;
@@ -13,8 +18,6 @@ class RouteGroup extends Route implements IGroupRoute
     protected $exceptionHandlers = [];
 
     /**
-     * Method called to check if a domain matches
-     *
      * @param Request $request
      * @return bool
      */
@@ -25,9 +28,7 @@ class RouteGroup extends Route implements IGroupRoute
         }
 
         foreach ($this->domains as $domain) {
-
             $parameters = $this->parseParameters($domain, $request->getHost(), '.*');
-
             if ($parameters !== null && \count($parameters) !== 0) {
 
                 $this->parameters = $parameters;
@@ -40,9 +41,7 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Method called to check if route matches
-     *
-     * @param string $url
+     * @param $url
      * @param Request $request
      * @return bool
      */
@@ -61,8 +60,6 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Add exception handler
-     *
      * @param IExceptionHandler|string $handler
      * @return static
      */
@@ -74,8 +71,6 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Set exception-handlers for group
-     *
      * @param array $handlers
      * @return static
      */
@@ -87,8 +82,6 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Get exception-handlers for group
-     *
      * @return array
      */
     public function getExceptionHandlers(): array
@@ -97,8 +90,6 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Get allowed domains for domain.
-     *
      * @return array
      */
     public function getDomains(): array
@@ -107,8 +98,6 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Set allowed domains for group.
-     *
      * @param array $domains
      * @return static
      */
@@ -120,7 +109,7 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * @param string $prefix
+     * @param $prefix
      * @return static
      */
     public function setPrefix($prefix): IGroupRoute
@@ -131,9 +120,7 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Set prefix that child-routes will inherit.
-     *
-     * @return string|null
+     * @return null|string
      */
     public function getPrefix(): ?string
     {
@@ -141,8 +128,6 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Merge with information from another route.
-     *
      * @param array $values
      * @param bool $merge
      * @return static
@@ -177,8 +162,6 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Export route settings to array so they can be merged with another route.
-     *
      * @return array
      */
     public function toArray(): array
@@ -199,5 +182,4 @@ class RouteGroup extends Route implements IGroupRoute
 
         return array_merge($values, parent::toArray());
     }
-
 }

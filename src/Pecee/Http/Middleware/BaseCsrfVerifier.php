@@ -2,11 +2,17 @@
 
 namespace Pecee\Http\Middleware;
 
-use Pecee\Http\Middleware\Exceptions\TokenMismatchException;
 use Pecee\Http\Request;
-use Pecee\Http\Security\CookieTokenProvider;
 use Pecee\Http\Security\ITokenProvider;
+use Pecee\Http\Security\CookieTokenProvider;
+use Pecee\Http\Security\Exceptions\SecurityException;
+use Pecee\Http\Middleware\Exceptions\TokenMismatchException;
 
+/**
+ * Class BaseCsrfVerifier
+ *
+ * @package Pecee\Http\Middleware
+ */
 class BaseCsrfVerifier implements IMiddleware
 {
     public const POST_KEY = 'csrf_token';
@@ -17,7 +23,8 @@ class BaseCsrfVerifier implements IMiddleware
 
     /**
      * BaseCsrfVerifier constructor.
-     * @throws \Pecee\Http\Security\Exceptions\SecurityException
+     *
+     * @throws SecurityException
      */
     public function __construct()
     {
@@ -25,7 +32,6 @@ class BaseCsrfVerifier implements IMiddleware
     }
 
     /**
-     * Check if the url matches the urls in the except property
      * @param Request $request
      * @return bool
      */
@@ -57,8 +63,6 @@ class BaseCsrfVerifier implements IMiddleware
     }
 
     /**
-     * Handle request
-     *
      * @param Request $request
      * @throws TokenMismatchException
      */
@@ -78,24 +82,23 @@ class BaseCsrfVerifier implements IMiddleware
             }
 
         }
-
-        // Refresh existing token
         $this->tokenProvider->refresh();
 
     }
 
+    /**
+     * @return ITokenProvider
+     */
     public function getTokenProvider(): ITokenProvider
     {
         return $this->tokenProvider;
     }
 
     /**
-     * Set token provider
      * @param ITokenProvider $provider
      */
     public function setTokenProvider(ITokenProvider $provider): void
     {
         $this->tokenProvider = $provider;
     }
-
 }

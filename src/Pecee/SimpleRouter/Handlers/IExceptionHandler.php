@@ -4,6 +4,11 @@ namespace Pecee\SimpleRouter\Handlers;
 
 use Pecee\Http\Request;
 
+/**
+ * Interface IExceptionHandler
+ *
+ * @package Pecee\SimpleRouter\Handlers
+ */
 interface IExceptionHandler
 {
     /**
@@ -11,5 +16,4 @@ interface IExceptionHandler
      * @param \Exception $error
      */
     public function handleError(Request $request, \Exception $error): void;
-
 }

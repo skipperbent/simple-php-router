@@ -5,10 +5,14 @@ namespace Pecee\SimpleRouter\Event;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Router;
 
+/**
+ * Class EventArgument
+ *
+ * @package Pecee\SimpleRouter\Event
+ */
 class EventArgument implements IEventArgument
 {
     /**
-     * Event name
      * @var string
      */
     protected $eventName;
@@ -23,6 +27,12 @@ class EventArgument implements IEventArgument
      */
     protected $arguments = [];
 
+    /**
+     * EventArgument constructor.
+     * @param $eventName
+     * @param $router
+     * @param array $arguments
+     */
     public function __construct($eventName, $router, array $arguments = [])
     {
         $this->eventName = $eventName;
@@ -31,8 +41,6 @@ class EventArgument implements IEventArgument
     }
 
     /**
-     * Get event name
-     *
      * @return string
      */
     public function getEventName(): string
@@ -41,8 +49,6 @@ class EventArgument implements IEventArgument
     }
 
     /**
-     * Set the event name
-     *
      * @param string $name
      */
     public function setEventName(string $name): void
@@ -51,8 +57,6 @@ class EventArgument implements IEventArgument
     }
 
     /**
-     * Get the router instance
-     *
      * @return Router
      */
     public function getRouter(): Router
@@ -61,8 +65,6 @@ class EventArgument implements IEventArgument
     }
 
     /**
-     * Get the request instance
-     *
      * @return Request
      */
     public function getRequest(): Request
@@ -71,8 +73,8 @@ class EventArgument implements IEventArgument
     }
 
     /**
-     * @param string $name
-     * @return mixed
+     * @param $name
+     * @return mixed|null
      */
     public function __get($name)
     {
@@ -83,29 +85,25 @@ class EventArgument implements IEventArgument
      * @param string $name
      * @return bool
      */
-    public function __isset($name)
+    public function __isset(string $name)
     {
         return array_key_exists($name, $this->arguments);
     }
 
     /**
-     * @param string $name
-     * @param mixed $value
-     * @throws \InvalidArgumentException
+     * @param string name
+     * @param mixed value
      */
-    public function __set($name, $value)
+    public function __set(string $name, $value)
     {
         throw new \InvalidArgumentException('Not supported');
     }
 
     /**
-     * Get arguments
-     *
      * @return array
      */
     public function getArguments(): array
     {
         return $this->arguments;
     }
-
 }

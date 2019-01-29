@@ -4,6 +4,11 @@ namespace Pecee\Http\Input;
 
 use Pecee\Exceptions\InvalidArgumentException;
 
+/**
+ * Class InputFile
+ *
+ * @package Pecee\Http\Input
+ */
 class InputFile implements IInputItem
 {
     public $index;
@@ -14,19 +19,19 @@ class InputFile implements IInputItem
     public $errors;
     public $tmpName;
 
+    /**
+     * InputFile constructor.
+     * @param string $index
+     */
     public function __construct(string $index)
     {
         $this->index = $index;
-
         $this->errors = 0;
-
         // Make the name human friendly, by replace _ with space
         $this->name = ucfirst(str_replace('_', ' ', strtolower($this->index)));
     }
 
     /**
-     * Create from array
-     *
      * @param array $values
      * @throws InvalidArgumentException
      * @return static
@@ -36,15 +41,13 @@ class InputFile implements IInputItem
         if (isset($values['index']) === false) {
             throw new InvalidArgumentException('Index key is required');
         }
-
         /* Easy way of ensuring that all indexes-are set and not filling the screen with isset() */
-
         $values += [
             'tmp_name' => null,
-            'type'     => null,
-            'size'     => null,
-            'name'     => null,
-            'error'    => null,
+            'type' => null,
+            'size' => null,
+            'name' => null,
+            'error' => null,
         ];
 
         return (new static($values['index']))
@@ -53,7 +56,6 @@ class InputFile implements IInputItem
             ->setType($values['type'])
             ->setTmpName($values['tmp_name'])
             ->setFilename($values['name']);
-
     }
 
     /**
@@ -65,7 +67,6 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Set input index
      * @param string $index
      * @return static
      */
@@ -85,9 +86,8 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Set file size
      * @param int $size
-     * @return static
+     * @return IInputItem
      */
     public function setSize(int $size): IInputItem
     {
@@ -97,7 +97,6 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Get mime-type of file
      * @return string
      */
     public function getMime(): string
@@ -114,7 +113,6 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Set type
      * @param string $type
      * @return static
      */
@@ -126,8 +124,6 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Returns extension without "."
-     *
      * @return string
      */
     public function getExtension(): string
@@ -136,9 +132,7 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Get human friendly name
-     *
-     * @return string
+     * @return null|string
      */
     public function getName(): ?string
     {
@@ -146,9 +140,6 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Set human friendly name.
-     * Useful for adding validation etc.
-     *
      * @param string $name
      * @return static
      */
@@ -160,9 +151,7 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Set filename
-     *
-     * @param string $name
+     * @param $name
      * @return static
      */
     public function setFilename($name): IInputItem
@@ -173,9 +162,7 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Get filename
-     *
-     * @return string mixed
+     * @return null|string
      */
     public function getFilename(): ?string
     {
@@ -183,19 +170,15 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Move the uploaded temporary file to it's new home
-     *
      * @param string $destination
      * @return bool
      */
-    public function move($destination): bool
+    public function move(string $destination): bool
     {
         return move_uploaded_file($this->tmpName, $destination);
     }
 
     /**
-     * Get file contents
-     *
      * @return string
      */
     public function getContents(): string
@@ -204,8 +187,6 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Return true if an upload error occurred.
-     *
      * @return bool
      */
     public function hasError(): bool
@@ -214,8 +195,6 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Get upload-error code.
-     *
      * @return int
      */
     public function getError(): int
@@ -224,12 +203,10 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Set error
-     *
      * @param int $error
      * @return static
      */
-    public function setError($error): IInputItem
+    public function setError(int $error): IInputItem
     {
         $this->errors = (int)$error;
 
@@ -245,22 +222,27 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Set file temp. name
      * @param string $name
      * @return static
      */
-    public function setTmpName($name): IInputItem
+    public function setTmpName(string $name): IInputItem
     {
         $this->tmpName = $name;
 
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function __toString(): string
     {
         return $this->getTmpName();
     }
 
+    /**
+     * @return null|string
+     */
     public function getValue(): ?string
     {
         return $this->getFilename();
@@ -277,16 +259,18 @@ class InputFile implements IInputItem
         return $this;
     }
 
+    /**
+     * @return array
+     */
     public function toArray(): array
     {
         return [
+            'type' => $this->type,
+            'size' => $this->size,
+            'name' => $this->name,
+            'error' => $this->errors,
             'tmp_name' => $this->tmpName,
-            'type'     => $this->type,
-            'size'     => $this->size,
-            'name'     => $this->name,
-            'error'    => $this->errors,
             'filename' => $this->filename,
         ];
     }
-
 }

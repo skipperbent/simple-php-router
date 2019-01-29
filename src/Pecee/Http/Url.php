@@ -2,25 +2,65 @@
 
 namespace Pecee\Http;
 
+use JsonSerializable;
 use Pecee\Http\Exceptions\MalformedUrlException;
 
-class Url implements \JsonSerializable
+/**
+ * Class Url
+ *
+ * @package Pecee\Http
+ */
+class Url implements JsonSerializable
 {
+    /**
+     * @var string|null
+     */
     private $originalUrl;
 
+    /**
+     * @var mixed|null
+     */
     private $scheme;
+
+    /**
+     * @var mixed|null
+     */
     private $host;
+
+    /**
+     * @var mixed|null
+     */
     private $port;
+
+    /**
+     * @var mixed|null
+     */
     private $username;
+
+    /**
+     * @var mixed|null
+     */
     private $password;
+
+    /**
+     * @var string
+     */
     private $path;
+
+    /**
+     * @var array
+     */
     private $params = [];
+
+    /**
+     * @var mixed|null
+     */
     private $fragment;
 
     /**
      * Url constructor.
      *
-     * @param string $url
+     * @param null|string $url
      * @throws MalformedUrlException
      */
     public function __construct(?string $url)
@@ -49,8 +89,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Check if url is using a secure protocol like https
-     *
      * @return bool
      */
     public function isSecure(): bool
@@ -59,8 +97,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Checks if url is relative
-     *
      * @return bool
      */
     public function isRelative(): bool
@@ -69,9 +105,7 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Get url scheme
-     *
-     * @return string|null
+     * @return null|string
      */
     public function getScheme(): ?string
     {
@@ -79,8 +113,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Set the scheme of the url
-     *
      * @param string $scheme
      * @return static
      */
@@ -92,9 +124,7 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Get url host
-     *
-     * @return string|null
+     * @return null|string
      */
     public function getHost(): ?string
     {
@@ -102,8 +132,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Set the host of the url
-     *
      * @param string $host
      * @return static
      */
@@ -115,8 +143,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Get url port
-     *
      * @return int|null
      */
     public function getPort(): ?int
@@ -125,8 +151,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Set the port of the url
-     *
      * @param int $port
      * @return static
      */
@@ -138,9 +162,7 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Parse username from url
-     *
-     * @return string|null
+     * @return null|string
      */
     public function getUsername(): ?string
     {
@@ -148,8 +170,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Set the username of the url
-     *
      * @param string $username
      * @return static
      */
@@ -161,8 +181,7 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Parse password from url
-     * @return string|null
+     * @return null|string
      */
     public function getPassword(): ?string
     {
@@ -170,8 +189,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Set the url password
-     *
      * @param string $password
      * @return static
      */
@@ -183,8 +200,7 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Get path from url
-     * @return string
+     * @return null|string
      */
     public function getPath(): ?string
     {
@@ -192,8 +208,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Set the url path
-     *
      * @param string $path
      * @return static
      */
@@ -205,8 +219,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Get query-string from url
-     *
      * @return array
      */
     public function getParams(): array
@@ -215,8 +227,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Merge parameters array
-     *
      * @param array $params
      * @return static
      */
@@ -226,8 +236,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Set the url params
-     *
      * @param array $params
      * @return static
      */
@@ -239,8 +247,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Set raw query-string parameters as string
-     *
      * @param string $queryString
      * @return static
      */
@@ -248,7 +254,7 @@ class Url implements \JsonSerializable
     {
         $params = [];
 
-        if(parse_str($queryString, $params) !== false) {
+        if (parse_str($queryString, $params) !== false) {
             return $this->setParams($params);
         }
 
@@ -256,8 +262,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Get query-string params as string
-     *
      * @return string
      */
     public function getQueryString(): string
@@ -266,9 +270,7 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Get fragment from url (everything after #)
-     *
-     * @return string|null
+     * @return null|string
      */
     public function getFragment(): ?string
     {
@@ -276,8 +278,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Set url fragment
-     *
      * @param string $fragment
      * @return static
      */
@@ -297,9 +297,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Get position of value.
-     * Returns -1 on failure.
-     *
      * @param string $value
      * @return int
      */
@@ -311,8 +308,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Check if url contains value.
-     *
      * @param string $value
      * @return bool
      */
@@ -322,8 +317,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Check if url contains parameter/query string.
-     *
      * @param string $name
      * @return bool
      */
@@ -333,9 +326,7 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Removes multiple parameters from the query-string
-     *
-     * @param array ...$names
+     * @param mixed ...$names
      * @return static
      */
     public function removeParams(...$names): self
@@ -347,10 +338,8 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Removes parameter from the query-string
-     *
      * @param string $name
-     * @return static
+     * @return Url
      */
     public function removeParam(string $name): self
     {
@@ -362,12 +351,9 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Get parameter by name.
-     * Returns parameter value or default value.
-     *
      * @param string $name
-     * @param string|null $defaultValue
-     * @return string|null
+     * @param null|string $defaultValue
+     * @return null|string
      */
     public function getParam(string $name, ?string $defaultValue = null): ?string
     {
@@ -375,7 +361,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * UTF-8 aware parse_url() replacement.
      * @param string $url
      * @param int $component
      * @return array
@@ -401,8 +386,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Convert array to query-string params
-     *
      * @param array $getParams
      * @param bool $includeEmpty
      * @return string
@@ -424,8 +407,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Returns the relative url
-     *
      * @return string
      */
     public function getRelativeUrl(): string
@@ -440,8 +421,6 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Returns the absolute url
-     *
      * @return string
      */
     public function getAbsoluteUrl(): string
@@ -457,17 +436,16 @@ class Url implements \JsonSerializable
     }
 
     /**
-     * Specify data which should be serialized to JSON
-     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
-     * which is a value of any type other than a resource.
-     * @since 5.4.0
+     * @return string
      */
     public function jsonSerialize(): string
     {
         return $this->getRelativeUrl();
     }
 
+    /**
+     * @return string
+     */
     public function __toString(): string
     {
         return $this->getRelativeUrl();
