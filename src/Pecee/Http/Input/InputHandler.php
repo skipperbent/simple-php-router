@@ -303,13 +303,22 @@ class InputHandler
             // Append any PHP-input json
             if (strpos(trim($contents), '{') === 0) {
                 $post = json_decode($contents, true);
+
                 if ($post !== false) {
                     $output += $post;
                 }
             }
         }
 
-        return (\count($filter) > 0) ? array_intersect_key($output, array_flip($filter)) : $output;
+        $output = (\count($filter) > 0) ? array_intersect_key($output, array_flip($filter)) : $output;
+
+        foreach ($filter as $value) {
+            if (!array_key_exists($value, $output)) {
+                $output[$value] = null;
+            }
+        }
+
+        return $output;
     }
 
     /**
