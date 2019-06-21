@@ -312,9 +312,9 @@ class InputHandler
 
         $output = (\count($filter) > 0) ? array_intersect_key($output, array_flip($filter)) : $output;
 
-        foreach ($filter as $value) {
-            if (!array_key_exists($value, $output)) {
-                $output[$value] = null;
+        foreach ($filter as $filterKey) {
+            if (!array_key_exists($filterKey, $output)) {
+                $output[$filterKey] = null;
             }
         }
 
