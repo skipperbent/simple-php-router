@@ -393,7 +393,7 @@ class Url implements \JsonSerializable
 
         $parts = parse_url($encodedUrl, $component);
 
-	if ($parts === false) {
+        if ($parts === false) {
             //First try to normalize it, removing duplicate slashes, and if the problem still exists, we give the error
             $encodedUrl = preg_replace('#/+#','/',$encodedUrl);
             $parts = parse_url($encodedUrl, $component);
