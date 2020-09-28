@@ -393,8 +393,14 @@ class Url implements \JsonSerializable
 
         $parts = parse_url($encodedUrl, $component);
 
-        if ($parts === false) {
-            throw new MalformedUrlException(sprintf('Failed to parse url: "%s"', $url));
+	if ($parts === false) {
+            //First try to normalize it, removing duplicate slashes, and if the problem still exists, we give the error
+            $encodedUrl = preg_replace('#/+#','/',$encodedUrl);
+            $parts = parse_url($encodedUrl, $component);
+
+            if ($parts === false) {
+                throw new MalformedUrlException(sprintf('Failed to parse url: "%s"', $url));
+            }
         }
 
         return array_map('urldecode', $parts);
