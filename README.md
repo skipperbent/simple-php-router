@@ -113,10 +113,12 @@ ___
 
 # Getting started
 
+** THIS IS A FORK FROM skipperbent/simple-php-router, as the last commit from the original project is 2 years ago I decided to fork it, and merge the latest PRs from there **
+
 Add the latest version of the simple-router project running this command.
 
 ```
-composer require pecee/simple-router
+composer require eightsystems/simple-router
 ```
 
 ## Notes

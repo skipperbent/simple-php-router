@@ -1,6 +1,6 @@
 {
-  "name": "pecee/simple-router",
-  "description": "Simple, fast PHP router that is easy to get integrated and in almost any project. Heavily inspired by the Laravel router.",
+  "name": "eightsystems/simple-router",
+  "description": "Simple, fast PHP router that is easy to get integrated and in almost any project. Heavily inspired by the Laravel router. (Forked from skipperbent/simple-php-router)",
   "keywords": [
     "router",
     "router",
@@ -24,6 +24,10 @@
     {
       "name": "Simon Sessingø",
       "email": "simon.sessingoe@gmail.com"
+    },
+    {
+      "name": "Vin Souza",
+      "email": "vin@8sistemas.com"
     }
   ],
   "require": {
