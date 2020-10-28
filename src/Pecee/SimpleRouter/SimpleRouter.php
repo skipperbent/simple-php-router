@@ -39,6 +39,12 @@ class SimpleRouter
     protected static $defaultNamespace;
 
     /**
+     * Default basepath added to all urls
+     * @var string|null
+     */
+    protected static $basePath;
+
+    /**
      * The response object
      * @var Response
      */
@@ -127,6 +133,16 @@ class SimpleRouter
     {
         static::$defaultNamespace = $defaultNamespace;
     }
+
+    /**
+     * Set default basepath which will be prepended to all urls.
+     *
+     * @param string $basePath
+     */
+    public static function setDefaultBasepath(string $basePath): void {
+        static::$basePath = $basePath;
+    }
+
 
     /**
      * Base CSRF verifier
@@ -343,7 +359,7 @@ class SimpleRouter
      */
     public static function match(array $requestMethods, string $url, $callback, array $settings = null)
     {
-        $route = new RouteUrl($url, $callback);
+        $route = new RouteUrl(static::$basePath . $url, $callback);
         $route->setRequestMethods($requestMethods);
         $route = static::addDefaultNamespace($route);
 
@@ -364,7 +380,7 @@ class SimpleRouter
      */
     public static function all(string $url, $callback, array $settings = null)
     {
-        $route = new RouteUrl($url, $callback);
+        $route = new RouteUrl(static::$basePath . $url, $callback);
         $route = static::addDefaultNamespace($route);
 
         if ($settings !== null) {
