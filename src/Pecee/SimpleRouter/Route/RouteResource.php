@@ -76,7 +76,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         return $this->url;
     }
 
-    protected function call($method)
+    protected function call($method): bool
     {
         $this->setCallback($this->controller . '@' . $method);
 
@@ -190,7 +190,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
      * @param array $names
      * @return static $this
      */
-    public function setMethodNames(array $names)
+    public function setMethodNames(array $names): RouteResource
     {
         $this->methodNames = $names;
 

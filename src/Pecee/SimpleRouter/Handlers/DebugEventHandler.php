@@ -16,7 +16,7 @@ class DebugEventHandler implements IEventHandler
 
     public function __construct()
     {
-        $this->callback = function (EventArgument $argument) {
+        $this->callback = static function (EventArgument $argument) {
             // todo: log in database
         };
     }

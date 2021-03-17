@@ -73,7 +73,7 @@ class InputHandler
     {
         $list = [];
 
-        foreach ((array)$_FILES as $key => $value) {
+        foreach ($_FILES as $key => $value) {
 
             // Handle array input
             if (\is_array($value['name']) === false) {

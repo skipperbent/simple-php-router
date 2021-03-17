@@ -20,7 +20,7 @@ class Url implements \JsonSerializable
     /**
      * Url constructor.
      *
-     * @param string $url
+     * @param ?string $url
      * @throws MalformedUrlException
      */
     public function __construct(?string $url)
@@ -385,7 +385,7 @@ class Url implements \JsonSerializable
     {
         $encodedUrl = preg_replace_callback(
             '/[^:\/@?&=#]+/u',
-            function ($matches) {
+            static function ($matches) {
                 return urlencode($matches[0]);
             },
             $url
@@ -412,7 +412,7 @@ class Url implements \JsonSerializable
         if (\count($getParams) !== 0) {
 
             if ($includeEmpty === false) {
-                $getParams = array_filter($getParams, function ($item) {
+                $getParams = array_filter($getParams, static function ($item) {
                     return (trim($item) !== '');
                 });
             }

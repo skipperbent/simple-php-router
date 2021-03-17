@@ -17,7 +17,6 @@ class BaseCsrfVerifier implements IMiddleware
 
     /**
      * BaseCsrfVerifier constructor.
-     * @throws \Pecee\Http\Security\Exceptions\SecurityException
      */
     public function __construct()
     {

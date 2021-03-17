@@ -5,9 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a7058529-bdc4-40b4-a50d-c50564dc83f0" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Middleware/BaseCsrfVerifier.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Middleware/BaseCsrfVerifier.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Response.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Response.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Url.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Url.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Event/EventArgument.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Event/EventArgument.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/DebugEventHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/DebugEventHandler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/IGroupRoute.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/IGroupRoute.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/Route.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/Route.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteGroup.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteGroup.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RoutePartialGroup.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RoutePartialGroup.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteResource.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteResource.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Router.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Router.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/SimpleRouter.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/SimpleRouter.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/RouterUrlTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/RouterUrlTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -135,7 +147,7 @@
     <other-services-enabled>false</other-services-enabled>
     <auto-save>true</auto-save>
   </component>
-  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP 7.1">
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP 7.3">
     <include_path>
       <path value="$PROJECT_DIR$/vendor/composer" />
       <path value="$PROJECT_DIR$/vendor/phpdocumentor/reflection-common" />
@@ -177,6 +189,8 @@
       <path value="$PROJECT_DIR$/vendor/php-di/php-di" />
       <path value="$PROJECT_DIR$/vendor/symfony/yaml" />
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php56" />
+      <path value="$PROJECT_DIR$/vendor/opis/closure" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-ctype" />
     </include_path>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
@@ -299,7 +313,7 @@
       <method v="2" />
     </configuration>
     <configuration name="tests" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
-      <TestRunner directory="$PROJECT_DIR$/tests" />
+      <TestRunner configuration_file="$PROJECT_DIR$/phpunit.xml" directory="$PROJECT_DIR$/tests" />
       <method v="2" />
     </configuration>
     <configuration name="debug.php" type="PhpLocalRunConfigurationType" factoryName="PHP Console" temporary="true" path="$PROJECT_DIR$/tests/debug.php">

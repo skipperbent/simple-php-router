@@ -30,8 +30,8 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
     public function testUnicodeCharacters()
     {
         // Test spanish characters
-        TestRouter::get('/cursos/listado/{listado?}/{category?}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s-]+']);
-        TestRouter::get('/test/{param}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s-\í]+']);
+        TestRouter::get('/cursos/listado/{listado?}/{category?}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s\-]+']);
+        TestRouter::get('/test/{param}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s\-\í]+']);
         TestRouter::debugNoReset('/cursos/listado/especialidad/cirugía local', 'get');
 
         $this->assertEquals('/cursos/listado/{listado?}/{category?}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());

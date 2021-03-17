@@ -59,7 +59,7 @@ interface IGroupRoute extends IRoute
      * @param string $prefix
      * @return static
      */
-    public function setPrefix($prefix): self;
+    public function setPrefix(string $prefix): self;
 
     /**
      * Get prefix.

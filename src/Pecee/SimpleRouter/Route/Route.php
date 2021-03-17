@@ -85,7 +85,7 @@ abstract class Route implements IRoute
 
         /* Filter parameters with null-value */
         if ($this->filterEmptyParams === true) {
-            $parameters = array_filter($parameters, function ($var) {
+            $parameters = array_filter($parameters, static function ($var) {
                 return ($var !== null);
             });
         }
@@ -124,7 +124,7 @@ abstract class Route implements IRoute
         return \call_user_func_array([$class, $method], $parameters);
     }
 
-    protected function parseParameters($route, $url, $parameterRegex = null)
+    protected function parseParameters($route, $url, $parameterRegex = null): ?array
     {
         $regex = (strpos($route, $this->paramModifiers[0]) === false) ? null :
             sprintf
@@ -155,10 +155,8 @@ abstract class Route implements IRoute
                     /* If custom regex is defined, use that */
                     if (isset($this->where[$name]) === true) {
                         $regex = $this->where[$name];
-                    } else if ($parameterRegex !== null) {
-                        $regex = $parameterRegex;
                     } else {
-                        $regex = $this->defaultParameterRegex ?? static::PARAMETERS_DEFAULT_REGEX;
+                        $regex = $parameterRegex ?? $this->defaultParameterRegex ?? static::PARAMETERS_DEFAULT_REGEX;
                     }
 
                     $regex = sprintf('((\/|\-)(?P<%2$s>%3$s))%1$s', $parameters[2][$key], $name, $regex);

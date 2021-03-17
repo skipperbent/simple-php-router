@@ -38,7 +38,7 @@ class RoutePartialGroup extends RouteGroup implements IPartialGroupRoute
             }
 
             /* Set the parameters */
-            $this->setParameters((array)$parameters);
+            $this->setParameters($parameters);
         }
 
         return $this->matchDomain($request);

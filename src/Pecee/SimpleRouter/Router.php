@@ -585,7 +585,7 @@ class Router
 
             /* Check if callback matches (if it's not a function) */
             $callback = $route->getCallback();
-            if (\is_string($name) === true && \is_string($callback) === true && strpos($name, '@') !== false && strpos($callback, '@') !== false && \is_callable($callback) === false) {
+            if (\is_string($name) === true && \is_string($callback) === true && \is_callable($callback) === false && strpos($name, '@') !== false && strpos($callback, '@') !== false) {
 
                 /* Check if the entire callback is matching */
                 if (strpos($callback, $name) === 0 || strtolower($callback) === strtolower($name)) {
@@ -625,7 +625,6 @@ class Router
      * @param array|null $getParams
      * @return Url
      * @throws InvalidArgumentException
-     * @throws \Pecee\Http\Exceptions\MalformedUrlException
      */
     public function getUrl(?string $name = null, $parameters = null, ?array $getParams = null): Url
     {

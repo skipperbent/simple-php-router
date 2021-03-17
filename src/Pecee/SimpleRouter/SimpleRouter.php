@@ -75,7 +75,7 @@ class SimpleRouter
         try {
             ob_start();
             static::router()->setDebugEnabled(true)->start();
-            $routerOutput = ob_get_contents();
+            $routerOutput = ob_get_clean();
             ob_end_clean();
         } catch (\Exception $e) {
 
@@ -458,15 +458,8 @@ class SimpleRouter
         try {
             return static::router()->getUrl($name, $parameters, $getParams);
         } catch (\Exception $e) {
-            try {
-                return new Url('/');
-            } catch (MalformedUrlException $e) {
-
-            }
+            return new Url('/');
         }
-
-        // This will never happen...
-        return null;
     }
 
     /**

@@ -123,7 +123,7 @@ class RouteGroup extends Route implements IGroupRoute
      * @param string $prefix
      * @return static
      */
-    public function setPrefix($prefix): IGroupRoute
+    public function setPrefix(string $prefix): IGroupRoute
     {
         $this->prefix = '/' . trim($prefix, '/');
 
