@@ -6,20 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a7058529-bdc4-40b4-a50d-c50564dc83f0" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Input/InputHandler.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Middleware/BaseCsrfVerifier.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Middleware/BaseCsrfVerifier.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Response.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Response.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Url.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Url.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Event/EventArgument.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Event/EventArgument.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/DebugEventHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Handlers/DebugEventHandler.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/IGroupRoute.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/IGroupRoute.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/Route.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/Route.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteGroup.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteGroup.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RoutePartialGroup.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RoutePartialGroup.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteResource.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteResource.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Router.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Router.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/SimpleRouter.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/SimpleRouter.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/RouterUrlTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/RouterUrlTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/InputHandlerTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/InputHandlerTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

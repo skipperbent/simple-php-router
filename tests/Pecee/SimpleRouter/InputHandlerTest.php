@@ -38,7 +38,8 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $handler->post('day'));
 
         // Check non-existing and wrong request-type
-        $this->assertEmpty($handler->all(['non-existing']));
+        $this->assertCount(1, $handler->all(['non-existing']));
+        $this->assertEmpty($handler->all(['non-existing'])['non-existing']);
         $this->assertNull($handler->value('non-existing'));
         $this->assertNull($handler->find('non-existing'));
         $this->assertNull($handler->value('names', null, 'get'));
@@ -88,7 +89,8 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $handler->get('day'));
 
         // Check non-existing and wrong request-type
-        $this->assertEmpty($handler->all(['non-existing']));
+        $this->assertCount(1, $handler->all(['non-existing']));
+        $this->assertEmpty($handler->all(['non-existing'])['non-existing']);
         $this->assertNull($handler->value('non-existing'));
         $this->assertNull($handler->find('non-existing'));
         $this->assertNull($handler->value('names', null, 'post'));
