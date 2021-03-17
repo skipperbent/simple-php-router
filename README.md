@@ -484,13 +484,13 @@ SimpleRouter::get('/user/{name}', function ($name) {
     
     // ... do stuff
     
-})->where('name', '[A-Za-z]+');
+})->where([ 'name' => '[A-Za-z]+' ]);
 
 SimpleRouter::get('/user/{id}', function ($id) {
     
     // ... do stuff
     
-})->where('id', '[0-9]+');
+})->where([ 'id' => '[0-9]+' ]);
 
 SimpleRouter::get('/user/{id}/{name}', function ($id, $name) {
     

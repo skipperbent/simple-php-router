@@ -63,7 +63,7 @@ class CookieTokenProvider implements ITokenProvider
     public function setToken(string $token): void
     {
         $this->token = $token;
-        setcookie(static::CSRF_KEY, $token, (time() + 60) * $this->cookieTimeoutMinutes, '/', ini_get('session.cookie_domain'), ini_get('session.cookie_secure'), ini_get('session.cookie_httponly'));
+        setcookie(static::CSRF_KEY, $token, time() + (60 * $this->cookieTimeoutMinutes), '/', ini_get('session.cookie_domain'), ini_get('session.cookie_secure'), ini_get('session.cookie_httponly'));
     }
 
     /**
