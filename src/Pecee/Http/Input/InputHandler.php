@@ -214,11 +214,11 @@ class InputHandler
      * Get input element value matching index
      *
      * @param string $index
-     * @param string|null $defaultValue
+     * @param string|object|null $defaultValue
      * @param array ...$methods
      * @return string|array
      */
-    public function value(string $index, ?string $defaultValue = null, ...$methods)
+    public function value(string $index, $defaultValue = null, ...$methods)
     {
         $input = $this->find($index, ...$methods);
 
