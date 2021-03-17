@@ -53,7 +53,7 @@ class ClassLoader implements IClassLoader
      * @return mixed
      * @throws NotFoundHttpException
      */
-    public function loadClosure(\Closure $closure, array $parameters)
+    public function loadClosure(Callable $closure, array $parameters)
     {
         if ($this->useDependencyInjection === true) {
             $container = $this->getContainer();
