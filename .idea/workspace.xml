@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a7058529-bdc4-40b4-a50d-c50564dc83f0" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/simple-php-router.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/simple-php-router.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/InputHandlerTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/InputHandlerTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pecee/Http/Security/CookieTokenProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/Http/Security/CookieTokenProvider.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,6 +70,14 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -185,6 +194,7 @@
     <option name="width" value="2295" />
     <option name="height" value="1235" />
   </component>
+  <component name="ProjectId" id="1puNexBUD99jjBAKJYQWVgC8eR3" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
@@ -258,17 +268,25 @@
       </pane>
     </panes>
   </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../pecee-pixie" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.standard" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
     <property name="node.js.path.for.package.standard" value="project" />
     <property name="node.js.selected.package.eslint" value="" />
     <property name="node.js.selected.package.standard" value="" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -308,10 +326,10 @@
     </configuration>
     <list>
       <item itemvalue="PHP Script.debug.php" />
-      <item itemvalue="PHPUnit.tests" />
-      <item itemvalue="PHPUnit.phpunit.xml" />
       <item itemvalue="PHPUnit.EventHandlerTest" />
       <item itemvalue="PHPUnit.RouterRouteTest" />
+      <item itemvalue="PHPUnit.phpunit.xml" />
+      <item itemvalue="PHPUnit.tests" />
     </list>
     <recent_temporary>
       <list>
@@ -323,6 +341,7 @@
       </list>
     </recent_temporary>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="project-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -403,6 +422,8 @@
       <workItem from="1535671881115" duration="506000" />
       <workItem from="1535806837271" duration="204000" />
       <workItem from="1543101575756" duration="1207000" />
+      <workItem from="1616029119335" duration="207000" />
+      <workItem from="1616030812009" duration="1360000" />
     </task>
     <servers />
   </component>
@@ -480,7 +501,7 @@
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
+    <option name="version" value="3" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
