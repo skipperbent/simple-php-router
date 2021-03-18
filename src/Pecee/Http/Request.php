@@ -167,7 +167,7 @@ class Request
         }
 
         if ($this->getHeader('http-x-forwarded-for') !== null) {
-            return $this->getHeader('http-x-forwarded_for');
+            return $this->getHeader('http-x-forwarded-for');
         }
 
         return $this->getHeader('remote-addr');
