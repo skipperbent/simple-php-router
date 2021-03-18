@@ -60,15 +60,6 @@ class InputItem implements IInputItem, \IteratorAggregate
      */
     public function getValue()
     {
-        /*if(is_array($this->value) === true) {
-            $output = [];
-            foreach($this->value as $key => $val) {
-                $output[$key] = $val->getValue();
-            }
-
-            return $output;
-        }*/
-
         return $this->value;
     }
 
