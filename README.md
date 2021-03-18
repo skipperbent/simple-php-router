@@ -522,10 +522,12 @@ SimpleRouter::all('/ajax/abc/123', function($param1, $param2) {
 
 ### Custom regex for matching parameters
 
-By default simple-php-router uses the `\w` regular expression when matching parameters.
+By default simple-php-router uses the `[\w\-]+` regular expression. It will match `A-Z`, `a-z`, `0-9`, `-` and `_` characters in parameters.
 This decision was made with speed and reliability in mind, as this match will match both letters, number and most of the used symbols on the internet.
 
-However, sometimes it can be necessary to add a custom regular expression to match more advanced characters like `-` etc.
+However, sometimes it can be necessary to add a custom regular expression to match more advanced characters like foreign letters `æ ø å` etc.
+
+You can test your custom regular expression by using on the site [Regex101.com](https://www.regex101.com).
 
 Instead of adding a custom regular expression to all your parameters, you can simply add a global regular expression which will be used on all the parameters on the route.
 
@@ -533,16 +535,16 @@ Instead of adding a custom regular expression to all your parameters, you can si
 
 #### Example
 
-This example will ensure that all parameters use the `[\w\-]+` regular expression when parsing.
+This example will ensure that all parameters use the `[\w\-\æ\ø\å]+` (`a-z`, `A-Z`, `-`, `_`, `0-9`, `æ`, `ø`, `å`) regular expression when parsing.
 
 ```php
-SimpleRouter::get('/path/{parameter}', 'VideoController@home', ['defaultParameterRegex' => '[\w\-]+']);
+SimpleRouter::get('/path/{parameter}', 'VideoController@home', ['defaultParameterRegex' => '[\w\-\æ\ø\å]+']);
 ```
 
 You can also apply this setting to a group if you need multiple routes to use your custom regular expression when parsing parameters.
 
 ```php
-SimpleRouter::group(['defaultParameterRegex' => '[\w\-]+'], function() {
+SimpleRouter::group(['defaultParameterRegex' => '[\w\-\æ\ø\å]+'], function() {
 
     SimpleRouter::get('/path/{parameter}', 'VideoController@home');
 

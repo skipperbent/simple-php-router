@@ -10,7 +10,7 @@ use Pecee\SimpleRouter\Router;
 abstract class Route implements IRoute
 {
     protected const PARAMETERS_REGEX_FORMAT = '%s([\w]+)(\%s?)%s';
-    protected const PARAMETERS_DEFAULT_REGEX = '[\w]+';
+    protected const PARAMETERS_DEFAULT_REGEX = '[\w\-]+';
 
     public const REQUEST_TYPE_GET = 'get';
     public const REQUEST_TYPE_POST = 'post';

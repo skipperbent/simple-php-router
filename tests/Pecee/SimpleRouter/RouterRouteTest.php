@@ -150,6 +150,21 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue(true);
     }
 
+    public function testParametersWithDashes()
+    {
+
+        $defaultVariable = null;
+
+        TestRouter::get('/my/{path}', function ($path = 'working') use (&$defaultVariable) {
+            $defaultVariable = $path;
+        });
+
+        TestRouter::debug('/my/hello-motto-man');
+
+        $this->assertEquals('hello-motto-man', $defaultVariable);
+
+    }
+
     public function testParameterDefaultValue()
     {
 
