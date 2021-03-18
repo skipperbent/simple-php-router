@@ -2,13 +2,16 @@
 
 namespace Pecee\Http\Input;
 
-class InputItem implements IInputItem
+use Exception;
+use Traversable;
+
+class InputItem implements IInputItem, \IteratorAggregate
 {
     public $index;
     public $name;
     public $value;
 
-    public function __construct(string $index, ?string $value = null)
+    public function __construct(string $index, $value = null)
     {
         $this->index = $index;
         $this->value = $value;
@@ -53,10 +56,19 @@ class InputItem implements IInputItem
     }
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getValue(): ?string
+    public function getValue()
     {
+        /*if(is_array($this->value) === true) {
+            $output = [];
+            foreach($this->value as $key => $val) {
+                $output[$key] = $val->getValue();
+            }
+
+            return $output;
+        }*/
+
         return $this->value;
     }
 
@@ -74,7 +86,12 @@ class InputItem implements IInputItem
 
     public function __toString(): string
     {
-        return (string)$this->value;
+        $value = $this->getValue();
+        return (\is_array($value) === true) ? json_encode($value) : $value;
     }
 
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->getValue());
+    }
 }

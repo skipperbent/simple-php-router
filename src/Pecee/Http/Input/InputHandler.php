@@ -171,14 +171,11 @@ class InputHandler
         foreach ($array as $key => $value) {
 
             // Handle array input
-            if (\is_array($value) === false) {
-                $list[$key] = new InputItem($key, $value);
-                continue;
+            if (\is_array($value) === true) {
+                $value = $this->parseInputItem($value);
             }
 
-            $output = $this->parseInputItem($value);
-
-            $list[$key] = $output;
+            $list[$key] = new InputItem($key, $value);
         }
 
         return $list;
@@ -222,19 +219,18 @@ class InputHandler
     {
         $input = $this->find($index, ...$methods);
 
-        $output = [];
-
         /* Handle collection */
         if (\is_array($input) === true) {
+            $output = [];
             /* @var $item InputItem */
             foreach ($input as $item) {
-                $output[] = $item->getValue();
+                $output[] = \is_array($item) ? $item : $item->getValue();
             }
 
             return (\count($output) === 0) ? $defaultValue : $output;
         }
 
-        return ($input === null || ($input !== null && trim($input->getValue()) === '')) ? $defaultValue : $input->getValue();
+        return ($input === null || (\is_string($input->getValue()) && trim($input->getValue()) === '')) ? $defaultValue : $input->getValue();
     }
 
     /**

@@ -47,6 +47,7 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
 
         $objects = $handler->find('names');
 
+        $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $objects);
         $this->assertCount(4, $objects);
 
         /* @var $object \Pecee\Http\Input\InputItem */
@@ -98,6 +99,7 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
 
         $objects = $handler->find('names');
 
+        $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $objects);
         $this->assertCount(4, $objects);
 
         /* @var $object \Pecee\Http\Input\InputItem */
