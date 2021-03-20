@@ -11,6 +11,11 @@ class InputItem implements IInputItem, \IteratorAggregate
     public $name;
     public $value;
 
+    /**
+     * InputItem constructor.
+     * @param string $index
+     * @param mixed $value
+     */
     public function __construct(string $index, $value = null)
     {
         $this->index = $index;
@@ -60,15 +65,22 @@ class InputItem implements IInputItem, \IteratorAggregate
      */
     public function getValue()
     {
-        return $this->value;
+        if($this->value === 'true')
+            return true;
+        else if($this->value === 'false')
+            return false;
+        else if($this->value === '')
+            return null;
+        else
+            return $this->value;
     }
 
     /**
      * Set input value
-     * @param string $value
+     * @param mixed $value
      * @return static
      */
-    public function setValue(string $value): IInputItem
+    public function setValue($value): IInputItem
     {
         $this->value = $value;
 
@@ -78,7 +90,18 @@ class InputItem implements IInputItem, \IteratorAggregate
     public function __toString(): string
     {
         $value = $this->getValue();
-        return (\is_array($value) === true) ? json_encode($value) : $value;
+        if(is_array($value) === true){
+            return json_encode($value);
+        }else{
+            switch($value){
+                case true:
+                    return 'true';
+                case false:
+                    return 'false';
+                default:
+                    return strval($value);
+            }
+        }
     }
 
     public function getIterator()

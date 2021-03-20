@@ -175,7 +175,7 @@ class InputFile implements IInputItem
     /**
      * Get filename
      *
-     * @return string mixed
+     * @return string|null
      */
     public function getFilename(): ?string
     {
@@ -261,7 +261,10 @@ class InputFile implements IInputItem
         return $this->getTmpName();
     }
 
-    public function getValue(): ?string
+    /**
+     * @return string
+     */
+    public function getValue()
     {
         return $this->getFilename();
     }
@@ -270,9 +273,9 @@ class InputFile implements IInputItem
      * @param string $value
      * @return static
      */
-    public function setValue(string $value): IInputItem
+    public function setValue($value): IInputItem
     {
-        $this->filename = $value;
+        $this->filename = strval($value);
 
         return $this;
     }

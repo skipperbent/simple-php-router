@@ -42,6 +42,12 @@ class Request
     protected $method;
 
     /**
+     * Request ContentType
+     * @var string
+     */
+    protected $contentType;
+
+    /**
      * Input handler
      * @var InputHandler
      */
@@ -84,7 +90,8 @@ class Request
 
         // Check if special IIS header exist, otherwise use default.
         $this->setUrl(new Url($this->getHeader('unencoded-url', $this->getHeader('request-uri'))));
-        
+
+        $this->contentType = strtolower($this->getHeader('content-type'));
         $this->method = strtolower($this->getHeader('request-method'));
         $this->inputHandler = new InputHandler($this);
         $this->method = strtolower($this->inputHandler->value('_method', $this->getHeader('request-method')));
@@ -127,6 +134,14 @@ class Request
     public function getMethod(): ?string
     {
         return $this->method;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getContentType(): ?string
+    {
+        return $this->contentType;
     }
 
     /**
