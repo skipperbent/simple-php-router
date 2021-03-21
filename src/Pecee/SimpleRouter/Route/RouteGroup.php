@@ -52,8 +52,16 @@ class RouteGroup extends Route implements IGroupRoute
             return false;
         }
 
+        // Parse parameter
+
+        $prefix = $this->prefix;
+
+        foreach($this->getParameters() as $parameter => $value) {
+            $prefix = str_ireplace('{' . $parameter . '}', $value, $prefix);
+        }
+
         /* Skip if prefix doesn't match */
-        if ($this->prefix !== null && stripos($url, $this->prefix) === false) {
+        if ($this->prefix !== null && stripos($url, $prefix) === false) {
             return false;
         }
 

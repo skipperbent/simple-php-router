@@ -13,7 +13,7 @@ class TestRouter extends \Pecee\SimpleRouter\SimpleRouter
         static::start();
     }
 
-    public static function debug($testUrl, $testMethod = 'get')
+    public static function debug($testUrl, $testMethod = 'get', bool $reset = true)
     {
         try {
             static::debugNoReset($testUrl, $testMethod);
@@ -22,17 +22,19 @@ class TestRouter extends \Pecee\SimpleRouter\SimpleRouter
             throw $e;
         }
 
-        static::router()->reset();
+        if($reset === true) {
+            static::router()->reset();
+        }
 
     }
 
-    public static function debugOutput($testUrl, $testMethod = 'get')
+    public static function debugOutput($testUrl, $testMethod = 'get', bool $reset = true)
     {
         $response = null;
 
         // Route request
         ob_start();
-        static::debug($testUrl, $testMethod);
+        static::debug($testUrl, $testMethod, $reset);
         $response = ob_get_contents();
         ob_end_clean();
 
