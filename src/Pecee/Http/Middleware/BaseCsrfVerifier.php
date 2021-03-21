@@ -63,13 +63,12 @@ class BaseCsrfVerifier implements IMiddleware
      */
     public function handle(Request $request): void
     {
-
-        if ($this->skip($request) === false && \in_array($request->getMethod(), ['post', 'put', 'patch', 'delete'], true) === true) {
+        if ($this->skip($request) === false && \in_array($request->getMethod(), Request::$requestTypesPost, true) === true) {
 
             $token = $request->getInputHandler()->value(
                 static::POST_KEY,
                 $request->getHeader(static::HEADER_KEY) ?? $request->getHeader('HTTP-' . static::HEADER_KEY),
-                'post'
+                Request::$requestTypesPost
             );
 
             if ($this->tokenProvider->validate((string)$token) === false) {
@@ -80,7 +79,6 @@ class BaseCsrfVerifier implements IMiddleware
 
         // Refresh existing token
         $this->tokenProvider->refresh();
-
     }
 
     public function getTokenProvider(): ITokenProvider
