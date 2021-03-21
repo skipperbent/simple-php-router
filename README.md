@@ -33,6 +33,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 		- [Helper functions](#helper-functions)
 - [Routes](#routes)
 	- [Basic routing](#basic-routing)
+		- [Class hinting](#class-hinting)
 		- [Available methods](#available-methods)
 		- [Multiple HTTP-verbs](#multiple-http-verbs)
 	- [Route parameters](#route-parameters)
@@ -402,6 +403,14 @@ Below is a very basic example of setting up a route. First parameter is the url 
 SimpleRouter::get('/', function() {
     return 'Hello world';
 });
+```
+
+### Class hinting
+
+You can use class hinting to load a class & method like this:
+
+```php
+SimpleRouter::get('/', [MyClass::class, 'myMethod']);
 ```
 
 ### Available methods
@@ -785,12 +794,17 @@ SimpleRouter::group(['middleware' => \Demo\Middlewares\Site::class, 'exceptionHa
 
     SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show', ['where' => ['id' => '[0-9]+']]);
 
+	/**
+     * Class hinting is supported too
+     */
+     
+     SimpleRouter::get('/answers/{id}', [ControllerAnswers::class, 'show'], ['where' => ['id' => '[0-9]+']]);
 
     /**
      * Restful resource (see IRestController interface for available methods)
      */
 
-    SimpleRouter::resource('/rest', ControllerRessource::class);
+    SimpleRouter::resource('/rest', ControllerResource::class);
 
 
     /**
@@ -811,7 +825,6 @@ SimpleRouter::group(['middleware' => \Demo\Middlewares\Site::class, 'exceptionHa
 });
 
 SimpleRouter::get('/page/404', 'ControllerPage@notFound', ['as' => 'page.notfound']);
-
 ```
 
 ---

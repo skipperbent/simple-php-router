@@ -110,7 +110,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
             $this->parameters = \array_slice($path, 1);
 
             // Set callback
-            $this->setCallback($this->controller . '@' . $this->method);
+            $this->setCallback([$this->controller, $this->method]);
 
             return true;
         }
