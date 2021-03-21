@@ -79,9 +79,10 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
     {
         // Match normal route on alias
         TestRouter::get('/url11', 'DummyController@method1');
-        TestRouter::resource('/url1', 'ResourceController', ['as' => 'match']);
+        TestRouter::get('/url22', 'DummyController@method2');
+        TestRouter::get('/url33', 'DummyController@method2')->name('match');
 
-        TestRouter::debugNoReset('/url1', 'get');
+        TestRouter::debugNoReset('/url33', 'get');
 
         $this->assertEquals(TestRouter::getUrl('match'), TestRouter::getUrl());
 
