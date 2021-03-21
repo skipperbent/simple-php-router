@@ -75,7 +75,6 @@ class SimpleRouter
             ob_start();
             static::router()->setDebugEnabled(true)->start();
             $routerOutput = ob_get_clean();
-            ob_end_clean();
         } catch (\Exception $e) {
 
         }

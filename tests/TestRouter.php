@@ -35,8 +35,7 @@ class TestRouter extends \Pecee\SimpleRouter\SimpleRouter
         // Route request
         ob_start();
         static::debug($testUrl, $testMethod, $reset);
-        $response = ob_get_contents();
-        ob_end_clean();
+        $response = ob_get_clean();
 
         // Return response
         return $response;
