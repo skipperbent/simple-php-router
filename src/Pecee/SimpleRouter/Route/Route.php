@@ -10,7 +10,7 @@ use Pecee\SimpleRouter\Router;
 abstract class Route implements IRoute
 {
     protected const PARAMETERS_REGEX_FORMAT = '%s([\w]+)(\%s?)%s';
-    protected const PARAMETERS_DEFAULT_REGEX = '[\w\-]+';
+    protected const PARAMETERS_DEFAULT_REGEX = '[\w-]+';
 
     /**
      * If enabled parameters containing null-value
@@ -122,7 +122,7 @@ abstract class Route implements IRoute
             $urlRegex = preg_quote($route, '/');
         } else {
 
-            foreach (preg_split('/((\-?\/?){[^}]+})/', $route) as $key => $t) {
+            foreach (preg_split('/((-?\/?){[^}]+})/', $route) as $key => $t) {
 
                 $regex = '';
 
@@ -137,7 +137,7 @@ abstract class Route implements IRoute
                         $regex = $parameterRegex ?? $this->defaultParameterRegex ?? static::PARAMETERS_DEFAULT_REGEX;
                     }
 
-                    $regex = sprintf('((\/|\-)(?P<%2$s>%3$s))%1$s', $parameters[2][$key], $name, $regex);
+                    $regex = sprintf('((\/|-)(?P<%2$s>%3$s))%1$s', $parameters[2][$key], $name, $regex);
                 }
 
                 $urlRegex .= preg_quote($t, '/') . $regex;

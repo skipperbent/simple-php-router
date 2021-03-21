@@ -34,10 +34,10 @@ class InputHandler
     protected $originalPost = [];
 
     /**
-     * Original get variables
+     * Original get/params variables
      * @var array
      */
-    protected $originalGet = [];
+    protected $originalParams = [];
 
     /**
      * Get original file variables
@@ -64,8 +64,8 @@ class InputHandler
     {
         /* Parse get requests */
         if (\count($_GET) !== 0) {
-            $this->originalGet = $_GET;
-            $this->get = $this->parseInputItem($this->originalGet);
+            $this->originalParams = $_GET;
+            $this->get = $this->parseInputItem($this->originalParams);
         }
 
         /* Parse post requests */
@@ -318,7 +318,7 @@ class InputHandler
      */
     public function all(array $filter = []): array
     {
-        $output = $this->originalGet + $this->originalPost;
+        $output = $this->originalParams + $this->originalPost + $this->originalFile;
         $output = (\count($filter) > 0) ? array_intersect_key($output, array_flip($filter)) : $output;
 
         foreach ($filter as $filterKey) {
@@ -361,6 +361,66 @@ class InputHandler
     public function addFile(string $key, InputFile $item): void
     {
         $this->file[$key] = $item;
+    }
+
+    /**
+     * Get original post variables
+     * @return array
+     */
+    public function getOriginalPost(): array
+    {
+        return $this->originalPost;
+    }
+
+    /**
+     * Set original post variables
+     * @param array $post
+     * @return static $this
+     */
+    public function setOriginalPost(array $post): self
+    {
+        $this->originalPost = $post;
+        return $this;
+    }
+
+    /**
+     * Get original get variables
+     * @return array
+     */
+    public function getOriginalParams(): array
+    {
+        return $this->originalParams;
+    }
+
+    /**
+     * Set original get-variables
+     * @param array $params
+     * @return static $this
+     */
+    public function setOriginalParams(array $params): self
+    {
+        $this->originalParams = $params;
+        return $this;
+    }
+
+    /**
+     * Get original file variables
+     * @return array
+     */
+    public function getOriginalFile(): array
+    {
+        return $this->originalFile;
+    }
+
+    /**
+     * Set original file posts variables
+     * @param array $file
+     * @return static $this
+     */
+    public function setOriginalFile(array $file): self
+    {
+        $this->originalFile = $file;
+        return $this;
     }
 
 }
