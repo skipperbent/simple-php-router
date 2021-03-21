@@ -184,7 +184,7 @@ class SimpleRouter
      */
     public static function get(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['get'], $url, $callback, $settings);
+        return static::match([Request::REQUEST_TYPE_GET], $url, $callback, $settings);
     }
 
     /**
@@ -197,7 +197,7 @@ class SimpleRouter
      */
     public static function post(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['post'], $url, $callback, $settings);
+        return static::match([Request::REQUEST_TYPE_POST], $url, $callback, $settings);
     }
 
     /**
@@ -210,7 +210,7 @@ class SimpleRouter
      */
     public static function put(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['put'], $url, $callback, $settings);
+        return static::match([Request::REQUEST_TYPE_PUT], $url, $callback, $settings);
     }
 
     /**
@@ -223,7 +223,7 @@ class SimpleRouter
      */
     public static function patch(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['patch'], $url, $callback, $settings);
+        return static::match([Request::REQUEST_TYPE_PATCH], $url, $callback, $settings);
     }
 
     /**
@@ -236,7 +236,7 @@ class SimpleRouter
      */
     public static function options(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['options'], $url, $callback, $settings);
+        return static::match([Request::REQUEST_TYPE_OPTIONS], $url, $callback, $settings);
     }
 
     /**
@@ -249,7 +249,7 @@ class SimpleRouter
      */
     public static function delete(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['delete'], $url, $callback, $settings);
+        return static::match([Request::REQUEST_TYPE_DELETE], $url, $callback, $settings);
     }
 
     /**
@@ -313,7 +313,7 @@ class SimpleRouter
      */
     public static function basic(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['get', 'post'], $url, $callback, $settings);
+        return static::form($url, $callback, $settings);
     }
 
     /**
@@ -328,7 +328,10 @@ class SimpleRouter
      */
     public static function form(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['get', 'post'], $url, $callback, $settings);
+        return static::match([
+            Request::REQUEST_TYPE_GET,
+            Request::REQUEST_TYPE_POST
+        ], $url, $callback, $settings);
     }
 
     /**

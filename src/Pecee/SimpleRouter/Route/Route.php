@@ -12,24 +12,6 @@ abstract class Route implements IRoute
     protected const PARAMETERS_REGEX_FORMAT = '%s([\w]+)(\%s?)%s';
     protected const PARAMETERS_DEFAULT_REGEX = '[\w\-]+';
 
-    public const REQUEST_TYPE_GET = 'get';
-    public const REQUEST_TYPE_POST = 'post';
-    public const REQUEST_TYPE_PUT = 'put';
-    public const REQUEST_TYPE_PATCH = 'patch';
-    public const REQUEST_TYPE_OPTIONS = 'options';
-    public const REQUEST_TYPE_DELETE = 'delete';
-    public const REQUEST_TYPE_HEAD = 'head';
-
-    public static $requestTypes = [
-        self::REQUEST_TYPE_GET,
-        self::REQUEST_TYPE_POST,
-        self::REQUEST_TYPE_PUT,
-        self::REQUEST_TYPE_PATCH,
-        self::REQUEST_TYPE_OPTIONS,
-        self::REQUEST_TYPE_DELETE,
-        self::REQUEST_TYPE_HEAD,
-    ];
-
     /**
      * If enabled parameters containing null-value
      * will not be passed along to the callback.
@@ -140,7 +122,7 @@ abstract class Route implements IRoute
             $urlRegex = preg_quote($route, '/');
         } else {
 
-            foreach (preg_split('/((\-?\/?)\{[^}]+\})/', $route) as $key => $t) {
+            foreach (preg_split('/((\-?\/?){[^}]+})/', $route) as $key => $t) {
 
                 $regex = '';
 
