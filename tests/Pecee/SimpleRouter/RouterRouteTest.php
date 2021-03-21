@@ -199,4 +199,15 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('custom-regex', $output);
     }
 
+    public function testClassHint()
+    {
+        TestRouter::get('/my/test/url', ['DummyController', 'method1']);
+        TestRouter::all('/my/test/url', ['DummyController', 'method1']);
+        TestRouter::match(['put', 'get', 'post'], '/my/test/url', ['DummyController', 'method1']);
+
+        TestRouter::debug('/my/test/url', 'get');
+
+        $this->assertTrue(true);
+    }
+
 }

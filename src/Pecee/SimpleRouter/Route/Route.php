@@ -95,25 +95,21 @@ abstract class Route implements IRoute
             $router->debug('Executing callback');
 
             /* When the callback is a function */
-
             return $router->getClassLoader()->loadClosure($callback, $parameters);
         }
 
-        /* When the callback is a class + method */
-        $controller = explode('@', $callback);
+        $controller = $this->getClass();
+        $method = $this->getMethod();
 
         $namespace = $this->getNamespace();
-
-        $className = ($namespace !== null && $controller[0][0] !== '\\') ? $namespace . '\\' . $controller[0] : $controller[0];
+        $className = ($namespace !== null && $controller[0] !== '\\') ? $namespace . '\\' . $controller : $controller;
 
         $router->debug('Loading class %s', $className);
         $class = $router->getClassLoader()->loadClass($className);
 
-        if (\count($controller) === 1) {
+        if ($method === null) {
             $controller[1] = '__invoke';
         }
-
-        $method = $controller[1];
 
         if (method_exists($class, $method) === false) {
             throw new NotFoundHttpException(sprintf('Method "%s" does not exist in class "%s"', $method, $className), 404);
@@ -271,7 +267,7 @@ abstract class Route implements IRoute
     /**
      * Set callback
      *
-     * @param string $callback
+     * @param string|array\Closure $callback
      * @return static
      */
     public function setCallback($callback): IRoute
@@ -291,6 +287,10 @@ abstract class Route implements IRoute
 
     public function getMethod(): ?string
     {
+        if(\is_array($this->callback) === true && \count($this->callback) > 1) {
+            return $this->callback[1];
+        }
+
         if (\is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             $tmp = explode('@', $this->callback);
 
@@ -302,9 +302,12 @@ abstract class Route implements IRoute
 
     public function getClass(): ?string
     {
+        if(\is_array($this->callback) === true && \count($this->callback) > 0) {
+            return $this->callback[0];
+        }
+
         if (\is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             $tmp = explode('@', $this->callback);
-
             return $tmp[0];
         }
 
@@ -313,15 +316,13 @@ abstract class Route implements IRoute
 
     public function setMethod(string $method): IRoute
     {
-        $this->callback = sprintf('%s@%s', $this->getClass(), $method);
-
+        $this->callback = [$this->getClass(), $method];
         return $this;
     }
 
     public function setClass(string $class): IRoute
     {
-        $this->callback = sprintf('%s@%s', $class, $this->getMethod());
-
+        $this->callback = [$class, $this->getMethod()];
         return $this;
     }
 

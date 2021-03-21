@@ -82,7 +82,7 @@ interface IRoute
     /**
      * Set callback
      *
-     * @param string $callback
+     * @param string|array|\Closure $callback
      * @return static
      */
     public function setCallback($callback): self;

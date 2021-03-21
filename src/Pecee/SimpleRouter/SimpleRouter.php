@@ -12,7 +12,6 @@ namespace Pecee\SimpleRouter;
 
 use DI\Container;
 use Pecee\Exceptions\InvalidArgumentException;
-use Pecee\Http\Exceptions\MalformedUrlException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
 use Pecee\Http\Response;
@@ -178,7 +177,7 @@ class SimpleRouter
      * Route the given url to your callback on GET request method.
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      *
      * @return RouteUrl
@@ -192,7 +191,7 @@ class SimpleRouter
      * Route the given url to your callback on POST request method.
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
@@ -205,7 +204,7 @@ class SimpleRouter
      * Route the given url to your callback on PUT request method.
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
@@ -218,7 +217,7 @@ class SimpleRouter
      * Route the given url to your callback on PATCH request method.
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
@@ -231,7 +230,7 @@ class SimpleRouter
      * Route the given url to your callback on OPTIONS request method.
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
@@ -244,7 +243,7 @@ class SimpleRouter
      * Route the given url to your callback on DELETE request method.
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
@@ -307,7 +306,7 @@ class SimpleRouter
      * Alias for the form method
      *
      * @param string $url
-     * @param callable $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @see SimpleRouter::form
      * @return RouteUrl
@@ -322,7 +321,7 @@ class SimpleRouter
      * Route the given url to your callback on POST and GET request method.
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @see SimpleRouter::form
      * @return RouteUrl
@@ -337,7 +336,7 @@ class SimpleRouter
      *
      * @param array $requestMethods
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
@@ -358,7 +357,7 @@ class SimpleRouter
      * This type will route the given url to your callback and allow any type of request method
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
@@ -382,7 +381,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteController|IRoute
      */
-    public static function controller(string $url, $controller, array $settings = null)
+    public static function controller(string $url, string $controller, array $settings = null)
     {
         $route = new RouteController($url, $controller);
         $route = static::addDefaultNamespace($route);
@@ -402,7 +401,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteResource|IRoute
      */
-    public static function resource(string $url, $controller, array $settings = null)
+    public static function resource(string $url, string $controller, array $settings = null)
     {
         $route = new RouteResource($url, $controller);
         $route = static::addDefaultNamespace($route);

@@ -78,7 +78,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
 
     protected function call($method): bool
     {
-        $this->setCallback($this->controller . '@' . $method);
+        $this->setCallback([$this->controller, $method]);
 
         return true;
     }

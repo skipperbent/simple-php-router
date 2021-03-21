@@ -78,8 +78,8 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
     public function testSimilarUrls()
     {
         // Match normal route on alias
-        TestRouter::resource('/url11', 'DummyController@method1');
-        TestRouter::resource('/url1', 'DummyController@method1', ['as' => 'match']);
+        TestRouter::get('/url11', 'DummyController@method1');
+        TestRouter::resource('/url1', 'ResourceController', ['as' => 'match']);
 
         TestRouter::debugNoReset('/url1', 'get');
 
