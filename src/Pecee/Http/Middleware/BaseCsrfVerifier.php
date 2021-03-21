@@ -68,7 +68,7 @@ class BaseCsrfVerifier implements IMiddleware
 
             $token = $request->getInputHandler()->value(
                 static::POST_KEY,
-                $request->getHeader(static::HEADER_KEY),
+                $request->getHeader(static::HEADER_KEY) ?? $request->getHeader('HTTP-' . static::HEADER_KEY),
                 'post'
             );
 
