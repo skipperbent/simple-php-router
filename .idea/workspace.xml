@@ -6,17 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a7058529-bdc4-40b4-a50d-c50564dc83f0" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteGroup.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteGroup.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/RouterPartialGroupTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/RouterPartialGroupTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/TestRouter.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/TestRouter.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/IRoute.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/IRoute.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/Route.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/Route.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteResource.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/Route/RouteResource.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Pecee/SimpleRouter/SimpleRouter.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pecee/SimpleRouter/SimpleRouter.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/RouterRouteTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/RouterRouteTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/RouterUrlTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/RouterUrlTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/Dummy/ResourceController.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Pecee/SimpleRouter/Dummy/ResourceController.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -314,7 +304,7 @@
       <recent name="D:\Workspace\simple-php-router\tests" />
     </key>
   </component>
-  <component name="RunManager" selected="PHPUnit.RouterPartialGroupTest">
+  <component name="RunManager" selected="PHPUnit.tests">
     <configuration name="RouterPartialGroupTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
       <TestRunner class="RouterPartialGroupTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/Pecee/SimpleRouter/RouterPartialGroupTest.php" scope="Class" />
       <method v="2" />
@@ -343,8 +333,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="PHPUnit.RouterPartialGroupTest" />
         <item itemvalue="PHPUnit.tests" />
+        <item itemvalue="PHPUnit.RouterPartialGroupTest" />
         <item itemvalue="PHPUnit.RouterRouteTest" />
         <item itemvalue="PHPUnit.phpunit.xml" />
         <item itemvalue="PHP Script.debug.php" />
