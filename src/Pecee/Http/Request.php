@@ -148,6 +148,15 @@ class Request
     }
 
     /**
+     * Get the csrf token
+     * @return string|null
+     */
+    public function getCsrfToken(): ?string
+    {
+        return $this->getHeader('x-csrf-token') ?? $this->getHeader('http-x-csrf-token');
+    }
+
+    /**
      * Get all headers
      * @return array
      */
