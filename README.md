@@ -86,6 +86,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
     - [Registering new event](#registering-new-event)
     - [Custom EventHandlers](#custom-eventhandlers)
 - [Advanced](#advanced)
+	- [Disable multiple route rendering](#disable-multiple-route-rendering)
 	- [Url rewriting](#url-rewriting)
 		- [Changing current route](#changing-current-route)
 		- [Bootmanager: loading routes dynamically](#bootmanager-loading-routes-dynamically)
@@ -1443,6 +1444,12 @@ class DatabaseDebugHandler implements IEventHandler
 ---
 
 # Advanced
+
+## Disable multiple route rendering
+
+By default the router will try to execute all routes that matches a given url. To stop the router from executing any further routes any method can return a value.
+
+This behavior can be easily disabled by setting `SimpleRouter::enableMultiRouteRendering(false)` in your `routes.php` file. This is the same behavior as version 3 and below.
 
 ## Url rewriting
 
