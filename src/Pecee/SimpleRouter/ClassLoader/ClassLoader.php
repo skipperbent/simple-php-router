@@ -48,7 +48,7 @@ class ClassLoader implements IClassLoader
     /**
      * Load closure
      *
-     * @param \Closure $closure
+     * @param Callable $closure
      * @param array $parameters
      * @return mixed
      * @throws NotFoundHttpException

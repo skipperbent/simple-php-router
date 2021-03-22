@@ -2,6 +2,12 @@
 
 class DummyController
 {
+    public function index()
+    {
+
+    }
+
+
 	public function method1()
 	{
 

@@ -78,7 +78,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
 
     protected function call($method): bool
     {
-        $this->setCallback($this->controller . '@' . $method);
+        $this->setCallback([$this->controller, $method]);
 
         return true;
     }
@@ -115,32 +115,32 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         $method = $request->getMethod();
 
         // Delete
-        if ($method === static::REQUEST_TYPE_DELETE && $id !== null) {
+        if ($method === Request::REQUEST_TYPE_DELETE && $id !== null) {
             return $this->call($this->methodNames['destroy']);
         }
 
         // Update
-        if ($id !== null && \in_array($method, [static::REQUEST_TYPE_PATCH, static::REQUEST_TYPE_PUT], true) === true) {
+        if ($id !== null && \in_array($method, [Request::REQUEST_TYPE_PATCH, Request::REQUEST_TYPE_PUT], true) === true) {
             return $this->call($this->methodNames['update']);
         }
 
         // Edit
-        if ($method === static::REQUEST_TYPE_GET && $id !== null && $action === 'edit') {
+        if ($method === Request::REQUEST_TYPE_GET && $id !== null && $action === 'edit') {
             return $this->call($this->methodNames['edit']);
         }
 
         // Create
-        if ($method === static::REQUEST_TYPE_GET && $id === 'create') {
+        if ($method === Request::REQUEST_TYPE_GET && $id === 'create') {
             return $this->call($this->methodNames['create']);
         }
 
         // Save
-        if ($method === static::REQUEST_TYPE_POST) {
+        if ($method === Request::REQUEST_TYPE_POST) {
             return $this->call($this->methodNames['store']);
         }
 
         // Show
-        if ($method === static::REQUEST_TYPE_GET && $id !== null) {
+        if ($method === Request::REQUEST_TYPE_GET && $id !== null) {
             return $this->call($this->methodNames['show']);
         }
 

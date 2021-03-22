@@ -12,7 +12,6 @@ namespace Pecee\SimpleRouter;
 
 use DI\Container;
 use Pecee\Exceptions\InvalidArgumentException;
-use Pecee\Http\Exceptions\MalformedUrlException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
 use Pecee\Http\Response;
@@ -76,7 +75,6 @@ class SimpleRouter
             ob_start();
             static::router()->setDebugEnabled(true)->start();
             $routerOutput = ob_get_clean();
-            ob_end_clean();
         } catch (\Exception $e) {
 
         }
@@ -178,79 +176,79 @@ class SimpleRouter
      * Route the given url to your callback on GET request method.
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      *
      * @return RouteUrl
      */
     public static function get(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['get'], $url, $callback, $settings);
+        return static::match([Request::REQUEST_TYPE_GET], $url, $callback, $settings);
     }
 
     /**
      * Route the given url to your callback on POST request method.
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
     public static function post(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['post'], $url, $callback, $settings);
+        return static::match([Request::REQUEST_TYPE_POST], $url, $callback, $settings);
     }
 
     /**
      * Route the given url to your callback on PUT request method.
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
     public static function put(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['put'], $url, $callback, $settings);
+        return static::match([Request::REQUEST_TYPE_PUT], $url, $callback, $settings);
     }
 
     /**
      * Route the given url to your callback on PATCH request method.
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
     public static function patch(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['patch'], $url, $callback, $settings);
+        return static::match([Request::REQUEST_TYPE_PATCH], $url, $callback, $settings);
     }
 
     /**
      * Route the given url to your callback on OPTIONS request method.
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
     public static function options(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['options'], $url, $callback, $settings);
+        return static::match([Request::REQUEST_TYPE_OPTIONS], $url, $callback, $settings);
     }
 
     /**
      * Route the given url to your callback on DELETE request method.
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
     public static function delete(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['delete'], $url, $callback, $settings);
+        return static::match([Request::REQUEST_TYPE_DELETE], $url, $callback, $settings);
     }
 
     /**
@@ -307,14 +305,14 @@ class SimpleRouter
      * Alias for the form method
      *
      * @param string $url
-     * @param callable $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @see SimpleRouter::form
      * @return RouteUrl
      */
     public static function basic(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['get', 'post'], $url, $callback, $settings);
+        return static::form($url, $callback, $settings);
     }
 
     /**
@@ -322,14 +320,17 @@ class SimpleRouter
      * Route the given url to your callback on POST and GET request method.
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @see SimpleRouter::form
      * @return RouteUrl
      */
     public static function form(string $url, $callback, array $settings = null): IRoute
     {
-        return static::match(['get', 'post'], $url, $callback, $settings);
+        return static::match([
+            Request::REQUEST_TYPE_GET,
+            Request::REQUEST_TYPE_POST
+        ], $url, $callback, $settings);
     }
 
     /**
@@ -337,7 +338,7 @@ class SimpleRouter
      *
      * @param array $requestMethods
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
@@ -358,7 +359,7 @@ class SimpleRouter
      * This type will route the given url to your callback and allow any type of request method
      *
      * @param string $url
-     * @param string|\Closure $callback
+     * @param string|array|\Closure $callback
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
@@ -382,7 +383,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteController|IRoute
      */
-    public static function controller(string $url, $controller, array $settings = null)
+    public static function controller(string $url, string $controller, array $settings = null)
     {
         $route = new RouteController($url, $controller);
         $route = static::addDefaultNamespace($route);
@@ -402,7 +403,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteResource|IRoute
      */
-    public static function resource(string $url, $controller, array $settings = null)
+    public static function resource(string $url, string $controller, array $settings = null)
     {
         $route = new RouteResource($url, $controller);
         $route = static::addDefaultNamespace($route);
@@ -465,7 +466,7 @@ class SimpleRouter
     /**
      * Get the request
      *
-     * @return \Pecee\Http\Request
+     * @return Request
      */
     public static function request(): Request
     {

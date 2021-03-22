@@ -64,7 +64,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
         if ($method !== null) {
 
             /* Remove requestType from method-name, if it exists */
-            foreach (static::$requestTypes as $requestType) {
+            foreach (Request::$requestTypes as $requestType) {
 
                 if (stripos($method, $requestType) === 0) {
                     $method = (string)substr($method, \strlen($requestType));
@@ -110,7 +110,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
             $this->parameters = \array_slice($path, 1);
 
             // Set callback
-            $this->setCallback($this->controller . '@' . $this->method);
+            $this->setCallback([$this->controller, $this->method]);
 
             return true;
         }

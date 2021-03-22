@@ -28,6 +28,24 @@ class InputHandler
     protected $request;
 
     /**
+     * Original post variables
+     * @var array
+     */
+    protected $originalPost = [];
+
+    /**
+     * Original get/params variables
+     * @var array
+     */
+    protected $originalParams = [];
+
+    /**
+     * Get original file variables
+     * @var array
+     */
+    protected $originalFile = [];
+
+    /**
      * Input constructor.
      * @param Request $request
      */
@@ -46,22 +64,34 @@ class InputHandler
     {
         /* Parse get requests */
         if (\count($_GET) !== 0) {
-            $this->get = $this->parseInputItem($_GET);
+            $this->originalParams = $_GET;
+            $this->get = $this->parseInputItem($this->originalParams);
         }
 
         /* Parse post requests */
-        $postVars = $_POST;
+        $this->originalPost = $_POST;
 
-        if (\in_array($this->request->getMethod(), ['put', 'patch', 'delete'], false) === true) {
-            parse_str(file_get_contents('php://input'), $postVars);
+        if (\in_array($this->request->getMethod(), Request::$requestTypesPost, false) === true) {
+
+            $contents = file_get_contents('php://input');
+
+            // Append any PHP-input json
+            if (strpos(trim($contents), '{') === 0) {
+                $post = json_decode($contents, true);
+
+                if ($post !== false) {
+                    $this->originalPost += $post;
+                }
+            }
         }
 
-        if (\count($postVars) !== 0) {
-            $this->post = $this->parseInputItem($postVars);
+        if (\count($this->originalPost) !== 0) {
+            $this->post = $this->parseInputItem($this->originalPost);
         }
 
         /* Parse get requests */
         if (\count($_FILES) !== 0) {
+            $this->originalFile = $_FILES;
             $this->file = $this->parseFiles();
         }
     }
@@ -192,11 +222,11 @@ class InputHandler
     {
         $element = null;
 
-        if (\count($methods) === 0 || \in_array('get', $methods, true) === true) {
+        if (\count($methods) === 0 || \in_array(Request::REQUEST_TYPE_GET, $methods, true) === true) {
             $element = $this->get($index);
         }
 
-        if (($element === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array('post', $methods, true) === true)) {
+        if (($element === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array(Request::REQUEST_TYPE_POST, $methods, true) === true)) {
             $element = $this->post($index);
         }
 
@@ -288,24 +318,7 @@ class InputHandler
      */
     public function all(array $filter = []): array
     {
-        $output = $_GET;
-
-        if ($this->request->getMethod() === 'post') {
-
-            // Append POST data
-            $output += $_POST;
-            $contents = file_get_contents('php://input');
-
-            // Append any PHP-input json
-            if (strpos(trim($contents), '{') === 0) {
-                $post = json_decode($contents, true);
-
-                if ($post !== false) {
-                    $output += $post;
-                }
-            }
-        }
-
+        $output = $this->originalParams + $this->originalPost + $this->originalFile;
         $output = (\count($filter) > 0) ? array_intersect_key($output, array_flip($filter)) : $output;
 
         foreach ($filter as $filterKey) {
@@ -348,6 +361,66 @@ class InputHandler
     public function addFile(string $key, InputFile $item): void
     {
         $this->file[$key] = $item;
+    }
+
+    /**
+     * Get original post variables
+     * @return array
+     */
+    public function getOriginalPost(): array
+    {
+        return $this->originalPost;
+    }
+
+    /**
+     * Set original post variables
+     * @param array $post
+     * @return static $this
+     */
+    public function setOriginalPost(array $post): self
+    {
+        $this->originalPost = $post;
+        return $this;
+    }
+
+    /**
+     * Get original get variables
+     * @return array
+     */
+    public function getOriginalParams(): array
+    {
+        return $this->originalParams;
+    }
+
+    /**
+     * Set original get-variables
+     * @param array $params
+     * @return static $this
+     */
+    public function setOriginalParams(array $params): self
+    {
+        $this->originalParams = $params;
+        return $this;
+    }
+
+    /**
+     * Get original file variables
+     * @return array
+     */
+    public function getOriginalFile(): array
+    {
+        return $this->originalFile;
+    }
+
+    /**
+     * Set original file posts variables
+     * @param array $file
+     * @return static $this
+     */
+    public function setOriginalFile(array $file): self
+    {
+        $this->originalFile = $file;
+        return $this;
     }
 
 }

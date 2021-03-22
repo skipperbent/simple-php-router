@@ -33,6 +33,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 		- [Helper functions](#helper-functions)
 - [Routes](#routes)
 	- [Basic routing](#basic-routing)
+		- [Class hinting](#class-hinting)
 		- [Available methods](#available-methods)
 		- [Multiple HTTP-verbs](#multiple-http-verbs)
 	- [Route parameters](#route-parameters)
@@ -123,7 +124,7 @@ composer require pecee/simple-router
 
 The goal of this project is to create a router that is more or less 100% compatible with the Laravel documentation, while remaining as simple as possible, and as easy to integrate and change without compromising either speed or complexity. Being lightweight is the #1 priority.
 
-We've included a simple demo project for the router which can be found in the `demo-project` folder. This project should give you a basic understanding of how to setup and use simple-php-router project.
+We've included a simple demo project for the router which can be found [here](https://github.com/skipperbent/simple-router-demo). This project should give you a basic understanding of how to setup and use simple-php-router project.
 
 Please note that the demo-project only covers how to integrate the `simple-php-router` in a project without an existing framework. If you are using a framework in your project, the implementation might vary.
 
@@ -402,6 +403,14 @@ Below is a very basic example of setting up a route. First parameter is the url 
 SimpleRouter::get('/', function() {
     return 'Hello world';
 });
+```
+
+### Class hinting
+
+You can use class hinting to load a class & method like this:
+
+```php
+SimpleRouter::get('/', [MyClass::class, 'myMethod']);
 ```
 
 ### Available methods
@@ -785,12 +794,17 @@ SimpleRouter::group(['middleware' => \Demo\Middlewares\Site::class, 'exceptionHa
 
     SimpleRouter::get('/answers/{id}', 'ControllerAnswers@show', ['where' => ['id' => '[0-9]+']]);
 
+	/**
+     * Class hinting is supported too
+     */
+     
+     SimpleRouter::get('/answers/{id}', [ControllerAnswers::class, 'show'], ['where' => ['id' => '[0-9]+']]);
 
     /**
      * Restful resource (see IRestController interface for available methods)
      */
 
-    SimpleRouter::resource('/rest', ControllerRessource::class);
+    SimpleRouter::resource('/rest', ControllerResource::class);
 
 
     /**
@@ -811,7 +825,6 @@ SimpleRouter::group(['middleware' => \Demo\Middlewares\Site::class, 'exceptionHa
 });
 
 SimpleRouter::get('/page/404', 'ControllerPage@notFound', ['as' => 'page.notfound']);
-
 ```
 
 ---

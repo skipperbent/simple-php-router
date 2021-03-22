@@ -4,12 +4,46 @@ namespace Pecee\Http;
 
 use Pecee\Http\Exceptions\MalformedUrlException;
 use Pecee\Http\Input\InputHandler;
+use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\SimpleRouter\Route\ILoadableRoute;
 use Pecee\SimpleRouter\Route\RouteUrl;
 use Pecee\SimpleRouter\SimpleRouter;
 
 class Request
 {
+    public const REQUEST_TYPE_GET = 'get';
+    public const REQUEST_TYPE_POST = 'post';
+    public const REQUEST_TYPE_PUT = 'put';
+    public const REQUEST_TYPE_PATCH = 'patch';
+    public const REQUEST_TYPE_OPTIONS = 'options';
+    public const REQUEST_TYPE_DELETE = 'delete';
+    public const REQUEST_TYPE_HEAD = 'head';
+
+    /**
+     * All request-types
+     * @var string[]
+     */
+    public static $requestTypes = [
+        self::REQUEST_TYPE_GET,
+        self::REQUEST_TYPE_POST,
+        self::REQUEST_TYPE_PUT,
+        self::REQUEST_TYPE_PATCH,
+        self::REQUEST_TYPE_OPTIONS,
+        self::REQUEST_TYPE_DELETE,
+        self::REQUEST_TYPE_HEAD,
+    ];
+
+    /**
+     * Post request-types.
+     * @var string[]
+     */
+    public static $requestTypesPost = [
+        self::REQUEST_TYPE_POST,
+        self::REQUEST_TYPE_PUT,
+        self::REQUEST_TYPE_PATCH,
+        self::REQUEST_TYPE_DELETE,
+    ];
+
     /**
      * Additional data
      *
@@ -77,14 +111,14 @@ class Request
     {
         foreach ($_SERVER as $key => $value) {
             $this->headers[strtolower($key)] = $value;
-            $this->headers[strtolower(str_replace('_', '-', $key))] = $value;
+            $this->headers[str_replace('_', '-', strtolower($key))] = $value;
         }
 
         $this->setHost($this->getHeader('http-host'));
 
         // Check if special IIS header exist, otherwise use default.
         $this->setUrl(new Url($this->getHeader('unencoded-url', $this->getHeader('request-uri'))));
-        
+
         $this->method = strtolower($this->getHeader('request-method'));
         $this->inputHandler = new InputHandler($this);
         $this->method = strtolower($this->inputHandler->value('_method', $this->getHeader('request-method')));
@@ -148,6 +182,15 @@ class Request
     }
 
     /**
+     * Get the csrf token
+     * @return string|null
+     */
+    public function getCsrfToken(): ?string
+    {
+        return $this->getHeader(BaseCsrfVerifier::HEADER_KEY);
+    }
+
+    /**
      * Get all headers
      * @return array
      */
@@ -165,6 +208,13 @@ class Request
      */
     public function getIp(bool $safe = false): ?string
     {
+        return $this->getHeader(
+            'http-cf-connecting-ip',
+            $this->getHeader(
+                'http-x-forwarded-for',
+                $this->getHeader('remote-addr')
+            )
+        );
         $client_header = null;
         if(!$safe){
             if ($this->getHeader('http-cf-connecting-ip') !== null) {
@@ -212,14 +262,28 @@ class Request
     /**
      * Get header value by name
      *
-     * @param string $name
-     * @param string|null $defaultValue
+     * @param string $name Name of the header.
+     * @param string|null $defaultValue Value to be returned if header is not found.
+     * @param bool $tryParse When enabled the method will try to find the header from both from client (http) and server-side variants, if the header is not found.
      *
      * @return string|null
      */
-    public function getHeader($name, $defaultValue = null): ?string
+    public function getHeader(string $name, $defaultValue = null, $tryParse = true): ?string
     {
-        return $this->headers[strtolower($name)] ?? $defaultValue;
+        $name = strtolower($name);
+        $header = $this->headers[$name] ?? null;
+
+        if ($tryParse === true && $header === null) {
+            if (strpos($name, 'http-') === 0) {
+                // Trying to find client header variant which was not found, searching for header variant without http- prefix.
+                $header = $this->headers[str_replace('http-', '', $name)] ?? null;
+            } else {
+                // Trying to find server variant which was not found, searching for client variant with http- prefix.
+                $header = $this->headers['http-' . $name] ?? null;
+            }
+        }
+
+        return $header ?? $defaultValue;
     }
 
     /**
