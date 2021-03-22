@@ -8,14 +8,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
       - uses: php-actions/composer@v5
-
       - name: PHPUnit Tests
         uses: php-actions/phpunit@v6
         with:
           bootstrap: vendor/autoload.php
           php_version: 7.1
-          php_extensions: json
+          version: 1
           configuration: phpunit.xml
           args: --coverage-text
