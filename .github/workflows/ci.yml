@@ -12,7 +12,6 @@ jobs:
         uses: php-actions/composer@v5
         with:
           php_version: 7.3
-      - run: ./vendor/bin/phpunit --migrate-configuration
       - name: PHPUnit tests
         uses: php-actions/phpunit@v2
         with:
