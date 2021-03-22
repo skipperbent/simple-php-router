@@ -10,6 +10,53 @@ use Pecee\SimpleRouter\SimpleRouter;
 
 class Request
 {
+
+    public const PLATFORM_LINUX = 'linux';
+    public const PLATFORM_WINDOWS = 'windows';
+    public const PLATFORM_WINDOWS_PHONE = 'windows phone';
+    public const PLATFORM_MAC = 'mac os';
+    public const PLATFORM_IPAD = 'ipad os';
+    public const PLATFORM_IOS = 'ios';
+    public const PLATFORM_APPLE_WATCH = 'apple watch';
+    public const PLATFORM_ANDROID = 'android';
+    public const PLATFORM_CHROME = 'chrome os';
+
+    public const BROWSER_CHROME = 'chrome';
+    public const BROWSER_FIREFOX = 'firefox';
+    public const BROWSER_FIREFOX_TOR = 'tor';
+    public const BROWSER_SAFARI = 'safari';
+    public const BROWSER_OPERA = 'opera';
+    public const BROWSER_EDGE = 'edge';
+    public const BROWSER_BRAVE = 'brave';
+    public const BROWSER_IE = 'ie';
+    public const BROWSER_VIVALDI = 'vivaldi';
+    public const BROWSER_YANDEX = 'yandex';
+
+    public static $platforms = [
+        self::PLATFORM_LINUX,
+        self::PLATFORM_WINDOWS,
+        self::PLATFORM_WINDOWS_PHONE,
+        self::PLATFORM_MAC,
+        self::PLATFORM_IPAD,
+        self::PLATFORM_IOS,
+        self::PLATFORM_APPLE_WATCH,
+        self::PLATFORM_ANDROID,
+        self::PLATFORM_CHROME
+    ];
+
+    public static $browsers = [
+        self::BROWSER_CHROME,
+        self::BROWSER_FIREFOX,
+        self::BROWSER_FIREFOX_TOR,
+        self::BROWSER_SAFARI,
+        self::BROWSER_OPERA,
+        self::BROWSER_EDGE,
+        self::BROWSER_BRAVE,
+        self::BROWSER_IE,
+        self::BROWSER_VIVALDI,
+        self::BROWSER_YANDEX
+    ];
+
     /**
      * Additional data
      *
@@ -127,6 +174,64 @@ class Request
     public function getMethod(): ?string
     {
         return $this->method;
+    }
+
+    /**
+     * RegEx created using https://www.whatismybrowser.com/guides/the-latest-user-agent/ and https://developers.whatismybrowser.com/useragents/parse/
+     * Tor User agent is described in section "Tor + Fingerprinting" on https://blog.torproject.org/browser-fingerprinting-introduction-and-challenges-ahead
+     * @return string|null
+     */
+    public function getBrowser(): ?string{
+        $user_agent = $this->getUserAgent();
+        if(preg_match('/Mozilla\/5\.0 \(Windows NT \d\d\.\d; rv:\d\d\.\d\) Gecko\/20100101 Firefox\/\d\d\.0$/i', $user_agent)){
+            return self::BROWSER_FIREFOX_TOR;
+        }else if(preg_match('/Trident\/|MSIE/i', $user_agent) && !preg_match('/Opera|OPR/i', $user_agent)){
+            return self::BROWSER_IE;
+        }else if(preg_match('/Firefox|FxiOS/i', $user_agent)) {
+            return self::BROWSER_FIREFOX;
+        }else if(preg_match('/Edg/i', $user_agent)){//Edg, EdgA, Edge, EdgiOS   -> /Edg(e|A|iOS)?/i
+            return self::BROWSER_EDGE;
+        }else if(preg_match('/Vivaldi/i', $user_agent)){
+            return self::BROWSER_VIVALDI;
+        }else if(preg_match('/YaBrowser/i', $user_agent)){
+            return self::BROWSER_YANDEX;
+        }else if(preg_match('/Opera|OPR/i', $user_agent)) {
+            return self::BROWSER_OPERA;
+        }else if(preg_match('/Brave/i', $user_agent)) {
+            return self::BROWSER_BRAVE;
+        }else if(preg_match('/Chrome|CriOS/i', $user_agent)) {
+            return self::BROWSER_CHROME;
+        }else if(preg_match('/Safari/i', $user_agent)) {
+            return self::BROWSER_SAFARI;
+        }
+        return null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPlatform(): ?string{
+        $user_agent = $this->getUserAgent();
+        if(preg_match('/CrOS|Chromebook/i', $user_agent)){
+            return self::PLATFORM_CHROME;
+        }else if(preg_match('/Watch OS|watchOS/i', $user_agent)){
+            return self::PLATFORM_APPLE_WATCH;
+        }else if(preg_match('/iPad/i', $user_agent) && preg_match('/Mac OS/i', $user_agent)){
+            return self::PLATFORM_IPAD;
+        }else if(preg_match('/iPhone OS/i', $user_agent)){
+            return self::PLATFORM_IOS;
+        }else if(preg_match('/Mac OS|Mac_PowerPC/i', $user_agent)){//TODO Ipad (new versions) has the same user_agent -> /Macintosh/i
+            return self::PLATFORM_MAC;
+        }else if(preg_match('/Windows Phone/i', $user_agent)){
+            return self::PLATFORM_WINDOWS_PHONE;
+        }else if(preg_match('/Windows/i', $user_agent)){
+            return self::PLATFORM_WINDOWS;
+        }else if(preg_match('/Android/i', $user_agent)){
+            return self::PLATFORM_ANDROID;
+        }else if(preg_match('/Linux/i', $user_agent)){
+            return self::PLATFORM_LINUX;
+        }
+        return null;
     }
 
     /**
