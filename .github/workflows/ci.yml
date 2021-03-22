@@ -15,7 +15,7 @@ jobs:
         uses: php-actions/phpunit@v6
         with:
           bootstrap: tests/bootstrap.php
-          php_version: 7.4
+          php_version: 7.1
           php_extensions: json
           configuration: phpunit.xml
           args: --coverage-text
