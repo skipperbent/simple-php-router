@@ -12,3 +12,9 @@ jobs:
         uses: php-actions/composer@v5
         with:
           php_version: 7.1
+      - name: PHPUnit tests
+        uses: php-actions/phpunit@v2
+        with:
+          php_version: 7.1
+          bootstrap: tests/bootstrap.php
+          configuration: phpunit.xml
