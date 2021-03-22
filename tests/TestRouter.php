@@ -3,6 +3,11 @@
 class TestRouter extends \Pecee\SimpleRouter\SimpleRouter
 {
 
+    public function __construct()
+    {
+        static::request()->setHost('testhost.com');
+    }
+
     public static function debugNoReset($testUrl, $testMethod = 'get')
     {
         $request = static::request();

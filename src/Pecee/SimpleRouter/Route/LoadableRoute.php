@@ -60,7 +60,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             return null;
         }
 
-        return ((bool)preg_match($this->regex, $request->getHost() . $url) !== false);
+        return ((bool)preg_match($this->regex, $url) !== false);
     }
 
     /**

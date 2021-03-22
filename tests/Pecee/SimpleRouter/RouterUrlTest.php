@@ -171,4 +171,16 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
 
     }
 
+    public function testCustomRegex()
+    {
+        TestRouter::request()->setHost('google.com');
+
+        TestRouter::get('/admin/', function() {
+            return 'match';
+        })->setMatch('/^\/admin\/?(.*)/i');
+
+        $output = TestRouter::debugOutput('/admin/asd/bec/123', 'get');
+        $this->assertEquals('match', $output);
+    }
+
 }
