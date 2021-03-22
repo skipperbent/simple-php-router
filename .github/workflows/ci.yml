@@ -18,3 +18,4 @@ jobs:
           php_version: 7.3
           bootstrap: tests/bootstrap.php
           configuration: phpunit.xml
+          args: --coverage-text
