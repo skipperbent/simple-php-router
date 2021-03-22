@@ -165,10 +165,10 @@ class Request
      */
     public function getIp(bool $safe = false): ?string
     {
-        if ($this->getHeader('http-cf-connecting-ip') !== null) {
-            return $this->getHeader('http-cf-connecting-ip');
-        }
         if(!$safe){
+            if ($this->getHeader('http-cf-connecting-ip') !== null) {
+                return $this->getHeader('http-cf-connecting-ip');
+            }
             if($this->getHeader('http-client-ip') !== null){
                 return $this->getHeader('http-client-ip');
             }
