@@ -262,8 +262,8 @@ class Router
 
     /**
      * Load routes
-     * @throws NotFoundHttpException
      * @return void
+     * @throws NotFoundHttpException
      */
     public function loadRoutes(): void
     {
@@ -350,7 +350,7 @@ class Router
     {
         $this->debug('Routing request');
 
-        $methodNotAllowed = false;
+        $methodNotAllowed = null;
 
         try {
             $url = $this->request->getRewriteUrl() ?? $this->request->getUrl()->getPath();
@@ -370,7 +370,12 @@ class Router
                     /* Check if request method matches */
                     if (\count($route->getRequestMethods()) !== 0 && \in_array($this->request->getMethod(), $route->getRequestMethods(), true) === false) {
                         $this->debug('Method "%s" not allowed', $this->request->getMethod());
-                        $methodNotAllowed = true;
+
+                        // Only set method not allowed is not already set
+                        if ($methodNotAllowed === null) {
+                            $methodNotAllowed = true;
+                        }
+
                         continue;
                     }
 
@@ -475,9 +480,9 @@ class Router
 
     /**
      * @param \Exception $e
-     * @throws HttpException
-     * @throws \Exception
      * @return string|null
+     * @throws \Exception
+     * @throws HttpException
      */
     protected function handleException(\Exception $e): ?string
     {
