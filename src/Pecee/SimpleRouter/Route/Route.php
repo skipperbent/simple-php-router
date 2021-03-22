@@ -58,6 +58,12 @@ abstract class Route implements IRoute
     protected $parameters = [];
     protected $originalParameters = [];
     protected $middlewares = [];
+    protected $platforms = [];
+    protected $platform_whitelist = false;
+    protected $browsers = [];
+    protected $browser_whitelist = false;
+    protected $ips = [];
+    protected $ip_whitelist = false;
 
     /**
      * Render route
@@ -389,6 +395,21 @@ abstract class Route implements IRoute
             $values['defaultParameterRegex'] = $this->defaultParameterRegex;
         }
 
+        if(count($this->ips) !== 0){
+            $values['ip_whitelist'] = $this->ip_whitelist;
+            $values['ips'] = $this->ips;
+        }
+
+        if(count($this->browsers) !== 0){
+            $values['browser_whitelist'] = $this->browser_whitelist;
+            $values['browsers'] = $this->browsers;
+        }
+
+        if(count($this->platforms) !== 0){
+            $values['platform_whitelist'] = $this->platform_whitelist;
+            $values['platforms'] = $this->platforms;
+        }
+
         return $values;
     }
 
@@ -460,7 +481,7 @@ abstract class Route implements IRoute
      * @param array $options
      * @return static
      */
-    public function where(array $options)
+    public function where(array $options): IRoute
     {
         return $this->setWhere($options);
     }
@@ -510,7 +531,7 @@ abstract class Route implements IRoute
      * @param IMiddleware|string $middleware
      * @return static
      */
-    public function setMiddleware($middleware)
+    public function setMiddleware($middleware): IRoute
     {
         $this->middlewares[] = $middleware;
 
@@ -558,7 +579,7 @@ abstract class Route implements IRoute
      * @param string $regex
      * @return static
      */
-    public function setDefaultParameterRegex($regex)
+    public function setDefaultParameterRegex(string $regex): IRoute
     {
         $this->defaultParameterRegex = $regex;
 
@@ -573,6 +594,207 @@ abstract class Route implements IRoute
     public function getDefaultParameterRegex(): string
     {
         return $this->defaultParameterRegex;
+    }
+
+    /**
+     * @param array $platforms
+     * @param bool $whitelist
+     * @return static
+     */
+    public function setPlatforms(array $platforms, bool $whitelist = true): IRoute
+    {
+        $this->platforms = $platforms;
+        $this->platform_whitelist = $whitelist;
+
+        return $this;
+    }
+
+    /**
+     * @param string $platform
+     * @return static
+     */
+    public function addPlatform(string $platform): IRoute
+    {
+        $this->platforms[] = $platform;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPlatforms(): array
+    {
+        return $this->platforms;
+    }
+
+    /**
+     * @param bool $whitelist
+     * @return static
+     */
+    public function setPlatformWhitelist(bool $whitelist): IRoute
+    {
+        $this->platform_whitelist = $whitelist;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPlatformWhitelist(): bool
+    {
+        return $this->platform_whitelist;
+    }
+
+    /**
+     * @param array $platforms
+     * @return static
+     */
+    public function allowPlatforms(array $platforms): IRoute{
+        return $this->setPlatforms($platforms);
+    }
+
+    /**
+     * @param array $platforms
+     * @return static
+     */
+    public function blockPlatforms(array $platforms): IRoute{
+        return $this->setPlatforms($platforms, false);
+    }
+
+    /**
+     * @param array $browsers
+     * @param bool $whitelist
+     * @return static
+     */
+    public function setBrowsers(array $browsers, bool $whitelist = true): IRoute
+    {
+        $this->browsers = $browsers;
+        $this->browser_whitelist = $whitelist;
+
+        return $this;
+    }
+
+    /**
+     * @param $browser
+     * @return static
+     */
+    public function addBrowser(string $browser): IRoute
+    {
+        $this->browsers[] = $browser;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBrowsers(): array
+    {
+        return $this->browsers;
+    }
+
+    /**
+     * @param bool $whitelist
+     * @return static
+     */
+    public function setBrowserWhitelist(bool $whitelist): IRoute
+    {
+        $this->browser_whitelist = $whitelist;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isBrowserWhitelist(): bool
+    {
+        return $this->browser_whitelist;
+    }
+
+    /**
+     * @param array $browsers
+     * @return static
+     */
+    public function allowBrowsers(array $browsers): IRoute{
+        return $this->setBrowsers($browsers);
+    }
+
+    /**
+     * @param array $browsers
+     * @return static
+     */
+    public function blockBrowsers(array $browsers): IRoute{
+        return $this->setBrowsers($browsers, false);
+    }
+
+    /**
+     * @param array $ips
+     * @param bool $whitelist
+     * @return static
+     */
+    public function setIps(array $ips, bool $whitelist = true): IRoute
+    {
+        $this->ips = $ips;
+        $this->ip_whitelist = $whitelist;
+
+        return $this;
+    }
+
+    /**
+     * @param string $ip
+     * @return static
+     */
+    public function addIp(string $ip): IRoute
+    {
+        $this->ips[] = $ip;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getIps(): array
+    {
+        return $this->ips;
+    }
+
+    /**
+     * @param bool $whitelist
+     * @return static
+     */
+    public function setIpWhitelist(bool $whitelist): IRoute
+    {
+        $this->ip_whitelist = $whitelist;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isIpWhitelist(): bool
+    {
+        return $this->ip_whitelist;
+    }
+
+    /**
+     * @param array $ips
+     * @return static
+     */
+    public function allowIps(array $ips): IRoute{
+        return $this->setIps($ips);
+    }
+
+    /**
+     * @param array $ips
+     * @return static
+     */
+    public function blockIps(array $ips): IRoute{
+        return $this->setIps($ips, false);
     }
 
 }

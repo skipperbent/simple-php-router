@@ -374,6 +374,33 @@ class Router
                         continue;
                     }
 
+                    if(count($route->getIps()) !== 0){
+                        $ip = $this->request->getIp();//TODO use safe get ip (https://github.com/skipperbent/simple-php-router/pull/504)
+                        if(in_array($ip, $route->getIps(), true) !== $route->isIpWhitelist()){
+                            $this->debug('User with IP "%s" not allowed', $ip);
+                            $methodNotAllowed = true;
+                            continue;
+                        }
+                    }
+
+                    if(count($route->getBrowsers()) !== 0){
+                        $browser = $this->request->getBrowser();
+                        if(in_array($browser, $route->getBrowsers()) !== $route->isBrowserWhitelist()){
+                            $this->debug('User with Browser "%s" not allowed', $browser);
+                            $methodNotAllowed = true;
+                            continue;
+                        }
+                    }
+
+                    if(count($route->getPlatforms()) !== 0){
+                        $platform = $this->request->getPlatform();
+                        if(in_array($platform, $route->getPlatforms()) !== $route->isPlatformWhitelist()){
+                            $this->debug('User with Platform "%s" not allowed', $platform);
+                            $methodNotAllowed = true;
+                            continue;
+                        }
+                    }
+
                     $this->fireEvents(EventHandler::EVENT_RENDER_MIDDLEWARES, [
                         'route'       => $route,
                         'middlewares' => $route->getMiddlewares(),

@@ -206,4 +206,90 @@ interface IRoute
      */
     public function setMiddlewares(array $middlewares): self;
 
+    /**
+     * @param array $platforms
+     * @param bool $whitelist - whitelist or blacklist
+     * @return static
+     */
+    public function setPlatforms(array $platforms, bool $whitelist = true): self;
+
+    /**
+     * @param string $platform
+     * @return static
+     */
+    public function addPlatform(string $platform): self;
+
+    /**
+     * @return array
+     */
+    public function getPlatforms(): array;
+
+    /**
+     * @param bool $whitelist - whitelist or blacklist
+     * @return static
+     */
+    public function setPlatformWhitelist(bool $whitelist): self;
+
+    /**
+     * @return bool
+     */
+    public function isPlatformWhitelist(): bool;
+
+    /**
+     * @param array $browsers
+     * @param bool $whitelist - whitelist or blacklist
+     * @return static
+     */
+    public function setBrowsers(array $browsers, bool $whitelist = true): self;
+
+    /**
+     * @param string $browser
+     * @return static
+     */
+    public function addBrowser(string $browser): self;
+
+    /**
+     * @return array
+     */
+    public function getBrowsers(): array;
+
+    /**
+     * @param bool $whitelist - whitelist or blacklist
+     * @return static
+     */
+    public function setBrowserWhitelist(bool $whitelist): self;
+
+    /**
+     * @return bool
+     */
+    public function isBrowserWhitelist(): bool;
+
+    /**
+     * @param array $ips
+     * @param bool $whitelist - whitelist or blacklist
+     * @return static
+     */
+    public function setIps(array $ips, bool $whitelist = true): self;
+
+    /**
+     * @param string $ip
+     * @return static
+     */
+    public function addIp(string $ip): self;
+
+    /**
+     * @return array
+     */
+    public function getIps(): array;
+
+    /**
+     * @param bool $whitelist - whitelist or blacklist
+     * @return static
+     */
+    public function setIpWhitelist(bool $whitelist): self;
+
+    /**
+     * @return bool
+     */
+    public function isIpWhitelist(): bool;
 }
