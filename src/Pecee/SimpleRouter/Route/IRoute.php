@@ -207,7 +207,6 @@ interface IRoute
     public function setMiddlewares(array $middlewares): self;
 
     /**
-<<<<<<< HEAD
      * @param array $platforms
      * @param bool $whitelist - whitelist or blacklist
      * @return static
