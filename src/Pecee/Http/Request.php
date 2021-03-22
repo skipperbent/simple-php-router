@@ -166,6 +166,10 @@ class Request
             return $this->getHeader('http-cf-connecting-ip');
         }
 
+        if($this->getHeader('http-client-ip') !== null){
+            return $this->getHeader('http-client-ip');
+        }
+
         if ($this->getHeader('http-x-forwarded-for') !== null) {
             return $this->getHeader('http-x-forwarded-for');
         }
