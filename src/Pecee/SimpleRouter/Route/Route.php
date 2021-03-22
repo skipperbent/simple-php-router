@@ -10,25 +10,7 @@ use Pecee\SimpleRouter\Router;
 abstract class Route implements IRoute
 {
     protected const PARAMETERS_REGEX_FORMAT = '%s([\w]+)(\%s?)%s';
-    protected const PARAMETERS_DEFAULT_REGEX = '[\w\-]+';
-
-    public const REQUEST_TYPE_GET = 'get';
-    public const REQUEST_TYPE_POST = 'post';
-    public const REQUEST_TYPE_PUT = 'put';
-    public const REQUEST_TYPE_PATCH = 'patch';
-    public const REQUEST_TYPE_OPTIONS = 'options';
-    public const REQUEST_TYPE_DELETE = 'delete';
-    public const REQUEST_TYPE_HEAD = 'head';
-
-    public static $requestTypes = [
-        self::REQUEST_TYPE_GET,
-        self::REQUEST_TYPE_POST,
-        self::REQUEST_TYPE_PUT,
-        self::REQUEST_TYPE_PATCH,
-        self::REQUEST_TYPE_OPTIONS,
-        self::REQUEST_TYPE_DELETE,
-        self::REQUEST_TYPE_HEAD,
-    ];
+    protected const PARAMETERS_DEFAULT_REGEX = '[\w-]+';
 
     /**
      * If enabled parameters containing null-value
@@ -105,21 +87,18 @@ abstract class Route implements IRoute
             return $router->getClassLoader()->loadClosure($callback, $parameters);
         }
 
-        /* When the callback is a class + method */
-        $controller = explode('@', $callback);
+        $controller = $this->getClass();
+        $method = $this->getMethod();
 
         $namespace = $this->getNamespace();
-
-        $className = ($namespace !== null && $controller[0][0] !== '\\') ? $namespace . '\\' . $controller[0] : $controller[0];
+        $className = ($namespace !== null && $controller[0] !== '\\') ? $namespace . '\\' . $controller : $controller;
 
         $router->debug('Loading class %s', $className);
         $class = $router->getClassLoader()->loadClass($className);
 
-        if (\count($controller) === 1) {
+        if ($method === null) {
             $controller[1] = '__invoke';
         }
-
-        $method = $controller[1];
 
         if (method_exists($class, $method) === false) {
             throw new NotFoundHttpException(sprintf('Method "%s" does not exist in class "%s"', $method, $className), 404);
@@ -150,7 +129,7 @@ abstract class Route implements IRoute
             $urlRegex = preg_quote($route, '/');
         } else {
 
-            foreach (preg_split('/((\-?\/?)\{[^}]+\})/', $route) as $key => $t) {
+            foreach (preg_split('/((-?\/?){[^}]+})/', $route) as $key => $t) {
 
                 $regex = '';
 
@@ -165,7 +144,7 @@ abstract class Route implements IRoute
                         $regex = $parameterRegex ?? $this->defaultParameterRegex ?? static::PARAMETERS_DEFAULT_REGEX;
                     }
 
-                    $regex = sprintf('((\/|\-)(?P<%2$s>%3$s))%1$s', $parameters[2][$key], $name, $regex);
+                    $regex = sprintf('((\/|-)(?P<%2$s>%3$s))%1$s', $parameters[2][$key], $name, $regex);
                 }
 
                 $urlRegex .= preg_quote($t, '/') . $regex;
@@ -277,7 +256,7 @@ abstract class Route implements IRoute
     /**
      * Set callback
      *
-     * @param string $callback
+     * @param string|array\Closure $callback
      * @return static
      */
     public function setCallback($callback): IRoute
@@ -297,6 +276,10 @@ abstract class Route implements IRoute
 
     public function getMethod(): ?string
     {
+        if (\is_array($this->callback) === true && \count($this->callback) > 1) {
+            return $this->callback[1];
+        }
+
         if (\is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             $tmp = explode('@', $this->callback);
 
@@ -308,6 +291,10 @@ abstract class Route implements IRoute
 
     public function getClass(): ?string
     {
+        if (\is_array($this->callback) === true && \count($this->callback) > 0) {
+            return $this->callback[0];
+        }
+
         if (\is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             $tmp = explode('@', $this->callback);
 
@@ -319,14 +306,14 @@ abstract class Route implements IRoute
 
     public function setMethod(string $method): IRoute
     {
-        $this->callback = sprintf('%s@%s', $this->getClass(), $method);
+        $this->callback = [$this->getClass(), $method];
 
         return $this;
     }
 
     public function setClass(string $class): IRoute
     {
-        $this->callback = sprintf('%s@%s', $class, $this->getMethod());
+        $this->callback = [$class, $this->getMethod()];
 
         return $this;
     }
@@ -477,9 +464,9 @@ abstract class Route implements IRoute
      * Add regular expression parameter match.
      * Alias for LoadableRoute::where()
      *
-     * @see LoadableRoute::where()
      * @param array $options
      * @return static
+     * @see LoadableRoute::where()
      */
     public function where(array $options): IRoute
     {
@@ -527,9 +514,9 @@ abstract class Route implements IRoute
     /**
      * Add middleware class-name
      *
-     * @deprecated This method is deprecated and will be removed in the near future.
      * @param IMiddleware|string $middleware
      * @return static
+     * @deprecated This method is deprecated and will be removed in the near future.
      */
     public function setMiddleware($middleware): IRoute
     {
@@ -597,6 +584,7 @@ abstract class Route implements IRoute
     }
 
     /**
+<<<<<<< HEAD
      * @param array $platforms
      * @param bool $whitelist
      * @return static
@@ -766,10 +754,20 @@ abstract class Route implements IRoute
      * @param bool $whitelist
      * @return static
      */
-    public function setIpWhitelist(bool $whitelist): IRoute
-    {
+    public function setIpWhitelist(bool $whitelist): IRoute{
         $this->ip_whitelist = $whitelist;
+        return $this;
+    }
 
+    /**
+     * If enabled parameters containing null-value will not be passed along to the callback.
+     *
+     * @param bool $enabled
+     * @return static $this
+     */
+    public function setFilterEmptyParams(bool $enabled): IRoute
+    {
+        $this->filterEmptyParams = $enabled;
         return $this;
     }
 
@@ -795,6 +793,15 @@ abstract class Route implements IRoute
      */
     public function blockIps(array $ips): IRoute{
         return $this->setIps($ips, false);
+    }
+
+    /**
+     * Status if filtering of empty params is enabled or disabled
+     * @return bool
+     */
+    public function getFilterEmptyParams(): bool
+    {
+        return $this->filterEmptyParams;
     }
 
 }

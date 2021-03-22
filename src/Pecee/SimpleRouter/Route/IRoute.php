@@ -22,8 +22,8 @@ interface IRoute
      *
      * @param Request $request
      * @param Router $router
-     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
      * @return string
+     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
      */
     public function renderRoute(Request $request, Router $router): ?string;
 
@@ -82,7 +82,7 @@ interface IRoute
     /**
      * Set callback
      *
-     * @param string $callback
+     * @param string|array|\Closure $callback
      * @return static
      */
     public function setCallback($callback): self;
@@ -207,6 +207,7 @@ interface IRoute
     public function setMiddlewares(array $middlewares): self;
 
     /**
+<<<<<<< HEAD
      * @param array $platforms
      * @param bool $whitelist - whitelist or blacklist
      * @return static
@@ -292,4 +293,19 @@ interface IRoute
      * @return bool
      */
     public function isIpWhitelist(): bool;
+
+    /**
+     * If enabled parameters containing null-value will not be passed along to the callback.
+     *
+     * @param bool $enabled
+     * @return static $this
+     */
+    public function setFilterEmptyParams(bool $enabled): self;
+
+    /**
+     * Status if filtering of empty params is enabled or disabled
+     * @return bool
+     */
+    public function getFilterEmptyParams(): bool;
+
 }

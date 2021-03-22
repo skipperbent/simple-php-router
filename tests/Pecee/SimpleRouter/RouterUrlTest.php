@@ -78,10 +78,11 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
     public function testSimilarUrls()
     {
         // Match normal route on alias
-        TestRouter::resource('/url11', 'DummyController@method1');
-        TestRouter::resource('/url1', 'DummyController@method1', ['as' => 'match']);
+        TestRouter::get('/url11', 'DummyController@method1');
+        TestRouter::get('/url22', 'DummyController@method2');
+        TestRouter::get('/url33', 'DummyController@method2')->name('match');
 
-        TestRouter::debugNoReset('/url1', 'get');
+        TestRouter::debugNoReset('/url33', 'get');
 
         $this->assertEquals(TestRouter::getUrl('match'), TestRouter::getUrl());
 
@@ -168,6 +169,18 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
 
         TestRouter::router()->reset();
 
+    }
+
+    public function testCustomRegex()
+    {
+        TestRouter::request()->setHost('google.com');
+
+        TestRouter::get('/admin/', function() {
+            return 'match';
+        })->setMatch('/^\/admin\/?(.*)/i');
+
+        $output = TestRouter::debugOutput('/admin/asd/bec/123', 'get');
+        $this->assertEquals('match', $output);
     }
 
 }
