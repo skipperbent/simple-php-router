@@ -165,17 +165,18 @@ class Request
      */
     public function getIp(bool $safe = false): ?string
     {
+        $client_header = null;
         if(!$safe){
             if ($this->getHeader('http-cf-connecting-ip') !== null) {
-                return $this->getHeader('http-cf-connecting-ip');
-            }
-            if($this->getHeader('http-client-ip') !== null){
-                return $this->getHeader('http-client-ip');
-            }
-            if($this->getHeader('http-x-forwarded-for') !== null){
-                return $this->getHeader('http-x-forwarded-for');
+                $client_header = $this->getHeader('http-cf-connecting-ip');
+            }else if($this->getHeader('http-client-ip') !== null){
+                $client_header = $this->getHeader('http-client-ip');
+            }else if($this->getHeader('http-x-forwarded-for') !== null){
+                $client_header = $this->getHeader('http-x-forwarded-for');
             }
         }
+        if($client_header !== null && filter_var($client_header, FILTER_VALIDATE_IP))
+            return $client_header;
         return $this->getHeader('remote-addr');
     }
 
