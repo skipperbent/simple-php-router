@@ -77,6 +77,7 @@ abstract class Route implements IRoute
             $router->debug('Executing callback');
 
             /* When the callback is a function */
+
             return $router->getClassLoader()->loadClosure($callback, $parameters);
         }
 
@@ -269,7 +270,7 @@ abstract class Route implements IRoute
 
     public function getMethod(): ?string
     {
-        if(\is_array($this->callback) === true && \count($this->callback) > 1) {
+        if (\is_array($this->callback) === true && \count($this->callback) > 1) {
             return $this->callback[1];
         }
 
@@ -284,12 +285,13 @@ abstract class Route implements IRoute
 
     public function getClass(): ?string
     {
-        if(\is_array($this->callback) === true && \count($this->callback) > 0) {
+        if (\is_array($this->callback) === true && \count($this->callback) > 0) {
             return $this->callback[0];
         }
 
         if (\is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             $tmp = explode('@', $this->callback);
+
             return $tmp[0];
         }
 
@@ -299,12 +301,14 @@ abstract class Route implements IRoute
     public function setMethod(string $method): IRoute
     {
         $this->callback = [$this->getClass(), $method];
+
         return $this;
     }
 
     public function setClass(string $class): IRoute
     {
         $this->callback = [$class, $this->getMethod()];
+
         return $this;
     }
 
@@ -439,9 +443,9 @@ abstract class Route implements IRoute
      * Add regular expression parameter match.
      * Alias for LoadableRoute::where()
      *
-     * @see LoadableRoute::where()
      * @param array $options
      * @return static
+     * @see LoadableRoute::where()
      */
     public function where(array $options)
     {
@@ -489,9 +493,9 @@ abstract class Route implements IRoute
     /**
      * Add middleware class-name
      *
-     * @deprecated This method is deprecated and will be removed in the near future.
      * @param IMiddleware|string $middleware
      * @return static
+     * @deprecated This method is deprecated and will be removed in the near future.
      */
     public function setMiddleware($middleware)
     {
@@ -556,6 +560,27 @@ abstract class Route implements IRoute
     public function getDefaultParameterRegex(): string
     {
         return $this->defaultParameterRegex;
+    }
+
+    /**
+     * If enabled parameters containing null-value will not be passed along to the callback.
+     *
+     * @param bool $enabled
+     * @return static $this
+     */
+    public function setFilterEmptyParams(bool $enabled): IRoute
+    {
+        $this->filterEmptyParams = $enabled;
+        return $this;
+    }
+
+    /**
+     * Status if filtering of empty params is enabled or disabled
+     * @return bool
+     */
+    public function getFilterEmptyParams(): bool
+    {
+        return $this->filterEmptyParams;
     }
 
 }
