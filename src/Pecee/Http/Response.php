@@ -92,8 +92,23 @@ class Response
      */
     public function json($value, ?int $options = null, int $dept = 512): void
     {
-        if (($value instanceof \JsonSerializable) === false && \is_array($value) === false) {
-            throw new InvalidArgumentException('Invalid type for parameter "value". Must be of type array or object implementing the \JsonSerializable interface.');
+        if(is_object($value)){
+            if(!$value instanceof \JsonSerializable){
+                $object_vars = array();
+                $class = new \ReflectionClass($value);
+                foreach($class->getProperties() as $property){
+                    if($property->isStatic())
+                        continue;
+                    $property->setAccessible(true);
+                    $object_vars[$property->getName()] = $property->getValue($value);
+                }
+                $value = $object_vars;
+                if(empty($object_vars)){
+                    throw new InvalidArgumentException('Invalid type for parameter "value". Must be of type array or object implementing the \JsonSerializable interface or object with variables.');
+                }
+            }
+        }else if(is_array($value) === false){
+            throw new InvalidArgumentException('Invalid type for parameter "value". Must be of type array or object implementing the \JsonSerializable interface or object with variables.');
         }
 
         $this->header('Content-Type: application/json; charset=utf-8');
