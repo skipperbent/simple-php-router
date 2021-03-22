@@ -208,22 +208,18 @@ class Request
      */
     public function getIp(bool $safe = false): ?string
     {
-        return $this->getHeader(
-            'http-cf-connecting-ip',
-            $this->getHeader(
-                'http-x-forwarded-for',
-                $this->getHeader('remote-addr')
-            )
-        );
         $client_header = null;
         if(!$safe){
-            if ($this->getHeader('http-cf-connecting-ip') !== null) {
-                $client_header = $this->getHeader('http-cf-connecting-ip');
-            }else if($this->getHeader('http-client-ip') !== null){
-                $client_header = $this->getHeader('http-client-ip');
-            }else if($this->getHeader('http-x-forwarded-for') !== null){
-                $client_header = $this->getHeader('http-x-forwarded-for');
-            }
+            $client_header = $this->getHeader(
+                'http-cf-connecting-ip',
+                $this->getHeader(
+                    'http-client-ip',
+                    $this->getHeader(
+                        'http-x-forwarded-for',
+                        $this->getHeader('remote-addr')
+                    )
+                )
+            );
         }
         if($client_header === null)
             $client_header = $this->getHeader('remote-addr');
