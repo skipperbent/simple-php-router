@@ -4,6 +4,7 @@ namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\Router;
 
@@ -95,7 +96,7 @@ abstract class Route implements IRoute
         }
 
         if (method_exists($class, $method) === false) {
-            throw new NotFoundHttpException(sprintf('Method "%s" does not exist in class "%s"', $method, $className), 404);
+            throw new ClassNotFoundHttpException(sprintf('Method "%s" does not exist in class "%s"', $method, $className), 404, null, $className, $method);
         }
 
         $router->debug('Executing callback');

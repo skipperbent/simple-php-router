@@ -11,7 +11,7 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
     {
         TestRouter::get('/', 'DummyController@method1');
         TestRouter::get('/page/{id?}', 'DummyController@method1');
-        TestRouter::get('/test-output', function() {
+        TestRouter::get('/test-output', function () {
             return 'return value';
         });
 
@@ -175,7 +175,7 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
     {
         TestRouter::request()->setHost('google.com');
 
-        TestRouter::get('/admin/', function() {
+        TestRouter::get('/admin/', function () {
             return 'match';
         })->setMatch('/^\/admin\/?(.*)/i');
 
@@ -185,24 +185,52 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
 
     public function testDefaultNamespace()
     {
-        TestRouter::setDefaultNamespace('\\TestRoutersss');
+        TestRouter::setDefaultNamespace('\\Default\\Namespace');
 
         TestRouter::get('/', 'DummyController@method1', ['as' => 'home']);
-        TestRouter::get('/about', 'DummyController@about');
 
         TestRouter::group([
-            'prefix' => '/horses',
-        ], function() {
+            'namespace' => 'Appended\Namespace',
+            'prefix'    => '/horses',
+        ], function () {
 
-            TestRouter::get('/about', 'DummyController@about');
+            TestRouter::get('/', 'DummyController@method1');
 
+            TestRouter::group([
+                'namespace' => '\\New\\Namespace',
+                'prefix'    => '/race',
+            ], function () {
+
+                TestRouter::get('/', 'DummyController@method1');
+
+            });
         });
 
+        // Test appended namespace
 
-        TestRouter::debugNoReset('/horses/about');
+        $class = null;
 
+        try {
+            TestRouter::debugNoReset('/horses/');
+        } catch (\Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException $e) {
+            $class = $e->getClass();
+        }
 
-        $routes = TestRouter::router()->getRoutes();
+        $this->assertEquals('\\Default\\Namespace\\Appended\Namespace\\DummyController', $class);
+
+        // Test overwritten namespace
+
+        $class = null;
+
+        try {
+            TestRouter::debugNoReset('/horses/race');
+        } catch (\Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException $e) {
+            $class = $e->getClass();
+        }
+
+        $this->assertEquals('\\New\\Namespace\\DummyController', $class);
+
+        TestRouter::router()->reset();
     }
 
 }
