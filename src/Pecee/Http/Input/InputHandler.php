@@ -319,7 +319,7 @@ class InputHandler
     public function all(array $filter = []): array
     {
         $output = $this->originalParams + $this->originalPost + $this->originalFile;
-        $output = (\count($filter) > 0) ? array_intersect_key($output, array_flip($filter)) : $output;
+        $output = (\count($filter) > 0) ? \array_intersect_key($output, \array_flip($filter)) : $output;
 
         foreach ($filter as $filterKey) {
             if (array_key_exists($filterKey, $output) === false) {

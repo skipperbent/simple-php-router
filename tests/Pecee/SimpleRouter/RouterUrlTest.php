@@ -183,4 +183,26 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('match', $output);
     }
 
+    public function testDefaultNamespace()
+    {
+        TestRouter::setDefaultNamespace('\\TestRoutersss');
+
+        TestRouter::get('/', 'DummyController@method1', ['as' => 'home']);
+        TestRouter::get('/about', 'DummyController@about');
+
+        TestRouter::group([
+            'prefix' => '/horses',
+        ], function() {
+
+            TestRouter::get('/about', 'DummyController@about');
+
+        });
+
+
+        TestRouter::debugNoReset('/horses/about');
+
+
+        $routes = TestRouter::router()->getRoutes();
+    }
+
 }
