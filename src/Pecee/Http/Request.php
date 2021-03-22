@@ -175,9 +175,9 @@ class Request
                 $client_header = $this->getHeader('http-x-forwarded-for');
             }
         }
-        if($client_header !== null && filter_var($client_header, FILTER_VALIDATE_IP))
-            return $client_header;
-        return $this->getHeader('remote-addr');
+        if($client_header === null)
+            $client_header = $this->getHeader('remote-addr');
+        return filter_var($client_header, FILTER_VALIDATE_IP) ? $client_header : null;
     }
 
     /**
