@@ -8,10 +8,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: PHPUnit Tests
+      - name: Setup composer
         uses: php-actions/composer@v5
         with:
-          bootstrap: vendor/autoload.php
           php_version: 7.1
-          configuration: phpunit.xml
-          args: --coverage-text
