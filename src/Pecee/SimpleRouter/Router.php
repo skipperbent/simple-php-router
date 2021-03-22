@@ -305,8 +305,8 @@ class Router
      * Start the routing
      *
      * @return string|null
-     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
-     * @throws \Pecee\Http\Middleware\Exceptions\TokenMismatchException
+     * @throws NotFoundHttpException
+     * @throws TokenMismatchException
      * @throws HttpException
      * @throws \Exception
      */

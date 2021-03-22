@@ -466,7 +466,7 @@ class SimpleRouter
     /**
      * Get the request
      *
-     * @return \Pecee\Http\Request
+     * @return Request
      */
     public static function request(): Request
     {
