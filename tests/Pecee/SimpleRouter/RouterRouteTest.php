@@ -212,7 +212,6 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
     public function testSameRoutes()
     {
-
         TestRouter::get('/recipe', 'DummyController@method1')->name('add');
         TestRouter::post('/recipe', 'DummyController@method2')->name('edit');
 
