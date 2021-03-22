@@ -124,7 +124,7 @@ composer require pecee/simple-router
 
 The goal of this project is to create a router that is more or less 100% compatible with the Laravel documentation, while remaining as simple as possible, and as easy to integrate and change without compromising either speed or complexity. Being lightweight is the #1 priority.
 
-We've included a simple demo project for the router which can be found in the `demo-project` folder. This project should give you a basic understanding of how to setup and use simple-php-router project.
+We've included a simple demo project for the router which can be found [here](https://github.com/skipperbent/simple-router-demo). This project should give you a basic understanding of how to setup and use simple-php-router project.
 
 Please note that the demo-project only covers how to integrate the `simple-php-router` in a project without an existing framework. If you are using a framework in your project, the implementation might vary.
 
