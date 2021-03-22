@@ -143,7 +143,7 @@ class EventHandler implements IEventHandler
      * Get events.
      *
      * @param string|null $name Filter events by name.
-     * @param array ...$names Add multiple names...
+     * @param array|string ...$names Add multiple names...
      * @return array
      */
     public function getEvents(?string $name, ...$names): array
