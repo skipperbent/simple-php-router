@@ -9,16 +9,10 @@
         convertNoticesToExceptions="true"
         convertWarningsToExceptions="true"
         processIsolation="false"
-        stopOnFailure="false"
-        syntaxCheck="false">
+        stopOnFailure="false">
     <testsuites>
         <testsuite name="SimpleRouter Test Suite">
             <directory>tests/Pecee/SimpleRouter/</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">src</directory>
-        </whitelist>
-    </filter>
 </phpunit>

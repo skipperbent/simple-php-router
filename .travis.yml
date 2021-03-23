@@ -10,7 +10,7 @@ before_script:
   - ls -al
 
 script:
-  - ./vendor/phpunit/phpunit/phpunit --configuration ./phpunit.xml
+  - ./vendor/bin/phpunit --coverage-clover _clover/clover.xml
 
 install:
   # Install composer packages
