@@ -39,8 +39,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          tools: composer:v5
-#          tools: phpunit:${{ matrix.phpunit-versions }}
+          tools: composer:v5, phpunit:${{ matrix.phpunit-versions }}
           coverage: xdebug
           extensions: ${{ env.PHP_EXTENSIONS }}
           ini-values: ${{ env.PHP_INI_VALUES }}
