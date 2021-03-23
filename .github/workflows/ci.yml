@@ -62,10 +62,10 @@ jobs:
             php${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-
       - name: Install lowest dependencies with composer
         if: matrix.dependencies == 'lowest'
-        run: php composer update --no-ansi --no-interaction --no-progress --prefer-lowest
+        run: composer update --no-ansi --no-interaction --no-progress --prefer-lowest
       - name: Install highest dependencies with composer
         if: matrix.dependencies == 'highest'
-        run: php composer update --no-ansi --no-interaction --no-progress
+        run: composer update --no-ansi --no-interaction --no-progress
 #      - name: Install dependencies
 #        run: composer install --prefer-dist
       - name: Run tests with phpunit
