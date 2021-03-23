@@ -1413,7 +1413,7 @@ class CustomRouterRules implement IRouterBootManager
 
             // If the current url matches the rewrite url, we use our custom route
 
-            if($request->getUrl()->getPath() === $url) {
+            if($request->getUrl()->contains($url)) {
                 $request->setRewriteUrl($rule);
             }
         }
