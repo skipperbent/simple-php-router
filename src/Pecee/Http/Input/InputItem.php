@@ -62,10 +62,10 @@ class InputItem implements IInputItem, \IteratorAggregate
 
     /**
      * Set input value
-     * @param string $value
+     * @param mixed $value
      * @return static
      */
-    public function setValue(string $value): IInputItem
+    public function setValue($value): IInputItem
     {
         $this->value = $value;
 
