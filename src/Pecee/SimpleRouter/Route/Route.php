@@ -77,7 +77,6 @@ abstract class Route implements IRoute
             $router->debug('Executing callback');
 
             /* When the callback is a function */
-
             return $router->getClassLoader()->loadClosure($callback, $parameters);
         }
 
@@ -250,7 +249,7 @@ abstract class Route implements IRoute
     /**
      * Set callback
      *
-     * @param string|array\Closure $callback
+     * @param string|array|\Closure $callback
      * @return static
      */
     public function setCallback($callback): IRoute
