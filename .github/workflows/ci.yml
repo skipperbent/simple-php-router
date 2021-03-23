@@ -15,15 +15,15 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - windows-latest
+#          - windows-latest
         php-version:
-          - 7.3
+#          - 7.3
           - 7.4
         phpunit-version:
           - 8.5.2
-        dependencies:
-          - lowest
-          - highest
+#        dependencies:
+#          - lowest
+#          - highest
         include:
           - os: ubuntu-latest
             php-version: '7.2'
@@ -39,6 +39,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+          tools: composer:v5
 #          tools: phpunit:${{ matrix.phpunit-versions }}
           coverage: xdebug
           extensions: ${{ env.PHP_EXTENSIONS }}
