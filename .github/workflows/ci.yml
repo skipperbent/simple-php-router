@@ -18,7 +18,6 @@ jobs:
           - windows-latest
         php-version:
           - 7.4
-          - 8.1
         phpunit-version:
           - 8.5.2
         dependencies:
@@ -69,7 +68,7 @@ jobs:
 #      - name: Install dependencies
 #        run: composer install --prefer-dist
       - name: Run tests with phpunit
-        run: phpunit tests
+        run: composer test
 
 
 #      - name: Setup composer
