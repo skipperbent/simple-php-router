@@ -11,6 +11,10 @@ jobs:
       - name: Setup composer
         uses: php-actions/composer@v5
         with:
-          php_version: 7.3
+          php_version: 7.4.6
+      - name: PHPUnit version
+        run: phpunit --version
       - name: PHPUnit tests
+        run: phpunit tests
+      - name: PHPUnit tests 2
         run: composer test
