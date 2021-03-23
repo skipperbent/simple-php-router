@@ -276,6 +276,13 @@ class Router
     {
         $this->debug('Loading routes');
 
+        $this->fireEvents(EventHandler::EVENT_LOAD_ROUTES, [
+            'routes' => $this->routes,
+        ]);
+
+        /* Loop through each route-request */
+        $this->processRoutes($this->routes);
+
         $this->fireEvents(EventHandler::EVENT_BOOT, [
             'bootmanagers' => $this->bootManagers,
         ]);
@@ -298,13 +305,6 @@ class Router
             $this->debug('Finished rendering bootmanager "%s"', $className);
         }
 
-        $this->fireEvents(EventHandler::EVENT_LOAD_ROUTES, [
-            'routes' => $this->routes,
-        ]);
-
-        /* Loop through each route-request */
-        $this->processRoutes($this->routes);
-
         $this->debug('Finished loading routes');
     }
 
@@ -313,7 +313,7 @@ class Router
      *
      * @return string|null
      * @throws NotFoundHttpException
-     * @throws TokenMismatchException
+     * @throws \Pecee\Http\Middleware\Exceptions\TokenMismatchException
      * @throws HttpException
      * @throws \Exception
      */

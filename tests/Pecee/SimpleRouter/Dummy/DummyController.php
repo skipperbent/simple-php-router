@@ -18,6 +18,11 @@ class DummyController
 
     }
 
+    public function method3()
+    {
+        return 'method3';
+    }
+
 	public function param($params = null)
 	{
 		echo join(', ', func_get_args());

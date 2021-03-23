@@ -3,11 +3,25 @@ sudo: false
 language: php
 
 php:
-  - 7.1
+  - 7.2
 
 before_script:
-  - curl -sS http://getcomposer.org/installer | php
-  - php composer.phar install --prefer-source --no-interaction
+  - mkdir -p _clover
+  - ls -al
 
 script:
-  - ./vendor/bin/phpunit
+  - ./vendor/bin/phpunit --coverage-clover _clover/clover.xml
+
+install:
+  # Install composer packages
+  - travis_retry composer install --no-interaction --no-suggest
+  # Install coveralls.phar
+  - wget -c -nc --retry-connrefused --tries=0 https://github.com/php-coveralls/php-coveralls/releases/download/v2.0.0/php-coveralls.phar -O coveralls.phar
+  - chmod +x coveralls.phar
+  - php coveralls.phar --version
+
+after_success:
+  # Submit coverage report to Coveralls servers, see .coveralls.yml
+  - travis_retry php coveralls.phar -v
+  # Submit coverage report to codecov.io
+  - bash <(curl -s https://codecov.io/bash)
