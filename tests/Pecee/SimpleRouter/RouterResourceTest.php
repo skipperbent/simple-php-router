@@ -9,7 +9,7 @@ class RouterResourceTest extends \PHPUnit\Framework\TestCase
     {
         TestRouter::resource('/resource', 'ResourceController');
         $response = TestRouter::debugOutput('/resource', 'post');
-
+        echo '$response: '.json_encode($response);
         $this->assertEquals('store', $response);
     }
 
