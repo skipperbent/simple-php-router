@@ -44,19 +44,20 @@ jobs:
           coverage: xdebug
           extensions: ${{ env.PHP_EXTENSIONS }}
           ini-values: ${{ env.PHP_INI_VALUES }}
-#      - name: Get composer cache directory
-#        id: composer-cache
-#        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Determine composer cache directory on Linux
-        if: matrix.os == 'ubuntu-latest'
-        run: echo "COMPOSER_CACHE_DIR=$(./tools/composer config cache-dir)" >> $GITHUB_ENV
-      - name: Determine composer cache directory on Windows
-        if: matrix.os == 'windows-latest'
-        run: ECHO "COMPOSER_CACHE_DIR=~\AppData\Local\Composer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+#      - name: Determine composer cache directory on Linux
+#        if: matrix.os == 'ubuntu-latest'
+#        run: echo "COMPOSER_CACHE_DIR=$(./tools/composer config cache-dir)" >> $GITHUB_ENV
+#      - name: Determine composer cache directory on Windows
+#        if: matrix.os == 'windows-latest'
+#        run: ECHO "COMPOSER_CACHE_DIR=~\AppData\Local\Composer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Cache dependencies
         uses: actions/cache@v2
         with:
-          path: ${{ env.COMPOSER_CACHE_DIR }}
+#          path: ${{ env.COMPOSER_CACHE_DIR }}
+          path: ${{ steps.composer-cache.outputs.dir }}
           key: php${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-${{ hashFiles('**/composer.json') }}
           restore-keys: |
             php${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-
