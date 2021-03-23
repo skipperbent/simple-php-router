@@ -15,19 +15,19 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-#          - windows-latest
+          - windows-latest
         php-version:
-#          - 7.3
           - 7.4
+          - 8.1
         phpunit-version:
           - 8.5.2
         dependencies:
           - lowest
-#          - highest
-        include:
-          - os: ubuntu-latest
-            php-version: '7.2'
-            phpunit-version: '8.5.2'
+          - highest
+#        include:
+#          - os: ubuntu-latest
+#            php-version: '7.2'
+#            phpunit-version: '8.5.2'
     name: PHPUnit Tests
     steps:
       - name: Configure git to avoid issues with line endings
