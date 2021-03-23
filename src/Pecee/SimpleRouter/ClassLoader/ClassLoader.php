@@ -2,7 +2,7 @@
 
 namespace Pecee\SimpleRouter\ClassLoader;
 
-use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
+use Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException;
 
 class ClassLoader implements IClassLoader
 {
@@ -15,8 +15,8 @@ class ClassLoader implements IClassLoader
      */
     public function loadClass(string $class)
     {
-        if (\class_exists($class) === false) {
-            throw new NotFoundHttpException(sprintf('Class "%s" does not exist', $class), 404);
+        if (class_exists($class) === false) {
+            throw new ClassNotFoundHttpException(sprintf('Class "%s" does not exist', $class), 404, null, $class);
         }
 
         return new $class();
