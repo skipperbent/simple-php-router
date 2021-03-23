@@ -20,7 +20,7 @@ jobs:
           - 7.3
           - 8.1
         phpunit-version:
-          - 8.5.2
+          - 9.5.4
         dependencies:
           - lowest
           - highest
