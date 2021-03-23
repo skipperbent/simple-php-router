@@ -13,4 +13,4 @@ jobs:
         with:
           php_version: 7.3
       - name: PHPUnit tests
-        cmd: composer test
+        run: composer test
