@@ -17,6 +17,7 @@ jobs:
           - ubuntu-latest
           - windows-latest
         php-version:
+          - 7.3
           - 7.4
         phpunit-version:
           - 8.5.2
@@ -65,17 +66,5 @@ jobs:
       - name: Install highest dependencies with composer
         if: matrix.dependencies == 'highest'
         run: composer update --no-ansi --no-interaction --no-progress
-#      - name: Install dependencies
-#        run: composer install --prefer-dist
       - name: Run tests with phpunit
         run: composer test
-
-
-#      - name: Setup composer
-#        uses: php-actions/composer@v5
-#        with:
-#          php_version: 7.4.6
-#      - name: PHPUnit version
-#        run: vendor/bin/phpunit --version
-#      - name: PHPUnit tests
-#        run: vendor/bin/phpunit tests
