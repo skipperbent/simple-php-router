@@ -261,16 +261,16 @@ class InputFile implements IInputItem
         return $this->getTmpName();
     }
 
-    public function getValue(): ?string
+    public function getValue()
     {
         return $this->getFilename();
     }
 
     /**
-     * @param string $value
+     * @param mixed $value
      * @return static
      */
-    public function setValue(string $value): IInputItem
+    public function setValue($value): IInputItem
     {
         $this->filename = $value;
 
