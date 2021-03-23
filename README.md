@@ -1521,7 +1521,6 @@ class MyCustomClassLoader implements IClassLoader
 
     public function __construct()
     {
-        // Setup php-di
         // Create our new php-di container
         $container = (new \DI\ContainerBuilder())
                     ->useAutowiring(true)
