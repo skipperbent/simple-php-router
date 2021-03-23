@@ -18,7 +18,7 @@ jobs:
           - windows-latest
         php-version:
           - 7.3
-          - 8
+          - 8.1
         phpunit-version:
           - 8.5.2
         dependencies:
