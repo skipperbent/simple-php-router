@@ -4,15 +4,78 @@ on: [push, pull_request]
 
 jobs:
   build-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
+    env:
+      PHP_EXTENSIONS: json
+      PHP_INI_VALUES: assert.exception=1, zend.assertions=1
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+        php-version:
+          - 7.3
+          - 7.4
+        phpunit-version:
+          - 8.5.2
+        dependencies:
+          - lowest
+          - highest
+        include:
+          - os: ubuntu-latest
+            php-version: '7.2'
+            phpunit-version: '8.5.2'
+    name: PHPUnit Tests
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup composer
-        uses: php-actions/composer@v5
+      - name: Configure git to avoid issues with line endings
+        if: matrix.os == 'windows-latest'
+        run: git config --global core.autocrlf false
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php_version: 7.4.6
-      - name: PHPUnit version
-        run: vendor/bin/phpunit --version
-      - name: PHPUnit tests
-        run: vendor/bin/phpunit tests
+          php-version: ${{ matrix.php-version }}
+#          tools: phpunit:${{ matrix.phpunit-versions }}
+          coverage: xdebug
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          ini-values: ${{ env.PHP_INI_VALUES }}
+#      - name: Get composer cache directory
+#        id: composer-cache
+#        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Determine composer cache directory on Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: echo "COMPOSER_CACHE_DIR=$(./tools/composer config cache-dir)" >> $GITHUB_ENV
+      - name: Determine composer cache directory on Windows
+        if: matrix.os == 'windows-latest'
+        run: ECHO "COMPOSER_CACHE_DIR=~\AppData\Local\Composer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.COMPOSER_CACHE_DIR }}
+          key: php${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            php${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-
+      - name: Install lowest dependencies with composer
+        if: matrix.dependencies == 'lowest'
+        run: php ./tools/composer update --no-ansi --no-interaction --no-progress --prefer-lowest
+      - name: Install highest dependencies with composer
+        if: matrix.dependencies == 'highest'
+        run: php ./tools/composer update --no-ansi --no-interaction --no-progress
+#      - name: Install dependencies
+#        run: composer install --prefer-dist
+      - name: Run tests with phpunit
+        run: php ./phpunit
+
+
+#      - name: Setup composer
+#        uses: php-actions/composer@v5
+#        with:
+#          php_version: 7.4.6
+#      - name: PHPUnit version
+#        run: vendor/bin/phpunit --version
+#      - name: PHPUnit tests
+#        run: vendor/bin/phpunit tests
