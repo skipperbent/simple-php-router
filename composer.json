@@ -35,6 +35,11 @@
     "phpunit/phpunit": "^6.0",
     "mockery/mockery": "^1"
   },
+  "scripts": {
+    "test": [
+      "phpunit tests"
+    ]
+  },
   "autoload": {
     "psr-4": {
       "Pecee\\": "src/Pecee/"

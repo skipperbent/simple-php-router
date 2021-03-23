@@ -13,9 +13,4 @@ jobs:
         with:
           php_version: 7.3
       - name: PHPUnit tests
-        uses: php-actions/phpunit@v2
-        with:
-          php_version: 7.3
-          bootstrap: tests/bootstrap.php
-          configuration: phpunit.xml
-          args: --coverage-text
+        cmd: composer test
