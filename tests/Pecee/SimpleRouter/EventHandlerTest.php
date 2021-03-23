@@ -50,8 +50,8 @@ class EventHandlerTest extends \PHPUnit\Framework\TestCase
 
         // Add boot-manager
         TestRouter::addBootManager(new TestBootManager([
-            '/test',
-        ], '/'));
+            '/test' => '/',
+        ]));
 
         // Start router
         TestRouter::debug('/non-existing');
@@ -61,7 +61,6 @@ class EventHandlerTest extends \PHPUnit\Framework\TestCase
 
     public function testAllEvent()
     {
-
         $status = false;
 
         $eventHandler = new EventHandler();

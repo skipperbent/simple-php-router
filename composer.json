@@ -27,12 +27,11 @@
     }
   ],
   "require": {
-    "php": ">=7.3",
-    "ext-json": "*",
-    "php-di/php-di": "^6.0"
+    "php": ">=7.1",
+    "ext-json": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "^8.5",
+    "phpunit/phpunit": "^8.0",
     "mockery/mockery": "^1"
   },
   "scripts": {
