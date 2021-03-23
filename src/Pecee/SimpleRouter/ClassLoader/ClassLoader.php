@@ -10,7 +10,7 @@ class ClassLoader implements IClassLoader
      * Load class
      *
      * @param string $class
-     * @return mixed
+     * @return object
      * @throws NotFoundHttpException
      */
     public function loadClass(string $class)
@@ -28,7 +28,6 @@ class ClassLoader implements IClassLoader
      * @param Callable $closure
      * @param array $parameters
      * @return mixed
-     * @throws NotFoundHttpException
      */
     public function loadClosure(Callable $closure, array $parameters)
     {
