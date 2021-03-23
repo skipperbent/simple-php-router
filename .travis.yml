@@ -3,11 +3,11 @@ sudo: false
 language: php
 
 php:
-  - 7.1
+  - 7.3
 
 before_script:
   - curl -sS http://getcomposer.org/installer | php
   - php composer.phar install --prefer-source --no-interaction
 
 script:
-  - ./vendor/bin/phpunit --configuration ./phpunit.xml ./tests --teamcity
+  - ./vendor/bin/phpunit --configuration ./phpunit.xml
