@@ -21,8 +21,8 @@ jobs:
           - 7.4
         phpunit-version:
           - 8.5.2
-#        dependencies:
-#          - lowest
+        dependencies:
+          - lowest
 #          - highest
         include:
           - os: ubuntu-latest
