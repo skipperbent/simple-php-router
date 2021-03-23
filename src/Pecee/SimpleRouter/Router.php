@@ -306,7 +306,7 @@ class Router
      *
      * @return string|null
      * @throws NotFoundHttpException
-     * @throws TokenMismatchException
+     * @throws \Pecee\Http\Middleware\Exceptions\TokenMismatchException
      * @throws HttpException
      * @throws \Exception
      */

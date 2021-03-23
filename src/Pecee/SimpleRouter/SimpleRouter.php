@@ -10,7 +10,6 @@
 
 namespace Pecee\SimpleRouter;
 
-use DI\Container;
 use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
@@ -531,17 +530,12 @@ class SimpleRouter
     }
 
     /**
-     * Enable or disable dependency injection
-     *
-     * @param Container $container
-     * @return IClassLoader
+     * Set custom class-loader class used.
+     * @param IClassLoader $classLoader
      */
-    public static function enableDependencyInjection(Container $container): IClassLoader
+    public static function setCustomClassLoader(IClassLoader $classLoader): void
     {
-        return static::router()
-            ->getClassLoader()
-            ->useDependencyInjection(true)
-            ->setContainer($container);
+        static::router()->setClassLoader($classLoader);
     }
 
     /**
