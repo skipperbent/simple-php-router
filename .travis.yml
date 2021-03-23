@@ -10,4 +10,4 @@ before_script:
   - php composer.phar install --prefer-source --no-interaction
 
 script:
-  - ./vendor/bin/phpunit
+  - ./vendor/bin/phpunit --configuration ./phpunit.xml ./tests --teamcity
