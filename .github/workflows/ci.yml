@@ -13,6 +13,6 @@ jobs:
         with:
           php_version: 7.4.6
       - name: PHPUnit version
-        run: phpunit --version
+        run: vendor/bin/phpunit --version
       - name: PHPUnit tests
         run: vendor/bin/phpunit tests
