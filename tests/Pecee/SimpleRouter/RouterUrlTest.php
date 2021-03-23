@@ -183,6 +183,44 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('match', $output);
     }
 
+    public function testRenderMultipleRoutesDisabled()
+    {
+        TestRouter::router()->setRenderMultipleRoutes(false);
+
+        $result = false;
+
+        TestRouter::get('/', function () use (&$result) {
+            $result = true;
+        });
+
+        TestRouter::get('/', function () use (&$result) {
+            $result = false;
+        });
+
+        TestRouter::debug('/');
+
+        $this->assertTrue($result);
+    }
+
+    public function testRenderMultipleRoutesEnabled()
+    {
+        TestRouter::router()->setRenderMultipleRoutes(true);
+
+        $result = [];
+
+        TestRouter::get('/', function () use (&$result) {
+            $result[] = 'route1';
+        });
+
+        TestRouter::get('/', function () use (&$result) {
+            $result[] = 'route2';
+        });
+
+        TestRouter::debug('/');
+
+        $this->assertCount(2, $result);    
+    }
+  
     public function testDefaultNamespace()
     {
         TestRouter::setDefaultNamespace('\\Default\\Namespace');

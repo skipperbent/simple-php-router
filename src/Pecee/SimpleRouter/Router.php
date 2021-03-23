@@ -111,6 +111,13 @@ class Router
     protected $classLoader;
 
     /**
+     * When enabled the router will render all routes that matches.
+     * When disabled the router will stop execution when first route is found.
+     * @var bool
+     */
+    protected $renderMultipleRoutes = true;
+
+    /**
      * Router constructor.
      */
     public function __construct()
@@ -399,14 +406,21 @@ class Router
                         'route' => $route,
                     ]);
 
-                    $output = $route->renderRoute($this->request, $this);
-                    if ($output !== null) {
-                        return $output;
-                    }
+                    $routeOutput = $route->renderRoute($this->request, $this);
 
-                    $output = $this->handleRouteRewrite($key, $url);
-                    if ($output !== null) {
-                        return $output;
+                    if ($this->renderMultipleRoutes === true) {
+                        if ($routeOutput !== null) {
+                            return $routeOutput;
+                        }
+
+                        $output = $this->handleRouteRewrite($key, $url);
+                        if ($output !== null) {
+                            return $output;
+                        }
+                    } else {
+                        $output = $this->handleRouteRewrite($key, $url);
+
+                        return $output ?? $routeOutput;
                     }
                 }
             }
@@ -910,6 +924,21 @@ class Router
     public function getDebugLog(): array
     {
         return $this->debugList;
+    }
+
+    /**
+     * Changes the rendering behavior of the router.
+     * When enabled the router will render all routes that matches.
+     * When disabled the router will stop rendering at the first route that matches.
+     *
+     * @param bool $bool
+     * @return $this
+     */
+    public function setRenderMultipleRoutes(bool $bool): self
+    {
+        $this->renderMultipleRoutes = $bool;
+
+        return $this;
     }
 
 }

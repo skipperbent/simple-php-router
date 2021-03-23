@@ -530,6 +530,18 @@ class SimpleRouter
     }
 
     /**
+     * Changes the rendering behavior of the router.
+     * When enabled the router will render all routes that matches.
+     * When disabled the router will stop rendering at the first route that matches.
+     *
+     * @param bool $bool
+     */
+    public static function enableMultiRouteRendering(bool $bool): void
+    {
+        static::router()->setRenderMultipleRoutes($bool);
+    }
+
+    /**
      * Set custom class-loader class used.
      * @param IClassLoader $classLoader
      */
