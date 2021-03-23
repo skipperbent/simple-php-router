@@ -70,7 +70,7 @@ jobs:
 #      - name: Install dependencies
 #        run: composer install --prefer-dist
       - name: Run tests with phpunit
-        run: php ./phpunit
+        run: phpunit tests
 
 
 #      - name: Setup composer
