@@ -2,9 +2,6 @@
 
 namespace Pecee\Http\Input;
 
-use Exception;
-use Traversable;
-
 class InputItem implements IInputItem, \IteratorAggregate
 {
     public $index;
@@ -104,7 +101,7 @@ class InputItem implements IInputItem, \IteratorAggregate
         }
     }
 
-    public function getIterator()
+    public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->getValue());
     }

@@ -13,15 +13,8 @@ interface IInputItem
 
     public function setName(string $name): self;
 
-    /**
-     * @return mixed
-     */
     public function getValue();
 
-    /**
-     * @param mixed $value
-     * @return self
-     */
     public function setValue($value): self;
 
     public function __toString(): string;

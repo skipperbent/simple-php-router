@@ -25,4 +25,49 @@ class RouterPartialGroupTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('param2', $result2);
     }
 
+    /**
+     * Fixed issue with partial routes not loading child groups.
+     * Reported in issue: #456
+     */
+    public function testPartialGroupWithGroup() {
+
+        $lang = null;
+
+        $route1 = '/lang/da/test/';
+        $route2 = '/lang/da/auth';
+        $route3 = '/lang/da/auth/test';
+
+        TestRouter::partialGroup(
+            '/lang/{test}/',
+            function ($lang = 'en') use($route1, $route2, $route3) {
+
+                TestRouter::get('/test/', function () use($route1) {
+                    return $route1;
+                });
+
+                TestRouter::group(['prefix' => '/auth/'], function () use($route2, $route3) {
+
+                    TestRouter::get('/', function() use($route2) {
+                        return $route2;
+                    });
+
+                    TestRouter::get('/test', function () use($route3){
+                        return $route3;
+                    });
+
+                });
+
+            }
+        );
+
+        $test1 = TestRouter::debugOutput('/lang/da/test', 'get', false);
+        $test2 = TestRouter::debugOutput('/lang/da/auth', 'get', false);
+        $test3 = TestRouter::debugOutput('/lang/da/auth/test', 'get', false);
+
+        $this->assertEquals($test1, $route1);
+        $this->assertEquals($test2, $route2);
+        $this->assertEquals($test3, $route3);
+
+    }
+
 }

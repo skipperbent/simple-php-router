@@ -101,7 +101,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
     public function testPathParamRegex()
     {
-        TestRouter::get('/{lang}/productscategories/{name}', 'DummyController@param', ['where' => ['lang' => '[a-z]+', 'name' => '[A-Za-z0-9\-]+']]);
+        TestRouter::get('/{lang}/productscategories/{name}', 'DummyController@param', ['where' => ['lang' => '[a-z]+', 'name' => '[A-Za-z0-9-]+']]);
         $response = TestRouter::debugOutput('/it/productscategories/system', 'get');
 
         $this->assertEquals('it, system', $response);
@@ -144,7 +144,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
     public function testRegEx()
     {
-        TestRouter::get('/my/{path}', 'DummyController@method1')->where(['path' => '[a-zA-Z\-]+']);
+        TestRouter::get('/my/{path}', 'DummyController@method1')->where(['path' => '[a-zA-Z-]+']);
         TestRouter::debug('/my/custom-path', 'get');
 
         $this->assertTrue(true);
@@ -182,7 +182,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
     public function testDefaultParameterRegex()
     {
-        TestRouter::get('/my/{path}', 'DummyController@param', ['defaultParameterRegex' => '[\w\-]+']);
+        TestRouter::get('/my/{path}', 'DummyController@param', ['defaultParameterRegex' => '[\w-]+']);
         $output = TestRouter::debugOutput('/my/custom-regex', 'get');
 
         $this->assertEquals('custom-regex', $output);
@@ -190,13 +190,35 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
     public function testDefaultParameterRegexGroup()
     {
-        TestRouter::group(['defaultParameterRegex' => '[\w\-]+'], function () {
+        TestRouter::group(['defaultParameterRegex' => '[\w-]+'], function () {
             TestRouter::get('/my/{path}', 'DummyController@param');
         });
 
         $output = TestRouter::debugOutput('/my/custom-regex', 'get');
 
         $this->assertEquals('custom-regex', $output);
+    }
+
+    public function testClassHint()
+    {
+        TestRouter::get('/my/test/url', ['DummyController', 'method1']);
+        TestRouter::all('/my/test/url', ['DummyController', 'method1']);
+        TestRouter::match(['put', 'get', 'post'], '/my/test/url', ['DummyController', 'method1']);
+
+        TestRouter::debug('/my/test/url', 'get');
+
+        $this->assertTrue(true);
+    }
+
+    public function testSameRoutes()
+    {
+        TestRouter::get('/recipe', 'DummyController@method1')->name('add');
+        TestRouter::post('/recipe', 'DummyController@method2')->name('edit');
+
+        TestRouter::debugNoReset('/recipe', 'post');
+        TestRouter::debug('/recipe', 'get');
+
+        $this->assertTrue(true);
     }
 
 }

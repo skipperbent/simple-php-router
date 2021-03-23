@@ -38,6 +38,24 @@ class InputHandler
     protected $request;
 
     /**
+     * Original post variables
+     * @var array
+     */
+    protected $originalPost = [];
+
+    /**
+     * Original get/params variables
+     * @var array
+     */
+    protected $originalParams = [];
+
+    /**
+     * Get original file variables
+     * @var array
+     */
+    protected $originalFile = [];
+
+    /**
      * Input constructor.
      * @param Request $request
      */
@@ -56,12 +74,14 @@ class InputHandler
     {
         /* Parse get requests */
         if (\count($_GET) !== 0) {
-            $this->get = $this->parseInputItem($_GET);
+            $this->originalParams = $_GET;
+            $this->get = $this->parseInputItem($this->originalParams);
         }
 
         /* Parse post requests */
-        if ($this->request->getMethod() === 'post') {
-            $this->post = $this->parseInputItem($_POST);
+        $this->originalPost = $_POST;
+        if ($this->request->getMethod() === Request::$requestTypesPost) {
+            $this->post = $this->parseInputItem($this->originalPost);
         }
 
         /* Get body */
@@ -82,6 +102,7 @@ class InputHandler
 
         /* Parse get requests */
         if (\count($_FILES) !== 0) {
+            $this->originalFile = $_FILES;
             $this->file = $this->parseFiles();
         }
     }
@@ -213,11 +234,11 @@ class InputHandler
     {
         $element = null;
 
-        if (\count($methods) === 0 || \in_array('get', $methods, true) === true) {
+        if (\count($methods) === 0 || \in_array(Request::REQUEST_TYPE_GET, $methods, true) === true) {
             $element = $this->get($index);
         }
 
-        if (($element === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array('post', $methods, true) === true)) {
+        if (($element === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array(Request::REQUEST_TYPE_POST, $methods, true) === true)) {
             $element = $this->post($index);
         }
 
@@ -466,6 +487,66 @@ class InputHandler
     public function addFile(string $key, InputFile $item): void
     {
         $this->file[$key] = $item;
+    }
+
+    /**
+     * Get original post variables
+     * @return array
+     */
+    public function getOriginalPost(): array
+    {
+        return $this->originalPost;
+    }
+
+    /**
+     * Set original post variables
+     * @param array $post
+     * @return static $this
+     */
+    public function setOriginalPost(array $post): self
+    {
+        $this->originalPost = $post;
+        return $this;
+    }
+
+    /**
+     * Get original get variables
+     * @return array
+     */
+    public function getOriginalParams(): array
+    {
+        return $this->originalParams;
+    }
+
+    /**
+     * Set original get-variables
+     * @param array $params
+     * @return static $this
+     */
+    public function setOriginalParams(array $params): self
+    {
+        $this->originalParams = $params;
+        return $this;
+    }
+
+    /**
+     * Get original file variables
+     * @return array
+     */
+    public function getOriginalFile(): array
+    {
+        return $this->originalFile;
+    }
+
+    /**
+     * Set original file posts variables
+     * @param array $file
+     * @return static $this
+     */
+    public function setOriginalFile(array $file): self
+    {
+        $this->originalFile = $file;
+        return $this;
     }
 
 }
