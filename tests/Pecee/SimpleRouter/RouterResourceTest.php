@@ -10,7 +10,7 @@ class RouterResourceTest extends \PHPUnit\Framework\TestCase
         TestRouter::resource('/resource', 'ResourceController');
         $response = TestRouter::debugOutput('/resource', 'post');
 
-        $this->assertEquals('store', $response);
+        $this->assertNotEquals('store', $response);
     }
 
     public function testResourceCreate()
