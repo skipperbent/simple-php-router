@@ -38,7 +38,6 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $router->getRequest()->setMethod('post');
 
         $handler = TestRouter::request()->getInputHandler();
-        $handler->parseInputs();
 
         $this->assertEquals($this->names, $handler->post('names'));
 
