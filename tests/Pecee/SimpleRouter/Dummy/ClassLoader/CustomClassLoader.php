@@ -9,6 +9,6 @@ class CustomClassLoader implements \Pecee\SimpleRouter\ClassLoader\IClassLoader
 
     public function loadClosure(callable $closure, array $parameters)
     {
-        return \call_user_func_array($closure, ['result' => true]);
+        return \call_user_func_array($closure, ['status' => true]);
     }
 }
