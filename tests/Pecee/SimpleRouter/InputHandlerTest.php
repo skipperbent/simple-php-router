@@ -59,7 +59,7 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
 
         $objects = $handler->findItem('names');
 
-        $this->assertIsArray($objects);
+        //TODO add in PHPUnit 8 $this->assertIsArray($objects);
         $this->assertCount(4, $objects);
 
         /* @var $object InputItem */
@@ -103,7 +103,7 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
 
         $objects = $handler->findItem('names');
 
-        $this->assertIsArray($objects);
+        //TODO add in PHPUnit 8 $this->assertIsArray($objects);
         $this->assertCount(4, $objects);
 
         /* @var $object InputItem */
