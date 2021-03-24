@@ -15,10 +15,10 @@
             <directory>tests/Pecee/SimpleRouter/</directory>
         </testsuite>
     </testsuites>
-    <coverage processUncoveredFiles="true"
-              ignoreDeprecatedCodeUnits="true">
-        <include>
+    <filter>
+        <whitelist addUncoveredFilesFromWhitelist="true"
+                   processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">src</directory>
-        </include>
-    </coverage>
+        </whitelist>
+    </filter>
 </phpunit>
