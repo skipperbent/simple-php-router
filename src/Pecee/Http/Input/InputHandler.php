@@ -13,14 +13,32 @@ class InputHandler
     protected $get = [];
 
     /**
+     * Original get/params variables
+     * @var array
+     */
+    protected $originalParams = [];
+
+    /**
      * @var array
      */
     protected $post = [];
 
     /**
+     * Original post variables
+     * @var array
+     */
+    protected $originalPost = [];
+
+    /**
      * @var array
      */
     protected $body = [];
+
+    /**
+     * Original body variables
+     * @var array
+     */
+    protected $originalBody = [];
 
     /**
      * @var string
@@ -33,27 +51,15 @@ class InputHandler
     protected $file = [];
 
     /**
-     * @var Request
-     */
-    protected $request;
-
-    /**
-     * Original post variables
-     * @var array
-     */
-    protected $originalPost = [];
-
-    /**
-     * Original get/params variables
-     * @var array
-     */
-    protected $originalParams = [];
-
-    /**
      * Get original file variables
      * @var array
      */
     protected $originalFile = [];
+
+    /**
+     * @var Request
+     */
+    protected $request;
 
     /**
      * Input constructor.
@@ -92,11 +98,13 @@ class InputHandler
             if(strpos($this->request->getContentType(), 'application/json') !== false){
                 $body = json_decode($this->body_plain, true);
                 if ($body !== false) {
-                    $this->body = $this->parseInputItem($body);
+                    $this->originalBody = $body;
+                    $this->body = $this->parseInputItem($this->originalBody);
                 }
             }else if(strpos($this->request->getContentType(), 'application/x-www-form-urlencoded') !== false){
                 parse_str(file_get_contents('php://input'), $body);
-                $this->body = $this->parseInputItem($body);
+                $this->originalBody = $body;
+                $this->body = $this->parseInputItem($this->originalBody);
             }
         }
 
@@ -311,25 +319,12 @@ class InputHandler
      * @param mixed $defaultValue
      * @return mixed
      */
-    public function post(string $index, $defaultValue = null)
+    public function post(string $index, $defaultValue = null, bool $inputItem = false)
     {
         if(!isset($this->post[$index]))
             return $defaultValue;
-        return $this->toValue($this->post[$index]) ?? $defaultValue;
-    }
-
-    /**
-     * Find post-value by index or return default value.
-     *
-     * @param string $index
-     * @param mixed $defaultValue
-     * @return InputItem|mixed
-     */
-    public function postItem(string $index, $defaultValue = null)
-    {
-        if(!isset($this->post[$index]))
-            return $defaultValue;
-        return $this->post[$index];
+        $item = $this->post[$index];
+        return ($inputItem ? $item : $this->toValue($item)) ?? $defaultValue;
     }
 
     /**
@@ -337,27 +332,15 @@ class InputHandler
      *
      * @param string $index
      * @param mixed $defaultValue
+     * @param bool $inputItem
      * @return mixed
      */
-    public function body(string $index, $defaultValue = null)
+    public function body(string $index, $defaultValue = null, bool $inputItem = false)
     {
         if(!isset($this->body[$index]))
             return $defaultValue;
-        return $this->toValue($this->body[$index]) ?? $defaultValue;
-    }
-
-    /**
-     * Find body-value by index or return default value.
-     *
-     * @param string $index
-     * @param mixed $defaultValue
-     * @return InputItem|mixed
-     */
-    public function bodyItem(string $index, $defaultValue = null)
-    {
-        if(!isset($this->body[$index]))
-            return $defaultValue;
-        return $this->body[$index];
+        $item = $this->body[$index];
+        return ($inputItem ? $item : $this->toValue($item)) ?? $defaultValue;
     }
 
     /**
@@ -365,41 +348,15 @@ class InputHandler
      *
      * @param string $index
      * @param mixed $defaultValue
-     * @return string|null
-     */
-    public function file(string $index, $defaultValue = null): ?string
-    {
-        if(!isset($this->file[$index]))
-            return $defaultValue;
-        return $this->toValue($this->file[$index]) ?? $defaultValue;
-    }
-
-    /**
-     * Find file by index or return default value.
-     *
-     * @param string $index
-     * @param mixed $defaultValue
-     * @return InputFile|mixed
-     */
-    public function fileItem(string $index, $defaultValue = null)
-    {
-        if(!isset($this->file[$index]))
-            return $defaultValue;
-        return $this->file[$index];
-    }
-
-    /**
-     * Find parameter/query-string by index or return default value.
-     *
-     * @param string $index
-     * @param mixed $defaultValue
+     * @param bool $inputItem
      * @return mixed
      */
-    public function get(string $index, $defaultValue = null)
+    public function file(string $index, $defaultValue = null, bool $inputItem = false)
     {
-        if(!isset($this->get[$index]))
+        if(!isset($this->file[$index]))
             return $defaultValue;
-        return $this->toValue($this->get[$index]) ?? $defaultValue;
+        $item = $this->file[$index];
+        return ($inputItem ? $item : $this->toValue($item)) ?? $defaultValue;
     }
 
     /**
@@ -407,13 +364,15 @@ class InputHandler
      *
      * @param string $index
      * @param mixed $defaultValue
-     * @return InputItem|mixed
+     * @param bool $inputItem
+     * @return mixed
      */
-    public function getItem(string $index, $defaultValue = null)
+    public function get(string $index, $defaultValue = null, bool $inputItem = false)
     {
         if(!isset($this->get[$index]))
             return $defaultValue;
-        return $this->get[$index];
+        $item = $this->get[$index];
+        return ($inputItem ? $item : $this->toValue($item)) ?? $defaultValue;
     }
 
     /**
