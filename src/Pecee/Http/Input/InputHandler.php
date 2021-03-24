@@ -78,6 +78,16 @@ class InputHandler
      */
     public function parseInputs(): void
     {
+        $this->originalParams = [];
+        $this->get = [];
+        $this->originalPost = [];
+        $this->post = [];
+        $this->body_plain = '';
+        $this->originalBody = [];
+        $this->body = [];
+        $this->originalFile = [];
+        $this->file = [];
+
         /* Parse get requests */
         if (\count($_GET) !== 0) {
             $this->originalParams = $_GET;
@@ -85,8 +95,8 @@ class InputHandler
         }
 
         /* Parse post requests */
-        $this->originalPost = $_POST;
-        if ($this->request->getMethod() === Request::$requestTypesPost) {
+        if (\count($_POST) !== 0) {
+            $this->originalPost = $_POST;
             $this->post = $this->parseInputItem($this->originalPost);
         }
 
@@ -317,6 +327,7 @@ class InputHandler
      *
      * @param string $index
      * @param mixed $defaultValue
+     * @param bool $inputItem
      * @return mixed
      */
     public function post(string $index, $defaultValue = null, bool $inputItem = false)
