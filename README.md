@@ -300,8 +300,6 @@ We recommend that you add these helper functions to your project. These will all
 To implement the functions below, simply copy the code to a new file and require the file before initializing the router or copy the `helpers.php` we've included in this library.
 
 ```php
-<?php
-
 use Pecee\SimpleRouter\SimpleRouter as Router;
 use Pecee\Http\Url;
 use Pecee\Http\Response;
@@ -349,7 +347,7 @@ function request(): Request
 /**
  * Get input class
  * @param string|null $index Parameter index name
- * @param string|null $defaultValue Default return value
+ * @param string|mixed|null $defaultValue Default return value
  * @param array ...$methods Default methods
  * @return \Pecee\Http\Input\InputHandler|array|string|null
  */

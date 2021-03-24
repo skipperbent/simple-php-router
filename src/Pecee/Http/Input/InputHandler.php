@@ -241,7 +241,7 @@ class InputHandler
      * Get input element value matching index
      *
      * @param string $index
-     * @param string|object|null $defaultValue
+     * @param string|mixed|null $defaultValue
      * @param array ...$methods
      * @return string|array
      */
