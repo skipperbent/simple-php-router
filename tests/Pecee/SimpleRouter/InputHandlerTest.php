@@ -114,12 +114,13 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
     public function testFile()
     {
         global $_FILES;
+        $temp_dir = sys_get_temp_dir();
 
         $_FILES = array(
             'test' => array(
                 'name' => 'test.txt',
                 'type' => 'text/plain',
-                'tmp_name' => '/tmp/phpYfWUiw',
+                'tmp_name' => $temp_dir . '/phpYfWUiw',
                 'error' => 0,
                 'size' => 4
             )
@@ -134,19 +135,16 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $this->assertInstanceOf(\Pecee\Http\Input\InputFile::class, $file);
         $this->assertEquals('test.txt', $file->getFilename());
         $this->assertEquals('text/plain', $file->getType());
-        $this->assertEquals('/tmp/phpYfWUiw', $file->getTmpName());
+        $this->assertEquals($temp_dir . '/phpYfWUiw', $file->getTmpName());
         $this->assertEquals(0, $file->getError());
         $this->assertEquals(4, $file->getSize());
         $this->assertEquals('txt', $file->getExtension());
 
+        file_put_contents($temp_dir . '/phpYfWUiw', 'test');
+        $this->assertEquals('test', $file->getContents());
 
-        if(file_exists('/tmp')){
-            file_put_contents('/tmp/phpYfWUiw', 'test');
-            $this->assertEquals('test', $file->getContents());
-        }
-
-        // TODO: implement test-file
-        $this->assertEquals(true, true);
+        //cleanup
+        unlink($temp_dir . '/phpYfWUiw');
     }
 
     public function testFiles()
