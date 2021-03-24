@@ -245,27 +245,36 @@ class InputHandler
      * Find input object
      *
      * @param string $index
-     * @param array ...$methods
+     * @param string ...$methods
      * @return mixed
      */
     public function find(string $index, ...$methods)
     {
+        return $this->toValue($this->findItem($index, ...$methods));
+    }
+
+    /**
+     * @param string $index
+     * @param string ...$methods
+     * @return InputItem|null|array
+     */
+    public function findItem(string $index, ...$methods){
         $element = null;
 
         if (\count($methods) === 0 || \in_array(Request::REQUEST_TYPE_GET, $methods, true) === true) {
-            $element = $this->get($index);
+            $element = $this->get($index, null, true);
         }
 
         if (($element === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array(Request::REQUEST_TYPE_POST, $methods, true) === true)) {
-            $element = $this->post($index);
+            $element = $this->post($index, null, true);
         }
 
         if (($element === null && count($methods) === 0) || (count($methods) !== 0 && in_array('body', $methods, true))) {
-            $element = $this->body($index);
+            $element = $this->body($index, null, true);
         }
 
         if (($element === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array('file', $methods, true) === true)) {
-            $element = $this->file($index);
+            $element = $this->file($index, null, true);
         }
 
         return $element;
@@ -297,7 +306,7 @@ class InputHandler
      *
      * @param string $index
      * @param string|object|null $defaultValue
-     * @param array ...$methods
+     * @param string ...$methods
      * @return string|array
      */
     public function value(string $index, $defaultValue = null, ...$methods)
