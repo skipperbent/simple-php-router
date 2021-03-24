@@ -405,13 +405,15 @@ class InputHandler
     /**
      * Get all get/post items
      * @param array $filter Only take items in filter
+     * @param bool $inputItem
      * @return array
      */
-    public function all(array $filter = []): array
+    public function all(array $filter = [], bool $inputItem = false): array
     {
         $output = array_merge($this->get, $this->post, $this->body);
 
-        $output = $this->toValue($output);
+        if(!$inputItem)
+            $output = $this->toValue($output);
 
         $output = (\count($filter) > 0) ? array_intersect_key($output, array_flip($filter)) : $output;
 
