@@ -2,7 +2,9 @@
 
 namespace Pecee\Http;
 
+use JsonSerializable;
 use Pecee\Exceptions\InvalidArgumentException;
+use Pecee\Http\Exceptions\JsonException;
 
 class Response
 {
@@ -84,21 +86,78 @@ class Response
     }
 
     /**
-     * Json encode
-     * @param array|\JsonSerializable $value
-     * @param ?int $options JSON options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_PRESERVE_ZERO_FRACTION, JSON_UNESCAPED_UNICODE, JSON_PARTIAL_OUTPUT_ON_ERROR.
-     * @param int $dept JSON debt.
+     * @param array|JsonSerializable $data
+     * @param array|JsonSerializable $originalValue
+     * @param int|null $options
+     * @param int $dept
      * @throws InvalidArgumentException
+     * @throws JsonException
      */
-    public function json($value, ?int $options = null, int $dept = 512): void
+    private function setUpJsonResponse($data, $originalValue, ?int $options = null, int $dept = 512): void
     {
-        if (($value instanceof \JsonSerializable) === false && \is_array($value) === false) {
+        if (($originalValue instanceof JsonSerializable) === false && \is_array($originalValue) === false) {
             throw new InvalidArgumentException('Invalid type for parameter "value". Must be of type array or object implementing the \JsonSerializable interface.');
         }
 
+        $json = json_encode($data, $options, $dept);
+        if($json === false){
+            throw new JsonException('Failed to encode data');
+        }
         $this->header('Content-Type: application/json; charset=utf-8');
-        echo json_encode($value, $options, $dept);
+        echo $json;
         exit(0);
+    }
+
+    /**
+     * Json encode and print response.
+     * @param array|JsonSerializable $value
+     * @param ?int $options JSON options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_PRESERVE_ZERO_FRACTION, JSON_UNESCAPED_UNICODE, JSON_PARTIAL_OUTPUT_ON_ERROR.
+     * @param int $dept JSON debt.
+     * @throws InvalidArgumentException
+     * @throws JsonException
+     */
+    public function json($value, ?int $options = null, int $dept = 512): void
+    {
+        $this->setUpJsonResponse($value, $value, $options, $dept);
+    }
+
+    /**
+     * Json encode and print successful response.
+     * @param array|JsonSerializable $value
+     * @param int $code - response code
+     * @param ?int $options JSON options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_PRESERVE_ZERO_FRACTION, JSON_UNESCAPED_UNICODE, JSON_PARTIAL_OUTPUT_ON_ERROR.
+     * @param int $dept JSON debt.
+     * @throws InvalidArgumentException
+     * @throws JsonException
+     */
+    public function success($value, $code = 200, ?int $options = null, int $dept = 512): void
+    {
+        $this->setUpJsonResponse(array(
+            'success' => true,
+            'code' => $code,
+            'data' => $value
+        ), $value, $options, $dept);
+    }
+
+    /**
+     * Json encode and print error response.
+     * @param array|JsonSerializable $value
+     * @param string $message - error message
+     * @param int $code - response code
+     * @param array $errors - a list of errors
+     * @param ?int $options JSON options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_PRESERVE_ZERO_FRACTION, JSON_UNESCAPED_UNICODE, JSON_PARTIAL_OUTPUT_ON_ERROR.
+     * @param int $dept JSON debt.
+     * @throws JsonException
+     */
+    public function error($value, string $message, $code = 400, array $errors = array(), ?int $options = null, int $dept = 512): void
+    {
+        $this->setUpJsonResponse(array(
+            'success' => false,
+            'message' => $message,
+            'code' => $code,
+            'errors' => $errors,
+            'data' => $value
+        ), $value, $options, $dept);
     }
 
     /**
