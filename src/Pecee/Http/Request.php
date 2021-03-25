@@ -129,7 +129,16 @@ class Request
         // Check if special IIS header exist, otherwise use default.
         $this->setUrl(new Url($this->getFirstHeader(['unencoded-url', 'request-uri',])));
 
-        $this->setContentType(strtolower($this->getHeader('content-type')));
+        $contentType = strtolower($this->getHeader('content-type'));
+        if(strpos($contentType, 'application/x-www-form-urlencoded') !== false){
+            $this->setContentType(self::CONTENT_TYPE_JSON);
+        }else if(strpos($contentType, 'multipart/form-data') !== false){
+            $this->setContentType(self::CONTENT_TYPE_FORM_DATA);
+        }else if(strpos($contentType, 'application/x-www-form-urlencoded') !== false){
+            $this->setContentType(self::CONTENT_TYPE_X_FORM_ENCODED);
+        }else{
+            $this->setContentType($contentType);
+        }
 
         $this->method = strtolower($this->getHeader('request-method'));
         $this->inputHandler = new InputHandler($this);
