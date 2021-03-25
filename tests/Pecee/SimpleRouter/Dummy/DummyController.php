@@ -23,6 +23,11 @@ class DummyController
         return 'method3';
     }
 
+    public function method4($param1, $param2)
+    {
+
+    }
+
 	public function param($params = null)
 	{
 		echo join(', ', func_get_args());

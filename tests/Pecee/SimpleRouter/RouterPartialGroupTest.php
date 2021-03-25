@@ -16,7 +16,7 @@ class RouterPartialGroupTest extends \PHPUnit\Framework\TestCase
             $result1 = $param1;
             $result2 = $param2;
 
-            TestRouter::get('/', 'DummyController@method1');
+            TestRouter::get('/', 'DummyController@method4');
         });
 
         TestRouter::debug('/param1/param2', 'get');
