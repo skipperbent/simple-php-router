@@ -20,6 +20,13 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         'Canon',
     ];
 
+    protected $sodas = [
+        0 => 'Pepsi',
+        1 => 'Coca Cola',
+        2 => 'Harboe',
+        3 => 'Mountain Dew',
+    ];
+
     protected $day = 'monday';
 
     public function testPost()
@@ -29,6 +36,7 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $_POST = [
             'names' => $this->names,
             'day' => $this->day,
+            'sodas' => $this->sodas,
         ];
 
         $router = TestRouter::router();
@@ -51,6 +59,7 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($handler->find('non-existing'));
         $this->assertNull($handler->value('names', null, 'get'));
         $this->assertNull($handler->find('names', 'get'));
+        $this->assertEquals($this->sodas, $handler->value('sodas'));
 
         $objects = $handler->find('names');
 

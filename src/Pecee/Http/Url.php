@@ -371,7 +371,7 @@ class Url implements \JsonSerializable
      */
     public function getParam(string $name, ?string $defaultValue = null): ?string
     {
-        return isset($this->getParams()[$name]) ?? $defaultValue;
+        return (isset($this->getParams()[$name]) === true) ? $this->getParams()[$name] : $defaultValue;
     }
 
     /**

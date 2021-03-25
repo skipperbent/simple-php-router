@@ -237,6 +237,22 @@ class InputHandler
         return $element;
     }
 
+    protected function getValueFromArray(array $array): array
+    {
+        $output = [];
+        /* @var $item InputItem */
+        foreach ($array as $key => $item) {
+
+            if ($item instanceof IInputItem) {
+                $item = $item->getValue();
+            }
+
+            $output[$key] = \is_array($item) ? $this->getValueFromArray($item) : $item;
+        }
+
+        return $output;
+    }
+
     /**
      * Get input element value matching index
      *
@@ -249,18 +265,18 @@ class InputHandler
     {
         $input = $this->find($index, ...$methods);
 
+        if ($input instanceof IInputItem) {
+            $input = $input->getValue();
+        }
+
         /* Handle collection */
         if (\is_array($input) === true) {
-            $output = [];
-            /* @var $item InputItem */
-            foreach ($input as $item) {
-                $output[] = \is_array($item) ? $item : $item->getValue();
-            }
+            $output = $this->getValueFromArray($input);
 
             return (\count($output) === 0) ? $defaultValue : $output;
         }
 
-        return ($input === null || (\is_string($input->getValue()) && trim($input->getValue()) === '')) ? $defaultValue : $input->getValue();
+        return ($input === null || (\is_string($input) && trim($input) === '')) ? $defaultValue : $input;
     }
 
     /**
@@ -380,6 +396,7 @@ class InputHandler
     public function setOriginalPost(array $post): self
     {
         $this->originalPost = $post;
+
         return $this;
     }
 
@@ -400,6 +417,7 @@ class InputHandler
     public function setOriginalParams(array $params): self
     {
         $this->originalParams = $params;
+
         return $this;
     }
 
@@ -420,6 +438,7 @@ class InputHandler
     public function setOriginalFile(array $file): self
     {
         $this->originalFile = $file;
+
         return $this;
     }
 
