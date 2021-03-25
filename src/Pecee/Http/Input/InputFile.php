@@ -276,7 +276,8 @@ class InputFile implements IInputItem, IteratorAggregate
     /**
      * @return InputFile[]
      */
-    public function getInputItems(){
+    public function getInputItems()
+    {
         if(is_array($this->getValue())){
             return $this->value;
         }

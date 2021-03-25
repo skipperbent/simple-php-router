@@ -247,7 +247,8 @@ class InputHandler
      * @param string ...$methods
      * @return InputItem
      */
-    public function find(string $index, ...$methods){
+    public function find(string $index, ...$methods)
+    {
         $element = new InputItem($index, null);
 
         if (count($methods) === 0 || \in_array(Request::REQUEST_TYPE_GET, $methods, true) === true) {
