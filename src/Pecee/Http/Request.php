@@ -213,15 +213,29 @@ class Request
 
     /**
      * Get id address
+     * If $safe is false, this function will detect Proxys. But the user can edit this header to whatever he wants!
+     * https://stackoverflow.com/questions/3003145/how-to-get-the-client-ip-address-in-php#comment-25086804
+     * @param bool $safe
      * @return string|null
      */
-    public function getIp(): ?string
+    public function getIp(bool $safe = false): ?string
     {
-        return $this->getFirstHeader([
-            'http-cf-connecting-ip',
-            'http-x-forwarded-for',
-            'remote-addr',
-        ]);
+        $client_header = null;
+        if(!$safe){
+            $client_header = $this->getHeader(
+                'http-cf-connecting-ip',
+                $this->getHeader(
+                    'http-client-ip',
+                    $this->getHeader(
+                        'http-x-forwarded-for',
+                        $this->getHeader('remote-addr')
+                    )
+                )
+            );
+        }
+        if($client_header === null)
+            $client_header = $this->getHeader('remote-addr');
+        return filter_var($client_header, FILTER_VALIDATE_IP) ? $client_header : null;
     }
 
     /**
