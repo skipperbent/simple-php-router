@@ -245,7 +245,7 @@ class InputHandler
      *
      * @param string $index
      * @param string ...$methods
-     * @return InputItem
+     * @return InputItem|InputFile
      */
     public function find(string $index, ...$methods)
     {
@@ -431,10 +431,19 @@ class InputHandler
     }
 
     /**
+     * @return array
+     */
+    public function getOriginalBody(): array
+    {
+        return $this->originalBody;
+    }
+
+    /**
      * @return string
      */
-    public function getOriginalBody(): string{
-        return $this->originalBody;
+    public function getOriginalBodyPlain(): string
+    {
+        return $this->originalBodyPlain;
     }
 
     /**
