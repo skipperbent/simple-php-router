@@ -97,9 +97,11 @@ class InputHandler
     }
 
     /**
+     * @param array $files Array with files to parse
+     * @param string|null $parentKey Key from parent (used when parsing nested array).
      * @return array
      */
-    public function parseFiles(array $files, $parentKey = null): array
+    public function parseFiles(array $files, ?string $parentKey = null): array
     {
         $list = [];
 
