@@ -9,28 +9,74 @@ require_once 'Dummy/Handler/ExceptionHandler.php';
 class RequestTest extends \PHPUnit\Framework\TestCase
 {
 
-    public function testContentTypeParse()
+    protected function testHeader($name, $value, callable $callback)
     {
         global $_SERVER;
 
-        $contentType = 'application/x-www-form-urlencoded';
-        $_SERVER['content_type'] = $contentType;
+        $_SERVER[$name] = $value;
 
         $router = TestRouter::router();
         $router->reset();
 
         $request = $router->getRequest();
 
-        $this->assertEquals($contentType, $request->getContentType());
+        $callback($request);
 
-        // Test special content-types
+        // Reset everything
+        $_SERVER[$name] = null;
         $router->reset();
+    }
 
-        $_SERVER['content_type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+    public function testContentTypeParse()
+    {
+        global $_SERVER;
 
-        $this->assertEquals($contentType, $request->getContentType());
+        // Test normal content-type
 
-        $router->reset();
+        $contentType = 'application/x-www-form-urlencoded';
+
+        $this->testHeader('content_type', $contentType, function(\Pecee\Http\Request $request) use($contentType) {
+            $this->assertEquals($contentType, $request->getContentType());
+        });
+
+        // Test special content-type with encoding
+
+        $contentTypeWithEncoding = 'application/x-www-form-urlencoded; charset=UTF-8';
+
+        $this->testHeader('content_type', $contentTypeWithEncoding, function(\Pecee\Http\Request $request) use($contentType) {
+            $this->assertEquals($contentType, $request->getContentType());
+        });
+    }
+
+    public function testGetIp()
+    {
+        $ip = '1.1.1.1';
+        $this->testHeader('remote_addr', $ip, function(\Pecee\Http\Request  $request) use($ip) {
+            $this->assertEquals($ip, $request->getIp());
+        });
+
+        $ip = '2.2.2.2';
+        $this->testHeader('http-cf-connecting-ip', $ip, function(\Pecee\Http\Request  $request) use($ip) {
+            $this->assertEquals($ip, $request->getIp());
+        });
+
+        $ip = '3.3.3.3';
+        $this->testHeader('http-client-ip', $ip, function(\Pecee\Http\Request  $request) use($ip) {
+            $this->assertEquals($ip, $request->getIp());
+        });
+
+        $ip = '4.4.4.4';
+        $this->testHeader('http-x-forwarded-for', $ip, function(\Pecee\Http\Request  $request) use($ip) {
+            $this->assertEquals($ip, $request->getIp());
+        });
+
+        // Test safe
+
+        $ip = '5.5.5.5';
+        $this->testHeader('http-x-forwarded-for', $ip, function(\Pecee\Http\Request  $request) {
+            $this->assertEquals(null, $request->getIp(true));
+        });
+
     }
 
     // TODO: implement more test-cases

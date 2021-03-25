@@ -220,22 +220,16 @@ class Request
      */
     public function getIp(bool $safe = false): ?string
     {
-        $client_header = null;
-        if(!$safe){
-            $client_header = $this->getHeader(
+        $headers = ['remote-addr'];
+        if($safe === false) {
+            $headers = array_merge($headers, [
                 'http-cf-connecting-ip',
-                $this->getHeader(
-                    'http-client-ip',
-                    $this->getHeader(
-                        'http-x-forwarded-for',
-                        $this->getHeader('remote-addr')
-                    )
-                )
-            );
+                'http-client-ip',
+                'http-x-forwarded-for',
+            ]);
         }
-        if($client_header === null)
-            $client_header = $this->getHeader('remote-addr');
-        return filter_var($client_header, FILTER_VALIDATE_IP) ? $client_header : null;
+
+        return $this->getFirstHeader($headers);
     }
 
     /**
