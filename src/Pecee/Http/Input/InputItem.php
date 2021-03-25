@@ -2,7 +2,10 @@
 
 namespace Pecee\Http\Input;
 
-class InputItem implements IInputItem, \IteratorAggregate
+use ArrayIterator;
+use IteratorAggregate;
+
+class InputItem implements IInputItem, IteratorAggregate
 {
     public $index;
     public $name;
@@ -19,7 +22,7 @@ class InputItem implements IInputItem, \IteratorAggregate
         $this->value = $value;
 
         // Make the name human friendly, by replace _ with space
-        $this->name = ucfirst(str_replace('_', ' ', strtolower($this->index)));
+        $this->name = ucfirst(trim(str_replace('_', ' ', strtolower($this->index))));
     }
 
     /**
@@ -62,14 +65,41 @@ class InputItem implements IInputItem, \IteratorAggregate
      */
     public function getValue()
     {
-        if($this->value === 'true')
-            return true;
-        else if($this->value === 'false')
-            return false;
-        else if($this->value === '')
-            return null;
-        else
+        if(is_array($this->value)){
+            return $this->parseValueFromArray($this->value);
+        }
+        return $this->value;
+    }
+
+    /**
+     * @return InputItem[]
+     */
+    public function getInputItems()
+    {
+        if(is_array($this->getValue())){
             return $this->value;
+        }
+        return array();
+    }
+
+    /**
+     * @param array $array
+     * @return array
+     */
+    protected function parseValueFromArray(array $array): array
+    {
+        $output = [];
+        /* @var $item InputItem */
+        foreach ($array as $key => $item) {
+
+            if ($item instanceof IInputItem) {
+                $item = $item->getValue();
+            }
+
+            $output[$key] = is_array($item) ? $this->parseValueFromArray($item) : $item;
+        }
+
+        return $output;
     }
 
     /**
@@ -86,23 +116,11 @@ class InputItem implements IInputItem, \IteratorAggregate
 
     public function __toString(): string
     {
-        $value = $this->getValue();
-        if(is_array($value) === true){
-            return json_encode($value);
-        }else{
-            switch($value){
-                case true:
-                    return 'true';
-                case false:
-                    return 'false';
-                default:
-                    return strval($value);
-            }
-        }
+        return json_encode($this->getValue());
     }
 
-    public function getIterator(): \ArrayIterator
+    public function getIterator(): ArrayIterator
     {
-        return new \ArrayIterator($this->getValue());
+        return new ArrayIterator($this->getInputItems());
     }
 }

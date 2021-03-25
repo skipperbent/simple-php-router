@@ -4,6 +4,7 @@ namespace Pecee\Http\Input;
 
 use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Request;
+use function count;
 
 class InputHandler
 {
@@ -32,7 +33,12 @@ class InputHandler
     /**
      * @var string
      */
-    protected $originalBody = '';
+    protected $originalBody = [];
+
+    /**
+     * @var string
+     */
+    protected $originalBodyPlain = '';
 
     /**
      * @var InputFile[]
@@ -71,30 +77,33 @@ class InputHandler
         $this->get = [];
         $this->originalPost = [];
         $this->data = [];
-        $this->originalBody = '';
+        $this->originalBody = [];
+        $this->originalBodyPlain = '';
         $this->originalFile = [];
         $this->file = [];
 
         /* Parse get requests */
-        if (\count($_GET) !== 0) {
+        if (count($_GET) !== 0) {
             $this->originalParams = $_GET;
             $this->get = $this->parseInputItem($this->originalParams);
         }
 
         /* Get body */
-        $this->originalBody = file_get_contents('php://input');
+        $this->originalBodyPlain = file_get_contents('php://input');
 
         /* Parse body */
         if (in_array($this->request->getMethod(), Request::$requestTypesPost, false)) {
             switch($this->request->getContentType()){
                 case Request::CONTENT_TYPE_JSON:
-                    $body = json_decode($this->originalBody, true);
+                    $body = json_decode($this->originalBodyPlain, true);
                     if ($body !== false) {
+                        $this->originalBody = $body;
                         $this->data = $this->parseInputItem($body);
                     }
                     break;
-                case Request::CONTENT_TYPE_X_FORM_ENCODED|Request::CONTENT_TYPE_FORM_DATA:
-                    if (\count($_POST) !== 0) {
+                //case Request::CONTENT_TYPE_X_FORM_ENCODED|Request::CONTENT_TYPE_FORM_DATA:
+                default:
+                    if (count($_POST) !== 0) {
                         $this->originalPost = $_POST;
                         $this->data = $this->parseInputItem($this->originalPost);
                     }
@@ -103,7 +112,7 @@ class InputHandler
         }
 
         /* Parse get requests */
-        if (\count($_FILES) !== 0) {
+        if (count($_FILES) !== 0) {
             $this->originalFile = $_FILES;
             $this->file = $this->parseFiles($this->originalFile);
         }
@@ -120,7 +129,7 @@ class InputHandler
 
             // Parse multi dept file array
             if(isset($value['name']) === false && \is_array($value) === true) {
-                $list[$key] = $this->parseFiles($value, $key);
+                $list[$key] = (new InputFile($key))->setValue($this->parseFiles($value, $key));
                 continue;
             }
 
@@ -140,9 +149,9 @@ class InputHandler
             $files = $this->rearrangeFile($value['name'], $keys, $value);
 
             if (isset($list[$key]) === true) {
-                $list[$key][] = $files;
+                $list[$key]->addInputFile($files);
             } else {
-                $list[$key] = $files;
+                $list[$key] = (new InputFile($key))->setValue($files);
             }
 
         }
@@ -241,35 +250,19 @@ class InputHandler
     public function find(string $index, ...$methods){
         $element = new InputItem($index, null);
 
-        if (\count($methods) === 0 || \in_array(Request::REQUEST_TYPE_GET, $methods, true) === true) {
+        if (count($methods) === 0 || \in_array(Request::REQUEST_TYPE_GET, $methods, true) === true) {
             $element = $this->get($index);
+        }
+
+        if (($element->getValue() === null && count($methods) === 0) || (count($methods) !== 0 && \in_array('file', $methods, true) === true)) {
+            $element = $this->file($index);
         }
 
         if (($element->getValue() === null && count($methods) === 0) || (count($methods) !== 0 && count(array_intersect(Request::$requestTypesPost, $methods)) !== 0)) {
             $element = $this->data($index);
         }
 
-        if (($element->getValue() === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array('file', $methods, true) === true)) {
-            $element = $this->file($index);
-        }
-
         return $element;
-    }
-
-    protected function parseValueFromArray(array $array): array
-    {
-        $output = [];
-        /* @var $item InputItem */
-        foreach ($array as $key => $item) {
-
-            if ($item instanceof IInputItem) {
-                $item = $item->getValue();
-            }
-
-            $output[$key] = \is_array($item) ? $this->parseValueFromArray($item) : $item;
-        }
-
-        return $output;
     }
 
     /**
@@ -277,8 +270,8 @@ class InputHandler
      *
      * @param string $index
      * @param string|mixed|null $defaultValue
-     * @param array ...$methods
-     * @return string|array
+     * @param string ...$methods
+     * @return mixed
      */
     public function value(string $index, $defaultValue = null, ...$methods)
     {
@@ -289,10 +282,8 @@ class InputHandler
         }
 
         /* Handle collection */
-        if (\is_array($input) === true) {
-            $output = $this->parseValueFromArray($input);
-
-            return (\count($output) === 0) ? $defaultValue : $output;
+        if (\is_array($input) === true && count($input) === 0) {
+            return $defaultValue;
         }
 
         return ($input === null || (\is_string($input) && trim($input) === '')) ? $defaultValue : $input;
@@ -302,7 +293,7 @@ class InputHandler
      * Check if a input-item exist
      *
      * @param string $index
-     * @param array ...$methods
+     * @param string ...$methods
      * @return bool
      */
     public function exists(string $index, ...$methods): bool
@@ -367,13 +358,13 @@ class InputHandler
     /**
      * Get all get/post items
      * @param array $filter Only take items in filter
-     * @return InputItem[]
+     * @return mixed[]
      */
     public function all(array $filter = []): array
     {
-        $output = $this->data + $this->get + $this->file;
+        $output = $this->originalPost + $this->originalBody + $this->originalParams + $this->originalFile;
 
-        $output = (\count($filter) > 0) ? array_intersect_key($output, array_flip($filter)) : $output;
+        $output = (count($filter) > 0) ? array_intersect_key($output, array_flip($filter)) : $output;
 
         foreach ($filter as $filterKey) {
             if (array_key_exists($filterKey, $output) === false) {

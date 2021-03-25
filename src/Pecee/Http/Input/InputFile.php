@@ -2,9 +2,11 @@
 
 namespace Pecee\Http\Input;
 
+use ArrayIterator;
+use IteratorAggregate;
 use Pecee\Exceptions\InvalidArgumentException;
 
-class InputFile implements IInputItem
+class InputFile implements IInputItem, IteratorAggregate
 {
     public $index;
     public $name;
@@ -13,6 +15,8 @@ class InputFile implements IInputItem
     public $type;
     public $errors;
     public $tmpName;
+
+    public $value;
 
     public function __construct(string $index)
     {
@@ -266,16 +270,40 @@ class InputFile implements IInputItem
      */
     public function getValue()
     {
-        return $this->getFilename();
+        return $this->value;
     }
 
     /**
-     * @param string $value
+     * @return InputFile[]
+     */
+    public function getInputItems(){
+        if(is_array($this->getValue())){
+            return $this->value;
+        }
+        return array();
+    }
+
+    /**
+     * @param mixed $value
      * @return static
      */
     public function setValue($value): IInputItem
     {
-        $this->filename = strval($value);
+        $this->value = $value;
+
+        return $this;
+    }
+
+    /**
+     * @param InputFile $inputFile
+     * @return static
+     */
+    public function addInputFile($inputFile): IInputItem
+    {
+        if(is_array($this->value)){
+            $this->value[] = $inputFile;
+        }
+        $this->setValue(array($inputFile));
 
         return $this;
     }
@@ -290,6 +318,11 @@ class InputFile implements IInputItem
             'error'    => $this->errors,
             'filename' => $this->filename,
         ];
+    }
+
+    public function getIterator(): ArrayIterator
+    {
+        return new ArrayIterator($this->getInputItems());
     }
 
 }

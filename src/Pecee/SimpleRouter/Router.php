@@ -127,14 +127,15 @@ class Router
 
     /**
      * Resets the router by reloading request and clearing all routes and data.
+     * @param string|null $method
      */
-    public function reset(): void
+    public function reset(string $method = null): void
     {
         $this->debugStartTime = microtime(true);
         $this->isProcessingRoute = false;
 
         try {
-            $this->request = new Request();
+            $this->request = new Request($method);
         } catch (MalformedUrlException $e) {
             $this->debug(sprintf('Invalid request-uri url: %s', $e->getMessage()));
         }

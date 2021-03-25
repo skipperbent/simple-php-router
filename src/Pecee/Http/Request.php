@@ -115,9 +115,10 @@ class Request
 
     /**
      * Request constructor.
+     * @param string|null $method
      * @throws MalformedUrlException
      */
-    public function __construct()
+    public function __construct(string $method = null)
     {
         foreach ($_SERVER as $key => $value) {
             $this->headers[strtolower($key)] = $value;
@@ -131,9 +132,9 @@ class Request
 
         $this->setContentType(strtolower($this->getHeader('content-type')));
 
-        $this->method = strtolower($this->getHeader('request-method'));
+        $this->method = $method !== null ? $method : $this->getHeader('request-method');
         $this->inputHandler = new InputHandler($this);
-        $this->method = strtolower($this->inputHandler->value('_method', $this->getHeader('request-method')));
+        $this->method = $method !== null ? $method : strtolower($this->inputHandler->value('_method', $this->method));
     }
 
     public function isSecure(): bool
