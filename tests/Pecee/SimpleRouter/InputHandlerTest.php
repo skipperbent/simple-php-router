@@ -1,5 +1,7 @@
 <?php
 
+use Pecee\Http\Input\InputFile;
+
 require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
 require_once 'Dummy/Handler/ExceptionHandler.php';
@@ -122,8 +124,42 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
 
     public function testFile()
     {
-        // TODO: implement test-file
-        $this->assertEquals(true, true);
+        global $_FILES;
+        $temp_dir = sys_get_temp_dir();
+
+        $test_file_input_name = 'test_input';
+        $test_file = array(
+            'name' => 'test.txt',
+            'type' => 'text/plain',
+            'tmp_name' => $temp_dir . '/phpYfWUiw',
+            'error' => 0,
+            'size' => 4
+        );
+        $test_file_content = 'test_content';
+
+        $_FILES = array(
+            $test_file_input_name => $test_file
+        );
+
+        $router = TestRouter::router();
+        $router->reset();
+        $router->getRequest()->setMethod('post');
+
+        $handler = TestRouter::request()->getInputHandler();
+        $file = $handler->file($test_file_input_name);
+        $this->assertInstanceOf(InputFile::class, $file);
+        $this->assertEquals($test_file['name'], $file->getFilename());
+        $this->assertEquals($test_file['type'], $file->getType());
+        $this->assertEquals($test_file['tmp_name'], $file->getTmpName());
+        $this->assertEquals($test_file['error'], $file->getError());
+        $this->assertEquals($test_file['size'], $file->getSize());
+        $this->assertEquals(pathinfo($test_file['name'], PATHINFO_EXTENSION), $file->getExtension());
+
+        file_put_contents($test_file['tmp_name'], $test_file_content);
+        $this->assertEquals($test_file_content, $file->getContents());
+
+        //cleanup
+        unlink($test_file['tmp_name']);
     }
 
     public function testFiles()
