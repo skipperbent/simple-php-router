@@ -219,6 +219,12 @@ class InputHandler
         $list = [];
 
         foreach ($array as $key => $value) {
+
+            // Handle array input
+            if (\is_array($value) === true) {
+                $value = $this->parseInputItem($value);
+            }
+
             $list[$key] = new InputItem($key, $value);
         }
 
@@ -239,14 +245,7 @@ class InputHandler
             $element = $this->get($index);
         }
 
-        if (($element->getValue() === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array(Request::REQUEST_TYPE_POST, $methods, true) === true)) {
-            $element = $this->post($index);
-        }
-
-        if (($element->getValue() === null && count($methods) === 0) ||
-            (count($methods) !== 0 && in_array(Request::REQUEST_TYPE_PATCH, $methods, true)) ||
-            (count($methods) !== 0 && in_array('body', $methods, true)) ||
-        ) {
+        if (($element->getValue() === null && count($methods) === 0) || (count($methods) !== 0 && count(array_intersect(Request::$requestTypesPost, $methods)) !== 0)) {
             $element = $this->data($index);
         }
 
@@ -255,6 +254,22 @@ class InputHandler
         }
 
         return $element;
+    }
+
+    protected function parseValueFromArray(array $array): array
+    {
+        $output = [];
+        /* @var $item InputItem */
+        foreach ($array as $key => $item) {
+
+            if ($item instanceof IInputItem) {
+                $item = $item->getValue();
+            }
+
+            $output[$key] = \is_array($item) ? $this->parseValueFromArray($item) : $item;
+        }
+
+        return $output;
     }
 
     /**
@@ -271,6 +286,13 @@ class InputHandler
 
         if ($input instanceof IInputItem) {
             $input = $input->getValue();
+        }
+
+        /* Handle collection */
+        if (\is_array($input) === true) {
+            $output = $this->parseValueFromArray($input);
+
+            return (\count($output) === 0) ? $defaultValue : $output;
         }
 
         return ($input === null || (\is_string($input) && trim($input) === '')) ? $defaultValue : $input;
@@ -318,12 +340,13 @@ class InputHandler
      * Find file by index or return default value.
      *
      * @param string $index
-     * @return InputFile|null
+     * @param null $defaultValue
+     * @return InputFile
      */
-    public function file(string $index)
+    public function file(string $index, $defaultValue = null)
     {
         if(!isset($this->file[$index]))
-            return null;
+            return (new InputFile($index))->setValue($defaultValue);
         return $this->file[$index];
     }
 
