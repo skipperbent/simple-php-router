@@ -122,50 +122,87 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $_GET = [];
     }
 
+
+
     public function testFile()
     {
         global $_FILES;
-        $temp_dir = sys_get_temp_dir();
 
-        $test_file_input_name = 'test_input';
-        $test_file = array(
-            'name' => 'test.txt',
-            'type' => 'text/plain',
-            'tmp_name' => $temp_dir . '/phpYfWUiw',
-            'error' => 0,
-            'size' => 4
-        );
-        $test_file_content = 'test_content';
+        $testFile = $this->generateFile();
 
-        $_FILES = array(
-            $test_file_input_name => $test_file
-        );
+        $_FILES = [
+            'test_input' => $testFile,
+        ];
 
         $router = TestRouter::router();
         $router->reset();
         $router->getRequest()->setMethod('post');
+        $inputHandler = TestRouter::request()->getInputHandler();
 
-        $handler = TestRouter::request()->getInputHandler();
-        $file = $handler->file($test_file_input_name);
+        $testFileContent = md5(uniqid('test', false));
+
+        $file = $inputHandler->file('test_input');
+
         $this->assertInstanceOf(InputFile::class, $file);
-        $this->assertEquals($test_file['name'], $file->getFilename());
-        $this->assertEquals($test_file['type'], $file->getType());
-        $this->assertEquals($test_file['tmp_name'], $file->getTmpName());
-        $this->assertEquals($test_file['error'], $file->getError());
-        $this->assertEquals($test_file['size'], $file->getSize());
-        $this->assertEquals(pathinfo($test_file['name'], PATHINFO_EXTENSION), $file->getExtension());
+        $this->assertEquals($testFile['name'], $file->getFilename());
+        $this->assertEquals($testFile['type'], $file->getType());
+        $this->assertEquals($testFile['tmp_name'], $file->getTmpName());
+        $this->assertEquals($testFile['error'], $file->getError());
+        $this->assertEquals($testFile['size'], $file->getSize());
+        $this->assertEquals(pathinfo($testFile['name'], PATHINFO_EXTENSION), $file->getExtension());
 
-        file_put_contents($test_file['tmp_name'], $test_file_content);
-        $this->assertEquals($test_file_content, $file->getContents());
+        file_put_contents($testFile['tmp_name'], $testFileContent);
+        $this->assertEquals($testFileContent, $file->getContents());
 
-        //cleanup
-        unlink($test_file['tmp_name']);
+        // Cleanup
+        unlink($testFile['tmp_name']);
     }
 
-    public function testFiles()
+    public function testFilesArray()
     {
-        // TODO: implement test-files
-        $this->assertEquals(true, true);
+        global $_FILES;
+
+        $testFiles = [
+            $file = $this->generateFile(),
+            $file = $this->generateFile(),
+            $file = $this->generateFile(),
+            $file = $this->generateFile(),
+            $file = $this->generateFile(),
+        ];
+
+        $_FILES = [
+            'my_files' => $testFiles,
+        ];
+
+        $router = TestRouter::router();
+        $router->reset();
+        $router->getRequest()->setMethod('post');
+        $inputHandler = TestRouter::request()->getInputHandler();
+
+        $files = $inputHandler->file('my_files');
+        $this->assertCount(5, $files);
+
+        /* @var $file InputFile */
+        foreach ($files as $key => $file) {
+
+            $testFileContent = md5(uniqid('test', false));
+
+            $this->assertInstanceOf(InputFile::class, $file);
+            $this->assertEquals($testFiles[$key]['name'], $file->getFilename());
+            $this->assertEquals($testFiles[$key]['type'], $file->getType());
+            $this->assertEquals($testFiles[$key]['tmp_name'], $file->getTmpName());
+            $this->assertEquals($testFiles[$key]['error'], $file->getError());
+            $this->assertEquals($testFiles[$key]['size'], $file->getSize());
+            $this->assertEquals(pathinfo($testFiles[$key]['name'], PATHINFO_EXTENSION), $file->getExtension());
+
+            file_put_contents($testFiles[$key]['tmp_name'], $testFileContent);
+
+            $this->assertEquals($testFileContent, $file->getContents());
+
+            // Cleanup
+            unlink($testFiles[$key]['tmp_name']);
+        }
+
     }
 
     public function testAll()
@@ -216,6 +253,22 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         // Reset
         $_GET = [];
         $_POST = [];
+    }
+
+    protected function generateFile()
+    {
+        return [
+            'name'     => uniqid('', false) . '.txt',
+            'type'     => 'text/plain',
+            'tmp_name' => sys_get_temp_dir() . '/phpYfWUiw',
+            'error'    => 0,
+            'size'     => rand(3, 40),
+        ];
+    }
+
+    protected function generateFileContent()
+    {
+        return md5(uniqid('', false));
     }
 
 }

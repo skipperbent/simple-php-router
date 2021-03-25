@@ -92,22 +92,29 @@ class InputHandler
         /* Parse get requests */
         if (\count($_FILES) !== 0) {
             $this->originalFile = $_FILES;
-            $this->file = $this->parseFiles();
+            $this->file = $this->parseFiles($this->originalFile);
         }
     }
 
     /**
      * @return array
      */
-    public function parseFiles(): array
+    public function parseFiles(array $files, $parentKey = null): array
     {
         $list = [];
 
-        foreach ($_FILES as $key => $value) {
+        foreach ($files as $key => $value) {
+
+            // Parse multi dept file array
+            if(isset($value['name']) === false && \is_array($value) === true) {
+                $list[$key] = $this->parseFiles($value, $key);
+                continue;
+            }
 
             // Handle array input
             if (\is_array($value['name']) === false) {
-                $values['index'] = $key;
+                $values['index'] = $parentKey ?? $key;
+
                 try {
                     $list[$key] = InputFile::createFromArray($values + $value);
                 } catch (InvalidArgumentException $e) {
