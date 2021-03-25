@@ -130,7 +130,7 @@ class Request
         $this->setUrl(new Url($this->getFirstHeader(['unencoded-url', 'request-uri',])));
 
         $contentType = strtolower($this->getHeader('content-type'));
-        if(strpos($contentType, 'application/x-www-form-urlencoded') !== false){
+        if(strpos($contentType, 'application/json') !== false){
             $this->setContentType(self::CONTENT_TYPE_JSON);
         }else if(strpos($contentType, 'multipart/form-data') !== false){
             $this->setContentType(self::CONTENT_TYPE_FORM_DATA);
