@@ -951,7 +951,8 @@ class Router
     /**
      * @return bool
      */
-    public function isValidationErrors(): bool{
+    public function isValidationErrors(): bool
+    {
         return $this->validationErrors;
     }
 

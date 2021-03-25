@@ -227,7 +227,8 @@ class InputHandler
      * @param callable|null $validator
      * @return bool
      */
-    public function requireParameter(string $index, callable $validator = null): bool{
+    public function requireParameter(string $index, callable $validator = null): bool
+    {
         if($this->exists($index)){
             if($validator !== null){
                 if(!$validator($this->find($index))){
@@ -251,7 +252,8 @@ class InputHandler
      * @param array $parameters - array<string> or array<string, callable>
      * @return array|true
      */
-    public function requireParameters(array $parameters = array()){
+    public function requireParameters(array $parameters = array())
+    {
         $errors = array();
         foreach($parameters as $index => $validator){
             if(is_numeric($index)){
