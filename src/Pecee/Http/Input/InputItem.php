@@ -8,6 +8,8 @@ class InputItem implements IInputItem, \IteratorAggregate
     public $name;
     public $value;
 
+    private $validator = null;
+
     public function __construct(string $index, $value = null)
     {
         $this->index = $index;
@@ -70,6 +72,17 @@ class InputItem implements IInputItem, \IteratorAggregate
         $this->value = $value;
 
         return $this;
+    }
+
+    /**
+     * @param bool $forceNew
+     * @return InputValidator
+     */
+    public function validate(bool $forceNew = false): InputValidator
+    {
+        if($this->validator === null || $forceNew)
+            $this->validator = new InputValidator($this);
+        return $this->validator;
     }
 
     public function __toString(): string

@@ -87,6 +87,13 @@ class Router
     protected $debugEnabled = false;
 
     /**
+     * <p>Enable or disable throwing of errors for validation.</p>
+     * <p>Errors can be handled in an ExceptionHandler.</p>
+     * @var bool $validationErrors
+     */
+    protected $validationErrors = false;
+
+    /**
      * The start time used when debugging is enabled
      * @var float
      */
@@ -926,6 +933,26 @@ class Router
     public function getDebugLog(): array
     {
         return $this->debugList;
+    }
+
+    /**
+     * <p>Enable or disable throwing of errors for validation.</p>
+     * <p>Errors can be handled in an ExceptionHandler.</p>
+     * @param bool $validationErrors
+     * @return static
+     */
+    public function setValidationErrors(bool $validationErrors): self
+    {
+        $this->validationErrors = $validationErrors;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValidationErrors(): bool{
+        return $this->validationErrors;
     }
 
     /**
