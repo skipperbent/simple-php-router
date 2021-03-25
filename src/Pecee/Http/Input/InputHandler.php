@@ -86,20 +86,19 @@ class InputHandler
 
         /* Parse body */
         if (in_array($this->request->getMethod(), Request::$requestTypesPost, false)) {
-            if(strpos($this->request->getContentType(), 'application/json') !== false){
-                $body = json_decode($this->originalBody, true);
-                if ($body !== false) {
-                    $this->data = $this->parseInputItem($body);
-                }
-            }else{
-                //$_POST wraps data from application/x-www-form-urlencoded and multipart/form-data
-                //php://input -> https://www.php.net/manual/en/wrappers.php.php#wrappers.php.input
-                //$_POST -> https://stackoverflow.com/questions/8893574/php-php-input-vs-post#answer-8893792
-                /* Parse post requests */
-                if (\count($_POST) !== 0) {
-                    $this->originalPost = $_POST;
-                    $this->post = $this->parseInputItem($this->originalPost);
-                }
+            switch($this->request->getContentType()){
+                case Request::CONTENT_TYPE_JSON:
+                    $body = json_decode($this->originalBody, true);
+                    if ($body !== false) {
+                        $this->data = $this->parseInputItem($body);
+                    }
+                    break;
+                case Request::CONTENT_TYPE_X_FORM_ENCODED|Request::CONTENT_TYPE_FORM_DATA:
+                    if (\count($_POST) !== 0) {
+                        $this->originalPost = $_POST;
+                        $this->data = $this->parseInputItem($this->originalPost);
+                    }
+                    break;
             }
         }
 
@@ -231,24 +230,27 @@ class InputHandler
      *
      * @param string $index
      * @param string ...$methods
-     * @return InputItem|null|array
+     * @return InputItem
      */
     public function find(string $index, ...$methods){
-        $element = null;
+        $element = new InputItem($index, null);
 
         if (\count($methods) === 0 || \in_array(Request::REQUEST_TYPE_GET, $methods, true) === true) {
             $element = $this->get($index);
         }
 
-        if (($element === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array(Request::REQUEST_TYPE_POST, $methods, true) === true)) {
+        if (($element->getValue() === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array(Request::REQUEST_TYPE_POST, $methods, true) === true)) {
             $element = $this->post($index);
         }
 
-        if (($element === null && count($methods) === 0) || (count($methods) !== 0 && in_array('body', $methods, true))) {
-            $element = $this->body($index);
+        if (($element->getValue() === null && count($methods) === 0) ||
+            (count($methods) !== 0 && in_array(Request::REQUEST_TYPE_PATCH, $methods, true)) ||
+            (count($methods) !== 0 && in_array('body', $methods, true)) ||
+        ) {
+            $element = $this->data($index);
         }
 
-        if (($element === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array('file', $methods, true) === true)) {
+        if (($element->getValue() === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array('file', $methods, true) === true)) {
             $element = $this->file($index);
         }
 
@@ -295,9 +297,7 @@ class InputHandler
      */
     public function post(string $index, $defaultValue = null)
     {
-        if(!isset($this->post[$index]))
-            return new InputItem($index, $defaultValue);
-        return $this->post[$index];
+        return $this->data($index, $defaultValue);
     }
 
     /**
@@ -307,11 +307,11 @@ class InputHandler
      * @param mixed $defaultValue
      * @return InputItem
      */
-    public function body(string $index, $defaultValue = null)
+    public function data(string $index, $defaultValue = null)
     {
-        if(!isset($this->body[$index]))
+        if(!isset($this->data[$index]))
             return new InputItem($index, $defaultValue);
-        return $this->body[$index];
+        return $this->data[$index];
     }
 
     /**
@@ -332,7 +332,7 @@ class InputHandler
      *
      * @param string $index
      * @param mixed $defaultValue
-     * @return mixed
+     * @return InputItem
      */
     public function get(string $index, $defaultValue = null)
     {
@@ -342,20 +342,13 @@ class InputHandler
     }
 
     /**
-     * @return string
-     */
-    public function getBodyPlain(): string{
-        return $this->bodyPlain;
-    }
-
-    /**
      * Get all get/post items
      * @param array $filter Only take items in filter
-     * @return array
+     * @return InputItem[]
      */
     public function all(array $filter = []): array
     {
-        $output = $this->originalParams + $this->originalPost + $this->originalFile;
+        $output = $this->data + $this->get + $this->file;
 
         $output = (\count($filter) > 0) ? array_intersect_key($output, array_flip($filter)) : $output;
 
@@ -380,25 +373,14 @@ class InputHandler
     }
 
     /**
-     * Add POST parameter
+     * Add data parameter
      *
      * @param string $key
      * @param InputItem $item
      */
-    public function addPost(string $key, InputItem $item): void
+    public function addData(string $key, InputItem $item): void
     {
-        $this->post[$key] = $item;
-    }
-
-    /**
-     * Add Body parameter
-     *
-     * @param string $key
-     * @param InputItem $item
-     */
-    public function addBody(string $key, InputItem $item): void
-    {
-        $this->body[$key] = $item;
+        $this->data[$key] = $item;
     }
 
     /**
@@ -431,6 +413,13 @@ class InputHandler
         $this->originalPost = $post;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOriginalBody(): string{
+        return $this->originalBody;
     }
 
     /**
