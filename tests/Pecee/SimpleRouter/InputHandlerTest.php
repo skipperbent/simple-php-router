@@ -1,6 +1,6 @@
 <?php
 
-use Pecee\Http\Input\InputItem;
+use Pecee\Http\Input\InputFile;
 
 require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
@@ -22,6 +22,13 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         'Canon',
     ];
 
+    protected $sodas = [
+        0 => 'Pepsi',
+        1 => 'Coca Cola',
+        2 => 'Harboe',
+        3 => 'Mountain Dew',
+    ];
+
     protected $day = 'monday';
 
     public function testPost()
@@ -31,6 +38,7 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $_POST = [
             'names' => $this->names,
             'day' => $this->day,
+            'sodas' => $this->sodas,
         ];
 
         $router = TestRouter::router();
@@ -39,14 +47,12 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
 
         $handler = TestRouter::request()->getInputHandler();
 
-        $this->assertEquals($this->names, $handler->post('names'));
-
         $this->assertEquals($this->names, $handler->value('names'));
         $this->assertEquals($this->names, $handler->all(['names'])['names']);
         $this->assertEquals($this->day, $handler->value('day'));
-        $this->assertInstanceOf(InputItem::class, $handler->findItem('day'));
-        $this->assertInstanceOf(InputItem::class, $handler->post('day', null, true));
-        $this->assertInstanceOf(InputItem::class, $handler->findItem('day', 'post'));
+        $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $handler->find('day'));
+        $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $handler->post('day'));
+        $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $handler->find('day', 'post'));
 
         // Check non-existing and wrong request-type
         $this->assertCount(1, $handler->all(['non-existing']));
@@ -55,15 +61,16 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($handler->find('non-existing'));
         $this->assertNull($handler->value('names', null, 'get'));
         $this->assertNull($handler->find('names', 'get'));
+        $this->assertEquals($this->sodas, $handler->value('sodas'));
 
-        $objects = $handler->findItem('names');
+        $objects = $handler->find('names');
 
-        //TODO add in PHPUnit 8 $this->assertIsArray($objects);
+        $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $objects);
         $this->assertCount(4, $objects);
 
-        /* @var $object InputItem */
+        /* @var $object \Pecee\Http\Input\InputItem */
         foreach($objects as $i => $object) {
-            $this->assertInstanceOf(InputItem::class, $object);
+            $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $object);
             $this->assertEquals($this->names[$i], $object->getValue());
         }
 
@@ -89,8 +96,8 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($this->names, $handler->value('names'));
         $this->assertEquals($this->names, $handler->all(['names'])['names']);
         $this->assertEquals($this->day, $handler->value('day'));
-        $this->assertInstanceOf(InputItem::class, $handler->findItem('day'));
-        $this->assertInstanceOf(InputItem::class, $handler->get('day', null, true));
+        $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $handler->find('day'));
+        $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $handler->get('day'));
 
         // Check non-existing and wrong request-type
         $this->assertCount(1, $handler->all(['non-existing']));
@@ -100,14 +107,14 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($handler->value('names', null, 'post'));
         $this->assertNull($handler->find('names', 'post'));
 
-        $objects = $handler->findItem('names');
+        $objects = $handler->find('names');
 
-        //TODO add in PHPUnit 8 $this->assertIsArray($objects);
+        $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $objects);
         $this->assertCount(4, $objects);
 
-        /* @var $object InputItem */
+        /* @var $object \Pecee\Http\Input\InputItem */
         foreach($objects as $i => $object) {
-            $this->assertInstanceOf(InputItem::class, $object);
+            $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $object);
             $this->assertEquals($this->names[$i], $object->getValue());
         }
 
@@ -117,14 +124,83 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
 
     public function testFile()
     {
-        // TODO: implement test-file
-        $this->assertEquals(true, true);
+        global $_FILES;
+
+        $testFile = $this->generateFile();
+
+        $_FILES = [
+            'test_input' => $testFile,
+        ];
+
+        $router = TestRouter::router();
+        $router->reset();
+        $router->getRequest()->setMethod('post');
+        $inputHandler = TestRouter::request()->getInputHandler();
+
+        $testFileContent = md5(uniqid('test', false));
+
+        $file = $inputHandler->file('test_input');
+
+        $this->assertInstanceOf(InputFile::class, $file);
+        $this->assertEquals($testFile['name'], $file->getFilename());
+        $this->assertEquals($testFile['type'], $file->getType());
+        $this->assertEquals($testFile['tmp_name'], $file->getTmpName());
+        $this->assertEquals($testFile['error'], $file->getError());
+        $this->assertEquals($testFile['size'], $file->getSize());
+        $this->assertEquals(pathinfo($testFile['name'], PATHINFO_EXTENSION), $file->getExtension());
+
+        file_put_contents($testFile['tmp_name'], $testFileContent);
+        $this->assertEquals($testFileContent, $file->getContents());
+
+        // Cleanup
+        unlink($testFile['tmp_name']);
     }
 
-    public function testFiles()
+    public function testFilesArray()
     {
-        // TODO: implement test-files
-        $this->assertEquals(true, true);
+        global $_FILES;
+
+        $testFiles = [
+            $file = $this->generateFile(),
+            $file = $this->generateFile(),
+            $file = $this->generateFile(),
+            $file = $this->generateFile(),
+            $file = $this->generateFile(),
+        ];
+
+        $_FILES = [
+            'my_files' => $testFiles,
+        ];
+
+        $router = TestRouter::router();
+        $router->reset();
+        $router->getRequest()->setMethod('post');
+        $inputHandler = TestRouter::request()->getInputHandler();
+
+        $files = $inputHandler->file('my_files');
+        $this->assertCount(5, $files);
+
+        /* @var $file InputFile */
+        foreach ($files as $key => $file) {
+
+            $testFileContent = md5(uniqid('test', false));
+
+            $this->assertInstanceOf(InputFile::class, $file);
+            $this->assertEquals($testFiles[$key]['name'], $file->getFilename());
+            $this->assertEquals($testFiles[$key]['type'], $file->getType());
+            $this->assertEquals($testFiles[$key]['tmp_name'], $file->getTmpName());
+            $this->assertEquals($testFiles[$key]['error'], $file->getError());
+            $this->assertEquals($testFiles[$key]['size'], $file->getSize());
+            $this->assertEquals(pathinfo($testFiles[$key]['name'], PATHINFO_EXTENSION), $file->getExtension());
+
+            file_put_contents($testFiles[$key]['tmp_name'], $testFileContent);
+
+            $this->assertEquals($testFileContent, $file->getContents());
+
+            // Cleanup
+            unlink($testFiles[$key]['tmp_name']);
+        }
+
     }
 
     public function testAll()
@@ -175,6 +251,22 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         // Reset
         $_GET = [];
         $_POST = [];
+    }
+
+    protected function generateFile()
+    {
+        return [
+            'name'     => uniqid('', false) . '.txt',
+            'type'     => 'text/plain',
+            'tmp_name' => sys_get_temp_dir() . '/phpYfWUiw',
+            'error'    => 0,
+            'size'     => rand(3, 40),
+        ];
+    }
+
+    protected function generateFileContent()
+    {
+        return md5(uniqid('', false));
     }
 
 }

@@ -683,14 +683,16 @@ class Router
                 ->setParams($getParams);
         }
 
-        /* We try to find a match on the given name */
-        $route = $this->findRoute($name);
+        if($name !== null) {
+            /* We try to find a match on the given name */
+            $route = $this->findRoute($name);
 
-        if ($route !== null) {
-            return $this->request
-                ->getUrlCopy()
-                ->setPath($route->findUrl($route->getMethod(), $parameters, $name))
-                ->setParams($getParams);
+            if ($route !== null) {
+                return $this->request
+                    ->getUrlCopy()
+                    ->setPath($route->findUrl($route->getMethod(), $parameters, $name))
+                    ->setParams($getParams);
+            }
         }
 
         /* Using @ is most definitely a controller@method or alias@method */

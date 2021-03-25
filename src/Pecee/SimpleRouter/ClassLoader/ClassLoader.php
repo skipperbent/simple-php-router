@@ -11,7 +11,7 @@ class ClassLoader implements IClassLoader
      *
      * @param string $class
      * @return object
-     * @throws NotFoundHttpException
+     * @throws ClassNotFoundHttpException
      */
     public function loadClass(string $class)
     {

@@ -123,7 +123,9 @@ class Request
         $this->setHost($this->getHeader('http-host'));
 
         // Check if special IIS header exist, otherwise use default.
-        $this->setUrl(new Url($this->getHeader('unencoded-url', $this->getHeader('request-uri'))));
+
+
+        $this->setUrl(new Url($this->getFirstHeader(['unencoded-url', 'request-uri',])));
 
         $this->contentType = strtolower($this->getHeader('content-type'));
         $this->method = strtolower($this->getHeader('request-method'));
@@ -220,13 +222,11 @@ class Request
      */
     public function getIp(): ?string
     {
-        return $this->getHeader(
+        return $this->getFirstHeader([
             'http-cf-connecting-ip',
-            $this->getHeader(
-                'http-x-forwarded-for',
-                $this->getHeader('remote-addr')
-            )
-        );
+            'http-x-forwarded-for',
+            'remote-addr',
+        ]);
     }
 
     /**
@@ -286,6 +286,25 @@ class Request
     }
 
     /**
+     * Will try to find first header from list of headers.
+     *
+     * @param array $headers
+     * @param null $defaultValue
+     * @return mixed|null
+     */
+    public function getFirstHeader(array $headers, $defaultValue = null)
+    {
+        foreach($headers as $header) {
+            $header = $this->getHeader($header);
+            if($header !== null) {
+                return $header;
+            }
+        }
+
+        return $defaultValue;
+    }
+
+    /**
      * Get input class
      * @return InputHandler
      */
@@ -301,7 +320,7 @@ class Request
      *
      * @return bool
      */
-    public function isFormatAccepted($format): bool
+    public function isFormatAccepted(string $format): bool
     {
         return ($this->getHeader('http-accept') !== null && stripos($this->getHeader('http-accept'), $format) !== false);
     }
@@ -441,7 +460,6 @@ class Request
     public function setLoadedRoutes(array $routes): self
     {
         $this->loadedRoutes = $routes;
-
         return $this;
     }
 
@@ -454,7 +472,6 @@ class Request
     public function addLoadedRoute(ILoadableRoute $route): self
     {
         $this->loadedRoutes[] = $route;
-
         return $this;
     }
 
@@ -477,7 +494,6 @@ class Request
     public function setHasPendingRewrite(bool $boolean): self
     {
         $this->hasPendingRewrite = $boolean;
-
         return $this;
     }
 
