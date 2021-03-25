@@ -1,4 +1,4 @@
 composer.lock
 vendor/
-tests/tmp/*
 .idea/
+.phpunit.result.cache

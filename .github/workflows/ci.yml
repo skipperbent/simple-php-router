@@ -1,0 +1,59 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build-test:
+    runs-on: ${{ matrix.os }}
+
+    env:
+      PHP_EXTENSIONS: json
+      PHP_INI_VALUES: assert.exception=1, zend.assertions=1
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+        php-version:
+          - 7.1
+          - 7.4
+        phpunit-version:
+          - 7.5.20
+        dependencies:
+          - lowest
+          - highest
+    name: PHPUnit Tests
+    steps:
+      - name: Configure git to avoid issues with line endings
+        if: matrix.os == 'windows-latest'
+        run: git config --global core.autocrlf false
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: composer:v5, phpunit:${{ matrix.phpunit-versions }}
+          coverage: xdebug
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          ini-values: ${{ env.PHP_INI_VALUES }}
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: php${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            php${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-
+      - name: Install lowest dependencies with composer
+        if: matrix.dependencies == 'lowest'
+        run: composer update --no-ansi --no-interaction --no-progress --prefer-lowest
+      - name: Install highest dependencies with composer
+        if: matrix.dependencies == 'highest'
+        run: composer update --no-ansi --no-interaction --no-progress
+      - name: Run tests with phpunit
+        run: composer test

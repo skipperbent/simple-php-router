@@ -19,6 +19,10 @@ class Request
     public const REQUEST_TYPE_DELETE = 'delete';
     public const REQUEST_TYPE_HEAD = 'head';
 
+    public const CONTENT_TYPE_JSON = 'application/json';
+    public const CONTENT_TYPE_FORM_DATA = 'multipart/form-data';
+    public const CONTENT_TYPE_X_FORM_ENCODED = 'application/x-www-form-urlencoded';
+
     /**
      * All request-types
      * @var string[]
@@ -56,6 +60,12 @@ class Request
      * @var array
      */
     protected $headers = [];
+
+    /**
+     * Request ContentType
+     * @var string
+     */
+    protected $contentType;
 
     /**
      * Request host
@@ -117,7 +127,9 @@ class Request
         $this->setHost($this->getHeader('http-host'));
 
         // Check if special IIS header exist, otherwise use default.
-        $this->setUrl(new Url($this->getHeader('unencoded-url', $this->getHeader('request-uri'))));
+        $this->setUrl(new Url($this->getFirstHeader(['unencoded-url', 'request-uri',])));
+
+        $this->setContentType(strtolower($this->getHeader('content-type')));
 
         $this->method = strtolower($this->getHeader('request-method'));
         $this->inputHandler = new InputHandler($this);
@@ -283,6 +295,50 @@ class Request
     }
 
     /**
+     * Will try to find first header from list of headers.
+     *
+     * @param array $headers
+     * @param null $defaultValue
+     * @return mixed|null
+     */
+    public function getFirstHeader(array $headers, $defaultValue = null)
+    {
+        foreach($headers as $header) {
+            $header = $this->getHeader($header);
+            if($header !== null) {
+                return $header;
+            }
+        }
+
+        return $defaultValue;
+    }
+
+    /**
+     * Get request content-type
+     * @return string|null
+     */
+    public function getContentType(): ?string
+    {
+        return $this->contentType;
+    }
+
+    /**
+     * Set request content-type
+     * @param string $contentType
+     * @return $this
+     */
+    protected function setContentType(string $contentType): self
+    {
+        if(strpos($contentType, ';') > 0) {
+            $this->contentType = substr($contentType, 0, strpos($contentType, ';'));
+        } else {
+            $this->contentType = $contentType;
+        }
+
+        return $this;
+    }
+
+    /**
      * Get input class
      * @return InputHandler
      */
@@ -298,7 +354,7 @@ class Request
      *
      * @return bool
      */
-    public function isFormatAccepted($format): bool
+    public function isFormatAccepted(string $format): bool
     {
         return ($this->getHeader('http-accept') !== null && stripos($this->getHeader('http-accept'), $format) !== false);
     }
@@ -438,7 +494,6 @@ class Request
     public function setLoadedRoutes(array $routes): self
     {
         $this->loadedRoutes = $routes;
-
         return $this;
     }
 
@@ -451,7 +506,6 @@ class Request
     public function addLoadedRoute(ILoadableRoute $route): self
     {
         $this->loadedRoutes[] = $route;
-
         return $this;
     }
 
@@ -474,7 +528,6 @@ class Request
     public function setHasPendingRewrite(bool $boolean): self
     {
         $this->hasPendingRewrite = $boolean;
-
         return $this;
     }
 

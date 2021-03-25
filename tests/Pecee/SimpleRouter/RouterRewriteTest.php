@@ -6,7 +6,7 @@ require_once 'Dummy/Handler/ExceptionHandlerSecond.php';
 require_once 'Dummy/Handler/ExceptionHandlerThird.php';
 require_once 'Dummy/Middleware/RewriteMiddleware.php';
 
-class RouteRewriteTest extends \PHPUnit\Framework\TestCase
+class RouterRewriteTest extends \PHPUnit\Framework\TestCase
 {
 
     /**

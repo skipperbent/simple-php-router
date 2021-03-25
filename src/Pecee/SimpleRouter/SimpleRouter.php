@@ -10,7 +10,6 @@
 
 namespace Pecee\SimpleRouter;
 
-use DI\Container;
 use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
@@ -59,6 +58,11 @@ class SimpleRouter
      */
     public static function start(): void
     {
+        // Set default namespaces
+        foreach (static::router()->getRoutes() as $route) {
+            static::addDefaultNamespace($route);
+        }
+
         echo static::router()->start();
     }
 
@@ -307,8 +311,8 @@ class SimpleRouter
      * @param string $url
      * @param string|array|\Closure $callback
      * @param array|null $settings
-     * @see SimpleRouter::form
      * @return RouteUrl
+     * @see SimpleRouter::form
      */
     public static function basic(string $url, $callback, array $settings = null): IRoute
     {
@@ -322,14 +326,14 @@ class SimpleRouter
      * @param string $url
      * @param string|array|\Closure $callback
      * @param array|null $settings
-     * @see SimpleRouter::form
      * @return RouteUrl
+     * @see SimpleRouter::form
      */
     public static function form(string $url, $callback, array $settings = null): IRoute
     {
         return static::match([
             Request::REQUEST_TYPE_GET,
-            Request::REQUEST_TYPE_POST
+            Request::REQUEST_TYPE_POST,
         ], $url, $callback, $settings);
     }
 
@@ -346,7 +350,6 @@ class SimpleRouter
     {
         $route = new RouteUrl($url, $callback);
         $route->setRequestMethods($requestMethods);
-        $route = static::addDefaultNamespace($route);
 
         if ($settings !== null) {
             $route->setSettings($settings);
@@ -366,7 +369,6 @@ class SimpleRouter
     public static function all(string $url, $callback, array $settings = null)
     {
         $route = new RouteUrl($url, $callback);
-        $route = static::addDefaultNamespace($route);
 
         if ($settings !== null) {
             $route->setSettings($settings);
@@ -386,7 +388,6 @@ class SimpleRouter
     public static function controller(string $url, string $controller, array $settings = null)
     {
         $route = new RouteController($url, $controller);
-        $route = static::addDefaultNamespace($route);
 
         if ($settings !== null) {
             $route->setSettings($settings);
@@ -406,7 +407,6 @@ class SimpleRouter
     public static function resource(string $url, string $controller, array $settings = null)
     {
         $route = new RouteResource($url, $controller);
-        $route = static::addDefaultNamespace($route);
 
         if ($settings !== null) {
             $route->setSettings($settings);
@@ -511,39 +511,43 @@ class SimpleRouter
     {
         if (static::$defaultNamespace !== null) {
 
-            $callback = $route->getCallback();
+            $ns = static::$defaultNamespace;
+            $namespace = $route->getNamespace();
 
-            /* Only add default namespace on relative callbacks */
-            if ($callback === null || (\is_string($callback) === true && $callback[0] !== '\\')) {
-
-                $namespace = static::$defaultNamespace;
-
-                $currentNamespace = $route->getNamespace();
-
-                if ($currentNamespace !== null) {
-                    $namespace .= '\\' . $currentNamespace;
+            if ($namespace !== null) {
+                // Don't overwrite namespaces that starts with \
+                if ($namespace[0] !== '\\') {
+                    $ns .= '\\' . $namespace;
+                } else {
+                    $ns = $namespace;
                 }
-
-                $route->setDefaultNamespace($namespace);
-
             }
+
+            $route->setNamespace($ns);
         }
 
         return $route;
     }
 
     /**
-     * Enable or disable dependency injection
+     * Changes the rendering behavior of the router.
+     * When enabled the router will render all routes that matches.
+     * When disabled the router will stop rendering at the first route that matches.
      *
-     * @param Container $container
-     * @return IClassLoader
+     * @param bool $bool
      */
-    public static function enableDependencyInjection(Container $container): IClassLoader
+    public static function enableMultiRouteRendering(bool $bool): void
     {
-        return static::router()
-            ->getClassLoader()
-            ->useDependencyInjection(true)
-            ->setContainer($container);
+        static::router()->setRenderMultipleRoutes($bool);
+    }
+
+    /**
+     * Set custom class-loader class used.
+     * @param IClassLoader $classLoader
+     */
+    public static function setCustomClassLoader(IClassLoader $classLoader): void
+    {
+        static::router()->setClassLoader($classLoader);
     }
 
     /**

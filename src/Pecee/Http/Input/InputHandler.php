@@ -92,22 +92,29 @@ class InputHandler
         /* Parse get requests */
         if (\count($_FILES) !== 0) {
             $this->originalFile = $_FILES;
-            $this->file = $this->parseFiles();
+            $this->file = $this->parseFiles($this->originalFile);
         }
     }
 
     /**
      * @return array
      */
-    public function parseFiles(): array
+    public function parseFiles(array $files, $parentKey = null): array
     {
         $list = [];
 
-        foreach ($_FILES as $key => $value) {
+        foreach ($files as $key => $value) {
+
+            // Parse multi dept file array
+            if(isset($value['name']) === false && \is_array($value) === true) {
+                $list[$key] = $this->parseFiles($value, $key);
+                continue;
+            }
 
             // Handle array input
             if (\is_array($value['name']) === false) {
-                $values['index'] = $key;
+                $values['index'] = $parentKey ?? $key;
+
                 try {
                     $list[$key] = InputFile::createFromArray($values + $value);
                 } catch (InvalidArgumentException $e) {
@@ -237,11 +244,27 @@ class InputHandler
         return $element;
     }
 
+    protected function getValueFromArray(array $array): array
+    {
+        $output = [];
+        /* @var $item InputItem */
+        foreach ($array as $key => $item) {
+
+            if ($item instanceof IInputItem) {
+                $item = $item->getValue();
+            }
+
+            $output[$key] = \is_array($item) ? $this->getValueFromArray($item) : $item;
+        }
+
+        return $output;
+    }
+
     /**
      * Get input element value matching index
      *
      * @param string $index
-     * @param string|object|null $defaultValue
+     * @param string|mixed|null $defaultValue
      * @param array ...$methods
      * @return string|array
      */
@@ -249,18 +272,18 @@ class InputHandler
     {
         $input = $this->find($index, ...$methods);
 
+        if ($input instanceof IInputItem) {
+            $input = $input->getValue();
+        }
+
         /* Handle collection */
         if (\is_array($input) === true) {
-            $output = [];
-            /* @var $item InputItem */
-            foreach ($input as $item) {
-                $output[] = \is_array($item) ? $item : $item->getValue();
-            }
+            $output = $this->getValueFromArray($input);
 
             return (\count($output) === 0) ? $defaultValue : $output;
         }
 
-        return ($input === null || (\is_string($input->getValue()) && trim($input->getValue()) === '')) ? $defaultValue : $input->getValue();
+        return ($input === null || (\is_string($input) && trim($input) === '')) ? $defaultValue : $input;
     }
 
     /**
@@ -319,7 +342,7 @@ class InputHandler
     public function all(array $filter = []): array
     {
         $output = $this->originalParams + $this->originalPost + $this->originalFile;
-        $output = (\count($filter) > 0) ? array_intersect_key($output, array_flip($filter)) : $output;
+        $output = (\count($filter) > 0) ? \array_intersect_key($output, \array_flip($filter)) : $output;
 
         foreach ($filter as $filterKey) {
             if (array_key_exists($filterKey, $output) === false) {
@@ -380,6 +403,7 @@ class InputHandler
     public function setOriginalPost(array $post): self
     {
         $this->originalPost = $post;
+
         return $this;
     }
 
@@ -400,6 +424,7 @@ class InputHandler
     public function setOriginalParams(array $params): self
     {
         $this->originalParams = $params;
+
         return $this;
     }
 
@@ -420,6 +445,7 @@ class InputHandler
     public function setOriginalFile(array $file): self
     {
         $this->originalFile = $file;
+
         return $this;
     }
 
