@@ -123,25 +123,24 @@ class Response
 
     /**
      * Json encode and print successful response.
-     * @param array|JsonSerializable $value
+     * @param array|JsonSerializable $data
      * @param int $code - response code
      * @param ?int $options JSON options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_PRESERVE_ZERO_FRACTION, JSON_UNESCAPED_UNICODE, JSON_PARTIAL_OUTPUT_ON_ERROR.
      * @param int $dept JSON debt.
      * @throws InvalidArgumentException
      * @throws JsonException
      */
-    public function success($value, $code = 200, ?int $options = null, int $dept = 512): void
+    public function apiSuccess($data = array(), $code = 200, ?int $options = null, int $dept = 512): void
     {
         $this->setUpJsonResponse(array(
             'success' => true,
             'code' => $code,
-            'data' => $value
-        ), $value, $options, $dept);
+            'data' => $data
+        ), $data, $options, $dept);
     }
 
     /**
      * Json encode and print error response.
-     * @param array|JsonSerializable $value
      * @param string $message - error message
      * @param int $code - response code
      * @param array $errors - a list of errors
@@ -149,15 +148,14 @@ class Response
      * @param int $dept JSON debt.
      * @throws JsonException
      */
-    public function error($value, string $message, $code = 400, array $errors = array(), ?int $options = null, int $dept = 512): void
+    public function apiError(string $message, $code = 400, array $errors = array(), ?int $options = null, int $dept = 512): void
     {
         $this->setUpJsonResponse(array(
             'success' => false,
             'message' => $message,
             'code' => $code,
-            'errors' => $errors,
-            'data' => $value
-        ), $value, $options, $dept);
+            'errors' => $errors
+        ), array(), $options, $dept);
     }
 
     /**
