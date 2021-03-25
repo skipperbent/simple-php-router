@@ -215,13 +215,13 @@ class Request
      * Get id address
      * If $safe is false, this function will detect Proxys. But the user can edit this header to whatever he wants!
      * https://stackoverflow.com/questions/3003145/how-to-get-the-client-ip-address-in-php#comment-25086804
-     * @param bool $safe
+     * @param bool $safeMode When enabled, only safe non-spoofable headers will be returned. Note this can cause issues when using proxy.
      * @return string|null
      */
-    public function getIp(bool $safe = false): ?string
+    public function getIp(bool $safeMode = false): ?string
     {
         $headers = ['remote-addr'];
-        if($safe === false) {
+        if($safeMode === false) {
             $headers = array_merge($headers, [
                 'http-cf-connecting-ip',
                 'http-client-ip',
