@@ -107,6 +107,42 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('it, system', $response);
     }
 
+    public function testFixedDomain()
+    {
+        $result = false;
+        TestRouter::request()->setHost('admin.world.com');
+
+        TestRouter::group(['domain' => 'admin.world.com'], function () use (&$result) {
+            TestRouter::get('/test', function ($subdomain = null) use (&$result) {
+                $result = true;
+            });
+        });
+
+        TestRouter::debug('/test', 'get');
+
+        $this->assertTrue($result);
+    }
+
+    public function testFixedNotAllowedDomain()
+    {
+        $result = false;
+        TestRouter::request()->setHost('other.world.com');
+
+        TestRouter::group(['domain' => 'admin.world.com'], function () use (&$result) {
+            TestRouter::get('/', function ($subdomain = null) use (&$result) {
+                $result = true;
+            });
+        });
+
+        try {
+            TestRouter::debug('/', 'get');
+        } catch(\Exception $e) {
+
+        }
+
+        $this->assertFalse($result);
+    }
+
     public function testDomainAllowedRoute()
     {
         $result = false;
