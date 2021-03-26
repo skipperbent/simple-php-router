@@ -49,6 +49,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 		- [Subdomain-routing](#subdomain-routing)
 		- [Route prefixes](#route-prefixes)
 	- [Partial groups](#partial-groups)
+	  - [Strict mode](#strict-mode)
 	- [Form Method Spoofing](#form-method-spoofing)
 	- [Accessing The Current Route](#accessing-the-current-route)
 	- [Other examples](#other-examples)
@@ -666,17 +667,29 @@ This can be extremely useful in situations, where you only want special routes t
 **Example:**
 
 ```php
-SimpleRouter::partialGroup('/admin/{applicationId}', function ($applicationId) {
+SimpleRouter::partialGroup('/lang/{language}', function ($language) {
 
-    SimpleRouter::get('/', function($applicationId) {
+    SimpleRouter::get('/', function($language) {
 
-        // Matches The "/admin/applicationId" URL
+        // Matches The "/lang/da" URL
 
     });
 
 });
 ```
 
+### Strict mode
+
+By default `partialGroup` will render once a part of the url has matched. If you want the partial-group only to render once the entire url matches, 
+you can enable `strictMode` by setting the `strict` option.
+
+```php
+SimpleRouter::partialGroup('/page', function () {
+
+	// Do stuff...
+
+}, ['strict' => true]);
+```
 
 ## Form Method Spoofing
 

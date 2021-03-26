@@ -70,4 +70,36 @@ class RouterPartialGroupTest extends \PHPUnit\Framework\TestCase
 
     }
 
+    public function testStrictNonMatch() {
+
+        $result = false;
+
+        TestRouter::partialGroup('/test/', function () use (&$result) {
+            $result = true;
+
+            TestRouter::get('/', 'DummyController@method1');
+        }, ['strict' => true]);
+
+        TestRouter::debug('/test/hello', 'get');
+
+        $this->assertFalse($result);
+    }
+
+    public function testStrictMatch() {
+
+        $result = false;
+
+        TestRouter::router()->reset();
+
+        TestRouter::partialGroup('/test', function () use (&$result) {
+            $result = true;
+
+            TestRouter::get('/', 'DummyController@method1');
+        }, ['strict' => true]);
+
+        TestRouter::debug('/test', 'get');
+
+        $this->assertTrue($result);
+    }
+
 }

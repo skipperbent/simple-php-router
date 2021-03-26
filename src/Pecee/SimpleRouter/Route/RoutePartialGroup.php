@@ -7,6 +7,8 @@ use Pecee\Http\Request;
 class RoutePartialGroup extends RouteGroup implements IPartialGroupRoute
 {
 
+    protected $strictMatch = false;
+
     /**
      * RoutePartialGroup constructor.
      */
@@ -39,9 +41,49 @@ class RoutePartialGroup extends RouteGroup implements IPartialGroupRoute
 
             /* Set the parameters */
             $this->setParameters($parameters);
+
+            if($this->strictMatch === true) {
+                return (trim($this->prefix, '/') === trim($url, '/'));
+            }
         }
 
         return $this->matchDomain($request);
+    }
+
+    /**
+     * Enable or disable strict matching
+     * @param bool $enabled
+     * @return static $this
+     */
+    public function setStrictMatch(bool $enabled): self
+    {
+        $this->strictMatch = $enabled;
+        return $this;
+    }
+
+    /**
+     * Return true if strict-match is enabled
+     * @return bool
+     */
+    public function getStrictMatch(): bool
+    {
+        return $this->strictMatch;
+    }
+
+    /**
+     * Merge with information from another route.
+     *
+     * @param array $values
+     * @param bool $merge
+     * @return static
+     */
+    public function setSettings(array $values, bool $merge = false): IRoute
+    {
+        if (isset($values['strict']) === true) {
+            $this->setStrictMatch($values['strict']);
+        }
+
+        return parent::setSettings($values, $merge);
     }
 
 }
