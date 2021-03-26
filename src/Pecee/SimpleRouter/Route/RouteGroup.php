@@ -26,12 +26,15 @@ class RouteGroup extends Route implements IGroupRoute
 
         foreach ($this->domains as $domain) {
 
+            // If domain has no parameters but matches
+            if ($domain === $request->getHost()) {
+                return true;
+            }
+
             $parameters = $this->parseParameters($domain, $request->getHost(), '.*');
 
             if ($parameters !== null && \count($parameters) !== 0) {
-
                 $this->parameters = $parameters;
-
                 return true;
             }
         }
@@ -56,7 +59,7 @@ class RouteGroup extends Route implements IGroupRoute
 
         $prefix = $this->prefix;
 
-        foreach($this->getParameters() as $parameter => $value) {
+        foreach ($this->getParameters() as $parameter => $value) {
             $prefix = str_ireplace('{' . $parameter . '}', $value, $prefix);
         }
 
