@@ -363,13 +363,13 @@ class Request
     }
 
     /**
-     * Returns true when request-type is post.
+     * Returns true when request-method is type that could contain data in the page body.
      * 
      * @return bool
      */
     public function isPostBack(): bool
     {
-        return ($this->getMethod() === static::REQUEST_TYPE_POST);
+        return \in_array($this->getMethod(), static::$requestTypesPost, true);
     }
 
     /**

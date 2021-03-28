@@ -71,7 +71,7 @@ class InputHandler
         /* Parse post requests */
         $this->originalPost = $_POST;
 
-        if (\in_array($this->request->getMethod(), Request::$requestTypesPost, false) === true) {
+        if ($this->request->isPostBack() === true) {
 
             $contents = file_get_contents('php://input');
 
