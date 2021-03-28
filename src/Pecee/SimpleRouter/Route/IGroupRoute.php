@@ -29,7 +29,7 @@ interface IGroupRoute extends IRoute
      * @param array $handlers
      * @return static
      */
-    public function setExceptionHandlers(array $handlers);
+    public function setExceptionHandlers(array $handlers): self;
 
     /**
      * Get exception-handlers for group

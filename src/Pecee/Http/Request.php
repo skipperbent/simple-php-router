@@ -291,7 +291,7 @@ class Request
      * Will try to find first header from list of headers.
      *
      * @param array $headers
-     * @param null $defaultValue
+     * @param mixed|null $defaultValue
      * @return mixed|null
      */
     public function getFirstHeader(array $headers, $defaultValue = null)
@@ -534,7 +534,7 @@ class Request
         return $this;
     }
 
-    public function __isset($name)
+    public function __isset($name): bool
     {
         return array_key_exists($name, $this->data) === true;
     }
