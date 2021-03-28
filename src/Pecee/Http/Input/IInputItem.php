@@ -13,9 +13,9 @@ interface IInputItem
 
     public function setName(string $name): self;
 
-    public function getValue(): ?string;
+    public function getValue();
 
-    public function setValue(string $value): self;
+    public function setValue($value): self;
 
     public function __toString(): string;
 

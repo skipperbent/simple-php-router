@@ -10,11 +10,11 @@ interface IRoute
     /**
      * Method called to check if a domain matches
      *
-     * @param string $route
+     * @param string $url
      * @param Request $request
      * @return bool
      */
-    public function matchRoute($route, Request $request): bool;
+    public function matchRoute(string $url, Request $request): bool;
 
     /**
      * Called when route is matched.
@@ -22,8 +22,8 @@ interface IRoute
      *
      * @param Request $request
      * @param Router $router
-     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
      * @return string
+     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
      */
     public function renderRoute(Request $request, Router $router): ?string;
 
@@ -82,7 +82,7 @@ interface IRoute
     /**
      * Set callback
      *
-     * @param string $callback
+     * @param string|array|\Closure $callback
      * @return static
      */
     public function setCallback($callback): self;
@@ -129,7 +129,7 @@ interface IRoute
      * @param string $namespace
      * @return static
      */
-    public function setDefaultNamespace($namespace): IRoute;
+    public function setDefaultNamespace(string $namespace): IRoute;
 
     /**
      * Get default namespace
@@ -196,7 +196,7 @@ interface IRoute
      * @param string $middleware
      * @return static
      */
-    public function addMiddleware($middleware): self;
+    public function addMiddleware(string $middleware): self;
 
     /**
      * Set middlewares array
@@ -205,5 +205,19 @@ interface IRoute
      * @return static
      */
     public function setMiddlewares(array $middlewares): self;
+
+    /**
+     * If enabled parameters containing null-value will not be passed along to the callback.
+     *
+     * @param bool $enabled
+     * @return static $this
+     */
+    public function setFilterEmptyParams(bool $enabled): self;
+
+    /**
+     * Status if filtering of empty params is enabled or disabled
+     * @return bool
+     */
+    public function getFilterEmptyParams(): bool;
 
 }

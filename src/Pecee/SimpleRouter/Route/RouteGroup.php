@@ -26,12 +26,15 @@ class RouteGroup extends Route implements IGroupRoute
 
         foreach ($this->domains as $domain) {
 
+            // If domain has no parameters but matches
+            if ($domain === $request->getHost()) {
+                return true;
+            }
+
             $parameters = $this->parseParameters($domain, $request->getHost(), '.*');
 
             if ($parameters !== null && \count($parameters) !== 0) {
-
                 $this->parameters = $parameters;
-
                 return true;
             }
         }
@@ -46,14 +49,22 @@ class RouteGroup extends Route implements IGroupRoute
      * @param Request $request
      * @return bool
      */
-    public function matchRoute($url, Request $request): bool
+    public function matchRoute(string $url, Request $request): bool
     {
         if ($this->getGroup() !== null && $this->getGroup()->matchRoute($url, $request) === false) {
             return false;
         }
 
+        // Parse parameter
+
+        $prefix = $this->prefix;
+
+        foreach ($this->getParameters() as $parameter => $value) {
+            $prefix = str_ireplace('{' . $parameter . '}', $value, $prefix);
+        }
+
         /* Skip if prefix doesn't match */
-        if ($this->prefix !== null && stripos($url, $this->prefix) === false) {
+        if ($this->prefix !== null && stripos($url, $prefix) === false) {
             return false;
         }
 
@@ -123,7 +134,7 @@ class RouteGroup extends Route implements IGroupRoute
      * @param string $prefix
      * @return static
      */
-    public function setPrefix($prefix): IGroupRoute
+    public function setPrefix(string $prefix): IGroupRoute
     {
         $this->prefix = '/' . trim($prefix, '/');
 
@@ -143,28 +154,28 @@ class RouteGroup extends Route implements IGroupRoute
     /**
      * Merge with information from another route.
      *
-     * @param array $values
+     * @param array $settings
      * @param bool $merge
      * @return static
      */
-    public function setSettings(array $values, bool $merge = false): IRoute
+    public function setSettings(array $settings, bool $merge = false): IRoute
     {
 
-        if (isset($values['prefix']) === true) {
-            $this->setPrefix($values['prefix'] . $this->prefix);
+        if (isset($settings['prefix']) === true) {
+            $this->setPrefix($settings['prefix'] . $this->prefix);
         }
 
-        if ($merge === false && isset($values['exceptionHandler']) === true) {
-            $this->setExceptionHandlers((array)$values['exceptionHandler']);
+        if ($merge === false && isset($settings['exceptionHandler']) === true) {
+            $this->setExceptionHandlers((array)$settings['exceptionHandler']);
         }
 
-        if ($merge === false && isset($values['domain']) === true) {
-            $this->setDomains((array)$values['domain']);
+        if ($merge === false && isset($settings['domain']) === true) {
+            $this->setDomains((array)$settings['domain']);
         }
 
-        if (isset($values['as']) === true) {
+        if (isset($settings['as']) === true) {
 
-            $name = $values['as'];
+            $name = $settings['as'];
 
             if ($this->name !== null && $merge !== false) {
                 $name .= '.' . $this->name;
@@ -173,7 +184,7 @@ class RouteGroup extends Route implements IGroupRoute
             $this->name = $name;
         }
 
-        return parent::setSettings($values, $merge);
+        return parent::setSettings($settings, $merge);
     }
 
     /**

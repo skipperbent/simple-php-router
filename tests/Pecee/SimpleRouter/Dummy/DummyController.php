@@ -2,6 +2,12 @@
 
 class DummyController
 {
+    public function index()
+    {
+
+    }
+
+
 	public function method1()
 	{
 
@@ -10,6 +16,11 @@ class DummyController
     public function method2()
     {
 
+    }
+
+    public function method3()
+    {
+        return 'method3';
     }
 
 	public function param($params = null)
