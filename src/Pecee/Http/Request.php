@@ -363,6 +363,16 @@ class Request
     }
 
     /**
+     * Returns true when request-type is post.
+     * 
+     * @return bool
+     */
+    public function isPostBack(): bool
+    {
+        return ($this->getMethod() === static::REQUEST_TYPE_POST);
+    }
+
+    /**
      * Get accept formats
      * @return array
      */
