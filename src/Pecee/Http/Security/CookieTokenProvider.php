@@ -17,7 +17,7 @@ class CookieTokenProvider implements ITokenProvider
      */
     public function __construct()
     {
-        $this->token = $this->getToken();
+        $this->token = ($this->hasToken() === true) ? $_COOKIE[static::CSRF_KEY] : null;
 
         if ($this->token === null) {
             $this->token = $this->generateToken();
@@ -63,7 +63,7 @@ class CookieTokenProvider implements ITokenProvider
     public function setToken(string $token): void
     {
         $this->token = $token;
-        setcookie(static::CSRF_KEY, $token, (time() + 60) * $this->cookieTimeoutMinutes, '/', ini_get('session.cookie_domain'), ini_get('session.cookie_secure'), ini_get('session.cookie_httponly'));
+        setcookie(static::CSRF_KEY, $token, time() + (60 * $this->cookieTimeoutMinutes), '/', ini_get('session.cookie_domain'), ini_get('session.cookie_secure'), ini_get('session.cookie_httponly'));
     }
 
     /**
@@ -73,8 +73,6 @@ class CookieTokenProvider implements ITokenProvider
      */
     public function getToken(?string $defaultValue = null): ?string
     {
-        $this->token = ($this->hasToken() === true) ? $_COOKIE[static::CSRF_KEY] : null;
-
         return $this->token ?? $defaultValue;
     }
 

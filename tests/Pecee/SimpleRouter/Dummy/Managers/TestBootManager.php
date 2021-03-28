@@ -3,13 +3,11 @@
 class TestBootManager implements \Pecee\SimpleRouter\IRouterBootManager
 {
 
-    protected $routes;
-    protected $aliasUrl;
+    protected $rewrite;
 
-    public function __construct(array $routes, string $aliasUrl)
+    public function __construct(array $rewrite)
     {
-        $this->routes = $routes;
-        $this->aliasUrl = $aliasUrl;
+        $this->rewrite = $rewrite;
     }
 
     /**
@@ -20,11 +18,11 @@ class TestBootManager implements \Pecee\SimpleRouter\IRouterBootManager
      */
     public function boot(\Pecee\SimpleRouter\Router $router, \Pecee\Http\Request $request): void
     {
-        foreach ($this->routes as $url) {
+        foreach ($this->rewrite as $url => $rewrite) {
             // If the current url matches the rewrite url, we use our custom route
 
             if ($request->getUrl()->contains($url) === true) {
-                $request->setRewriteUrl($this->aliasUrl);
+                $request->setRewriteUrl($rewrite);
             }
 
         }

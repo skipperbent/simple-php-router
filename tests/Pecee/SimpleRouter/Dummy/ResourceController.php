@@ -4,43 +4,36 @@ class ResourceController implements \Pecee\Controllers\IResourceController
 
     public function index() : ?string
     {
-        echo 'index';
-        return null;
+        return 'index';
     }
 
     public function show($id) : ?string
     {
-        echo 'show ' . $id;
-        return null;
+        return 'show ' . $id;
     }
 
     public function store() : ?string
     {
-        echo 'store';
-        return null;
+        return 'store';
     }
 
     public function create() : ?string
     {
-        echo 'create';
-        return null;
+        return 'create';
     }
 
     public function edit($id) : ?string
     {
-        echo 'edit ' . $id;
-        return null;
+        return 'edit ' . $id;
     }
 
     public function update($id) : ?string
     {
-        echo 'update ' . $id;
-        return null;
+        return 'update ' . $id;
     }
 
     public function destroy($id) : ?string
     {
-        echo 'destroy ' . $id;
-        return null;
+        return 'destroy ' . $id;
     }
 }

@@ -64,7 +64,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
         if ($method !== null) {
 
             /* Remove requestType from method-name, if it exists */
-            foreach (static::$requestTypes as $requestType) {
+            foreach (Request::$requestTypes as $requestType) {
 
                 if (stripos($method, $requestType) === 0) {
                     $method = (string)substr($method, \strlen($requestType));
@@ -86,7 +86,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
         return '/' . trim($url, '/') . '/';
     }
 
-    public function matchRoute($url, Request $request): bool
+    public function matchRoute(string $url, Request $request): bool
     {
         if ($this->getGroup() !== null && $this->getGroup()->matchRoute($url, $request) === false) {
             return false;
@@ -110,7 +110,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
             $this->parameters = \array_slice($path, 1);
 
             // Set callback
-            $this->setCallback($this->controller . '@' . $this->method);
+            $this->setCallback([$this->controller, $this->method]);
 
             return true;
         }
@@ -167,17 +167,17 @@ class RouteController extends LoadableRoute implements IControllerRoute
     /**
      * Merge with information from another route.
      *
-     * @param array $values
+     * @param array $settings
      * @param bool $merge
      * @return static
      */
-    public function setSettings(array $values, bool $merge = false): IRoute
+    public function setSettings(array $settings, bool $merge = false): IRoute
     {
-        if (isset($values['names']) === true) {
-            $this->names = $values['names'];
+        if (isset($settings['names']) === true) {
+            $this->names = $settings['names'];
         }
 
-        return parent::setSettings($values, $merge);
+        return parent::setSettings($settings, $merge);
     }
 
 }

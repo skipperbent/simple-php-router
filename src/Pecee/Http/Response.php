@@ -30,7 +30,7 @@ class Response
      * Redirect the response
      *
      * @param string $url
-     * @param int $httpCode
+     * @param ?int $httpCode
      */
     public function redirect(string $url, ?int $httpCode = null): void
     {
@@ -86,7 +86,7 @@ class Response
     /**
      * Json encode
      * @param array|\JsonSerializable $value
-     * @param int $options JSON options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_PRESERVE_ZERO_FRACTION, JSON_UNESCAPED_UNICODE, JSON_PARTIAL_OUTPUT_ON_ERROR.
+     * @param ?int $options JSON options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_PRESERVE_ZERO_FRACTION, JSON_UNESCAPED_UNICODE, JSON_PARTIAL_OUTPUT_ON_ERROR.
      * @param int $dept JSON debt.
      * @throws InvalidArgumentException
      */

@@ -74,7 +74,7 @@ class EventArgument implements IEventArgument
      * @param string $name
      * @return mixed
      */
-    public function __get($name)
+    public function __get(string $name)
     {
         return $this->arguments[$name] ?? null;
     }
@@ -83,7 +83,7 @@ class EventArgument implements IEventArgument
      * @param string $name
      * @return bool
      */
-    public function __isset($name)
+    public function __isset(string $name): bool
     {
         return array_key_exists($name, $this->arguments);
     }
@@ -93,7 +93,7 @@ class EventArgument implements IEventArgument
      * @param mixed $value
      * @throws \InvalidArgumentException
      */
-    public function __set($name, $value)
+    public function __set(string $name, $value)
     {
         throw new \InvalidArgumentException('Not supported');
     }
