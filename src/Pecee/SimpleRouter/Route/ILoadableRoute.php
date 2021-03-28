@@ -82,6 +82,6 @@ interface ILoadableRoute extends IRoute
      * @param string $regex
      * @return static
      */
-    public function setMatch($regex): self;
+    public function setMatch(string $regex): self;
 
 }

@@ -468,7 +468,7 @@ class Router
      * @throws HttpException
      * @throws \Exception
      */
-    protected function handleRouteRewrite($key, string $url): ?string
+    protected function handleRouteRewrite(string $key, string $url): ?string
     {
         /* If the request has changed */
         if ($this->request->hasPendingRewrite() === false) {
@@ -881,7 +881,7 @@ class Router
      * @param string $name
      * @param array $arguments
      */
-    protected function fireEvents($name, array $arguments = []): void
+    protected function fireEvents(string $name, array $arguments = []): void
     {
         if (\count($this->eventHandlers) === 0) {
             return;

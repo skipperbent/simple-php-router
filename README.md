@@ -658,6 +658,7 @@ SimpleRouter::group(['prefix' => '/admin'], function () {
 ## Partial groups
 
 Partial router groups has the same benefits as a normal group, but supports parameters and are only rendered once the url has matched.
+Partial groups will render once a part of the url has matched.
 
 This can be extremely useful in situations, where you only want special routes to be added, when a certain criteria or logic has been met.
 
@@ -666,11 +667,11 @@ This can be extremely useful in situations, where you only want special routes t
 **Example:**
 
 ```php
-SimpleRouter::partialGroup('/admin/{applicationId}', function ($applicationId) {
+SimpleRouter::partialGroup('/lang/{language}', function ($language) {
 
-    SimpleRouter::get('/', function($applicationId) {
+    SimpleRouter::get('/', function($language) {
 
-        // Matches The "/admin/applicationId" URL
+        // Matches The "/lang/da" URL
 
     });
 

@@ -74,7 +74,7 @@ class InputHandler
         /* Parse post requests */
         $this->originalPost = $_POST;
 
-        if (\in_array($this->request->getMethod(), Request::$requestTypesPost, false) === true) {
+        if ($this->request->isPostBack() === true) {
 
             $contents = file_get_contents('php://input');
 
@@ -100,9 +100,11 @@ class InputHandler
     }
 
     /**
+     * @param array $files Array with files to parse
+     * @param string|null $parentKey Key from parent (used when parsing nested array).
      * @return array
      */
-    public function parseFiles(array $files, $parentKey = null): array
+    public function parseFiles(array $files, ?string $parentKey = null): array
     {
         $list = [];
 
