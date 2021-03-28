@@ -90,7 +90,7 @@ class InputItem implements IInputItem, \IteratorAggregate
      */
     public function parseBoolean(): ?bool
     {
-        if($this->getValue() === 'true' || $this->getValue() === 'false'){
+        if($this->getValue() === "true" || $this->getValue() === "false" || $this->getValue() == "1" || $this->getValue() == "0"){
             return (bool) $this->getValue();
         }else{
             return null;
