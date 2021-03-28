@@ -169,7 +169,7 @@ class SimpleRouter
      * @param int $httpCode
      * @return IRoute
      */
-    public static function redirect($where, $to, $httpCode = 301): IRoute
+    public static function redirect(string $where, string $to, int $httpCode = 301): IRoute
     {
         return static::get($where, function () use ($to, $httpCode) {
             static::response()->redirect($to, $httpCode);
