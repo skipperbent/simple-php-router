@@ -23,6 +23,8 @@ class Request
     public const CONTENT_TYPE_FORM_DATA = 'multipart/form-data';
     public const CONTENT_TYPE_X_FORM_ENCODED = 'application/x-www-form-urlencoded';
 
+    public const FORCE_METHOD_KEY = '_method';
+
     /**
      * All request-types
      * @var string[]
@@ -127,13 +129,10 @@ class Request
         $this->setHost($this->getHeader('http-host'));
 
         // Check if special IIS header exist, otherwise use default.
-        $this->setUrl(new Url($this->getFirstHeader(['unencoded-url', 'request-uri',])));
-
-        $this->setContentType(strtolower($this->getHeader('content-type')));
-
-        $this->method = strtolower($this->getHeader('request-method'));
+        $this->setUrl(new Url($this->getFirstHeader(['unencoded-url', 'request-uri'])));
+        $this->setContentType((string)$this->getHeader('content-type'));
+        $this->setMethod((string)($_POST[static::FORCE_METHOD_KEY] ?? $this->getHeader('request-method')));
         $this->inputHandler = new InputHandler($this);
-        $this->method = strtolower($this->inputHandler->value('_method', $this->getHeader('request-method')));
     }
 
     public function isSecure(): bool
@@ -324,9 +323,9 @@ class Request
     protected function setContentType(string $contentType): self
     {
         if(strpos($contentType, ';') > 0) {
-            $this->contentType = substr($contentType, 0, strpos($contentType, ';'));
+            $this->contentType = strtolower(substr($contentType, 0, strpos($contentType, ';')));
         } else {
-            $this->contentType = $contentType;
+            $this->contentType = strtolower($contentType);
         }
 
         return $this;
