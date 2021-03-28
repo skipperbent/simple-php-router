@@ -19,6 +19,12 @@ class Request
     public const REQUEST_TYPE_DELETE = 'delete';
     public const REQUEST_TYPE_HEAD = 'head';
 
+    public const CONTENT_TYPE_JSON = 'application/json';
+    public const CONTENT_TYPE_FORM_DATA = 'multipart/form-data';
+    public const CONTENT_TYPE_X_FORM_ENCODED = 'application/x-www-form-urlencoded';
+
+    public const FORCE_METHOD_KEY = '_method';
+
     /**
      * All request-types
      * @var string[]
@@ -56,6 +62,12 @@ class Request
      * @var array
      */
     protected $headers = [];
+
+    /**
+     * Request ContentType
+     * @var string
+     */
+    protected $contentType;
 
     /**
      * Request host
@@ -117,11 +129,10 @@ class Request
         $this->setHost($this->getHeader('http-host'));
 
         // Check if special IIS header exist, otherwise use default.
-        $this->setUrl(new Url($this->getHeader('unencoded-url', $this->getHeader('request-uri'))));
-
-        $this->method = strtolower($this->getHeader('request-method'));
+        $this->setUrl(new Url($this->getFirstHeader(['unencoded-url', 'request-uri'])));
+        $this->setContentType((string)$this->getHeader('content-type'));
+        $this->setMethod((string)($_POST[static::FORCE_METHOD_KEY] ?? $this->getHeader('request-method')));
         $this->inputHandler = new InputHandler($this);
-        $this->method = strtolower($this->inputHandler->value('_method', $this->getHeader('request-method')));
     }
 
     public function isSecure(): bool
@@ -201,17 +212,23 @@ class Request
 
     /**
      * Get id address
+     * If $safe is false, this function will detect Proxys. But the user can edit this header to whatever he wants!
+     * https://stackoverflow.com/questions/3003145/how-to-get-the-client-ip-address-in-php#comment-25086804
+     * @param bool $safeMode When enabled, only safe non-spoofable headers will be returned. Note this can cause issues when using proxy.
      * @return string|null
      */
-    public function getIp(): ?string
+    public function getIp(bool $safeMode = false): ?string
     {
-        return $this->getHeader(
-            'http-cf-connecting-ip',
-            $this->getHeader(
+        $headers = ['remote-addr'];
+        if($safeMode === false) {
+            $headers = array_merge($headers, [
+                'http-cf-connecting-ip',
+                'http-client-ip',
                 'http-x-forwarded-for',
-                $this->getHeader('remote-addr')
-            )
-        );
+            ]);
+        }
+
+        return $this->getFirstHeader($headers);
     }
 
     /**
@@ -271,6 +288,50 @@ class Request
     }
 
     /**
+     * Will try to find first header from list of headers.
+     *
+     * @param array $headers
+     * @param mixed|null $defaultValue
+     * @return mixed|null
+     */
+    public function getFirstHeader(array $headers, $defaultValue = null)
+    {
+        foreach($headers as $header) {
+            $header = $this->getHeader($header);
+            if($header !== null) {
+                return $header;
+            }
+        }
+
+        return $defaultValue;
+    }
+
+    /**
+     * Get request content-type
+     * @return string|null
+     */
+    public function getContentType(): ?string
+    {
+        return $this->contentType;
+    }
+
+    /**
+     * Set request content-type
+     * @param string $contentType
+     * @return $this
+     */
+    protected function setContentType(string $contentType): self
+    {
+        if(strpos($contentType, ';') > 0) {
+            $this->contentType = strtolower(substr($contentType, 0, strpos($contentType, ';')));
+        } else {
+            $this->contentType = strtolower($contentType);
+        }
+
+        return $this;
+    }
+
+    /**
      * Get input class
      * @return InputHandler
      */
@@ -286,7 +347,7 @@ class Request
      *
      * @return bool
      */
-    public function isFormatAccepted($format): bool
+    public function isFormatAccepted(string $format): bool
     {
         return ($this->getHeader('http-accept') !== null && stripos($this->getHeader('http-accept'), $format) !== false);
     }
@@ -299,6 +360,16 @@ class Request
     public function isAjax(): bool
     {
         return (strtolower($this->getHeader('http-x-requested-with')) === 'xmlhttprequest');
+    }
+
+    /**
+     * Returns true when request-method is type that could contain data in the page body.
+     * 
+     * @return bool
+     */
+    public function isPostBack(): bool
+    {
+        return \in_array($this->getMethod(), static::$requestTypesPost, true);
     }
 
     /**
@@ -426,7 +497,6 @@ class Request
     public function setLoadedRoutes(array $routes): self
     {
         $this->loadedRoutes = $routes;
-
         return $this;
     }
 
@@ -439,7 +509,6 @@ class Request
     public function addLoadedRoute(ILoadableRoute $route): self
     {
         $this->loadedRoutes[] = $route;
-
         return $this;
     }
 
@@ -462,11 +531,10 @@ class Request
     public function setHasPendingRewrite(bool $boolean): self
     {
         $this->hasPendingRewrite = $boolean;
-
         return $this;
     }
 
-    public function __isset($name)
+    public function __isset($name): bool
     {
         return array_key_exists($name, $this->data) === true;
     }

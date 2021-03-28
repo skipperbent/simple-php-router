@@ -183,7 +183,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * @param string $regex
      * @return static
      */
-    public function setMatch($regex): ILoadableRoute
+    public function setMatch(string $regex): ILoadableRoute
     {
         $this->regex = $regex;
 
@@ -229,15 +229,15 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     /**
      * Merge with information from another route.
      *
-     * @param array $values
+     * @param array $settings
      * @param bool $merge
      * @return static
      */
-    public function setSettings(array $values, bool $merge = false): IRoute
+    public function setSettings(array $settings, bool $merge = false): IRoute
     {
-        if (isset($values['as']) === true) {
+        if (isset($settings['as']) === true) {
 
-            $name = $values['as'];
+            $name = $settings['as'];
 
             if ($this->name !== null && $merge !== false) {
                 $name .= '.' . $this->name;
@@ -246,11 +246,11 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             $this->setName($name);
         }
 
-        if (isset($values['prefix']) === true) {
-            $this->prependUrl($values['prefix']);
+        if (isset($settings['prefix']) === true) {
+            $this->prependUrl($settings['prefix']);
         }
 
-        return parent::setSettings($values, $merge);
+        return parent::setSettings($settings, $merge);
     }
 
 }

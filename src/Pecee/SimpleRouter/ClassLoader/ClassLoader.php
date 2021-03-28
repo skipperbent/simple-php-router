@@ -11,12 +11,12 @@ class ClassLoader implements IClassLoader
      *
      * @param string $class
      * @return object
-     * @throws NotFoundHttpException
+     * @throws ClassNotFoundHttpException
      */
     public function loadClass(string $class)
     {
         if (class_exists($class) === false) {
-            throw new ClassNotFoundHttpException(sprintf('Class "%s" does not exist', $class), 404, null, $class);
+            throw new ClassNotFoundHttpException($class, null, sprintf('Class "%s" does not exist', $class), 404, null);
         }
 
         return new $class();

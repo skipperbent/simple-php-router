@@ -95,7 +95,7 @@ abstract class Route implements IRoute
         }
 
         if (method_exists($class, $method) === false) {
-            throw new ClassNotFoundHttpException(sprintf('Method "%s" does not exist in class "%s"', $method, $className), 404, null, $className, $method);
+            throw new ClassNotFoundHttpException($className, $method, sprintf('Method "%s" does not exist in class "%s"', $method, $className), 404, null);
         }
 
         $router->debug('Executing callback');
@@ -328,7 +328,7 @@ abstract class Route implements IRoute
      * @param string $namespace
      * @return static
      */
-    public function setDefaultNamespace($namespace): IRoute
+    public function setDefaultNamespace(string $namespace): IRoute
     {
         $this->defaultNamespace = $namespace;
 
@@ -383,35 +383,35 @@ abstract class Route implements IRoute
     /**
      * Merge with information from another route.
      *
-     * @param array $values
+     * @param array $settings
      * @param bool $merge
      * @return static
      */
-    public function setSettings(array $values, bool $merge = false): IRoute
+    public function setSettings(array $settings, bool $merge = false): IRoute
     {
-        if ($this->namespace === null && isset($values['namespace']) === true) {
-            $this->setNamespace($values['namespace']);
+        if ($this->namespace === null && isset($settings['namespace']) === true) {
+            $this->setNamespace($settings['namespace']);
         }
 
-        if (isset($values['method']) === true) {
-            $this->setRequestMethods(array_merge($this->requestMethods, (array)$values['method']));
+        if (isset($settings['method']) === true) {
+            $this->setRequestMethods(array_merge($this->requestMethods, (array)$settings['method']));
         }
 
-        if (isset($values['where']) === true) {
-            $this->setWhere(array_merge($this->where, (array)$values['where']));
+        if (isset($settings['where']) === true) {
+            $this->setWhere(array_merge($this->where, (array)$settings['where']));
         }
 
-        if (isset($values['parameters']) === true) {
-            $this->setParameters(array_merge($this->parameters, (array)$values['parameters']));
+        if (isset($settings['parameters']) === true) {
+            $this->setParameters(array_merge($this->parameters, (array)$settings['parameters']));
         }
 
         // Push middleware if multiple
-        if (isset($values['middleware']) === true) {
-            $this->setMiddlewares(array_merge((array)$values['middleware'], $this->middlewares));
+        if (isset($settings['middleware']) === true) {
+            $this->setMiddlewares(array_merge((array)$settings['middleware'], $this->middlewares));
         }
 
-        if (isset($values['defaultParameterRegex']) === true) {
-            $this->setDefaultParameterRegex($values['defaultParameterRegex']);
+        if (isset($settings['defaultParameterRegex']) === true) {
+            $this->setDefaultParameterRegex($settings['defaultParameterRegex']);
         }
 
         return $this;
@@ -494,11 +494,11 @@ abstract class Route implements IRoute
     /**
      * Add middleware class-name
      *
-     * @param IMiddleware|string $middleware
+     * @param string $middleware
      * @return static
      * @deprecated This method is deprecated and will be removed in the near future.
      */
-    public function setMiddleware($middleware)
+    public function setMiddleware(string $middleware): self
     {
         $this->middlewares[] = $middleware;
 
@@ -508,10 +508,10 @@ abstract class Route implements IRoute
     /**
      * Add middleware class-name
      *
-     * @param IMiddleware|string $middleware
+     * @param string $middleware
      * @return static
      */
-    public function addMiddleware($middleware): IRoute
+    public function addMiddleware(string $middleware): IRoute
     {
         $this->middlewares[] = $middleware;
 
@@ -546,7 +546,7 @@ abstract class Route implements IRoute
      * @param string $regex
      * @return static
      */
-    public function setDefaultParameterRegex($regex)
+    public function setDefaultParameterRegex(string $regex): self
     {
         $this->defaultParameterRegex = $regex;
 

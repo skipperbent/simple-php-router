@@ -300,8 +300,6 @@ We recommend that you add these helper functions to your project. These will all
 To implement the functions below, simply copy the code to a new file and require the file before initializing the router or copy the `helpers.php` we've included in this library.
 
 ```php
-<?php
-
 use Pecee\SimpleRouter\SimpleRouter as Router;
 use Pecee\Http\Url;
 use Pecee\Http\Response;
@@ -349,7 +347,7 @@ function request(): Request
 /**
  * Get input class
  * @param string|null $index Parameter index name
- * @param string|null $defaultValue Default return value
+ * @param string|mixed|null $defaultValue Default return value
  * @param array ...$methods Default methods
  * @return \Pecee\Http\Input\InputHandler|array|string|null
  */
@@ -660,6 +658,7 @@ SimpleRouter::group(['prefix' => '/admin'], function () {
 ## Partial groups
 
 Partial router groups has the same benefits as a normal group, but supports parameters and are only rendered once the url has matched.
+Partial groups will render once a part of the url has matched.
 
 This can be extremely useful in situations, where you only want special routes to be added, when a certain criteria or logic has been met.
 
@@ -668,11 +667,11 @@ This can be extremely useful in situations, where you only want special routes t
 **Example:**
 
 ```php
-SimpleRouter::partialGroup('/admin/{applicationId}', function ($applicationId) {
+SimpleRouter::partialGroup('/lang/{language}', function ($language) {
 
-    SimpleRouter::get('/', function($applicationId) {
+    SimpleRouter::get('/', function($language) {
 
-        // Matches The "/admin/applicationId" URL
+        // Matches The "/lang/da" URL
 
     });
 

@@ -461,7 +461,7 @@ class Router
      * @throws HttpException
      * @throws \Exception
      */
-    protected function handleRouteRewrite($key, string $url): ?string
+    protected function handleRouteRewrite(string $key, string $url): ?string
     {
         /* If the request has changed */
         if ($this->request->hasPendingRewrite() === false) {
@@ -683,14 +683,16 @@ class Router
                 ->setParams($getParams);
         }
 
-        /* We try to find a match on the given name */
-        $route = $this->findRoute($name);
+        if($name !== null) {
+            /* We try to find a match on the given name */
+            $route = $this->findRoute($name);
 
-        if ($route !== null) {
-            return $this->request
-                ->getUrlCopy()
-                ->setPath($route->findUrl($route->getMethod(), $parameters, $name))
-                ->setParams($getParams);
+            if ($route !== null) {
+                return $this->request
+                    ->getUrlCopy()
+                    ->setPath($route->findUrl($route->getMethod(), $parameters, $name))
+                    ->setParams($getParams);
+            }
         }
 
         /* Using @ is most definitely a controller@method or alias@method */
@@ -872,7 +874,7 @@ class Router
      * @param string $name
      * @param array $arguments
      */
-    protected function fireEvents($name, array $arguments = []): void
+    protected function fireEvents(string $name, array $arguments = []): void
     {
         if (\count($this->eventHandlers) === 0) {
             return;
