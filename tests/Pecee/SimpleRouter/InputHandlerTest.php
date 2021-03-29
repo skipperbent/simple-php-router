@@ -127,8 +127,8 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $_POST['hello'] = 'motto';
 
         $router = TestRouter::router();
-        $router->reset();
-        $router->getRequest()->setMethod('post');
+        $router->reset('post');
+
         $inputHandler = TestRouter::request()->getInputHandler();
 
         $value = $inputHandler->value('hello', null, \Pecee\Http\Request::$requestTypesPost);
