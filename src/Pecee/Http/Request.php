@@ -379,7 +379,7 @@ class Request
      */
     public function isPostBack(): bool
     {
-        return \in_array($this->getMethod(), static::$requestTypesPost, true);
+        return in_array($this->getMethod(), static::$requestTypesPost, true);
     }
 
     /**
@@ -485,7 +485,7 @@ class Request
      */
     public function getLoadedRoute(): ?ILoadableRoute
     {
-        return (\count($this->loadedRoutes) > 0) ? end($this->loadedRoutes) : null;
+        return (count($this->loadedRoutes) > 0) ? end($this->loadedRoutes) : null;
     }
 
     /**

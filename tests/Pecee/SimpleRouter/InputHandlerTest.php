@@ -121,6 +121,21 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $_GET = [];
     }
 
+    public function testFindInput() {
+
+        global $_POST;
+        $_POST['hello'] = 'motto';
+
+        $router = TestRouter::router();
+        $router->reset();
+        $router->getRequest()->setMethod('post');
+        $inputHandler = TestRouter::request()->getInputHandler();
+
+        $value = $inputHandler->value('hello', null, \Pecee\Http\Request::$requestTypesPost);
+
+        $this->assertEquals($_POST['hello'], $value);
+    }
+
     public function testFile()
     {
         global $_FILES;

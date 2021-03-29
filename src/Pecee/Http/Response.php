@@ -2,6 +2,7 @@
 
 namespace Pecee\Http;
 
+use JsonSerializable;
 use Pecee\Exceptions\InvalidArgumentException;
 
 class Response
@@ -85,14 +86,14 @@ class Response
 
     /**
      * Json encode
-     * @param array|\JsonSerializable $value
+     * @param array|JsonSerializable $value
      * @param ?int $options JSON options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_PRESERVE_ZERO_FRACTION, JSON_UNESCAPED_UNICODE, JSON_PARTIAL_OUTPUT_ON_ERROR.
      * @param int $dept JSON debt.
      * @throws InvalidArgumentException
      */
     public function json($value, ?int $options = null, int $dept = 512): void
     {
-        if (($value instanceof \JsonSerializable) === false && \is_array($value) === false) {
+        if (($value instanceof JsonSerializable) === false && is_array($value) === false) {
             throw new InvalidArgumentException('Invalid type for parameter "value". Must be of type array or object implementing the \JsonSerializable interface.');
         }
 

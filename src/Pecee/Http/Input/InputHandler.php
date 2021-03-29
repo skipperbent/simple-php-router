@@ -4,7 +4,6 @@ namespace Pecee\Http\Input;
 
 use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Request;
-use function count;
 
 class InputHandler
 {
@@ -136,7 +135,7 @@ class InputHandler
             }
 
             // Handle array input
-            if (\is_array($value['name']) === false) {
+            if (is_array($value['name']) === false) {
                 $values['index'] = $parentKey ?? $key;
 
                 try {
@@ -178,7 +177,7 @@ class InputHandler
 
         foreach ($values as $key => $value) {
 
-            if (\is_array($original['name'][$key]) === false) {
+            if (is_array($original['name'][$key]) === false) {
 
                 try {
 
@@ -232,7 +231,7 @@ class InputHandler
         foreach ($array as $key => $value) {
 
             // Handle array input
-            if (\is_array($value) === true) {
+            if (is_array($value) === true) {
                 $value = $this->parseInputItem($value);
             }
 
@@ -252,6 +251,10 @@ class InputHandler
     public function find(string $index, ...$methods)
     {
         $element = new InputItem($index, null);
+
+        if(count($methods) > 0) {
+            $methods = is_array(...$methods) ? array_values(...$methods) : $methods;
+        }
 
         if (count($methods) === 0 || \in_array(Request::REQUEST_TYPE_GET, $methods, true) === true) {
             $element = $this->get($index);
@@ -289,7 +292,7 @@ class InputHandler
             return $defaultValue;
         }
 
-        return ($input === null || (\is_string($input) && trim($input) === '')) ? $defaultValue : $input;
+        return ($input === null || (is_string($input) && trim($input) === '')) ? $defaultValue : $input;
     }
 
     /**

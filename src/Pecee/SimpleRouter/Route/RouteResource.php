@@ -120,7 +120,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         }
 
         // Update
-        if ($id !== null && \in_array($method, [Request::REQUEST_TYPE_PATCH, Request::REQUEST_TYPE_PUT], true) === true) {
+        if ($id !== null && in_array($method, [Request::REQUEST_TYPE_PATCH, Request::REQUEST_TYPE_PUT], true) === true) {
             return $this->call($this->methodNames['update']);
         }
 
