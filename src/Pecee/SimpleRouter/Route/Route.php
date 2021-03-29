@@ -5,8 +5,10 @@ namespace Pecee\SimpleRouter\Route;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException;
+use Pecee\SimpleRouter\Exceptions\MissingParametersHttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\Router;
+use Pecee\SimpleRouter\SimpleRouter;
 
 abstract class Route implements IRoute
 {
@@ -78,6 +80,7 @@ abstract class Route implements IRoute
             $router->debug('Executing callback');
 
             /* When the callback is a function */
+            $parameters = $this->checkParameters($callback, null, $parameters);
             return $router->getClassLoader()->loadClosure($callback, $parameters);
         }
 
@@ -100,7 +103,58 @@ abstract class Route implements IRoute
 
         $router->debug('Executing callback');
 
+        $parameters = $this->checkParameters($class, $method, $parameters);
         return \call_user_func_array([$class, $method], $parameters);
+    }
+
+    /**
+     * @param $classOrCallable
+     * @param null $method
+     * @param array $parameters
+     * @return array
+     * @throws MissingParametersHttpException
+     */
+    protected function checkParameters($classOrCallable, $method = null, $parameters = array()): array{
+        try{
+            if($method === null)
+                $reflection = new \ReflectionFunction($classOrCallable);
+            else
+                $reflection = new \ReflectionMethod($classOrCallable, $method);
+            //if($reflection->getNumberOfRequiredParameters() > count($parameters)){
+            $missing = array();
+            $functionParameters = array();
+            $missingParameters = array();
+            $removeParameters = array();
+            foreach($reflection->getParameters() as $parameter){
+                $functionParameters[$parameter->getName()] = $parameter->isOptional();
+                if(!$parameter->isOptional() && !in_array($parameter->getName(), array_keys($parameters))){
+                    $missingParameters[] = $parameter->getName();
+                }
+            }
+            foreach(array_keys($parameters) as $parameter){
+                if(!in_array($parameter, array_keys($functionParameters))){
+                    $removeParameters[] = $parameter;
+                }
+            }
+            if(empty($missingParameters) && empty($removeParameters)){
+                return $parameters;
+            }
+            if(!SimpleRouter::router()->isProcessParametersSafe()){
+                if($method === null){
+                    throw new MissingParametersHttpException(null, null, $missing);
+                }else{
+                    throw new MissingParametersHttpException($classOrCallable, $method, $missing);
+                }
+            }
+            foreach($missingParameters as $parameter){
+                $parameters[$parameter] = null;//TODO match type?
+            }
+            foreach($removeParameters as $parameter){
+                unset($parameters[$parameter]);
+            }
+        } catch(\ReflectionException $e) {
+        }
+        return $parameters;
     }
 
     protected function parseParameters($route, $url, $parameterRegex = null): ?array

@@ -118,6 +118,14 @@ class Router
     protected $renderMultipleRoutes = true;
 
     /**
+     * <p>Since PHP 8 parameters are parsed as named parameters to the function.</p>
+     * <p>When you have parameters in the route but not in the function this can throw errors.</p>
+     * <p>Set this to false if you want to code save.</p>
+     * @var bool
+     */
+    protected $processParametersSafe = true;
+
+    /**
      * Router constructor.
      */
     public function __construct()
@@ -934,13 +942,32 @@ class Router
      * When disabled the router will stop rendering at the first route that matches.
      *
      * @param bool $bool
-     * @return $this
+     * @return static
      */
     public function setRenderMultipleRoutes(bool $bool): self
     {
         $this->renderMultipleRoutes = $bool;
 
         return $this;
+    }
+
+    /**
+     * @param bool $processParametersSafe
+     * @return static
+     */
+    public function setProcessParametersSafe(bool $processParametersSafe): self
+    {
+        $this->processParametersSafe = $processParametersSafe;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isProcessParametersSafe(): bool
+    {
+        return $this->processParametersSafe;
     }
 
 }
