@@ -291,13 +291,13 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
         $result = null;
         $expectedResult = 28;
 
-        TestRouter::group(['prefix' => '/lang/{lang}'], function () use(&$result, $expectedResult) {
+        TestRouter::group(['prefix' => '/lang/{lang}'], function () use(&$result) {
 
             TestRouter::get('/horse/{horseType}', function($horseType) use(&$result) {
                 $result = false;
             });
 
-            TestRouter::get('/user/{userId}', function($userId) use(&$result, $expectedResult) {
+            TestRouter::get('/user/{userId}', function($userId) use(&$result) {
                 $result = $userId;
             });
         });
@@ -313,14 +313,36 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
         $result = false;
         $expectedLanguage = 'da';
 
-        TestRouter::group(['prefix' => '/lang/{lang}'], function () use(&$result, $expectedLanguage) {
+        TestRouter::group(['prefix' => '/lang/{lang}'], function ($language) use(&$result) {
 
-            TestRouter::get('/test', function($language) use(&$result, $expectedLanguage) {
-                $result = $expectedLanguage;
+            TestRouter::get('/test', function($language) use(&$result) {
+                $result = $language;
             });
+
         });
 
         TestRouter::debug("/lang/$expectedLanguage/test");
+
+        $this->assertEquals($expectedLanguage, $result);
+
+    }
+
+    public function testPassParameterDeep() {
+
+        $result = false;
+        $expectedLanguage = 'da';
+
+        TestRouter::group(['prefix' => '/lang/{lang}'], function ($language) use(&$result) {
+
+            TestRouter::group(['prefix' => '/admin'], function($language) use(&$result) {
+                TestRouter::get('/test', function($language) use(&$result) {
+                    $result = $language;
+                });
+            });
+
+        });
+
+        TestRouter::debug("/lang/$expectedLanguage/admin/test");
 
         $this->assertEquals($expectedLanguage, $result);
 
