@@ -2,9 +2,10 @@
 
 namespace Pecee\Http;
 
+use JsonSerializable;
 use Pecee\Http\Exceptions\MalformedUrlException;
 
-class Url implements \JsonSerializable
+class Url implements JsonSerializable
 {
     private $originalUrl;
 
@@ -409,7 +410,7 @@ class Url implements \JsonSerializable
      */
     public static function arrayToParams(array $getParams = [], bool $includeEmpty = true): string
     {
-        if (\count($getParams) !== 0) {
+        if (count($getParams) !== 0) {
 
             if ($includeEmpty === false) {
                 $getParams = array_filter($getParams, static function ($item) {

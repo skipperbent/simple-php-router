@@ -2,6 +2,8 @@
 
 namespace Pecee\SimpleRouter\Handlers;
 
+use Closure;
+use Exception;
 use Pecee\Http\Request;
 
 /**
@@ -17,19 +19,19 @@ class CallbackExceptionHandler implements IExceptionHandler
 
     protected $callback;
 
-    public function __construct(\Closure $callback)
+    public function __construct(Closure $callback)
     {
         $this->callback = $callback;
     }
 
     /**
      * @param Request $request
-     * @param \Exception $error
+     * @param Exception $error
      */
-    public function handleError(Request $request, \Exception $error): void
+    public function handleError(Request $request, Exception $error): void
     {
         /* Fire exceptions */
-        \call_user_func($this->callback,
+        call_user_func($this->callback,
             $request,
             $error
         );

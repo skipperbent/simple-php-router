@@ -20,7 +20,7 @@ class RouteGroup extends Route implements IGroupRoute
      */
     public function matchDomain(Request $request): bool
     {
-        if ($this->domains === null || \count($this->domains) === 0) {
+        if ($this->domains === null || count($this->domains) === 0) {
             return true;
         }
 
@@ -33,7 +33,7 @@ class RouteGroup extends Route implements IGroupRoute
 
             $parameters = $this->parseParameters($domain, $request->getHost(), '.*');
 
-            if ($parameters !== null && \count($parameters) !== 0) {
+            if ($parameters !== null && count($parameters) !== 0) {
                 $this->parameters = $parameters;
                 return true;
             }
@@ -204,7 +204,7 @@ class RouteGroup extends Route implements IGroupRoute
             $values['as'] = $this->name;
         }
 
-        if (\count($this->parameters) !== 0) {
+        if (count($this->parameters) !== 0) {
             $values['parameters'] = $this->parameters;
         }
 

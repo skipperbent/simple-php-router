@@ -2,7 +2,9 @@
 
 namespace Pecee\Http\Exceptions;
 
-class MalformedUrlException extends \Exception
+use Exception;
+
+class MalformedUrlException extends Exception
 {
 
 }

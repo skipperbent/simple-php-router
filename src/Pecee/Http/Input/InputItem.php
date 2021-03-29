@@ -2,7 +2,10 @@
 
 namespace Pecee\Http\Input;
 
-class InputItem implements IInputItem, \IteratorAggregate
+use ArrayIterator;
+use IteratorAggregate;
+
+class InputItem implements IInputItem, IteratorAggregate
 {
     public $index;
     public $name;
@@ -75,11 +78,11 @@ class InputItem implements IInputItem, \IteratorAggregate
     public function __toString(): string
     {
         $value = $this->getValue();
-        return (\is_array($value) === true) ? json_encode($value) : $value;
+        return (is_array($value) === true) ? json_encode($value) : $value;
     }
 
-    public function getIterator(): \ArrayIterator
+    public function getIterator(): ArrayIterator
     {
-        return new \ArrayIterator($this->getValue());
+        return new ArrayIterator($this->getValue());
     }
 }
