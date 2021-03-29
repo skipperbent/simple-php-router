@@ -358,6 +358,7 @@ class Router
         $this->debug('Routing request');
 
         $methodNotAllowed = null;
+        $restrictedAccessNotAllowed = null;
 
         try {
             $url = $this->request->getRewriteUrl() ?? $this->request->getUrl()->getPath();
@@ -387,10 +388,12 @@ class Router
                     }
 
                     if(count($route->getIps()) !== 0){
-                        $ip = $this->request->getIp();//TODO use safe get ip (https://github.com/skipperbent/simple-php-router/pull/504)
+                        $ip = $this->request->getIp(true);
                         if(in_array($ip, $route->getIps(), true) !== $route->isIpWhitelist()){
                             $this->debug('User with IP "%s" not allowed', $ip);
-                            $methodNotAllowed = true;
+                            if($restrictedAccessNotAllowed === null){
+                                $restrictedAccessNotAllowed = true;
+                            }
                             continue;
                         }
                     }
@@ -399,7 +402,9 @@ class Router
                         $browser = $this->request->getBrowser();
                         if(in_array($browser, $route->getBrowsers()) !== $route->isBrowserWhitelist()){
                             $this->debug('User with Browser "%s" not allowed', $browser);
-                            $methodNotAllowed = true;
+                            if($restrictedAccessNotAllowed === null){
+                                $restrictedAccessNotAllowed = true;
+                            }
                             continue;
                         }
                     }
@@ -408,7 +413,9 @@ class Router
                         $platform = $this->request->getPlatform();
                         if(in_array($platform, $route->getPlatforms()) !== $route->isPlatformWhitelist()){
                             $this->debug('User with Platform "%s" not allowed', $platform);
-                            $methodNotAllowed = true;
+                            if($restrictedAccessNotAllowed === null){
+                                $restrictedAccessNotAllowed = true;
+                            }
                             continue;
                         }
                     }
@@ -426,6 +433,7 @@ class Router
                     }
 
                     $methodNotAllowed = false;
+                    $restrictedAccessNotAllowed = false;
 
                     $this->request->addLoadedRoute($route);
 
@@ -458,6 +466,11 @@ class Router
 
         if ($methodNotAllowed === true) {
             $message = sprintf('Route "%s" or method "%s" not allowed.', $this->request->getUrl()->getPath(), $this->request->getMethod());
+            $this->handleException(new NotFoundHttpException($message, 403));
+        }
+
+        if ($restrictedAccessNotAllowed === true) {
+            $message = sprintf('Route is restricted. The request does not match the restrictions.');
             $this->handleException(new NotFoundHttpException($message, 403));
         }
 
