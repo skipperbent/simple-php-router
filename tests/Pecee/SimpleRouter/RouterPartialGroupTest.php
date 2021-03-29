@@ -16,7 +16,7 @@ class RouterPartialGroupTest extends \PHPUnit\Framework\TestCase
             $result1 = $param1;
             $result2 = $param2;
 
-            TestRouter::get('/', 'DummyController@method4');
+            TestRouter::get('/', 'DummyController@method1');
         });
 
         TestRouter::debug('/param1/param2', 'get');
@@ -41,17 +41,17 @@ class RouterPartialGroupTest extends \PHPUnit\Framework\TestCase
             '/lang/{test}/',
             function ($test, $lang = 'en') use($route1, $route2, $route3) {
 
-                TestRouter::get('/test/', function ($test) use($route1) {
+                TestRouter::get('/test/', function () use($route1) {
                     return $route1;
                 });
 
-                TestRouter::group(['prefix' => '/auth/'], function ($test) use($route2, $route3) {
+                TestRouter::group(['prefix' => '/auth/'], function () use($route2, $route3) {
 
-                    TestRouter::get('/', function($test) use($route2) {
+                    TestRouter::get('/', function() use($route2) {
                         return $route2;
                     });
 
-                    TestRouter::get('/test', function ($test) use($route3){
+                    TestRouter::get('/test', function () use($route3){
                         return $route3;
                     });
 

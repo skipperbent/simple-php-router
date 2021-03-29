@@ -31,7 +31,7 @@ class ClassLoader implements IClassLoader
      */
     public function loadClosure(Callable $closure, array $parameters)
     {
-        return \call_user_func_array($closure, $parameters);
+        return \call_user_func_array($closure, array_values($parameters));
     }
 
 }

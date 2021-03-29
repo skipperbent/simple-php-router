@@ -81,29 +81,7 @@ abstract class Route implements IRoute
             $router->debug('Executing callback');
 
             /* When the callback is a function */
-            if(SimpleRouter::router()->isProcessParametersSafe()){
-                if(is_array($callback)){
-                    $parameters = $this->processParameters($callback[0], $callback[1], $parameters);
-                } else {
-                    $parameters = $this->processParameters($callback, null, $parameters);
-                }
-            }
-            try{
-                return $router->getClassLoader()->loadClosure($callback, $parameters);
-            }catch(\ArgumentCountError|\Error $e){
-                if (preg_match("/^Error: Unknown named parameter|ArgumentCountError:/", $e->getMessage())) {
-                    if(is_array($callback)){
-                        $check = $this->checkParameters($callback[0], $callback[1], $parameters);
-                        $this->processParameterError($callback[0], $callback[1], $check[0], $check[1]);
-                    } else {
-                        $check = $this->checkParameters($callback, null, $parameters);
-                        $this->processParameterError(null, null, $check[0], $check[1]);
-                    }
-                    return null;
-                } else {
-                    throw $e;
-                }
-            }
+            return $router->getClassLoader()->loadClosure($callback, $parameters);
         }
 
         $controller = $this->getClass();
@@ -125,96 +103,7 @@ abstract class Route implements IRoute
 
         $router->debug('Executing callback');
 
-        if(SimpleRouter::router()->isProcessParametersSafe()){
-            $parameters = $this->processParameters($class, $method, $parameters);
-        }
-        try{
-            return \call_user_func_array([$class, $method], $parameters);
-        }catch(\ArgumentCountError|\Error $e){
-            if (preg_match("/^Error: Unknown named parameter|ArgumentCountError:/", $e->getMessage())) {
-                $check = $this->checkParameters($class, $method, $parameters);
-                $this->processParameterError($class, $method, $check[0], $check[1]);
-                return null;
-            } else {
-                throw $e;
-            }
-        }
-    }
-
-    /**
-     * @param callable|string $classOrCallable
-     * @param string|null $method
-     * @param array $parameters
-     * @return array
-     * @throws ParameterHttpException
-     */
-    protected function processParameters($classOrCallable, $method = null, $parameters = array()): array
-    {
-        $check = $this->checkParameters($classOrCallable, $method, $parameters);
-        $requiredParameters = $check[0];
-        $unusedParameters = $check[1];
-        if(empty($requiredParameters) && empty($unusedParameters)){
-            return $parameters;
-        }
-        $this->processParameterError($classOrCallable, $method, $requiredParameters, $unusedParameters);
-        foreach($requiredParameters as $parameter){
-            $parameters[$parameter] = null;//TODO match type?
-        }
-        foreach($unusedParameters as $parameter){
-            unset($parameters[$parameter]);
-        }
-        return $parameters;
-    }
-
-    /**
-     * @param callable|string $classOrCallable
-     * @param string|null $method
-     * @param array $parameters
-     * @return array[]
-     */
-    protected function checkParameters($classOrCallable, ?string $method = null, $parameters = array()): array
-    {
-        $requiredParameters = array();
-        $unusedParameters = array();
-        try{
-            if($method === null)
-                $reflection = new \ReflectionFunction($classOrCallable);
-            else
-                $reflection = new \ReflectionMethod($classOrCallable, $method);
-            //if($reflection->getNumberOfRequiredParameters() > count($parameters)){
-            $functionParameters = array();
-            foreach($reflection->getParameters() as $parameter){
-                $functionParameters[$parameter->getName()] = $parameter->isOptional();
-                if(!$parameter->isOptional() && !in_array($parameter->getName(), array_keys($parameters))){
-                    $requiredParameters[] = $parameter->getName();
-                }
-            }
-            foreach(array_keys($parameters) as $parameter){
-                if(!in_array($parameter, array_keys($functionParameters))){
-                    $unusedParameters[] = $parameter;
-                }
-            }
-        } catch(\ReflectionException $e) {
-        }
-        return [$requiredParameters, $unusedParameters];
-    }
-
-    /**
-     * @param callable|string $classOrCallable
-     * @param string|null $method
-     * @param array $requiredParameters
-     * @param array $unusedParameters
-     * @throws ParameterHttpException
-     */
-    protected function processParameterError($classOrCallable, $method = null, $requiredParameters = array(), $unusedParameters = array())
-    {
-        if(!SimpleRouter::router()->isProcessParametersSafe()){
-            if($method === null){
-                throw new ParameterHttpException(null, null, $requiredParameters, $unusedParameters);
-            }else{
-                throw new ParameterHttpException($classOrCallable, $method, $requiredParameters, $unusedParameters);
-            }
-        }
+        return \call_user_func_array([$class, $method], array_values($parameters));
     }
 
     protected function parseParameters($route, $url, $parameterRegex = null): ?array
