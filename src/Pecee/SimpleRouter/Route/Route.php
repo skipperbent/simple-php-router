@@ -5,11 +5,8 @@ namespace Pecee\SimpleRouter\Route;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException;
-use Pecee\SimpleRouter\Exceptions\MissingParametersHttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
-use Pecee\SimpleRouter\Exceptions\ParameterHttpException;
 use Pecee\SimpleRouter\Router;
-use Pecee\SimpleRouter\SimpleRouter;
 
 abstract class Route implements IRoute
 {

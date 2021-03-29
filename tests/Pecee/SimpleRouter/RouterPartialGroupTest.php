@@ -39,7 +39,7 @@ class RouterPartialGroupTest extends \PHPUnit\Framework\TestCase
 
         TestRouter::partialGroup(
             '/lang/{test}/',
-            function ($test, $lang = 'en') use($route1, $route2, $route3) {
+            function ($lang = 'en') use($route1, $route2, $route3) {
 
                 TestRouter::get('/test/', function () use($route1) {
                     return $route1;
