@@ -30,17 +30,17 @@ class BaseCsrfVerifier implements IMiddleware
      */
     protected function skip(Request $request): bool
     {
-        if ($this->except === null || \count($this->except) === 0) {
+        if ($this->except === null || count($this->except) === 0) {
             return false;
         }
 
-        $max = \count($this->except) - 1;
+        $max = count($this->except) - 1;
 
         for ($i = $max; $i >= 0; $i--) {
             $url = $this->except[$i];
 
             $url = rtrim($url, '/');
-            if ($url[\strlen($url) - 1] === '*') {
+            if ($url[strlen($url) - 1] === '*') {
                 $url = rtrim($url, '*');
                 $skip = $request->getUrl()->contains($url);
             } else {

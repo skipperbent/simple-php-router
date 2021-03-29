@@ -70,4 +70,47 @@ class RouterPartialGroupTest extends \PHPUnit\Framework\TestCase
 
     }
 
+    public function testPhp8CallUserFunc() {
+
+        TestRouter::router()->reset();
+
+        $result = false;
+        $lang = 'de';
+
+        TestRouter::group(['prefix' => '/lang'], function() use(&$result) {
+            TestRouter::get('/{lang}', function ($lang) use(&$result) {
+                $result = $lang;
+            });
+        });
+
+        TestRouter::debug("/lang/$lang");
+
+        $this->assertEquals($lang, $result);
+
+        // Test partial group
+
+        $lang = 'de';
+        $userId = 22;
+
+        $result1 = false;
+        $result2 = false;
+
+        TestRouter::partialGroup(
+            '/lang/{lang}/',
+            function ($lang) use(&$result1, &$result2) {
+
+                $result1 = $lang;
+
+                TestRouter::get('/user/{userId}', function ($userId) use(&$result2) {
+                    $result2 = $userId;
+                });
+            });
+
+        TestRouter::debug("/lang/$lang/user/$userId");
+
+        $this->assertEquals($lang, $result1);
+        $this->assertEquals($userId, $result2);
+
+    }
+
 }

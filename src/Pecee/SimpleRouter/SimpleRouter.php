@@ -10,6 +10,8 @@
 
 namespace Pecee\SimpleRouter;
 
+use Closure;
+use Exception;
 use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
@@ -54,7 +56,7 @@ class SimpleRouter
      * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
      * @throws \Pecee\Http\Middleware\Exceptions\TokenMismatchException
      * @throws HttpException
-     * @throws \Exception
+     * @throws Exception
      */
     public static function start(): void
     {
@@ -79,18 +81,18 @@ class SimpleRouter
             ob_start();
             static::router()->setDebugEnabled(true)->start();
             $routerOutput = ob_get_clean();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
 
         }
 
         // Try to parse library version
-        $composerFile = \dirname(__DIR__, 3) . '/composer.lock';
+        $composerFile = dirname(__DIR__, 3) . '/composer.lock';
         $version = false;
 
         if (is_file($composerFile) === true) {
             $composerInfo = json_decode(file_get_contents($composerFile), true);
 
-            if (isset($composerInfo['packages']) === true && \is_array($composerInfo['packages']) === true) {
+            if (isset($composerInfo['packages']) === true && is_array($composerInfo['packages']) === true) {
                 foreach ($composerInfo['packages'] as $package) {
                     if (isset($package['name']) === true && strtolower($package['name']) === 'pecee/simple-router') {
                         $version = $package['version'];
@@ -180,7 +182,7 @@ class SimpleRouter
      * Route the given url to your callback on GET request method.
      *
      * @param string $url
-     * @param string|array|\Closure $callback
+     * @param string|array|Closure $callback
      * @param array|null $settings
      *
      * @return RouteUrl
@@ -194,7 +196,7 @@ class SimpleRouter
      * Route the given url to your callback on POST request method.
      *
      * @param string $url
-     * @param string|array|\Closure $callback
+     * @param string|array|Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
@@ -207,7 +209,7 @@ class SimpleRouter
      * Route the given url to your callback on PUT request method.
      *
      * @param string $url
-     * @param string|array|\Closure $callback
+     * @param string|array|Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
@@ -220,7 +222,7 @@ class SimpleRouter
      * Route the given url to your callback on PATCH request method.
      *
      * @param string $url
-     * @param string|array|\Closure $callback
+     * @param string|array|Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
@@ -233,7 +235,7 @@ class SimpleRouter
      * Route the given url to your callback on OPTIONS request method.
      *
      * @param string $url
-     * @param string|array|\Closure $callback
+     * @param string|array|Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
@@ -246,7 +248,7 @@ class SimpleRouter
      * Route the given url to your callback on DELETE request method.
      *
      * @param string $url
-     * @param string|array|\Closure $callback
+     * @param string|array|Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      */
@@ -259,13 +261,13 @@ class SimpleRouter
      * Groups allows for encapsulating routes with special settings.
      *
      * @param array $settings
-     * @param \Closure $callback
+     * @param Closure $callback
      * @return RouteGroup
      * @throws InvalidArgumentException
      */
-    public static function group(array $settings, \Closure $callback): IGroupRoute
+    public static function group(array $settings, Closure $callback): IGroupRoute
     {
-        if (\is_callable($callback) === false) {
+        if (is_callable($callback) === false) {
             throw new InvalidArgumentException('Invalid callback provided. Only functions or methods supported');
         }
 
@@ -283,14 +285,14 @@ class SimpleRouter
      * parameters and which are only rendered when the url matches.
      *
      * @param string $url
-     * @param \Closure $callback
+     * @param Closure $callback
      * @param array $settings
      * @return RoutePartialGroup
      * @throws InvalidArgumentException
      */
-    public static function partialGroup(string $url, \Closure $callback, array $settings = []): IPartialGroupRoute
+    public static function partialGroup(string $url, Closure $callback, array $settings = []): IPartialGroupRoute
     {
-        if (\is_callable($callback) === false) {
+        if (is_callable($callback) === false) {
             throw new InvalidArgumentException('Invalid callback provided. Only functions or methods supported');
         }
 
@@ -309,7 +311,7 @@ class SimpleRouter
      * Alias for the form method
      *
      * @param string $url
-     * @param string|array|\Closure $callback
+     * @param string|array|Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      * @see SimpleRouter::form
@@ -324,7 +326,7 @@ class SimpleRouter
      * Route the given url to your callback on POST and GET request method.
      *
      * @param string $url
-     * @param string|array|\Closure $callback
+     * @param string|array|Closure $callback
      * @param array|null $settings
      * @return RouteUrl
      * @see SimpleRouter::form
@@ -342,7 +344,7 @@ class SimpleRouter
      *
      * @param array $requestMethods
      * @param string $url
-     * @param string|array|\Closure $callback
+     * @param string|array|Closure $callback
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
@@ -362,7 +364,7 @@ class SimpleRouter
      * This type will route the given url to your callback and allow any type of request method
      *
      * @param string $url
-     * @param string|array|\Closure $callback
+     * @param string|array|Closure $callback
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
@@ -418,10 +420,10 @@ class SimpleRouter
     /**
      * Add exception callback handler.
      *
-     * @param \Closure $callback
+     * @param Closure $callback
      * @return CallbackExceptionHandler $callbackHandler
      */
-    public static function error(\Closure $callback): CallbackExceptionHandler
+    public static function error(Closure $callback): CallbackExceptionHandler
     {
         $routes = static::router()->getRoutes();
 
@@ -458,7 +460,7 @@ class SimpleRouter
     {
         try {
             return static::router()->getUrl($name, $parameters, $getParams);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return new Url('/');
         }
     }
