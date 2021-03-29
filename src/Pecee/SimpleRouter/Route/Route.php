@@ -2,7 +2,6 @@
 
 namespace Pecee\SimpleRouter\Route;
 
-use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
@@ -153,11 +152,21 @@ abstract class Route implements IRoute
 
         if (isset($parameters[1]) === true) {
 
+            $groupParameters = $this->getGroup() !== null ? $this->getGroup()->getParameters() : [];
+
             /* Only take matched parameters with name */
             foreach ((array)$parameters[1] as $name) {
+
+                // Skip parent parameters
+                if(isset($groupParameters[$name]) === true) {
+                    continue;
+                }
+
                 $values[$name] = (isset($matches[$name]) === true && $matches[$name] !== '') ? $matches[$name] : null;
             }
         }
+
+        $this->originalParameters = $values;
 
         return $values;
     }
@@ -477,14 +486,6 @@ abstract class Route implements IRoute
      */
     public function setParameters(array $parameters): IRoute
     {
-        /*
-         * If this is the first time setting parameters we store them so we
-         * later can organize the array, in case somebody tried to sort the array.
-         */
-        if (\count($parameters) !== 0 && \count($this->originalParameters) === 0) {
-            $this->originalParameters = $parameters;
-        }
-
         $this->parameters = array_merge($this->parameters, $parameters);
 
         return $this;
