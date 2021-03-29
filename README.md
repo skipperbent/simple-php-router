@@ -655,6 +655,16 @@ SimpleRouter::group(['prefix' => '/admin'], function () {
 });
 ```
 
+You can also use parameters in your groups:
+
+```php
+SimpleRouter::group(['prefix' => '/lang/{language}'], function ($language) {
+    SimpleRouter::get('/users', function ()    {
+        // Matches The "/admin/users" URL
+    });
+});
+```
+
 ## Partial groups
 
 Partial router groups has the same benefits as a normal group, but supports parameters and are only rendered once the url has matched.

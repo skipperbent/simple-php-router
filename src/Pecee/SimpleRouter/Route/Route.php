@@ -154,16 +154,21 @@ abstract class Route implements IRoute
 
             $groupParameters = $this->getGroup() !== null ? $this->getGroup()->getParameters() : [];
 
+            $lastParams = [];
+
             /* Only take matched parameters with name */
             foreach ((array)$parameters[1] as $name) {
 
                 // Ignore parent parameters
                 if(isset($groupParameters[$name]) === true) {
+                    $lastParams[$name] = $matches[$name];
                     continue;
                 }
 
                 $values[$name] = (isset($matches[$name]) === true && $matches[$name] !== '') ? $matches[$name] : null;
             }
+
+            $values = array_merge($values, $lastParams);
         }
 
         $this->originalParameters = $values;
