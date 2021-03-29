@@ -111,6 +111,13 @@ class Router
     protected $classLoader;
 
     /**
+     * When enabled the router will render all routes that matches.
+     * When disabled the router will stop execution when first route is found.
+     * @var bool
+     */
+    protected $renderMultipleRoutes = true;
+
+    /**
      * Router constructor.
      */
     public function __construct()
@@ -262,12 +269,19 @@ class Router
 
     /**
      * Load routes
-     * @throws NotFoundHttpException
      * @return void
+     * @throws NotFoundHttpException
      */
     public function loadRoutes(): void
     {
         $this->debug('Loading routes');
+
+        $this->fireEvents(EventHandler::EVENT_LOAD_ROUTES, [
+            'routes' => $this->routes,
+        ]);
+
+        /* Loop through each route-request */
+        $this->processRoutes($this->routes);
 
         $this->fireEvents(EventHandler::EVENT_BOOT, [
             'bootmanagers' => $this->bootManagers,
@@ -291,13 +305,6 @@ class Router
             $this->debug('Finished rendering bootmanager "%s"', $className);
         }
 
-        $this->fireEvents(EventHandler::EVENT_LOAD_ROUTES, [
-            'routes' => $this->routes,
-        ]);
-
-        /* Loop through each route-request */
-        $this->processRoutes($this->routes);
-
         $this->debug('Finished loading routes');
     }
 
@@ -306,7 +313,7 @@ class Router
      *
      * @return string|null
      * @throws NotFoundHttpException
-     * @throws TokenMismatchException
+     * @throws \Pecee\Http\Middleware\Exceptions\TokenMismatchException
      * @throws HttpException
      * @throws \Exception
      */
@@ -350,7 +357,7 @@ class Router
     {
         $this->debug('Routing request');
 
-        $methodNotAllowed = false;
+        $methodNotAllowed = null;
 
         try {
             $url = $this->request->getRewriteUrl() ?? $this->request->getUrl()->getPath();
@@ -370,7 +377,12 @@ class Router
                     /* Check if request method matches */
                     if (\count($route->getRequestMethods()) !== 0 && \in_array($this->request->getMethod(), $route->getRequestMethods(), true) === false) {
                         $this->debug('Method "%s" not allowed', $this->request->getMethod());
-                        $methodNotAllowed = true;
+
+                        // Only set method not allowed is not already set
+                        if ($methodNotAllowed === null) {
+                            $methodNotAllowed = true;
+                        }
+
                         continue;
                     }
 
@@ -421,14 +433,21 @@ class Router
                         'route' => $route,
                     ]);
 
-                    $output = $route->renderRoute($this->request, $this);
-                    if ($output !== null) {
-                        return $output;
-                    }
+                    $routeOutput = $route->renderRoute($this->request, $this);
 
-                    $output = $this->handleRouteRewrite($key, $url);
-                    if ($output !== null) {
-                        return $output;
+                    if ($this->renderMultipleRoutes === true) {
+                        if ($routeOutput !== null) {
+                            return $routeOutput;
+                        }
+
+                        $output = $this->handleRouteRewrite($key, $url);
+                        if ($output !== null) {
+                            return $output;
+                        }
+                    } else {
+                        $output = $this->handleRouteRewrite($key, $url);
+
+                        return $output ?? $routeOutput;
                     }
                 }
             }
@@ -469,7 +488,7 @@ class Router
      * @throws HttpException
      * @throws \Exception
      */
-    protected function handleRouteRewrite($key, string $url): ?string
+    protected function handleRouteRewrite(string $key, string $url): ?string
     {
         /* If the request has changed */
         if ($this->request->hasPendingRewrite() === false) {
@@ -502,9 +521,9 @@ class Router
 
     /**
      * @param \Exception $e
-     * @throws HttpException
-     * @throws \Exception
      * @return string|null
+     * @throws \Exception
+     * @throws HttpException
      */
     protected function handleException(\Exception $e): ?string
     {
@@ -691,14 +710,16 @@ class Router
                 ->setParams($getParams);
         }
 
-        /* We try to find a match on the given name */
-        $route = $this->findRoute($name);
+        if($name !== null) {
+            /* We try to find a match on the given name */
+            $route = $this->findRoute($name);
 
-        if ($route !== null) {
-            return $this->request
-                ->getUrlCopy()
-                ->setPath($route->findUrl($route->getMethod(), $parameters, $name))
-                ->setParams($getParams);
+            if ($route !== null) {
+                return $this->request
+                    ->getUrlCopy()
+                    ->setPath($route->findUrl($route->getMethod(), $parameters, $name))
+                    ->setParams($getParams);
+            }
         }
 
         /* Using @ is most definitely a controller@method or alias@method */
@@ -880,7 +901,7 @@ class Router
      * @param string $name
      * @param array $arguments
      */
-    protected function fireEvents($name, array $arguments = []): void
+    protected function fireEvents(string $name, array $arguments = []): void
     {
         if (\count($this->eventHandlers) === 0) {
             return;
@@ -932,6 +953,21 @@ class Router
     public function getDebugLog(): array
     {
         return $this->debugList;
+    }
+
+    /**
+     * Changes the rendering behavior of the router.
+     * When enabled the router will render all routes that matches.
+     * When disabled the router will stop rendering at the first route that matches.
+     *
+     * @param bool $bool
+     * @return $this
+     */
+    public function setRenderMultipleRoutes(bool $bool): self
+    {
+        $this->renderMultipleRoutes = $bool;
+
+        return $this;
     }
 
 }

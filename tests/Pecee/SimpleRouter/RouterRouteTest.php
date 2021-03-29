@@ -107,6 +107,42 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('it, system', $response);
     }
 
+    public function testFixedDomain()
+    {
+        $result = false;
+        TestRouter::request()->setHost('admin.world.com');
+
+        TestRouter::group(['domain' => 'admin.world.com'], function () use (&$result) {
+            TestRouter::get('/test', function ($subdomain = null) use (&$result) {
+                $result = true;
+            });
+        });
+
+        TestRouter::debug('/test', 'get');
+
+        $this->assertTrue($result);
+    }
+
+    public function testFixedNotAllowedDomain()
+    {
+        $result = false;
+        TestRouter::request()->setHost('other.world.com');
+
+        TestRouter::group(['domain' => 'admin.world.com'], function () use (&$result) {
+            TestRouter::get('/', function ($subdomain = null) use (&$result) {
+                $result = true;
+            });
+        });
+
+        try {
+            TestRouter::debug('/', 'get');
+        } catch(\Exception $e) {
+
+        }
+
+        $this->assertFalse($result);
+    }
+
     public function testDomainAllowedRoute()
     {
         $result = false;
@@ -206,6 +242,17 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
         TestRouter::match(['put', 'get', 'post'], '/my/test/url', ['DummyController', 'method1']);
 
         TestRouter::debug('/my/test/url', 'get');
+
+        $this->assertTrue(true);
+    }
+
+    public function testSameRoutes()
+    {
+        TestRouter::get('/recipe', 'DummyController@method1')->name('add');
+        TestRouter::post('/recipe', 'DummyController@method2')->name('edit');
+
+        TestRouter::debugNoReset('/recipe', 'post');
+        TestRouter::debug('/recipe', 'get');
 
         $this->assertTrue(true);
     }
