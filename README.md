@@ -659,8 +659,8 @@ You can also use parameters in your groups:
 
 ```php
 SimpleRouter::group(['prefix' => '/lang/{language}'], function ($language) {
-    SimpleRouter::get('/users', function ()    {
-        // Matches The "/admin/users" URL
+    SimpleRouter::get('/users', function ($language)    {
+        // Matches The "/lang/da/users" URL
     });
 });
 ```
