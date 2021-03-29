@@ -56,9 +56,17 @@ class RouteGroup extends Route implements IGroupRoute
             return false;
         }
 
-        // Parse group prefix parameters
-        if(count($this->originalParameters) === 0) {
-            $this->parseParameters($this->prefix, $url);
+        if ($this->prefix !== null) {
+            /* Parse parameters from current route */
+            $parameters = $this->parseParameters($this->prefix, $url);
+
+            /* If no custom regular expression or parameters was found on this route, we stop */
+            if ($parameters === null) {
+                return false;
+            }
+
+            /* Set the parameters */
+            $this->setParameters($parameters);
         }
 
         $parsedPrefix = $this->prefix;

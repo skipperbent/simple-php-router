@@ -231,6 +231,10 @@ class InputHandler
     {
         $element = null;
 
+        if(count($methods) > 0) {
+            $methods = is_array(...$methods) ? array_values(...$methods) : $methods;
+        }
+
         if (count($methods) === 0 || in_array(Request::REQUEST_TYPE_GET, $methods, true) === true) {
             $element = $this->get($index);
         }
