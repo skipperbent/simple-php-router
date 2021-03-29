@@ -80,7 +80,11 @@ abstract class Route implements IRoute
             $router->debug('Executing callback');
 
             /* When the callback is a function */
-            $parameters = $this->checkParameters($callback, null, $parameters);
+            if(is_array($callback)){
+                $parameters = $this->checkParameters($callback[0], $callback[1], $parameters);
+            }else{
+                $parameters = $this->checkParameters($callback, null, $parameters);
+            }
             return $router->getClassLoader()->loadClosure($callback, $parameters);
         }
 
