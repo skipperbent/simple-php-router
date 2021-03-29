@@ -7,6 +7,7 @@ use Pecee\SimpleRouter\Handlers\IExceptionHandler;
 
 class RouteGroup extends Route implements IGroupRoute
 {
+    protected $urlRegex = '/^%s\/?/u';
     protected $prefix;
     protected $name;
     protected $domains = [];
@@ -55,16 +56,19 @@ class RouteGroup extends Route implements IGroupRoute
             return false;
         }
 
-        // Parse parameter
+        // Parse group prefix parameters
+        if(count($this->originalParameters) === 0) {
+            $this->parseParameters($this->prefix, $url);
+        }
 
-        $prefix = $this->prefix;
+        $parsedPrefix = $this->prefix;
 
         foreach ($this->getParameters() as $parameter => $value) {
-            $prefix = str_ireplace('{' . $parameter . '}', $value, $prefix);
+            $parsedPrefix = str_ireplace('{' . $parameter . '}', $value, $parsedPrefix);
         }
 
         /* Skip if prefix doesn't match */
-        if ($this->prefix !== null && stripos($url, $prefix) === false) {
+        if ($this->prefix !== null && stripos($url, $parsedPrefix) === false) {
             return false;
         }
 

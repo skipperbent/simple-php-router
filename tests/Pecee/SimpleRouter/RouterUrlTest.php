@@ -271,4 +271,41 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
         TestRouter::router()->reset();
     }
 
+    public function testGroupPrefix() {
+
+        $result = false;
+
+        TestRouter::group(['prefix' => '/lang/{lang}'], function () use(&$result) {
+
+            TestRouter::get('/test', function() use(&$result) {
+                $result = true;
+            });
+        });
+
+        TestRouter::debug('/lang/da/test');
+
+        $this->assertTrue($result);
+
+        // Test group prefix sub-route
+
+        $result = null;
+        $expectedResult = 28;
+
+        TestRouter::group(['prefix' => '/lang/{lang}'], function () use(&$result, $expectedResult) {
+
+            TestRouter::get('/horse/{horseType}', function($horseType) use(&$result) {
+                $result = false;
+            });
+
+            TestRouter::get('/user/{userId}', function($userId) use(&$result, $expectedResult) {
+                $result = $userId;
+            });
+        });
+
+        TestRouter::debug("/lang/da/user/$expectedResult");
+
+        $this->assertEquals($expectedResult, $result);
+
+    }
+
 }

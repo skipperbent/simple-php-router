@@ -6,14 +6,7 @@ use Pecee\Http\Request;
 
 class RoutePartialGroup extends RouteGroup implements IPartialGroupRoute
 {
-
-    /**
-     * RoutePartialGroup constructor.
-     */
-    public function __construct()
-    {
-        $this->urlRegex = '/^%s\/?/u';
-    }
+    protected $urlRegex = '/^%s\/?/u';
 
     /**
      * Method called to check if route matches
