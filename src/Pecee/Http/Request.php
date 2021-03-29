@@ -120,7 +120,8 @@ class Request
      * @param string|null $method
      * @throws MalformedUrlException
      */
-    public function __construct(string $method = null){
+    public function __construct(string $method = null)
+    {
         foreach($_SERVER as $key => $value){
             $this->headers[strtolower($key)] = $value;
             $this->headers[str_replace('_', '-', strtolower($key))] = $value;
@@ -141,7 +142,6 @@ class Request
             $this->setMethod($method);
         }
 
-        $this->method = $method !== null ? $method : $this->getHeader('request-method');
         $this->inputHandler = new InputHandler($this);
     }
 

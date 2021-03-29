@@ -88,20 +88,26 @@ class InputHandler
             $this->get = $this->parseInputItem($this->originalParams);
         }
 
-        /* Parse post requests */
-        $this->originalPost = $_POST;
+        /* Get body */
+        $this->originalBodyPlain = file_get_contents('php://input');
 
-        if (\in_array($this->request->getMethod(), Request::$requestTypesPost, false) === true) {
-
-            $contents = file_get_contents('php://input');
-
-            // Append any PHP-input json
-            if (strpos(trim($contents), '{') === 0) {
-                $post = json_decode($contents, true);
-
-                if ($post !== false) {
-                    $this->originalPost += $post;
-                }
+        /* Parse body */
+        if (in_array($this->request->getMethod(), Request::$requestTypesPost, false)) {
+            switch($this->request->getContentType()){
+                case Request::CONTENT_TYPE_JSON:
+                    $body = json_decode($this->originalBodyPlain, true);
+                    if ($body !== false) {
+                        $this->originalBody = $body;
+                        $this->data = $this->parseInputItem($body);
+                    }
+                    break;
+                //case Request::CONTENT_TYPE_X_FORM_ENCODED|Request::CONTENT_TYPE_FORM_DATA:
+                default:
+                    if (count($_POST) !== 0) {
+                        $this->originalPost = $_POST;
+                        $this->data = $this->parseInputItem($this->originalPost);
+                    }
+                    break;
             }
         }
 
