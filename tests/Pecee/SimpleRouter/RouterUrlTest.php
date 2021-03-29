@@ -10,7 +10,7 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
     public function testIssue253()
     {
         TestRouter::get('/', 'DummyController@method1');
-        TestRouter::get('/page/{id?}', 'DummyController@method1');
+        TestRouter::get('/page/{id?}', 'DummyController@methodId');
         TestRouter::get('/test-output', function () {
             return 'return value';
         });
@@ -30,8 +30,8 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
     public function testUnicodeCharacters()
     {
         // Test spanish characters
-        TestRouter::get('/cursos/listado/{listado?}/{category?}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s\-]+']);
-        TestRouter::get('/test/{param}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s\-\í]+']);
+        TestRouter::get('/cursos/listado/{listado?}/{category?}', 'DummyController@methodListado', ['defaultParameterRegex' => '[\w\p{L}\s\-]+']);
+        TestRouter::get('/test/{param}', 'DummyController@paramPlain', ['defaultParameterRegex' => '[\w\p{L}\s\-\í]+']);
         TestRouter::debugNoReset('/cursos/listado/especialidad/cirugía local', 'get');
 
         $this->assertEquals('/cursos/listado/{listado?}/{category?}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
@@ -53,9 +53,9 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
     public function testOptionalParameters()
     {
         TestRouter::get('/aviso/legal', 'DummyController@method1');
-        TestRouter::get('/aviso/{aviso}', 'DummyController@method1');
-        TestRouter::get('/pagina/{pagina}', 'DummyController@method1');
-        TestRouter::get('/{pagina?}', 'DummyController@method1');
+        TestRouter::get('/aviso/{aviso}', 'DummyController@methodAviso');
+        TestRouter::get('/pagina/{pagina}', 'DummyController@methodPagina');
+        TestRouter::get('/{pagina?}', 'DummyController@methodPagina');
 
         TestRouter::debugNoReset('/aviso/optional', 'get');
         $this->assertEquals('/aviso/{aviso}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());

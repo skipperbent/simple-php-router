@@ -15,7 +15,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
     public function testOptionalCharacterRoute()
     {
         $result = false;
-        TestRouter::get('/api/v1/users/{userid}/projects/{id}/pages/{pageid?}', function () use (&$result) {
+        TestRouter::get('/api/v1/users/{userid}/projects/{id}/pages/{pageid?}', function ($userid, $id, $pageid = null) use (&$result) {
             $result = true;
         });
 
@@ -93,7 +93,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
     public function testSimpleParam()
     {
-        TestRouter::get('/test-{param1}', 'DummyController@param');
+        TestRouter::get('/test-{param1}', 'DummyController@param1');
         $response = TestRouter::debugOutput('/test-param1', 'get');
 
         $this->assertEquals('param1', $response);
@@ -101,7 +101,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
     public function testPathParamRegex()
     {
-        TestRouter::get('/{lang}/productscategories/{name}', 'DummyController@param', ['where' => ['lang' => '[a-z]+', 'name' => '[A-Za-z0-9-]+']]);
+        TestRouter::get('/{lang}/productscategories/{name}', 'DummyController@paramLangName', ['where' => ['lang' => '[a-z]+', 'name' => '[A-Za-z0-9-]+']]);
         $response = TestRouter::debugOutput('/it/productscategories/system', 'get');
 
         $this->assertEquals('it, system', $response);
@@ -148,7 +148,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
         $result = false;
         TestRouter::request()->setHost('hello.world.com');
 
-        TestRouter::group(['domain' => '{subdomain}.world.com'], function () use (&$result) {
+        TestRouter::group(['domain' => '{subdomain}.world.com'], function ($subdomain) use (&$result) {
             TestRouter::get('/test', function ($subdomain = null) use (&$result) {
                 $result = ($subdomain === 'hello');
             });
@@ -166,7 +166,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
         $result = false;
 
-        TestRouter::group(['domain' => '{subdomain}.world.com'], function () use (&$result) {
+        TestRouter::group(['domain' => '{subdomain}.world.com'], function ($subdomain) use (&$result) {
             TestRouter::get('/test', function ($subdomain = null) use (&$result) {
                 $result = ($subdomain === 'hello');
             });
@@ -180,7 +180,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
     public function testRegEx()
     {
-        TestRouter::get('/my/{path}', 'DummyController@method1')->where(['path' => '[a-zA-Z-]+']);
+        TestRouter::get('/my/{path}', 'DummyController@methodPath')->where(['path' => '[a-zA-Z-]+']);
         TestRouter::debug('/my/custom-path', 'get');
 
         $this->assertTrue(true);
@@ -218,7 +218,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
     public function testDefaultParameterRegex()
     {
-        TestRouter::get('/my/{path}', 'DummyController@param', ['defaultParameterRegex' => '[\w-]+']);
+        TestRouter::get('/my/{path}', 'DummyController@paramPath', ['defaultParameterRegex' => '[\w-]+']);
         $output = TestRouter::debugOutput('/my/custom-regex', 'get');
 
         $this->assertEquals('custom-regex', $output);
@@ -227,7 +227,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
     public function testDefaultParameterRegexGroup()
     {
         TestRouter::group(['defaultParameterRegex' => '[\w-]+'], function () {
-            TestRouter::get('/my/{path}', 'DummyController@param');
+            TestRouter::get('/my/{path}', 'DummyController@paramPath');
         });
 
         $output = TestRouter::debugOutput('/my/custom-regex', 'get');

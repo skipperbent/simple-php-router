@@ -100,7 +100,6 @@ abstract class Route implements IRoute
 
         $router->debug('Executing callback');
 
-        echo '!' . $className . '@' . $method . ':' . json_encode($parameters);
         return \call_user_func_array([$class, $method], $parameters);
     }
 
