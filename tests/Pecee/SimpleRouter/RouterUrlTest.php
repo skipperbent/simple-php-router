@@ -308,4 +308,22 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
 
     }
 
+    public function testPassParameter() {
+
+        $result = false;
+        $expectedLanguage = 'da';
+
+        TestRouter::group(['prefix' => '/lang/{lang}'], function () use(&$result, $expectedLanguage) {
+
+            TestRouter::get('/test', function($language) use(&$result, $expectedLanguage) {
+                $result = $expectedLanguage;
+            });
+        });
+
+        TestRouter::debug("/lang/$expectedLanguage/test");
+
+        $this->assertEquals($expectedLanguage, $result);
+
+    }
+
 }
