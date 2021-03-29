@@ -2,7 +2,9 @@
 
 namespace Pecee\Http\Security\Exceptions;
 
-class SecurityException extends \Exception
+use Exception;
+
+class SecurityException extends Exception
 {
 
 }

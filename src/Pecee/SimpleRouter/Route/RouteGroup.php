@@ -7,6 +7,7 @@ use Pecee\SimpleRouter\Handlers\IExceptionHandler;
 
 class RouteGroup extends Route implements IGroupRoute
 {
+    protected $urlRegex = '/^%s\/?/u';
     protected $prefix;
     protected $name;
     protected $domains = [];
@@ -20,7 +21,7 @@ class RouteGroup extends Route implements IGroupRoute
      */
     public function matchDomain(Request $request): bool
     {
-        if ($this->domains === null || \count($this->domains) === 0) {
+        if ($this->domains === null || count($this->domains) === 0) {
             return true;
         }
 
@@ -33,7 +34,7 @@ class RouteGroup extends Route implements IGroupRoute
 
             $parameters = $this->parseParameters($domain, $request->getHost(), '.*');
 
-            if ($parameters !== null && \count($parameters) !== 0) {
+            if ($parameters !== null && count($parameters) !== 0) {
                 $this->parameters = $parameters;
                 return true;
             }
@@ -55,16 +56,27 @@ class RouteGroup extends Route implements IGroupRoute
             return false;
         }
 
-        // Parse parameter
+        if ($this->prefix !== null) {
+            /* Parse parameters from current route */
+            $parameters = $this->parseParameters($this->prefix, $url);
 
-        $prefix = $this->prefix;
+            /* If no custom regular expression or parameters was found on this route, we stop */
+            if ($parameters === null) {
+                return false;
+            }
+
+            /* Set the parameters */
+            $this->setParameters($parameters);
+        }
+
+        $parsedPrefix = $this->prefix;
 
         foreach ($this->getParameters() as $parameter => $value) {
-            $prefix = str_ireplace('{' . $parameter . '}', $value, $prefix);
+            $parsedPrefix = str_ireplace('{' . $parameter . '}', $value, $parsedPrefix);
         }
 
         /* Skip if prefix doesn't match */
-        if ($this->prefix !== null && stripos($url, $prefix) === false) {
+        if ($this->prefix !== null && stripos($url, $parsedPrefix) === false) {
             return false;
         }
 
@@ -204,7 +216,7 @@ class RouteGroup extends Route implements IGroupRoute
             $values['as'] = $this->name;
         }
 
-        if (\count($this->parameters) !== 0) {
+        if (count($this->parameters) !== 0) {
             $values['parameters'] = $this->parameters;
         }
 

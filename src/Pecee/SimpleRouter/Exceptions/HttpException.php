@@ -2,7 +2,9 @@
 
 namespace Pecee\SimpleRouter\Exceptions;
 
-class HttpException extends \Exception
+use Exception;
+
+class HttpException extends Exception
 {
 
 }

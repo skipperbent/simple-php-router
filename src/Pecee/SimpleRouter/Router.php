@@ -2,6 +2,7 @@
 
 namespace Pecee\SimpleRouter;
 
+use Exception;
 use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Exceptions\MalformedUrlException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
@@ -188,7 +189,7 @@ class Router
         $route->renderRoute($this->request, $this);
         $this->isProcessingRoute = false;
 
-        if (\count($this->routeStack) !== 0) {
+        if (count($this->routeStack) !== 0) {
 
             /* Pop and grab the routes added when executing group callback earlier */
             $stack = $this->routeStack;
@@ -225,7 +226,7 @@ class Router
         /* @var $route IRoute */
         foreach ($routes as $route) {
 
-            $this->debug('Processing route "%s"', \get_class($route));
+            $this->debug('Processing route "%s"', get_class($route));
 
             if ($group !== null) {
                 /* Add the parent group */
@@ -238,7 +239,7 @@ class Router
                 if ($route->matchRoute($url, $this->request) === true) {
 
                     /* Add exception handlers */
-                    if (\count($route->getExceptionHandlers()) !== 0) {
+                    if (count($route->getExceptionHandlers()) !== 0) {
                         /** @noinspection AdditionOperationOnArraysInspection */
                         $exceptionHandlers += $route->getExceptionHandlers();
                     }
@@ -292,7 +293,7 @@ class Router
         /* @var $manager IRouterBootManager */
         foreach ($this->bootManagers as $manager) {
 
-            $className = \get_class($manager);
+            $className = get_class($manager);
             $this->debug('Rendering bootmanager "%s"', $className);
             $this->fireEvents(EventHandler::EVENT_RENDER_BOOTMANAGER, [
                 'bootmanagers' => $this->bootManagers,
@@ -315,7 +316,7 @@ class Router
      * @throws NotFoundHttpException
      * @throws \Pecee\Http\Middleware\Exceptions\TokenMismatchException
      * @throws HttpException
-     * @throws \Exception
+     * @throws Exception
      */
     public function start(): ?string
     {
@@ -351,7 +352,7 @@ class Router
      *
      * @return string|null
      * @throws HttpException
-     * @throws \Exception
+     * @throws Exception
      */
     public function routeRequest(): ?string
     {
@@ -365,7 +366,7 @@ class Router
             /* @var $route ILoadableRoute */
             foreach ($this->processedRoutes as $key => $route) {
 
-                $this->debug('Matching route "%s"', \get_class($route));
+                $this->debug('Matching route "%s"', get_class($route));
 
                 /* If the route matches */
                 if ($route->matchRoute($url, $this->request) === true) {
@@ -375,7 +376,7 @@ class Router
                     ]);
 
                     /* Check if request method matches */
-                    if (\count($route->getRequestMethods()) !== 0 && \in_array($this->request->getMethod(), $route->getRequestMethods(), true) === false) {
+                    if (count($route->getRequestMethods()) !== 0 && in_array($this->request->getMethod(), $route->getRequestMethods(), true) === false) {
                         $this->debug('Method "%s" not allowed', $this->request->getMethod());
 
                         // Only set method not allowed is not already set
@@ -425,7 +426,7 @@ class Router
                 }
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->handleException($e);
         }
 
@@ -434,7 +435,7 @@ class Router
             $this->handleException(new NotFoundHttpException($message, 403));
         }
 
-        if (\count($this->request->getLoadedRoutes()) === 0) {
+        if (count($this->request->getLoadedRoutes()) === 0) {
 
             $rewriteUrl = $this->request->getRewriteUrl();
 
@@ -459,7 +460,7 @@ class Router
      * @param string $url
      * @return string|null
      * @throws HttpException
-     * @throws \Exception
+     * @throws Exception
      */
     protected function handleRouteRewrite(string $key, string $url): ?string
     {
@@ -493,14 +494,14 @@ class Router
     }
 
     /**
-     * @param \Exception $e
+     * @param Exception $e
      * @return string|null
-     * @throws \Exception
+     * @throws Exception
      * @throws HttpException
      */
-    protected function handleException(\Exception $e): ?string
+    protected function handleException(Exception $e): ?string
     {
-        $this->debug('Starting exception handling for "%s"', \get_class($e));
+        $this->debug('Starting exception handling for "%s"', get_class($e));
 
         $this->fireEvents(EventHandler::EVENT_LOAD_EXCEPTIONS, [
             'exception'         => $e,
@@ -510,7 +511,7 @@ class Router
         /* @var $handler IExceptionHandler */
         foreach ($this->exceptionHandlers as $key => $handler) {
 
-            if (\is_object($handler) === false) {
+            if (is_object($handler) === false) {
                 $handler = new $handler();
             }
 
@@ -520,7 +521,7 @@ class Router
                 'exceptionHandlers' => $this->exceptionHandlers,
             ]);
 
-            $this->debug('Processing exception-handler "%s"', \get_class($handler));
+            $this->debug('Processing exception-handler "%s"', get_class($handler));
 
             if (($handler instanceof IExceptionHandler) === false) {
                 throw new HttpException('Exception handler must implement the IExceptionHandler interface.', 500);
@@ -549,7 +550,7 @@ class Router
                     return $this->routeRequest();
                 }
 
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
 
             }
 
@@ -592,7 +593,7 @@ class Router
             }
 
             /* Using @ is most definitely a controller@method or alias@method */
-            if (\is_string($name) === true && strpos($name, '@') !== false) {
+            if (is_string($name) === true && strpos($name, '@') !== false) {
                 [$controller, $method] = array_map('strtolower', explode('@', $name));
 
                 if ($controller === strtolower($route->getClass()) && $method === strtolower($route->getMethod())) {
@@ -604,7 +605,7 @@ class Router
 
             /* Check if callback matches (if it's not a function) */
             $callback = $route->getCallback();
-            if (\is_string($name) === true && \is_string($callback) === true && \is_callable($callback) === false && strpos($name, '@') !== false && strpos($callback, '@') !== false) {
+            if (is_string($name) === true && is_string($callback) === true && is_callable($callback) === false && strpos($name, '@') !== false && strpos($callback, '@') !== false) {
 
                 /* Check if the entire callback is matching */
                 if (strpos($callback, $name) === 0 || strtolower($callback) === strtolower($name)) {
@@ -647,7 +648,7 @@ class Router
      */
     public function getUrl(?string $name = null, $parameters = null, ?array $getParams = null): Url
     {
-        $this->debug('Finding url', \func_get_args());
+        $this->debug('Finding url', func_get_args());
 
         $this->fireEvents(EventHandler::EVENT_GET_URL, [
             'name'       => $name,
@@ -655,7 +656,7 @@ class Router
             'getParams'  => $getParams,
         ]);
 
-        if ($getParams !== null && \is_array($getParams) === false) {
+        if ($getParams !== null && is_array($getParams) === false) {
             throw new InvalidArgumentException('Invalid type for getParams. Must be array or null');
         }
 
@@ -696,7 +697,7 @@ class Router
         }
 
         /* Using @ is most definitely a controller@method or alias@method */
-        if (\is_string($name) === true && strpos($name, '@') !== false) {
+        if (is_string($name) === true && strpos($name, '@') !== false) {
             [$controller, $method] = explode('@', $name);
 
             /* Loop through all the routes to see if we can find a match */
@@ -876,7 +877,7 @@ class Router
      */
     protected function fireEvents(string $name, array $arguments = []): void
     {
-        if (\count($this->eventHandlers) === 0) {
+        if (count($this->eventHandlers) === 0) {
             return;
         }
 
