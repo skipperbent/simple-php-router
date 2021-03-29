@@ -99,7 +99,7 @@ abstract class Route implements IRoute
 
         $router->debug('Executing callback');
 
-        return call_user_func_array([$class, $method], $parameters);
+        return call_user_func_array([$class, $method], array_values($parameters));
     }
 
     protected function parseParameters($route, $url, $parameterRegex = null): ?array
