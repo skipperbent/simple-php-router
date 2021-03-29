@@ -25,7 +25,6 @@ class RouteUrl extends LoadableRoute
             return false;
         }
 
-        //TODO check access
         /* Parse parameters from current route */
         $parameters = $this->parseParameters($this->url, $url);
 
