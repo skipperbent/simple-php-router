@@ -1495,6 +1495,18 @@ class MyCustomClassLoader implements IClassLoader
 
         return new $class();
     }
+    
+    /**
+     * Called when loading class method
+     * @param object $class
+     * @param string $method
+     * @param array $parameters
+     * @return object
+     */
+    public function loadClassMethod($class, string $method, array $parameters)
+    {
+        return call_user_func_array([$class, $method], array_values($parameters));
+    }
 
     /**
      * Load closure
@@ -1505,7 +1517,7 @@ class MyCustomClassLoader implements IClassLoader
      */
     public function loadClosure(Callable $closure, array $parameters)
     {
-        return \call_user_func_array($closure, $parameters);
+        return \call_user_func_array($closure, array_values($parameters));
     }
 
 }
@@ -1522,6 +1534,8 @@ SimpleRouter::setCustomClassLoader(new MyCustomClassLoader());
 php-di support was discontinued by version 4.3, however you can easily add it again by creating your own class-loader like the example below:
 
 ```php
+use Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException;
+
 class MyCustomClassLoader implements IClassLoader
 {
 
@@ -1530,7 +1544,7 @@ class MyCustomClassLoader implements IClassLoader
     public function __construct()
     {
         // Create our new php-di container
-        $container = (new \DI\ContainerBuilder())
+        $this->container = (new \DI\ContainerBuilder())
                     ->useAutowiring(true)
                     ->build();
     }
@@ -1548,15 +1562,27 @@ class MyCustomClassLoader implements IClassLoader
             throw new NotFoundHttpException(sprintf('Class "%s" does not exist', $class), 404);
         }
 
-        if ($this->container !== null) {
-            try {
-                return $this->container->get($class);
-            } catch (\Exception $e) {
-                throw new NotFoundHttpException($e->getMessage(), (int)$e->getCode(), $e->getPrevious());
-            }
-        }
-
-        return new $class();
+		try {
+			return $this->container->get($class);
+		} catch (\Exception $e) {
+			throw new NotFoundHttpException($e->getMessage(), (int)$e->getCode(), $e->getPrevious());
+		}
+    }
+    
+    /**
+     * Called when loading class method
+     * @param object $class
+     * @param string $method
+     * @param array $parameters
+     * @return object
+     */
+    public function loadClassMethod($class, string $method, array $parameters)
+    {
+		try {
+			return $this->container->call([$class, $method], $parameters);
+		} catch (\Exception $e) {
+			throw new NotFoundHttpException($e->getMessage(), (int)$e->getCode(), $e->getPrevious());
+		}
     }
 
     /**
@@ -1566,19 +1592,14 @@ class MyCustomClassLoader implements IClassLoader
      * @param array $parameters
      * @return mixed
      */
-    public function loadClosure(Callable $closure, array $parameters)
+    public function loadClosure(callable $closure, array $parameters)
     {
-        if ($this->container !== null) {
-            try {
-                return $this->container->call($closure, $parameters);
-            } catch (\Exception $e) {
-                throw new NotFoundHttpException($e->getMessage(), (int)$e->getCode(), $e->getPrevious());
-            }
-        }
-
-        return \call_user_func_array($closure, $parameters);
+		try {
+			return $this->container->call($closure, $parameters);
+		} catch (\Exception $e) {
+			throw new NotFoundHttpException($e->getMessage(), (int)$e->getCode(), $e->getPrevious());
+		}
     }
-
 }
 ```
 
