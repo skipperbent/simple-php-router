@@ -2,6 +2,7 @@
 
 namespace Pecee\Http\Security;
 
+use Exception;
 use Pecee\Http\Security\Exceptions\SecurityException;
 
 class CookieTokenProvider implements ITokenProvider
@@ -34,7 +35,7 @@ class CookieTokenProvider implements ITokenProvider
     {
         try {
             return bin2hex(random_bytes(32));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new SecurityException($e->getMessage(), (int)$e->getCode(), $e->getPrevious());
         }
     }

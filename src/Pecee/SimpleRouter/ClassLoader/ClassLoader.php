@@ -23,6 +23,18 @@ class ClassLoader implements IClassLoader
     }
 
     /**
+     * Called when loading class method
+     * @param object $class
+     * @param string $method
+     * @param array $parameters
+     * @return object
+     */
+    public function loadClassMethod($class, string $method, array $parameters)
+    {
+        return call_user_func_array([$class, $method], array_values($parameters));
+    }
+
+    /**
      * Load closure
      *
      * @param Callable $closure
@@ -31,7 +43,7 @@ class ClassLoader implements IClassLoader
      */
     public function loadClosure(Callable $closure, array $parameters)
     {
-        return \call_user_func_array($closure, $parameters);
+        return call_user_func_array($closure, array_values($parameters));
     }
 
 }

@@ -2,6 +2,7 @@
 
 namespace Pecee\SimpleRouter\Event;
 
+use InvalidArgumentException;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Router;
 
@@ -91,11 +92,11 @@ class EventArgument implements IEventArgument
     /**
      * @param string $name
      * @param mixed $value
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __set(string $name, $value)
     {
-        throw new \InvalidArgumentException('Not supported');
+        throw new InvalidArgumentException('Not supported');
     }
 
     /**
