@@ -13,6 +13,15 @@ interface IClassLoader
     public function loadClass(string $class);
 
     /**
+     * Called when loading class method
+     * @param object $class
+     * @param string $method
+     * @param array $parameters
+     * @return object
+     */
+    public function loadClassMethod($class, string $method, array $parameters);
+
+    /**
      * Called when loading method
      *
      * @param callable $closure
