@@ -48,7 +48,6 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 		- [Namespaces](#namespaces)
 		- [Subdomain-routing](#subdomain-routing)
 		- [Route prefixes](#route-prefixes)
-	- [Partial groups](#partial-groups)
 	- [Form Method Spoofing](#form-method-spoofing)
 	- [Accessing The Current Route](#accessing-the-current-route)
 	- [Other examples](#other-examples)
@@ -631,6 +630,23 @@ SimpleRouter::group(['namespace' => 'Admin'], function () {
 });
 ```
 
+You can add parameters to the prefixes of your routes.
+
+Parameters from your previous routes will be injected 
+into your routes after any route-required parameters, starting from oldest to newest.
+
+```php
+SimpleRouter::group(['prefix' => '/lang/{lang}'], function ($language) {
+    
+    SimpleRouter::get('/about', function($language) {
+    	
+    	// Will match /lang/da/about
+    	
+    });
+    
+});
+```
+
 ### Subdomain-routing
 
 Route groups may also be used to handle sub-domain routing. Sub-domains may be assigned route parameters just like route urls, allowing you to capture a portion of the sub-domain for usage in your route or controller. The sub-domain may be specified using the `domain` key on the group attribute array:
@@ -662,29 +678,6 @@ SimpleRouter::group(['prefix' => '/lang/{language}'], function ($language) {
     SimpleRouter::get('/users', function ($language)    {
         // Matches The "/lang/da/users" URL
     });
-});
-```
-
-## Partial groups
-
-Partial router groups has the same benefits as a normal group, but supports parameters and are only rendered once the url has matched.
-Partial groups will render once a part of the url has matched.
-
-This can be extremely useful in situations, where you only want special routes to be added, when a certain criteria or logic has been met.
-
-**NOTE:** Use partial groups with caution as routes added within are only rendered and available once the url of the partial-group has matched. This can cause `url()` not to find urls for the routes added within.
-
-**Example:**
-
-```php
-SimpleRouter::partialGroup('/lang/{language}', function ($language) {
-
-    SimpleRouter::get('/', function($language) {
-
-        // Matches The "/lang/da" URL
-
-    });
-
 });
 ```
 
