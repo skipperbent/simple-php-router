@@ -2,7 +2,6 @@
 
 namespace Pecee\SimpleRouter\Route;
 
-use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
@@ -52,7 +51,7 @@ abstract class Route implements IRoute
      */
     public function renderRoute(Request $request, Router $router): ?string
     {
-        $router->debug('Starting rendering route "%s"', \get_class($this));
+        $router->debug('Starting rendering route "%s"', get_class($this));
 
         $callback = $this->getCallback();
 
@@ -74,7 +73,7 @@ abstract class Route implements IRoute
         }
 
         /* Render callback function */
-        if (\is_callable($callback) === true) {
+        if (is_callable($callback) === true) {
             $router->debug('Executing callback');
 
             /* When the callback is a function */
@@ -100,7 +99,7 @@ abstract class Route implements IRoute
 
         $router->debug('Executing callback');
 
-        return \call_user_func_array([$class, $method], array_values($parameters));
+        return call_user_func_array([$class, $method], $parameters);
     }
 
     protected function parseParameters($route, $url, $parameterRegex = null): ?array
@@ -127,7 +126,7 @@ abstract class Route implements IRoute
 
                 $regex = '';
 
-                if ($key < \count($parameters[1])) {
+                if ($key < count($parameters[1])) {
 
                     $name = $parameters[1][$key];
 
@@ -153,11 +152,26 @@ abstract class Route implements IRoute
 
         if (isset($parameters[1]) === true) {
 
+            $groupParameters = $this->getGroup() !== null ? $this->getGroup()->getParameters() : [];
+
+            $lastParams = [];
+
             /* Only take matched parameters with name */
             foreach ((array)$parameters[1] as $name) {
+
+                // Ignore parent parameters
+                if(isset($groupParameters[$name]) === true) {
+                    $lastParams[$name] = $matches[$name];
+                    continue;
+                }
+
                 $values[$name] = (isset($matches[$name]) === true && $matches[$name] !== '') ? $matches[$name] : null;
             }
+
+            $values = array_merge($values, $lastParams);
         }
+
+        $this->originalParameters = $values;
 
         return $values;
     }
@@ -171,7 +185,7 @@ abstract class Route implements IRoute
      */
     public function getIdentifier(): string
     {
-        if (\is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
+        if (is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             return $this->callback;
         }
 
@@ -230,7 +244,6 @@ abstract class Route implements IRoute
         $this->group = $group;
 
         /* Add/merge parent settings with child */
-
         return $this->setSettings($group->toArray(), true);
     }
 
@@ -270,11 +283,11 @@ abstract class Route implements IRoute
 
     public function getMethod(): ?string
     {
-        if (\is_array($this->callback) === true && \count($this->callback) > 1) {
+        if (is_array($this->callback) === true && count($this->callback) > 1) {
             return $this->callback[1];
         }
 
-        if (\is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
+        if (is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             $tmp = explode('@', $this->callback);
 
             return $tmp[1];
@@ -285,11 +298,11 @@ abstract class Route implements IRoute
 
     public function getClass(): ?string
     {
-        if (\is_array($this->callback) === true && \count($this->callback) > 0) {
+        if (is_array($this->callback) === true && count($this->callback) > 0) {
             return $this->callback[0];
         }
 
-        if (\is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
+        if (is_string($this->callback) === true && strpos($this->callback, '@') !== false) {
             $tmp = explode('@', $this->callback);
 
             return $tmp[0];
@@ -360,15 +373,15 @@ abstract class Route implements IRoute
             $values['namespace'] = $this->namespace;
         }
 
-        if (\count($this->requestMethods) !== 0) {
+        if (count($this->requestMethods) !== 0) {
             $values['method'] = $this->requestMethods;
         }
 
-        if (\count($this->where) !== 0) {
+        if (count($this->where) !== 0) {
             $values['where'] = $this->where;
         }
 
-        if (\count($this->middlewares) !== 0) {
+        if (count($this->middlewares) !== 0) {
             $values['middleware'] = $this->middlewares;
         }
 
@@ -462,7 +475,7 @@ abstract class Route implements IRoute
         /* Sort the parameters after the user-defined param order, if any */
         $parameters = [];
 
-        if (\count($this->originalParameters) !== 0) {
+        if (count($this->originalParameters) !== 0) {
             $parameters = $this->originalParameters;
         }
 
@@ -477,14 +490,6 @@ abstract class Route implements IRoute
      */
     public function setParameters(array $parameters): IRoute
     {
-        /*
-         * If this is the first time setting parameters we store them so we
-         * later can organize the array, in case somebody tried to sort the array.
-         */
-        if (\count($parameters) !== 0 && \count($this->originalParameters) === 0) {
-            $this->originalParameters = $parameters;
-        }
-
         $this->parameters = array_merge($this->parameters, $parameters);
 
         return $this;

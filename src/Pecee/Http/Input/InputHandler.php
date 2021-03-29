@@ -63,7 +63,7 @@ class InputHandler
     public function parseInputs(): void
     {
         /* Parse get requests */
-        if (\count($_GET) !== 0) {
+        if (count($_GET) !== 0) {
             $this->originalParams = $_GET;
             $this->get = $this->parseInputItem($this->originalParams);
         }
@@ -85,12 +85,12 @@ class InputHandler
             }
         }
 
-        if (\count($this->originalPost) !== 0) {
+        if (count($this->originalPost) !== 0) {
             $this->post = $this->parseInputItem($this->originalPost);
         }
 
         /* Parse get requests */
-        if (\count($_FILES) !== 0) {
+        if (count($_FILES) !== 0) {
             $this->originalFile = $_FILES;
             $this->file = $this->parseFiles($this->originalFile);
         }
@@ -108,13 +108,13 @@ class InputHandler
         foreach ($files as $key => $value) {
 
             // Parse multi dept file array
-            if(isset($value['name']) === false && \is_array($value) === true) {
+            if(isset($value['name']) === false && is_array($value) === true) {
                 $list[$key] = $this->parseFiles($value, $key);
                 continue;
             }
 
             // Handle array input
-            if (\is_array($value['name']) === false) {
+            if (is_array($value['name']) === false) {
                 $values['index'] = $parentKey ?? $key;
 
                 try {
@@ -156,7 +156,7 @@ class InputHandler
 
         foreach ($values as $key => $value) {
 
-            if (\is_array($original['name'][$key]) === false) {
+            if (is_array($original['name'][$key]) === false) {
 
                 try {
 
@@ -210,7 +210,7 @@ class InputHandler
         foreach ($array as $key => $value) {
 
             // Handle array input
-            if (\is_array($value) === true) {
+            if (is_array($value) === true) {
                 $value = $this->parseInputItem($value);
             }
 
@@ -231,15 +231,15 @@ class InputHandler
     {
         $element = null;
 
-        if (\count($methods) === 0 || \in_array(Request::REQUEST_TYPE_GET, $methods, true) === true) {
+        if (count($methods) === 0 || in_array(Request::REQUEST_TYPE_GET, $methods, true) === true) {
             $element = $this->get($index);
         }
 
-        if (($element === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array(Request::REQUEST_TYPE_POST, $methods, true) === true)) {
+        if (($element === null && count($methods) === 0) || (count($methods) !== 0 && in_array(Request::REQUEST_TYPE_POST, $methods, true) === true)) {
             $element = $this->post($index);
         }
 
-        if (($element === null && \count($methods) === 0) || (\count($methods) !== 0 && \in_array('file', $methods, true) === true)) {
+        if (($element === null && count($methods) === 0) || (count($methods) !== 0 && in_array('file', $methods, true) === true)) {
             $element = $this->file($index);
         }
 
@@ -256,7 +256,7 @@ class InputHandler
                 $item = $item->getValue();
             }
 
-            $output[$key] = \is_array($item) ? $this->getValueFromArray($item) : $item;
+            $output[$key] = is_array($item) ? $this->getValueFromArray($item) : $item;
         }
 
         return $output;
@@ -279,13 +279,13 @@ class InputHandler
         }
 
         /* Handle collection */
-        if (\is_array($input) === true) {
+        if (is_array($input) === true) {
             $output = $this->getValueFromArray($input);
 
-            return (\count($output) === 0) ? $defaultValue : $output;
+            return (count($output) === 0) ? $defaultValue : $output;
         }
 
-        return ($input === null || (\is_string($input) && trim($input) === '')) ? $defaultValue : $input;
+        return ($input === null || (is_string($input) && trim($input) === '')) ? $defaultValue : $input;
     }
 
     /**
@@ -344,7 +344,7 @@ class InputHandler
     public function all(array $filter = []): array
     {
         $output = $this->originalParams + $this->originalPost + $this->originalFile;
-        $output = (\count($filter) > 0) ? \array_intersect_key($output, \array_flip($filter)) : $output;
+        $output = (count($filter) > 0) ? array_intersect_key($output, array_flip($filter)) : $output;
 
         foreach ($filter as $filterKey) {
             if (array_key_exists($filterKey, $output) === false) {
