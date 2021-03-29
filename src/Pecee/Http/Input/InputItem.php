@@ -86,39 +86,27 @@ class InputItem implements IInputItem, \IteratorAggregate
     }
 
     /**
-     * @return bool|null
+     * @return bool
      */
-    public function parseBoolean(): ?bool
+    public function parseBoolean(): bool
     {
-        if($this->getValue() === "true" || $this->getValue() === "false" || $this->getValue() == "1" || $this->getValue() == "0"){
-            return (bool) $this->getValue();
-        }else{
-            return null;
-        }
+        return filter_var($this->getValue(), FILTER_VALIDATE_BOOLEAN);
     }
 
     /**
-     * @return int|null
+     * @return int
      */
-    public function parseInteger(): ?int
+    public function parseInteger(): int
     {
-        if(is_numeric($this->getValue())){
-            return (int) $this->getValue();
-        }else{
-            return null;
-        }
+        return filter_var($this->getValue(), FILTER_VALIDATE_INT);
     }
 
     /**
-     * @return float|null
+     * @return float
      */
-    public function parseFloat(): ?float
+    public function parseFloat(): float
     {
-        if(is_numeric($this->getValue())){
-            return (float) $this->getValue();
-        }else{
-            return null;
-        }
+        return filter_var($this->getValue(), FILTER_VALIDATE_FLOAT);
     }
 
     /**
