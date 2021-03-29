@@ -23,6 +23,8 @@ class Request
     public const CONTENT_TYPE_FORM_DATA = 'multipart/form-data';
     public const CONTENT_TYPE_X_FORM_ENCODED = 'application/x-www-form-urlencoded';
 
+    public const FORCE_METHOD_KEY = '_method';
+
     /**
      * All request-types
      * @var string[]
@@ -118,9 +120,8 @@ class Request
      * @param string|null $method
      * @throws MalformedUrlException
      */
-    public function __construct(string $method = null)
-    {
-        foreach ($_SERVER as $key => $value) {
+    public function __construct(string $method = null){
+        foreach($_SERVER as $key => $value){
             $this->headers[strtolower($key)] = $value;
             $this->headers[str_replace('_', '-', strtolower($key))] = $value;
         }
@@ -128,13 +129,20 @@ class Request
         $this->setHost($this->getHeader('http-host'));
 
         // Check if special IIS header exist, otherwise use default.
-        $this->setUrl(new Url($this->getFirstHeader(['unencoded-url', 'request-uri',])));
+        $this->setUrl(new Url($this->getFirstHeader([
+            'unencoded-url',
+            'request-uri',
+        ])));
 
-        $this->setContentType(strtolower($this->getHeader('content-type')));
+        $this->setContentType((string)$this->getHeader('content-type'));
+        if($method === null){
+            $this->setMethod((string)($_POST[static::FORCE_METHOD_KEY] ?? $this->getHeader('request-method')));
+        }else {
+            $this->setMethod($method);
+        }
 
         $this->method = $method !== null ? $method : $this->getHeader('request-method');
         $this->inputHandler = new InputHandler($this);
-        $this->method = $method !== null ? $method : strtolower($this->inputHandler->value('_method', $this->method));
     }
 
     public function isSecure(): bool
@@ -214,15 +222,23 @@ class Request
 
     /**
      * Get id address
+     * If $safe is false, this function will detect Proxys. But the user can edit this header to whatever he wants!
+     * https://stackoverflow.com/questions/3003145/how-to-get-the-client-ip-address-in-php#comment-25086804
+     * @param bool $safeMode When enabled, only safe non-spoofable headers will be returned. Note this can cause issues when using proxy.
      * @return string|null
      */
-    public function getIp(): ?string
+    public function getIp(bool $safeMode = false): ?string
     {
-        return $this->getFirstHeader([
-            'http-cf-connecting-ip',
-            'http-x-forwarded-for',
-            'remote-addr',
-        ]);
+        $headers = ['remote-addr'];
+        if($safeMode === false) {
+            $headers = array_merge($headers, [
+                'http-cf-connecting-ip',
+                'http-client-ip',
+                'http-x-forwarded-for',
+            ]);
+        }
+
+        return $this->getFirstHeader($headers);
     }
 
     /**
@@ -285,7 +301,7 @@ class Request
      * Will try to find first header from list of headers.
      *
      * @param array $headers
-     * @param null $defaultValue
+     * @param mixed $defaultValue
      * @return mixed|null
      */
     public function getFirstHeader(array $headers, $defaultValue = null)
@@ -317,9 +333,9 @@ class Request
     protected function setContentType(string $contentType): self
     {
         if(strpos($contentType, ';') > 0) {
-            $this->contentType = substr($contentType, 0, strpos($contentType, ';'));
+            $this->contentType = strtolower(substr($contentType, 0, strpos($contentType, ';')));
         } else {
-            $this->contentType = $contentType;
+            $this->contentType = strtolower($contentType);
         }
 
         return $this;
@@ -354,6 +370,16 @@ class Request
     public function isAjax(): bool
     {
         return (strtolower($this->getHeader('http-x-requested-with')) === 'xmlhttprequest');
+    }
+
+    /**
+     * Returns true when request-method is type that could contain data in the page body.
+     *
+     * @return bool
+     */
+    public function isPostBack(): bool
+    {
+        return \in_array($this->getMethod(), static::$requestTypesPost, true);
     }
 
     /**
@@ -518,7 +544,7 @@ class Request
         return $this;
     }
 
-    public function __isset($name)
+    public function __isset($name): bool
     {
         return array_key_exists($name, $this->data) === true;
     }

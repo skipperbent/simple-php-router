@@ -83,7 +83,7 @@ class EventArgument implements IEventArgument
      * @param string $name
      * @return bool
      */
-    public function __isset(string $name)
+    public function __isset(string $name): bool
     {
         return array_key_exists($name, $this->arguments);
     }

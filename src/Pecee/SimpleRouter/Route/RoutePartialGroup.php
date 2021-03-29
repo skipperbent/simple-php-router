@@ -22,7 +22,7 @@ class RoutePartialGroup extends RouteGroup implements IPartialGroupRoute
      * @param Request $request
      * @return bool
      */
-    public function matchRoute($url, Request $request): bool
+    public function matchRoute(string $url, Request $request): bool
     {
         if ($this->getGroup() !== null && $this->getGroup()->matchRoute($url, $request) === false) {
             return false;
