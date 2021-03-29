@@ -97,9 +97,9 @@ abstract class Route implements IRoute
             throw new ClassNotFoundHttpException($className, $method, sprintf('Method "%s" does not exist in class "%s"', $method, $className), 404, null);
         }
 
-        $router->debug('Executing callback');
+        $router->debug('Executing callback %s -> %s', $className, $method);
 
-        return call_user_func_array([$class, $method], $parameters);
+        return $router->getClassLoader()->loadClassMethod($class, $method, $parameters);
     }
 
     protected function parseParameters($route, $url, $parameterRegex = null): ?array
