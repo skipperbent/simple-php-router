@@ -1378,7 +1378,7 @@ You can white- and blacklist access to IP's using the build in `IpRestrictAccess
 Create your own custom Middleware and extend the `IpRestrictAccess` class.
 
 The `IpRestrictAccess` class contains two properties `ipBlacklist` and `ipWhitelist` that can be added 
-to your middleware to change which IP's has blocked or allowed access.
+to your middleware to change which IP's that have restricted access.
 
 You can use `*` to restrict access to a range of ips.
 
@@ -1399,7 +1399,7 @@ class IpBlockerMiddleware extends IpRestrictAccess {
 }
 ```
 
-You can the middleware to multiple routes by adding your [middleware to a groups](#middleware).
+You can add the middleware to multiple routes by adding your [middleware to a groups](#middleware).
 
 ## Url rewriting
 
