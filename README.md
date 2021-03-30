@@ -466,7 +466,8 @@ SimpleRouter::get('/posts/{post}/comments/{comment}', function ($postId, $commen
 });
 ```
 
-**Note:** Route parameters are always encased within {} braces and should consist of alphabetic characters. Route parameters may not contain a - character. Use an underscore (_) instead.
+**Note:** Route parameters are always encased within `{` `}` braces and should consist of alphabetic characters. Route parameters can only contain certain characters like `A-Z`, `a-z`, `0-9`, `-` and `_`.
+If your route contain other characters, please see  [Custom regex for matching parameters](#custom-regex-for-matching-parameters).
 
 ### Optional parameters
 
