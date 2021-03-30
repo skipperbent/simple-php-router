@@ -8,11 +8,12 @@ class CsrfVerifierTest extends \PHPUnit\Framework\TestCase
     public function testTokenPass()
     {
         global $_POST;
-        global $_SERVER;
 
         $tokenProvider = new SilentTokenProvider();
 
         $_POST[DummyCsrfVerifier::POST_KEY] = $tokenProvider->getToken();
+
+        TestRouter::router()->reset();
 
         $router = TestRouter::router();
         $router->getRequest()->setMethod(\Pecee\Http\Request::REQUEST_TYPE_POST);
@@ -31,7 +32,6 @@ class CsrfVerifierTest extends \PHPUnit\Framework\TestCase
         $this->expectException(\Pecee\Http\Middleware\Exceptions\TokenMismatchException::class);
 
         global $_POST;
-        global $_SERVER;
 
         $tokenProvider = new SilentTokenProvider();
 
