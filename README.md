@@ -82,6 +82,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
     - [Custom EventHandlers](#custom-eventhandlers)
 - [Advanced](#advanced)
 	- [Disable multiple route rendering](#disable-multiple-route-rendering)
+	- [Restrict access to IP](#restrict-access-to-ip)
 	- [Url rewriting](#url-rewriting)
 		- [Changing current route](#changing-current-route)
 		- [Bootmanager: loading routes dynamically](#bootmanager-loading-routes-dynamically)
@@ -1369,6 +1370,31 @@ class DatabaseDebugHandler implements IEventHandler
 By default the router will try to execute all routes that matches a given url. To stop the router from executing any further routes any method can return a value.
 
 This behavior can be easily disabled by setting `SimpleRouter::enableMultiRouteRendering(false)` in your `routes.php` file. This is the same behavior as version 3 and below.
+
+## Restrict access to IP
+
+You can white- and blacklist access to IP's using the build in `IpBlockAccess` middleware.
+
+Create your own Middleware and extend the `IpBlockAccess` class.
+
+You can use `*` to restrict access to a range of ips.
+
+```php
+use \Pecee\Http\Middleware\IpBlockAccess;
+
+class IpBlockMiddleware extends IpBlockAccess {
+
+    protected $ipBlacklist = [
+        '5.5.5.5',
+        '8.8.*',
+    ];
+
+    protected $ipWhitelist = [
+        '8.8.2.2',
+    ];
+
+}
+```
 
 ## Url rewriting
 
