@@ -1,6 +1,6 @@
 <?php
 
-class IpBlockMiddleware extends \Pecee\Http\Middleware\IpBlockAccess {
+class IpRestrictMiddleware extends \Pecee\Http\Middleware\IpRestrictAccess {
 
     protected $ipBlacklist = [
         '5.5.5.5',

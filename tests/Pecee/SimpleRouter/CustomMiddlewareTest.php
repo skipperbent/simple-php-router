@@ -1,7 +1,7 @@
 <?php
 
 require_once 'Dummy/DummyController.php';
-require_once 'Dummy/Middleware/IpBlockMiddleware.php';
+require_once 'Dummy/Middleware/IpRestrictMiddleware.php';
 
 class CustomMiddlewareTest extends \PHPUnit\Framework\TestCase
 {
@@ -16,7 +16,7 @@ class CustomMiddlewareTest extends \PHPUnit\Framework\TestCase
 
         $_SERVER['remote-addr'] = '5.5.5.5';
 
-        TestRouter::group(['middleware' => IpBlockMiddleware::class], function() {
+        TestRouter::group(['middleware' => IpRestrictMiddleware::class], function() {
             TestRouter::get('/fail', 'DummyController@method1');
         });
 
@@ -28,7 +28,7 @@ class CustomMiddlewareTest extends \PHPUnit\Framework\TestCase
 
         TestRouter::router()->reset();
 
-        TestRouter::group(['middleware' => IpBlockMiddleware::class], function() {
+        TestRouter::group(['middleware' => IpRestrictMiddleware::class], function() {
             TestRouter::get('/fail', 'DummyController@method1');
         });
 
@@ -46,7 +46,7 @@ class CustomMiddlewareTest extends \PHPUnit\Framework\TestCase
 
         TestRouter::router()->reset();
 
-        TestRouter::group(['middleware' => IpBlockMiddleware::class], function() {
+        TestRouter::group(['middleware' => IpRestrictMiddleware::class], function() {
             TestRouter::get('/success', 'DummyController@method1');
         });
 
@@ -58,7 +58,7 @@ class CustomMiddlewareTest extends \PHPUnit\Framework\TestCase
 
         TestRouter::router()->reset();
 
-        TestRouter::group(['middleware' => IpBlockMiddleware::class], function() {
+        TestRouter::group(['middleware' => IpRestrictMiddleware::class], function() {
             TestRouter::get('/success', 'DummyController@method1');
         });
 

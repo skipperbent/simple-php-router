@@ -5,7 +5,7 @@ namespace Pecee\Http\Middleware;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\HttpException;
 
-abstract class IpBlockAccess implements IMiddleware
+abstract class IpRestrictAccess implements IMiddleware
 {
     protected $ipBlacklist = [];
     protected $ipWhitelist = [];

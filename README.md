@@ -1373,16 +1373,19 @@ This behavior can be easily disabled by setting `SimpleRouter::enableMultiRouteR
 
 ## Restrict access to IP
 
-You can white- and blacklist access to IP's using the build in `IpBlockAccess` middleware.
+You can white- and blacklist access to IP's using the build in `IpRestrictAccess` middleware.
 
-Create your own Middleware and extend the `IpBlockAccess` class.
+Create your own custom Middleware and extend the `IpRestrictAccess` class.
+
+The `IpRestrictAccess` class contains two properties `ipBlacklist` and `ipWhitelist` that can be added 
+to your middleware to change which IP's has blocked or allowed access.
 
 You can use `*` to restrict access to a range of ips.
 
 ```php
-use \Pecee\Http\Middleware\IpBlockAccess;
+use \Pecee\Http\Middleware\IpRestrictAccess;
 
-class IpBlockMiddleware extends IpBlockAccess {
+class IpBlockerMiddleware extends IpRestrictAccess {
 
     protected $ipBlacklist = [
         '5.5.5.5',
@@ -1395,6 +1398,8 @@ class IpBlockMiddleware extends IpBlockAccess {
 
 }
 ```
+
+You can the middleware to multiple routes by adding your [middleware to a groups](#middleware).
 
 ## Url rewriting
 
