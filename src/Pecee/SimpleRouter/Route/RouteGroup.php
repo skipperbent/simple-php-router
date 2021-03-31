@@ -154,7 +154,7 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Prepend prefix
+     * Prepends prefix while ensuring that the url has the correct formatting.
      *
      * @param string $url
      * @return static
