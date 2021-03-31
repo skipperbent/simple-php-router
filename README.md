@@ -163,6 +163,8 @@ You can find the demo-project here: [https://github.com/skipperbent/simple-route
 - Sub-domain routing
 - Custom boot managers to rewrite urls to "nicer" ones.
 - Input manager; easily manage `GET`, `POST` and `FILE` values.
+- IP based restrictions.
+- Easily extendable.
 
 ## Installation
 
