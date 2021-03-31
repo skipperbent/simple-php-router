@@ -48,6 +48,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 		- [Namespaces](#namespaces)
 		- [Subdomain-routing](#subdomain-routing)
 		- [Route prefixes](#route-prefixes)
+	- [Partial groups](#partial-groups)
 	- [Form Method Spoofing](#form-method-spoofing)
 	- [Accessing The Current Route](#accessing-the-current-route)
 	- [Other examples](#other-examples)
@@ -83,6 +84,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 - [Advanced](#advanced)
 	- [Disable multiple route rendering](#disable-multiple-route-rendering)
 	- [Restrict access to IP](#restrict-access-to-ip)
+	- [Setting custom base path](#setting-custom-base-path)
 	- [Url rewriting](#url-rewriting)
 		- [Changing current route](#changing-current-route)
 		- [Bootmanager: loading routes dynamically](#bootmanager-loading-routes-dynamically)
@@ -467,7 +469,8 @@ SimpleRouter::get('/posts/{post}/comments/{comment}', function ($postId, $commen
 });
 ```
 
-**Note:** Route parameters are always encased within {} braces and should consist of alphabetic characters. Route parameters may not contain a - character. Use an underscore (_) instead.
+**Note:** Route parameters are always encased within `{` `}` braces and should consist of alphabetic characters. Route parameters can only contain certain characters like `A-Z`, `a-z`, `0-9`, `-` and `_`.
+If your route contain other characters, please see  [Custom regex for matching parameters](#custom-regex-for-matching-parameters).
 
 ### Optional parameters
 
@@ -679,6 +682,27 @@ SimpleRouter::group(['prefix' => '/lang/{language}'], function ($language) {
     SimpleRouter::get('/users', function ($language)    {
         // Matches The "/lang/da/users" URL
     });
+});
+```
+
+## Partial groups
+
+Partial router groups has the same benefits as a normal group, but **are only rendered once the url has matched** 
+in contrast to a normal group which are always rendered in order to retrieve it's child routes.
+Partial groups are therefore more like a hybrid of a traditional route with the benefits of a group.
+
+This can be extremely useful in situations where you only want special routes to be added, but only when a certain criteria or logic has been met.
+
+**NOTE:** Use partial groups with caution as routes added within are only rendered and available once the url of the partial-group has matched. 
+This can cause `url()` not to find urls for the routes added within before the partial-group has been matched and is rendered.
+
+**Example:**
+
+```php
+SimpleRouter::partialGroup('/plugin/{name}', function ($plugin) {
+
+    // Add routes from plugin
+
 });
 ```
 
@@ -1243,7 +1267,7 @@ All event callbacks will retrieve a `EventArgument` object as parameter. This ob
 | `EVENT_ALL`                 | - | Fires when a event is triggered. |
 | `EVENT_INIT`                | - | Fires when router is initializing and before routes are loaded. |
 | `EVENT_LOAD`                | `loadedRoutes` | Fires when all routes has been loaded and rendered, just before the output is returned. |
-| `EVENT_ADD_ROUTE`           | `route` | Fires when route is added to the router. |
+| `EVENT_ADD_ROUTE`           | `route`<br>`isSubRoute` | Fires when route is added to the router. `isSubRoute` is true when sub-route is rendered. |
 | `EVENT_REWRITE`             | `rewriteUrl`<br>`rewriteRoute` | Fires when a url-rewrite is and just before the routes are re-initialized. |
 | `EVENT_BOOT`                | `bootmanagers` | Fires when the router is booting. This happens just before boot-managers are rendered and before any routes has been loaded. |
 | `EVENT_RENDER_BOOTMANAGER`  | `bootmanagers`<br>`bootmanager` | Fires before a boot-manager is rendered. |
@@ -1373,19 +1397,19 @@ This behavior can be easily disabled by setting `SimpleRouter::enableMultiRouteR
 
 ## Restrict access to IP
 
-You can white- and blacklist access to IP's using the build in `IpRestrictAccess` middleware.
+You can white and/or blacklist access to IP's using the build in `IpRestrictAccess` middleware.
 
 Create your own custom Middleware and extend the `IpRestrictAccess` class.
 
-The `IpRestrictAccess` class contains two properties `ipBlacklist` and `ipWhitelist` that can be added 
-to your middleware to change which IP's that have restricted access.
+The `IpRestrictAccess` class contains two properties `ipBlacklist` and `ipWhitelist` that can be added to your middleware to change which IP's that have access to your routes.
 
 You can use `*` to restrict access to a range of ips.
 
 ```php
 use \Pecee\Http\Middleware\IpRestrictAccess;
 
-class IpBlockerMiddleware extends IpRestrictAccess {
+class IpBlockerMiddleware extends IpRestrictAccess 
+{
 
     protected $ipBlacklist = [
         '5.5.5.5',
@@ -1399,7 +1423,49 @@ class IpBlockerMiddleware extends IpRestrictAccess {
 }
 ```
 
-You can add the middleware to multiple routes by adding your [middleware to a groups](#middleware).
+You can add the middleware to multiple routes by adding your [middleware to a group](#middleware).
+
+## Setting custom base path
+
+Sometimes it can be useful to add a custom base path to all of the routes added.
+
+This can easily be done by taking advantage of the [Event Handlers](#events) support of the project.
+
+```php
+$basePath = '/basepath/';
+
+$eventHandler = new EventHandler();
+$eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function(EventArgument $event) use($basePath) {
+
+	// Make sure url is alway correct
+	$basePath = rtrim($basePath, '/');
+	$route = $event->route;
+
+	// Skip routes added by group as these will inherit the url
+	if(!$event->isSubRoute) {
+		return;
+	}
+	
+	switch (true) {
+		case $route instanceof ILoadableRoute:
+			$route->setUrl($basePath . $route->getUrl());
+			break;
+		case $route instanceof IGroupRoute:
+			$route->setPrefix($basePath . $route->getPrefix());
+			break;
+
+	}
+	
+});
+
+$results = [];
+
+TestRouter::addEventHandler($eventHandler);
+```
+
+In the example shown above, we create a new `EVENT_ADD_ROUTE` event that triggers, when a new route is added.
+We skip all subroutes as these will inherit the url from their parent. Then, if the route is a group, we change the prefix  
+otherwise we change the url.
 
 ## Url rewriting
 
