@@ -1401,13 +1401,11 @@ Sometimes it can be useful to add a custom base path to all of the routes added.
 This can easily be done by taking advantage of the [Event Handlers](#events) support of the project.
 
 ```php
-$basePath = '/basepath/';
+$basePath = '/basepath';
 
 $eventHandler = new EventHandler();
 $eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function(EventArgument $event) use($basePath) {
 
-	// Make sure url is alway correct
-	$basePath = rtrim($basePath, '/');
 	$route = $event->route;
 
 	// Skip routes added by group as these will inherit the url
@@ -1417,17 +1415,15 @@ $eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function(EventArgument $e
 	
 	switch (true) {
 		case $route instanceof ILoadableRoute:
-			$route->setUrl($basePath . $route->getUrl());
+			$route->prependUrl($basePath);
 			break;
 		case $route instanceof IGroupRoute:
-			$route->setPrefix($basePath . $route->getPrefix());
+			$route->prependPrefix($basePath);
 			break;
 
 	}
 	
 });
-
-$results = [];
 
 TestRouter::addEventHandler($eventHandler);
 ```
@@ -1722,40 +1718,17 @@ You can read more about adding your own custom regular expression for matching p
 
 ### Multiple routes matches? Which one has the priority?
 
-The router will match routes in the order they're added.
+The router will match routes in the order they're added and will render multiple routes, if they match.
 
-It's possible to render multiple routes.
-
-If you want the router to stop when a route is matched, you simply return a value in your callback or stop the execution manually (using `response()->json()` etc.). 
+If you want the router to stop when a route is matched, you simply return a value in your callback or stop the execution manually (using `response()->json()` etc.) or simply by returning a result.
 
 Any returned objects that implements the `__toString()` magic method will also prevent other routes from being rendered. 
 
+If you want the router only to execute one route per request, you can [disabling multiple route rendering](#disable-multiple-route-rendering).
+
 ### Using the router on sub-paths
 
-Using the library on a sub-path like `localhost/project/` is not officially supported, however it is possible to get it working quite easily.
-
-Add an event that appends your sub-path when a new loadable route is added.
-
-**Example:**
-
-```php
-// ... your routes.php file
-
-if($isRunningLocally) {
-
-    $eventHandler = new EventHandler();
-    $eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function (EventArgument $arg) use (&$status) {
-
-        if ($arg->route instanceof \Pecee\SimpleRouter\Route\LoadableRoute) {
-            $arg->route->prependUrl('/local-path');
-        }
-
-    });
-
-    TestRouter::addEventHandler($eventHandler);
-
-}
-```
+Please refer to [Setting custom base path](#setting-custom-base-path) part of the documentation.
 
 ## Debugging
 

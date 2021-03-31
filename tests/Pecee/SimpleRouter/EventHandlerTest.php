@@ -118,7 +118,7 @@ class EventHandlerTest extends \PHPUnit\Framework\TestCase
 
                 switch (true) {
                     case $data->route instanceof \Pecee\SimpleRouter\Route\ILoadableRoute:
-                        $data->route->setUrl($basePath . $data->route->getUrl());
+                        $data->route->prependUrl($basePath);
                         break;
                     case $data->route instanceof \Pecee\SimpleRouter\Route\IGroupRoute:
                         $data->route->setPrefix($basePath . $data->route->getPrefix());
