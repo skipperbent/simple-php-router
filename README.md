@@ -82,6 +82,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
     - [Custom EventHandlers](#custom-eventhandlers)
 - [Advanced](#advanced)
 	- [Disable multiple route rendering](#disable-multiple-route-rendering)
+	- [Setting custom base path](#setting-custom-base-path)
 	- [Url rewriting](#url-rewriting)
 		- [Changing current route](#changing-current-route)
 		- [Bootmanager: loading routes dynamically](#bootmanager-loading-routes-dynamically)
@@ -682,6 +683,27 @@ SimpleRouter::group(['prefix' => '/lang/{language}'], function ($language) {
 });
 ```
 
+## Partial groups
+
+Partial router groups has the same benefits as a normal group, but **are only rendered once the url has matched** 
+in contrast to a normal group which are always rendered in order to retrieve it's child routes.
+Partial groups are therefore more like a hybrid of a traditional route with the benefits of a group.
+
+This can be extremely useful in situations where you only want special routes to be added, but only when a certain criteria or logic has been met.
+
+**NOTE:** Use partial groups with caution as routes added within are only rendered and available once the url of the partial-group has matched. 
+This can cause `url()` not to find urls for the routes added within before the partial-group has been matched and is rendered.
+
+**Example:**
+
+```php
+SimpleRouter::partialGroup('/plugin/{name}', function ($plugin) {
+
+    // Add routes from plugin
+
+});
+```
+
 ## Form Method Spoofing
 
 HTML forms do not support `PUT`, `PATCH` or `DELETE` actions. So, when defining `PUT`, `PATCH` or `DELETE` routes that are called from an HTML form, you will need to add a hidden `_method` field to the form. The value sent with the `_method` field will be used as the HTTP request method:
@@ -1243,7 +1265,7 @@ All event callbacks will retrieve a `EventArgument` object as parameter. This ob
 | `EVENT_ALL`                 | - | Fires when a event is triggered. |
 | `EVENT_INIT`                | - | Fires when router is initializing and before routes are loaded. |
 | `EVENT_LOAD`                | `loadedRoutes` | Fires when all routes has been loaded and rendered, just before the output is returned. |
-| `EVENT_ADD_ROUTE`           | `route` | Fires when route is added to the router. |
+| `EVENT_ADD_ROUTE`           | `route`<br>`isSubRoute` | Fires when route is added to the router. `isSubRoute` is true when sub-route is rendered. |
 | `EVENT_REWRITE`             | `rewriteUrl`<br>`rewriteRoute` | Fires when a url-rewrite is and just before the routes are re-initialized. |
 | `EVENT_BOOT`                | `bootmanagers` | Fires when the router is booting. This happens just before boot-managers are rendered and before any routes has been loaded. |
 | `EVENT_RENDER_BOOTMANAGER`  | `bootmanagers`<br>`bootmanager` | Fires before a boot-manager is rendered. |
@@ -1370,6 +1392,48 @@ class DatabaseDebugHandler implements IEventHandler
 By default the router will try to execute all routes that matches a given url. To stop the router from executing any further routes any method can return a value.
 
 This behavior can be easily disabled by setting `SimpleRouter::enableMultiRouteRendering(false)` in your `routes.php` file. This is the same behavior as version 3 and below.
+
+## Setting custom base path
+
+Sometimes it can be useful to add a custom base path to all of the routes added.
+
+This can easily be done by taking advantage of the [Event Handlers](#events) support of the project.
+
+```php
+$basePath = '/basepath/';
+
+$eventHandler = new EventHandler();
+$eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function(EventArgument $event) use($basePath) {
+
+	// Make sure url is alway correct
+	$basePath = rtrim($basePath, '/');
+	$route = $event->route;
+
+	// Skip routes added by group as these will inherit the url
+	if(!$event->isSubRoute) {
+		return;
+	}
+	
+	switch (true) {
+		case $route instanceof ILoadableRoute:
+			$route->setUrl($basePath . $route->getUrl());
+			break;
+		case $route instanceof IGroupRoute:
+			$route->setPrefix($basePath . $route->getPrefix());
+			break;
+
+	}
+	
+});
+
+$results = [];
+
+TestRouter::addEventHandler($eventHandler);
+```
+
+In the example shown above, we create a new `EVENT_ADD_ROUTE` event that triggers, when a new route is added.
+We skip all subroutes as these will inherit the url from their parent. Then if the route is a group we change the prefix, 
+otherwise we change the url.
 
 ## Url rewriting
 

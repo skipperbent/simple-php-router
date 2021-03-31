@@ -161,6 +161,7 @@ class Router
     {
         $this->fireEvents(EventHandler::EVENT_ADD_ROUTE, [
             'route' => $route,
+            'isSubRoute' => $this->isProcessingRoute,
         ]);
 
         /*
@@ -184,7 +185,6 @@ class Router
      */
     protected function renderAndProcess(IRoute $route): void
     {
-
         $this->isProcessingRoute = true;
         $route->renderRoute($this->request, $this);
         $this->isProcessingRoute = false;
