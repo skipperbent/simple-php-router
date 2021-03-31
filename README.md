@@ -48,6 +48,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 		- [Namespaces](#namespaces)
 		- [Subdomain-routing](#subdomain-routing)
 		- [Route prefixes](#route-prefixes)
+	- [Partial groups](#parial-groups)
 	- [Form Method Spoofing](#form-method-spoofing)
 	- [Accessing The Current Route](#accessing-the-current-route)
 	- [Other examples](#other-examples)
