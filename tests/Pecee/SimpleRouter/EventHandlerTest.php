@@ -110,9 +110,6 @@ class EventHandlerTest extends \PHPUnit\Framework\TestCase
         $eventHandler = new EventHandler();
         $eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function(EventArgument $data) use($basePath) {
 
-            // Add basepath
-            $basePath = rtrim($basePath, '/');
-
             // Skip routes added by group
             if($data->isSubRoute === false) {
 
@@ -121,7 +118,7 @@ class EventHandlerTest extends \PHPUnit\Framework\TestCase
                         $data->route->prependUrl($basePath);
                         break;
                     case $data->route instanceof \Pecee\SimpleRouter\Route\IGroupRoute:
-                        $data->route->setPrefix($basePath . $data->route->getPrefix());
+                        $data->route->prependPrefix($basePath);
                         break;
 
                 }

@@ -159,7 +159,7 @@ class RouteGroup extends Route implements IGroupRoute
      * @param string $url
      * @return static
      */
-    public function prependUrl(string $url): IGroupRoute
+    public function prependPrefix(string $url): IGroupRoute
     {
         return $this->setPrefix(rtrim($url, '/') . $this->prefix);
     }

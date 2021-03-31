@@ -59,7 +59,7 @@ interface IGroupRoute extends IRoute
      * @param string $url
      * @return static
      */
-    public function prependUrl(string $url): self;
+    public function prependPrefix(string $url): self;
 
     /**
      * Set prefix that child-routes will inherit.
