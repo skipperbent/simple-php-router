@@ -12,7 +12,17 @@ class BaseCsrfVerifier implements IMiddleware
     public const POST_KEY = 'csrf_token';
     public const HEADER_KEY = 'X-CSRF-TOKEN';
 
+    /**
+     * Urls to ignore. You can use * to exclude all sub-urls on a given path.
+     * For example: /admin/*
+     * @var array|null
+     */
     protected $except;
+    /**
+     * Urls to include. Can be used to include urls from a certain path.
+     * @var array|null
+     */
+    protected $include;
     protected $tokenProvider;
 
     /**
@@ -34,11 +44,7 @@ class BaseCsrfVerifier implements IMiddleware
             return false;
         }
 
-        $max = count($this->except) - 1;
-
-        for ($i = $max; $i >= 0; $i--) {
-            $url = $this->except[$i];
-
+        foreach($this->except as $url) {
             $url = rtrim($url, '/');
             if ($url[strlen($url) - 1] === '*') {
                 $url = rtrim($url, '*');
@@ -48,6 +54,24 @@ class BaseCsrfVerifier implements IMiddleware
             }
 
             if ($skip === true) {
+
+                if($this->include !== null && count($this->include) > 0) {
+                    foreach($this->include as $includeUrl) {
+                        $includeUrl = rtrim($includeUrl, '/');
+                        if ($includeUrl[strlen($includeUrl) - 1] === '*') {
+                            $includeUrl = rtrim($includeUrl, '*');
+                            $skip = !$request->getUrl()->contains($includeUrl);
+                            break;
+                        }
+
+                        $skip = !($includeUrl === $request->getUrl()->getOriginalUrl());
+                    }
+                }
+
+                if($skip === false) {
+                    continue;
+                }
+
                 return true;
             }
         }

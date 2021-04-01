@@ -391,6 +391,10 @@ class Request
         if ($this->url->getHost() === null) {
             $this->url->setHost((string)$this->getHost());
         }
+
+        if($this->isSecure() === true) {
+            $this->url->setScheme('https');
+        }
     }
 
     /**
