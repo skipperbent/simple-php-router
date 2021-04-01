@@ -86,7 +86,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     }
 
     /**
-     * Prepend url
+     * Prepends url while ensuring that the url has the correct formatting.
      *
      * @param string $url
      * @return ILoadableRoute

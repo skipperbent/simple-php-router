@@ -154,6 +154,17 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
+     * Prepends prefix while ensuring that the url has the correct formatting.
+     *
+     * @param string $url
+     * @return static
+     */
+    public function prependPrefix(string $url): IGroupRoute
+    {
+        return $this->setPrefix(rtrim($url, '/') . $this->prefix);
+    }
+
+    /**
      * Set prefix that child-routes will inherit.
      *
      * @return string|null
