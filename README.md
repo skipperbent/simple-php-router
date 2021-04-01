@@ -83,6 +83,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
     - [Custom EventHandlers](#custom-eventhandlers)
 - [Advanced](#advanced)
 	- [Disable multiple route rendering](#disable-multiple-route-rendering)
+	- [Restrict access to IP](#restrict-access-to-ip)
 	- [Setting custom base path](#setting-custom-base-path)
 	- [Url rewriting](#url-rewriting)
 		- [Changing current route](#changing-current-route)
@@ -162,6 +163,8 @@ You can find the demo-project here: [https://github.com/skipperbent/simple-route
 - Sub-domain routing
 - Custom boot managers to rewrite urls to "nicer" ones.
 - Input manager; easily manage `GET`, `POST` and `FILE` values.
+- IP based restrictions.
+- Easily extendable.
 
 ## Installation
 
@@ -1394,6 +1397,36 @@ By default the router will try to execute all routes that matches a given url. T
 
 This behavior can be easily disabled by setting `SimpleRouter::enableMultiRouteRendering(false)` in your `routes.php` file. This is the same behavior as version 3 and below.
 
+## Restrict access to IP
+
+You can white and/or blacklist access to IP's using the build in `IpRestrictAccess` middleware.
+
+Create your own custom Middleware and extend the `IpRestrictAccess` class.
+
+The `IpRestrictAccess` class contains two properties `ipBlacklist` and `ipWhitelist` that can be added to your middleware to change which IP's that have access to your routes.
+
+You can use `*` to restrict access to a range of ips.
+
+```php
+use \Pecee\Http\Middleware\IpRestrictAccess;
+
+class IpBlockerMiddleware extends IpRestrictAccess 
+{
+
+    protected $ipBlacklist = [
+        '5.5.5.5',
+        '8.8.*',
+    ];
+
+    protected $ipWhitelist = [
+        '8.8.2.2',
+    ];
+
+}
+```
+
+You can add the middleware to multiple routes by adding your [middleware to a group](#middleware).
+
 ## Setting custom base path
 
 Sometimes it can be useful to add a custom base path to all of the routes added.
@@ -1429,7 +1462,7 @@ TestRouter::addEventHandler($eventHandler);
 ```
 
 In the example shown above, we create a new `EVENT_ADD_ROUTE` event that triggers, when a new route is added.
-We skip all subroutes as these will inherit the url from their parent. Then if the route is a group we change the prefix, 
+We skip all subroutes as these will inherit the url from their parent. Then, if the route is a group, we change the prefix  
 otherwise we change the url.
 
 ## Url rewriting
