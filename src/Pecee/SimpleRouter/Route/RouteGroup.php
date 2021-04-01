@@ -183,7 +183,6 @@ class RouteGroup extends Route implements IGroupRoute
      */
     public function setSettings(array $settings, bool $merge = false): IRoute
     {
-
         if (isset($settings['prefix']) === true) {
             $this->setPrefix($settings['prefix'] . $this->prefix);
         }

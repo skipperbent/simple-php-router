@@ -50,12 +50,12 @@ class BaseCsrfVerifier implements IMiddleware
                 $url = rtrim($url, '*');
                 $skip = $request->getUrl()->contains($url);
             } else {
-                $skip = ($url === $request->getUrl()->getOriginalUrl());
+                $skip = ($url === $request->getUrl()->getRelativeUrl(false));
             }
 
             if ($skip === true) {
 
-                if($this->include !== null && count($this->include) > 0) {
+                if(is_array($this->include) === true && count($this->include) > 0) {
                     foreach($this->include as $includeUrl) {
                         $includeUrl = rtrim($includeUrl, '/');
                         if ($includeUrl[strlen($includeUrl) - 1] === '*') {
@@ -64,7 +64,7 @@ class BaseCsrfVerifier implements IMiddleware
                             break;
                         }
 
-                        $skip = !($includeUrl === $request->getUrl()->getOriginalUrl());
+                        $skip = !($includeUrl === $request->getUrl()->getRelativeUrl(false));
                     }
                 }
 

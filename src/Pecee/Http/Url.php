@@ -427,10 +427,15 @@ class Url implements JsonSerializable
     /**
      * Returns the relative url
      *
+     * @param bool $includeParams
      * @return string
      */
-    public function getRelativeUrl(): string
+    public function getRelativeUrl($includeParams = true): string
     {
+        if($includeParams === false) {
+            return rtrim($this->path, '/');
+        }
+
         $params = $this->getQueryString();
 
         $path = $this->path ?? '';

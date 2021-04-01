@@ -34,6 +34,10 @@ abstract class IpRestrictAccess implements IMiddleware
         return true;
     }
 
+    /**
+     * @param Request $request
+     * @throws HttpException
+     */
     public function handle(Request $request): void
     {
         if($this->validate((string)$request->getIp()) === false) {
