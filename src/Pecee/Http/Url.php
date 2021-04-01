@@ -447,9 +447,10 @@ class Url implements JsonSerializable
     /**
      * Returns the absolute url
      *
+     * @param bool $includeParams
      * @return string
      */
-    public function getAbsoluteUrl(): string
+    public function getAbsoluteUrl($includeParams = true): string
     {
         $scheme = $this->scheme !== null ? $this->scheme . '://' : '';
         $host = $this->host ?? '';
@@ -458,7 +459,7 @@ class Url implements JsonSerializable
         $pass = $this->password !== null ? ':' . $this->password : '';
         $pass = ($user || $pass) ? $pass . '@' : '';
 
-        return $scheme . $user . $pass . $host . $port . $this->getRelativeUrl();
+        return $scheme . $user . $pass . $host . $port . $this->getRelativeUrl($includeParams);
     }
 
     /**
