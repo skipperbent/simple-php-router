@@ -40,7 +40,7 @@ interface ILoadableRoute extends IRoute
     public function setUrl(string $url): self;
 
     /**
-     * Prepend url
+     * Prepends url while ensuring that the url has the correct formatting.
      * @param string $url
      * @return ILoadableRoute
      */

@@ -55,7 +55,6 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     public function matchRegex(Request $request, $url): ?bool
     {
         /* Match on custom defined regular expression */
-
         if ($this->regex === null) {
             return null;
         }
@@ -86,7 +85,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     }
 
     /**
-     * Prepend url
+     * Prepends url while ensuring that the url has the correct formatting.
      *
      * @param string $url
      * @return ILoadableRoute
