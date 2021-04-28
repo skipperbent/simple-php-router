@@ -165,7 +165,7 @@ class InputFile implements IInputItem
      * @param string $name
      * @return static
      */
-    public function setFilename($name): IInputItem
+    public function setFilename(string $name): IInputItem
     {
         $this->filename = $name;
 
@@ -188,7 +188,7 @@ class InputFile implements IInputItem
      * @param string $destination
      * @return bool
      */
-    public function move($destination): bool
+    public function move(string $destination): bool
     {
         return move_uploaded_file($this->tmpName, $destination);
     }
@@ -226,10 +226,10 @@ class InputFile implements IInputItem
     /**
      * Set error
      *
-     * @param int $error
+     * @param int|null $error
      * @return static
      */
-    public function setError($error): IInputItem
+    public function setError(?int $error): IInputItem
     {
         $this->errors = (int)$error;
 
@@ -249,7 +249,7 @@ class InputFile implements IInputItem
      * @param string $name
      * @return static
      */
-    public function setTmpName($name): IInputItem
+    public function setTmpName(string $name): IInputItem
     {
         $this->tmpName = $name;
 
@@ -261,7 +261,7 @@ class InputFile implements IInputItem
         return $this->getTmpName();
     }
 
-    public function getValue()
+    public function getValue(): string
     {
         return $this->getFilename();
     }
