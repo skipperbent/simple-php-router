@@ -49,9 +49,9 @@ class RouterRewriteTest extends \PHPUnit\Framework\TestCase
         }
 
         $expectedStack = [
-            ExceptionHandlerFirst::class,
-            ExceptionHandlerSecond::class,
             ExceptionHandlerThird::class,
+            ExceptionHandlerSecond::class,
+            ExceptionHandlerFirst::class,
         ];
 
         $this->assertEquals($expectedStack, $stack);

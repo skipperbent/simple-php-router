@@ -337,6 +337,17 @@ abstract class Route implements IRoute
      */
     public function setNamespace(string $namespace): IRoute
     {
+        $ns = $this->getNamespace();
+
+        if ($ns !== null) {
+            // Don't overwrite namespaces that starts with \
+            if ($ns[0] !== '\\') {
+                $namespace .= '\\' . $ns;
+            } else {
+                $namespace = $ns;
+            }
+        }
+
         $this->namespace = $namespace;
 
         return $this;
@@ -407,7 +418,7 @@ abstract class Route implements IRoute
      */
     public function setSettings(array $settings, bool $merge = false): IRoute
     {
-        if ($this->namespace === null && isset($settings['namespace']) === true) {
+        if (isset($settings['namespace']) === true) {
             $this->setNamespace($settings['namespace']);
         }
 
