@@ -23,10 +23,10 @@ class DummyController
         return 'method3';
     }
 
-	public function param($params = null)
-	{
-		echo join(', ', func_get_args());
-	}
+    public function param($params = null)
+    {
+        echo join(', ', func_get_args());
+    }
 
 	public function getTest()
     {

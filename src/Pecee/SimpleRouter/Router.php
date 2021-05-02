@@ -935,7 +935,7 @@ class Router
      * When disabled the router will stop rendering at the first route that matches.
      *
      * @param bool $bool
-     * @return $this
+     * @return static
      */
     public function setRenderMultipleRoutes(bool $bool): self
     {
