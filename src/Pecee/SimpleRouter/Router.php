@@ -509,7 +509,7 @@ class Router
         ]);
 
         /* @var $handler IExceptionHandler */
-        foreach ($this->exceptionHandlers as $key => $handler) {
+        foreach (array_reverse($this->exceptionHandlers) as $key => $handler) {
 
             if (is_object($handler) === false) {
                 $handler = new $handler();

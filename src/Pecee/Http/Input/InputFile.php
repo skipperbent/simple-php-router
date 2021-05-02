@@ -216,11 +216,11 @@ class InputFile implements IInputItem
     /**
      * Get upload-error code.
      *
-     * @return int
+     * @return int|null
      */
-    public function getError(): int
+    public function getError(): ?int
     {
-        return (int)$this->errors;
+        return $this->errors;
     }
 
     /**
