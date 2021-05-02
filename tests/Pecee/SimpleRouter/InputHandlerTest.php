@@ -22,6 +22,13 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         'Canon',
     ];
 
+    protected $employees = [
+        'Samsung' => 287000,
+        'Apple' => 132000,
+        'HP' => 53000,
+        'Canon' => 197000.99,
+    ];
+
     protected $sodas = [
         0 => 'Pepsi',
         1 => 'Coca Cola',
@@ -78,14 +85,46 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $_POST = [];
     }
 
+    public function testValidation()
+    {
+        global $_POST;
+
+        $_POST = [
+            'names' => $this->names,
+            'day' => $this->day,
+            'employees' => $this->employees,
+        ];
+
+        $router = TestRouter::router();
+        $router->reset();
+        $router->getRequest()->setMethod('post');
+
+        $handler = TestRouter::request()->getInputHandler();
+
+        $this->assertInstanceOf(\Pecee\Http\Input\InputValidator::class, $handler->find('day')->validate());
+        $this->assertEquals(true, $handler->find('day')->validate(true)->require()->isString()->minLength(6)->maxLength(6)->valid());
+        $this->assertCount(4, $handler->find('day')->validate(true)->isNull()->isInteger()->minLength(8)->maxLength(5)->getErrors());
+        $this->assertEquals(true, empty($handler->find('day')->validate(true)->require()->isString()->minLength(6)->maxLength(6)->getErrors()));
+        $this->assertEquals(true, $handler->find('names')->validate(true)->require()->isSequentialArray()->valid());
+        $this->assertEquals(true, $handler->find('employees')->validate(true)->require()->isAssociativeArray()->valid());
+        //tests for new inputhandler
+        //$this->assertEquals(true, $handler->find('employees')->getInputItems()['Samsung']->validate()->require()->isInteger()->valid());
+        //$this->assertEquals(true, $handler->find('employees')->getInputItems()['Canon']->validate()->require()->isFloat()->valid());
+
+        //TODO add tests for every validation method
+    }
+
     public function testGet()
     {
         global $_GET;
+        global $_POST;
 
         $_GET = [
             'names' => $this->names,
             'day' => $this->day,
         ];
+
+        $_POST = [];
 
         $router = TestRouter::router();
         $router->reset();

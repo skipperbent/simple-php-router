@@ -11,6 +11,8 @@ class InputItem implements IInputItem, IteratorAggregate
     public $name;
     public $value;
 
+    private $validator = null;
+
     public function __construct(string $index, $value = null)
     {
         $this->index = $index;
@@ -73,6 +75,49 @@ class InputItem implements IInputItem, IteratorAggregate
         $this->value = $value;
 
         return $this;
+    }
+
+    /**
+     * @param bool $forceNew
+     * @return InputValidator
+     */
+    public function validate(bool $forceNew = false): InputValidator
+    {
+        if($this->validator === null || $forceNew)
+            $this->validator = new InputValidator($this);
+        return $this->validator;
+    }
+
+    /**
+     * @return bool
+     */
+    public function parseBoolean(): bool
+    {
+        return filter_var($this->getValue(), FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
+     * @return int
+     */
+    public function parseInteger(): int
+    {
+        return filter_var($this->getValue(), FILTER_VALIDATE_INT);
+    }
+
+    /**
+     * @return float
+     */
+    public function parseFloat(): float
+    {
+        return filter_var($this->getValue(), FILTER_VALIDATE_FLOAT);
+    }
+
+    /**
+     * @return string
+     */
+    public function parseString(): string
+    {
+        return (string) $this->getValue();
     }
 
     public function __toString(): string
