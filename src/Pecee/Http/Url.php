@@ -248,8 +248,9 @@ class Url implements JsonSerializable
     public function setQueryString(string $queryString): self
     {
         $params = [];
+        parse_str($queryString, $params);
 
-        if(parse_str($queryString, $params) !== false) {
+        if(count($params) > 0) {
             return $this->setParams($params);
         }
 
@@ -341,7 +342,7 @@ class Url implements JsonSerializable
      */
     public function removeParams(...$names): self
     {
-        $params = array_diff_key($this->getParams(), array_flip($names));
+        $params = array_diff_key($this->getParams(), array_flip(...$names));
         $this->setParams($params);
 
         return $this;
