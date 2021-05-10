@@ -252,20 +252,23 @@ class InputHandler
     {
         $element = new InputItem($index, null);
 
-        if(count($methods) > 0) {
-            $methods = is_array(...$methods) ? array_values(...$methods) : $methods;
+        if(count($methods) == 1) {
+            $methods = is_array($methods[0]) ? array_values($methods[0]) : $methods;
         }
 
         if (count($methods) === 0 || \in_array(Request::REQUEST_TYPE_GET, $methods, true) === true) {
             $element = $this->get($index);
         }
 
-        if (($element->getValue() === null && count($methods) === 0) || (count($methods) !== 0 && \in_array('file', $methods, true) === true)) {
-            $element = $this->file($index);
-        }
-
         if (($element->getValue() === null && count($methods) === 0) || (count($methods) !== 0 && count(array_intersect(Request::$requestTypesPost, $methods)) !== 0)) {
             $element = $this->data($index);
+        }
+
+        if (($element->getValue() === null && count($methods) === 0) || (count($methods) !== 0 && \in_array('file', $methods, true) === true)) {
+            $element = $this->file($index);
+            if($element->getValue() === null){
+                $element = new InputItem($index, null);
+            }
         }
 
         return $element;

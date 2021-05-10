@@ -241,9 +241,9 @@ class InputFile implements IInputItem, IteratorAggregate
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getTmpName(): string
+    public function getTmpName(): ?string
     {
         return $this->tmpName;
     }
@@ -266,11 +266,11 @@ class InputFile implements IInputItem, IteratorAggregate
     }
 
     /**
-     * @return string
+     * @return InputFile[]|string|null
      */
-    public function getValue(): string
+    public function getValue(): ?string
     {
-        return $this->value;
+        return $this->value ?? $this->getTmpName();
     }
 
     /**
@@ -293,7 +293,7 @@ class InputFile implements IInputItem, IteratorAggregate
     }
 
     /**
-     * @param mixed $value
+     * @param IInputItem[]|string $value
      * @return static
      */
     public function setValue($value): IInputItem
