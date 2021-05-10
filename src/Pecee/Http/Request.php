@@ -117,11 +117,12 @@ class Request
 
     /**
      * Request constructor.
+     * @param string|null $method
      * @throws MalformedUrlException
      */
-    public function __construct()
+    public function __construct(string $method = null)
     {
-        foreach ($_SERVER as $key => $value) {
+        foreach($_SERVER as $key => $value){
             $this->headers[strtolower($key)] = $value;
             $this->headers[str_replace('_', '-', strtolower($key))] = $value;
         }
@@ -129,9 +130,18 @@ class Request
         $this->setHost($this->getHeader('http-host'));
 
         // Check if special IIS header exist, otherwise use default.
-        $this->setUrl(new Url($this->getFirstHeader(['unencoded-url', 'request-uri'])));
+        $this->setUrl(new Url($this->getFirstHeader([
+            'unencoded-url',
+            'request-uri',
+        ])));
+
         $this->setContentType((string)$this->getHeader('content-type'));
-        $this->setMethod((string)($_POST[static::FORCE_METHOD_KEY] ?? $this->getHeader('request-method')));
+        if($method === null){
+            $this->setMethod((string)($_POST[static::FORCE_METHOD_KEY] ?? $this->getHeader('request-method')));
+        }else {
+            $this->setMethod($method);
+        }
+
         $this->inputHandler = new InputHandler($this);
     }
 
@@ -291,7 +301,7 @@ class Request
      * Will try to find first header from list of headers.
      *
      * @param array $headers
-     * @param mixed|null $defaultValue
+     * @param mixed $defaultValue
      * @return mixed|null
      */
     public function getFirstHeader(array $headers, $defaultValue = null)
@@ -364,7 +374,7 @@ class Request
 
     /**
      * Returns true when request-method is type that could contain data in the page body.
-     * 
+     *
      * @return bool
      */
     public function isPostBack(): bool

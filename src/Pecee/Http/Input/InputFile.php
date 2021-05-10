@@ -2,9 +2,11 @@
 
 namespace Pecee\Http\Input;
 
+use ArrayIterator;
+use IteratorAggregate;
 use Pecee\Exceptions\InvalidArgumentException;
 
-class InputFile implements IInputItem
+class InputFile implements IInputItem, IteratorAggregate
 {
     public $index;
     public $name;
@@ -13,6 +15,8 @@ class InputFile implements IInputItem
     public $type;
     public $errors;
     public $tmpName;
+
+    public $value;
 
     public function __construct(string $index)
     {
@@ -175,7 +179,7 @@ class InputFile implements IInputItem
     /**
      * Get filename
      *
-     * @return string mixed
+     * @return string|null
      */
     public function getFilename(): ?string
     {
@@ -237,9 +241,9 @@ class InputFile implements IInputItem
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getTmpName(): string
+    public function getTmpName(): ?string
     {
         return $this->tmpName;
     }
@@ -261,18 +265,58 @@ class InputFile implements IInputItem
         return $this->getTmpName();
     }
 
-    public function getValue(): string
+    /**
+     * @return InputFile[]|string|null
+     */
+    public function getValue(): ?string
     {
-        return $this->getFilename();
+        return $this->value ?? $this->getTmpName();
     }
 
     /**
-     * @param mixed $value
+     * @return bool
+     */
+    public function hasInputItems(): bool
+    {
+        return is_array($this->value);
+    }
+
+    /**
+     * @return InputFile[]
+     */
+    public function getInputItems()
+    {
+        if(is_array($this->value)){
+            return $this->value;
+        }
+        return array();
+    }
+
+    /**
+     * @param IInputItem[]|string $value
      * @return static
      */
     public function setValue($value): IInputItem
     {
-        $this->filename = $value;
+        $this->value = $value;
+
+        return $this;
+    }
+
+    /**
+     * @param InputFile|array $inputFile
+     * @return static
+     */
+    public function addInputFile($inputFile): IInputItem
+    {
+        if(!is_array($this->value)){
+            $this->value = array();
+        }
+        if(is_array($inputFile)){
+            $this->value = array_merge($this->value, $inputFile);
+        }else{
+            $this->value[] = $inputFile;
+        }
 
         return $this;
     }
@@ -287,6 +331,11 @@ class InputFile implements IInputItem
             'error'    => $this->errors,
             'filename' => $this->filename,
         ];
+    }
+
+    public function getIterator(): ArrayIterator
+    {
+        return new ArrayIterator($this->getInputItems());
     }
 
 }
