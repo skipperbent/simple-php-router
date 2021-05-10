@@ -149,10 +149,11 @@ class InputHandler
             $keys = [$key];
             $files = $this->rearrangeFile($value['name'], $keys, $value);
 
+            /** @var InputFile[] $list */
             if (isset($list[$key]) === true) {
-                $list[$key]->addInputFile($files);
+                $list[$key]->addInputFile(array_values($files));
             } else {
-                $list[$key] = (new InputFile($key))->setValue($files);
+                $list[$key] = (new InputFile($key))->setValue(array_values($files));
             }
 
         }

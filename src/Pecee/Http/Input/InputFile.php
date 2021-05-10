@@ -304,15 +304,19 @@ class InputFile implements IInputItem, IteratorAggregate
     }
 
     /**
-     * @param InputFile $inputFile
+     * @param InputFile|array $inputFile
      * @return static
      */
     public function addInputFile($inputFile): IInputItem
     {
-        if(is_array($this->value)){
+        if(!is_array($this->value)){
+            $this->value = array();
+        }
+        if(is_array($inputFile)){
+            $this->value = array_merge($this->value, $inputFile);
+        }else{
             $this->value[] = $inputFile;
         }
-        $this->setValue(array($inputFile));
 
         return $this;
     }
