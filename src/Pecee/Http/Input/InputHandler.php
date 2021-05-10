@@ -245,7 +245,7 @@ class InputHandler
      * Find input object
      *
      * @param string $index
-     * @param string ...$methods
+     * @param string|array ...$methods - Strings or one array of methods
      * @return InputItem|InputFile
      */
     public function find(string $index, ...$methods)
