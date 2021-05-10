@@ -103,4 +103,49 @@ class EventHandlerTest extends \PHPUnit\Framework\TestCase
 
     }
 
+    public function testCustomBasePath() {
+
+        $basePath = '/basepath/';
+
+        $eventHandler = new EventHandler();
+        $eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function(EventArgument $data) use($basePath) {
+
+            // Skip routes added by group
+            if($data->isSubRoute === false) {
+
+                switch (true) {
+                    case $data->route instanceof \Pecee\SimpleRouter\Route\ILoadableRoute:
+                        $data->route->prependUrl($basePath);
+                        break;
+                    case $data->route instanceof \Pecee\SimpleRouter\Route\IGroupRoute:
+                        $data->route->prependPrefix($basePath);
+                        break;
+
+                }
+            }
+
+        });
+
+        $results = [];
+
+        TestRouter::addEventHandler($eventHandler);
+
+        TestRouter::get('/about', function() use(&$results) {
+            $results[] = 'about';
+        });
+
+        TestRouter::group(['prefix' => '/admin'], function() use(&$results) {
+            TestRouter::get('/', function() use(&$results) {
+                $results[] = 'admin';
+            });
+        });
+
+        TestRouter::router()->setRenderMultipleRoutes(false);
+        TestRouter::debugNoReset('/basepath/about');
+        TestRouter::debugNoReset('/basepath/admin');
+
+        $this->assertEquals(['about', 'admin'], $results);
+
+    }
+
 }

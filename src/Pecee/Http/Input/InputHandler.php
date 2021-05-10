@@ -168,7 +168,7 @@ class InputHandler
      * @param array|null $original
      * @return array
      */
-    protected function rearrangeFile(array $values, &$index, $original): array
+    protected function rearrangeFile(array $values, array &$index, ?array $original): array
     {
         $originalIndex = $index[0];
         array_shift($index);

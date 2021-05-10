@@ -162,6 +162,7 @@ class Router
     {
         $this->fireEvents(EventHandler::EVENT_ADD_ROUTE, [
             'route' => $route,
+            'isSubRoute' => $this->isProcessingRoute,
         ]);
 
         /*
@@ -185,7 +186,6 @@ class Router
      */
     protected function renderAndProcess(IRoute $route): void
     {
-
         $this->isProcessingRoute = true;
         $route->renderRoute($this->request, $this);
         $this->isProcessingRoute = false;
@@ -510,7 +510,7 @@ class Router
         ]);
 
         /* @var $handler IExceptionHandler */
-        foreach ($this->exceptionHandlers as $key => $handler) {
+        foreach (array_reverse($this->exceptionHandlers) as $key => $handler) {
 
             if (is_object($handler) === false) {
                 $handler = new $handler();

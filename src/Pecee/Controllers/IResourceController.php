@@ -6,43 +6,43 @@ interface IResourceController
 {
 
     /**
-     * @return string|null
+     * @return mixed
      */
-    public function index(): ?string;
+    public function index();
 
     /**
      * @param mixed $id
-     * @return string|null
+     * @return mixed
      */
-    public function show($id): ?string;
+    public function show($id);
 
     /**
-     * @return string|null
+     * @return mixed
      */
-    public function store(): ?string;
+    public function store();
 
     /**
-     * @return string|null
+     * @return mixed
      */
-    public function create(): ?string;
+    public function create();
 
     /**
      * View
      * @param mixed $id
-     * @return string|null
+     * @return mixed
      */
-    public function edit($id): ?string;
+    public function edit($id);
 
     /**
      * @param mixed $id
-     * @return string|null
+     * @return mixed
      */
-    public function update($id): ?string;
+    public function update($id);
 
     /**
      * @param mixed $id
-     * @return string|null
+     * @return mixed
      */
-    public function destroy($id): ?string;
+    public function destroy($id);
 
 }

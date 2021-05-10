@@ -76,6 +76,11 @@ abstract class Route implements IRoute
         if (is_callable($callback) === true) {
             $router->debug('Executing callback');
 
+            /* Load class from type hinting */
+            if (is_array($callback) === true && isset($callback[0], $callback[1]) === true) {
+                $callback[0] = $router->getClassLoader()->loadClass($callback[0]);
+            }
+
             /* When the callback is a function */
             return $router->getClassLoader()->loadClosure($callback, $parameters);
         }
@@ -160,7 +165,7 @@ abstract class Route implements IRoute
             foreach ((array)$parameters[1] as $name) {
 
                 // Ignore parent parameters
-                if(isset($groupParameters[$name]) === true) {
+                if (isset($groupParameters[$name]) === true) {
                     $lastParams[$name] = $matches[$name];
                     continue;
                 }
@@ -244,6 +249,7 @@ abstract class Route implements IRoute
         $this->group = $group;
 
         /* Add/merge parent settings with child */
+
         return $this->setSettings($group->toArray(), true);
     }
 
@@ -331,6 +337,17 @@ abstract class Route implements IRoute
      */
     public function setNamespace(string $namespace): IRoute
     {
+        $ns = $this->getNamespace();
+
+        if ($ns !== null) {
+            // Don't overwrite namespaces that starts with \
+            if ($ns[0] !== '\\') {
+                $namespace .= '\\' . $ns;
+            } else {
+                $namespace = $ns;
+            }
+        }
+
         $this->namespace = $namespace;
 
         return $this;
@@ -401,7 +418,7 @@ abstract class Route implements IRoute
      */
     public function setSettings(array $settings, bool $merge = false): IRoute
     {
-        if ($this->namespace === null && isset($settings['namespace']) === true) {
+        if (isset($settings['namespace']) === true) {
             $this->setNamespace($settings['namespace']);
         }
 
@@ -576,6 +593,7 @@ abstract class Route implements IRoute
     public function setFilterEmptyParams(bool $enabled): IRoute
     {
         $this->filterEmptyParams = $enabled;
+
         return $this;
     }
 

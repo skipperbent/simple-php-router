@@ -54,6 +54,14 @@ interface IGroupRoute extends IRoute
     public function setDomains(array $domains): self;
 
     /**
+     * Prepends prefix while ensuring that the url has the correct formatting.
+     *
+     * @param string $url
+     * @return static
+     */
+    public function prependPrefix(string $url): self;
+
+    /**
      * Set prefix that child-routes will inherit.
      *
      * @param string $prefix

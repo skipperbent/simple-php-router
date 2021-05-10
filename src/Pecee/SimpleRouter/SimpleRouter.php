@@ -4,8 +4,8 @@
  * Router helper class
  * ---------------------------
  *
- * This class is added so calls can be made statically like Router::get() making the code look pretty.
- * It also adds some extra functionality like default-namespace.
+ * This class is added so calls can be made statically like SimpleRouter::get() making the code look pretty.
+ * It also adds some extra functionality like default-namespace etc.
  */
 
 namespace Pecee\SimpleRouter;
@@ -348,7 +348,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
-    public static function match(array $requestMethods, string $url, $callback, array $settings = null)
+    public static function match(array $requestMethods, string $url, $callback, array $settings = null): IRoute
     {
         $route = new RouteUrl($url, $callback);
         $route->setRequestMethods($requestMethods);
@@ -368,7 +368,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
-    public static function all(string $url, $callback, array $settings = null)
+    public static function all(string $url, $callback, array $settings = null): IRoute
     {
         $route = new RouteUrl($url, $callback);
 
@@ -387,7 +387,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteController|IRoute
      */
-    public static function controller(string $url, string $controller, array $settings = null)
+    public static function controller(string $url, string $controller, array $settings = null): IRoute
     {
         $route = new RouteController($url, $controller);
 
@@ -406,7 +406,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteResource|IRoute
      */
-    public static function resource(string $url, string $controller, array $settings = null)
+    public static function resource(string $url, string $controller, array $settings = null): IRoute
     {
         $route = new RouteResource($url, $controller);
 
@@ -512,20 +512,7 @@ class SimpleRouter
     public static function addDefaultNamespace(IRoute $route): IRoute
     {
         if (static::$defaultNamespace !== null) {
-
-            $ns = static::$defaultNamespace;
-            $namespace = $route->getNamespace();
-
-            if ($namespace !== null) {
-                // Don't overwrite namespaces that starts with \
-                if ($namespace[0] !== '\\') {
-                    $ns .= '\\' . $namespace;
-                } else {
-                    $ns = $namespace;
-                }
-            }
-
-            $route->setNamespace($ns);
+            $route->setNamespace(static::$defaultNamespace);
         }
 
         return $route;
