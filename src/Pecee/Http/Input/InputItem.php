@@ -97,7 +97,7 @@ class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
 
     public function offsetUnset($offset): void
     {
-        unset($this->data[$offset]);
+        unset($this->value[$offset]);
     }
 
     public function __toString(): string

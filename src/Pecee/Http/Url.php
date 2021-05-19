@@ -431,7 +431,7 @@ class Url implements JsonSerializable
      * @param bool $includeParams
      * @return string
      */
-    public function getRelativeUrl($includeParams = true): string
+    public function getRelativeUrl(bool $includeParams = true): string
     {
         $path = $this->path ?? '/';
 
@@ -451,7 +451,7 @@ class Url implements JsonSerializable
      * @param bool $includeParams
      * @return string
      */
-    public function getAbsoluteUrl($includeParams = true): string
+    public function getAbsoluteUrl(bool $includeParams = true): string
     {
         $scheme = $this->scheme !== null ? $this->scheme . '://' : '';
         $host = $this->host ?? '';

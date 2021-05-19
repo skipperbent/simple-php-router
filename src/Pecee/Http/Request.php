@@ -264,12 +264,12 @@ class Request
      * Get header value by name
      *
      * @param string $name Name of the header.
-     * @param string|null $defaultValue Value to be returned if header is not found.
+     * @param string|mixed|null $defaultValue Value to be returned if header is not found.
      * @param bool $tryParse When enabled the method will try to find the header from both from client (http) and server-side variants, if the header is not found.
      *
      * @return string|null
      */
-    public function getHeader(string $name, $defaultValue = null, $tryParse = true): ?string
+    public function getHeader(string $name, $defaultValue = null, bool $tryParse = true): ?string
     {
         $name = strtolower($name);
         $header = $this->headers[$name] ?? null;
