@@ -944,4 +944,10 @@ class Router
         return $this;
     }
 
+    public function addExceptionHandler(IExceptionHandler $handler): self
+    {
+        $this->exceptionHandlers[] = $handler;
+        return $this;
+    }
+
 }

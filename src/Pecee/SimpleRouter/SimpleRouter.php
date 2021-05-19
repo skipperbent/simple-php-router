@@ -427,9 +427,7 @@ class SimpleRouter
     {
         $callbackHandler = new CallbackExceptionHandler($callback);
 
-        static::router()->addRoute(
-            (new RouteGroup())->addExceptionHandler($callbackHandler)
-        );
+        static::router()->addExceptionHandler($callbackHandler);
 
         return $callbackHandler;
     }
