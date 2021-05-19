@@ -432,9 +432,7 @@ class SimpleRouter
         $group = new RouteGroup();
         $group->addExceptionHandler($callbackHandler);
 
-        array_unshift($routes, $group);
-
-        static::router()->setRoutes($routes);
+        static::router()->addRoute($group);
 
         return $callbackHandler;
     }
