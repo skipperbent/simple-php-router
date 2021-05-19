@@ -425,14 +425,11 @@ class SimpleRouter
      */
     public static function error(Closure $callback): CallbackExceptionHandler
     {
-        $routes = static::router()->getRoutes();
-
         $callbackHandler = new CallbackExceptionHandler($callback);
 
-        $group = new RouteGroup();
-        $group->addExceptionHandler($callbackHandler);
-
-        static::router()->addRoute($group);
+        static::router()->addRoute(
+            (new RouteGroup())->addExceptionHandler($callbackHandler)
+        );
 
         return $callbackHandler;
     }
