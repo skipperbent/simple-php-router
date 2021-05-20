@@ -101,6 +101,18 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     }
 
     /**
+     * Returns true if group is defined and matches the given url.
+     *
+     * @param string $url
+     * @param Request $request
+     * @return bool
+     */
+    protected function matchGroup(string $url, Request $request): bool
+    {
+        return ($this->getGroup() === null || $this->getGroup()->matchRoute($url, $request) === true);
+    }
+
+    /**
      * Find url that matches method, parameters or name.
      * Used when calling the url() helper.
      *
@@ -203,9 +215,9 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * Sets the router name, which makes it easier to obtain the url or router at a later point.
      * Alias for LoadableRoute::setName().
      *
-     * @see LoadableRoute::setName()
      * @param string|array $name
      * @return static
+     * @see LoadableRoute::setName()
      */
     public function name($name): ILoadableRoute
     {
