@@ -85,7 +85,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
 
     public function matchRoute(string $url, Request $request): bool
     {
-        if ($this->getGroup() !== null && $this->getGroup()->matchRoute($url, $request) === false) {
+        if ($this->matchGroup($url, $request) === false) {
             return false;
         }
 
