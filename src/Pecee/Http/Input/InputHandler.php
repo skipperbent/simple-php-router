@@ -293,14 +293,26 @@ class InputHandler
     }
 
     /**
-     * Check if a input-item exist
+     * Check if a input-item exist.
+     * If an array is as $index parameter the method returns true if all elements exist.
      *
-     * @param string $index
+     * @param string|array $index
      * @param array ...$methods
      * @return bool
      */
-    public function exists(string $index, ...$methods): bool
+    public function exists($index, ...$methods): bool
     {
+        // Check array
+        if(is_array($index) === true) {
+            foreach($index as $key) {
+                if($this->value($key, null, ...$methods) === null) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         return $this->value($index, null, ...$methods) !== null;
     }
 

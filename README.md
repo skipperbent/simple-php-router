@@ -77,6 +77,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 	    - [Get parameter object](#get-parameter-object)
 	    - [Managing files](#managing-files)
 	    - [Get all parameters](#get-all-parameters)
+	    - [Check if parameters exists](#check-if-parameters-exists)
 - [Events](#events)
     - [Available events](#available-events)
     - [Registering new event](#registering-new-event)
@@ -1236,8 +1237,11 @@ $values = input()->all([
 All object implements the `IInputItem` interface and will always contain these methods:
 
 - `getIndex()` - returns the index/key of the input.
+- `setIndex()` - set the index/key of the input.
 - `getName()` - returns a human friendly name for the input (company_name will be Company Name etc).
+- `setName()` - sets a human friendly name for the input (company_name will be Company Name etc).
 - `getValue()` - returns the value of the input.
+- `setValue()` - sets the value of the input.
 
 `InputFile` has the same methods as above along with some other file-specific methods like:
 
@@ -1252,6 +1256,24 @@ All object implements the `IInputItem` interface and will always contain these m
 - `toArray()` - returns raw array
 
 ---
+
+### Check if parameters exists
+
+You can easily if multiple items exists by using the `exists` method. It's simular to `value` as it can be used 
+to filter on request-methods and supports both `string` and `array` as parameter value.
+
+**Example:**
+
+```php
+if(input()->exists(['name', 'lastname'])) {
+	// Do stuff
+}
+
+/* Similar to code above */
+if(input()->exists('name') && input()->exists('lastname')) {
+	// Do stuff
+}
+```
 
 # Events
 
