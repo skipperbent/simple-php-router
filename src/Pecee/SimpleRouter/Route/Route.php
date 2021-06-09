@@ -67,7 +67,7 @@ abstract class Route implements IRoute
 
         /* Filter parameters with null-value */
         if ($this->filterEmptyParams === true) {
-            $parameters = array_filter($parameters, static function ($var) {
+            $parameters = array_filter($parameters, static function ($var): bool {
                 return ($var !== null);
             });
         }
@@ -82,6 +82,7 @@ abstract class Route implements IRoute
             }
 
             /* When the callback is a function */
+
             return $router->getClassLoader()->loadClosure($callback, $parameters);
         }
 
@@ -280,7 +281,7 @@ abstract class Route implements IRoute
     }
 
     /**
-     * @return string|callable
+     * @return string|callable|null
      */
     public function getCallback()
     {
@@ -337,6 +338,11 @@ abstract class Route implements IRoute
      */
     public function setNamespace(string $namespace): IRoute
     {
+        // Do not set namespace when class-hinting is used
+        if (is_array($this->callback) === true) {
+            return $this;
+        }
+
         $ns = $this->getNamespace();
 
         if ($ns !== null) {

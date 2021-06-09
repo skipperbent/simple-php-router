@@ -2,6 +2,7 @@
 
 require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
+require_once 'Dummy/NSController.php';
 require_once 'Dummy/Exception/ExceptionHandlerException.php';
 
 class RouterRouteTest extends \PHPUnit\Framework\TestCase
@@ -244,6 +245,16 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
         TestRouter::debug('/my/test/url', 'get');
 
         $this->assertTrue(true);
+    }
+
+    public function testDefaultNameSpaceOverload()
+    {
+        TestRouter::setDefaultNamespace('DefaultNamespace\\Controllers');
+        TestRouter::get('/test', [\MyNamespace\NSController::class, 'method']);
+
+        $result = TestRouter::debugOutput('/test');
+
+        $this->assertTrue( (bool)$result);
     }
 
     public function testSameRoutes()
