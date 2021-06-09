@@ -44,7 +44,7 @@ class Router
 
     /**
      * List of processed routes
-     * @var array
+     * @var array|ILoadableRoute[]
      */
     protected $processedRoutes = [];
 
@@ -63,7 +63,7 @@ class Router
 
     /**
      * Csrf verifier class
-     * @var BaseCsrfVerifier
+     * @var BaseCsrfVerifier|null
      */
     protected $csrfVerifier;
 
@@ -107,7 +107,7 @@ class Router
 
     /**
      * Class loader instance
-     * @var ClassLoader
+     * @var IClassLoader
      */
     protected $classLoader;
 
@@ -215,7 +215,7 @@ class Router
         $exceptionHandlers = [];
 
         // Stop processing routes if no valid route is found.
-        if ($this->request->getRewriteRoute() === null && $this->request->getUrl() === null) {
+        if ($this->request->getRewriteRoute() === null && $this->request->getUrl()->getOriginalUrl() === '') {
             $this->debug('Halted route-processing as no valid route was found');
 
             return;
@@ -575,7 +575,6 @@ class Router
             'name' => $name,
         ]);
 
-        /* @var $route ILoadableRoute */
         foreach ($this->processedRoutes as $route) {
 
             /* Check if the name matches with a name on the route. Should match either router alias or controller alias. */
@@ -593,7 +592,7 @@ class Router
             }
 
             /* Using @ is most definitely a controller@method or alias@method */
-            if (is_string($name) === true && strpos($name, '@') !== false) {
+            if (strpos($name, '@') !== false) {
                 [$controller, $method] = array_map('strtolower', explode('@', $name));
 
                 if ($controller === strtolower($route->getClass()) && $method === strtolower($route->getMethod())) {
@@ -605,7 +604,7 @@ class Router
 
             /* Check if callback matches (if it's not a function) */
             $callback = $route->getCallback();
-            if (is_string($name) === true && is_string($callback) === true && is_callable($callback) === false && strpos($name, '@') !== false && strpos($callback, '@') !== false) {
+            if (is_string($callback) === true && is_callable($callback) === false && strpos($name, '@') !== false && strpos($callback, '@') !== false) {
 
                 /* Check if the entire callback is matching */
                 if (strpos($callback, $name) === 0 || strtolower($callback) === strtolower($name)) {
@@ -656,10 +655,6 @@ class Router
             'getParams'  => $getParams,
         ]);
 
-        if ($getParams !== null && is_array($getParams) === false) {
-            throw new InvalidArgumentException('Invalid type for getParams. Must be array or null');
-        }
-
         if ($name === '' && $parameters === '') {
             return new Url('/');
         }
@@ -703,21 +698,21 @@ class Router
             /* Loop through all the routes to see if we can find a match */
 
             /* @var $route ILoadableRoute */
-            foreach ($this->processedRoutes as $route) {
+            foreach ($this->processedRoutes as $processedRoute) {
 
                 /* Check if the route contains the name/alias */
-                if ($route->hasName($controller) === true) {
+                if ($processedRoute->hasName($controller) === true) {
                     return $this->request
                         ->getUrlCopy()
-                        ->setPath($route->findUrl($method, $parameters, $name))
+                        ->setPath($processedRoute->findUrl($method, $parameters, $name))
                         ->setParams($getParams);
                 }
 
                 /* Check if the route controller is equal to the name */
-                if ($route instanceof IControllerRoute && strtolower($route->getController()) === strtolower($controller)) {
+                if ($processedRoute instanceof IControllerRoute && strtolower($processedRoute->getController()) === strtolower($controller)) {
                     return $this->request
                         ->getUrlCopy()
-                        ->setPath($route->findUrl($method, $parameters, $name))
+                        ->setPath($processedRoute->findUrl($method, $parameters, $name))
                         ->setParams($getParams);
                 }
 
@@ -842,7 +837,7 @@ class Router
     /**
      * Get class loader
      *
-     * @return ClassLoader
+     * @return IClassLoader
      */
     public function getClassLoader(): IClassLoader
     {
