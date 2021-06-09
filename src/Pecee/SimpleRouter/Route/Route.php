@@ -30,6 +30,9 @@ abstract class Route implements IRoute
     protected $urlRegex = '/^%s\/?$/u';
     protected $group;
     protected $parent;
+    /**
+     * @var string|callable|null
+     */
     protected $callback;
     protected $defaultNamespace;
 
