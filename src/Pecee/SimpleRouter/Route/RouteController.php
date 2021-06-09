@@ -52,7 +52,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
     public function findUrl(?string $method = null, $parameters = null, ?string $name = null): string
     {
         if (strpos($name, '.') !== false) {
-            $found = array_search(substr($name, strrpos($name, '.') + 1), $this->names, false);
+            $found = array_search(substr($name, strrpos($name, '.') + 1), $this->names, true);
             if ($found !== false) {
                 $method = (string)$found;
             }
@@ -67,7 +67,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
             foreach (Request::$requestTypes as $requestType) {
 
                 if (stripos($method, $requestType) === 0) {
-                    $method = (string)substr($method, strlen($requestType));
+                    $method = substr($method, strlen($requestType));
                     break;
                 }
             }

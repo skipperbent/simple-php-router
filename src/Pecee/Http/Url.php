@@ -387,7 +387,7 @@ class Url implements JsonSerializable
     {
         $encodedUrl = preg_replace_callback(
             '/[^:\/@?&=#]+/u',
-            static function ($matches) {
+            static function ($matches): string {
                 return urlencode($matches[0]);
             },
             $url
@@ -414,7 +414,7 @@ class Url implements JsonSerializable
         if (count($getParams) !== 0) {
 
             if ($includeEmpty === false) {
-                $getParams = array_filter($getParams, static function ($item) {
+                $getParams = array_filter($getParams, static function ($item): bool {
                     return (trim($item) !== '');
                 });
             }
@@ -458,7 +458,7 @@ class Url implements JsonSerializable
         $port = $this->port !== null ? ':' . $this->port : '';
         $user = $this->username ?? '';
         $pass = $this->password !== null ? ':' . $this->password : '';
-        $pass = ($user || $pass) ? $pass . '@' : '';
+        $pass = ($user !== '' || $pass !== '') ? $pass . '@' : '';
 
         return $scheme . $user . $pass . $host . $port . $this->getRelativeUrl($includeParams);
     }
@@ -466,7 +466,7 @@ class Url implements JsonSerializable
     /**
      * Specify data which should be serialized to JSON
      * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * @return string data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      * @since 5.4.0
      */

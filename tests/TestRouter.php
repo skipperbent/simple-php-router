@@ -22,12 +22,14 @@ class TestRouter extends \Pecee\SimpleRouter\SimpleRouter
     {
         try {
             static::debugNoReset($testUrl, $testMethod);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
+            static::$defaultNamespace = null;
             static::router()->reset();
             throw $e;
         }
 
-        if($reset === true) {
+        if ($reset === true) {
+            static::$defaultNamespace = null;
             static::router()->reset();
         }
 
