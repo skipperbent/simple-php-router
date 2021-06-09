@@ -22,6 +22,7 @@ use Pecee\SimpleRouter\Exceptions\HttpException;
 use Pecee\SimpleRouter\Handlers\CallbackExceptionHandler;
 use Pecee\SimpleRouter\Handlers\IEventHandler;
 use Pecee\SimpleRouter\Route\IGroupRoute;
+use Pecee\SimpleRouter\Route\ILoadableRoute;
 use Pecee\SimpleRouter\Route\IPartialGroupRoute;
 use Pecee\SimpleRouter\Route\IRoute;
 use Pecee\SimpleRouter\Route\RouteController;
@@ -173,7 +174,7 @@ class SimpleRouter
      */
     public static function redirect(string $where, string $to, int $httpCode = 301): IRoute
     {
-        return static::get($where, function () use ($to, $httpCode) {
+        return static::get($where, static function () use ($to, $httpCode): void {
             static::response()->redirect($to, $httpCode);
         });
     }
@@ -185,7 +186,7 @@ class SimpleRouter
      * @param string|array|Closure $callback
      * @param array|null $settings
      *
-     * @return RouteUrl
+     * @return RouteUrl|IRoute
      */
     public static function get(string $url, $callback, array $settings = null): IRoute
     {
@@ -198,7 +199,7 @@ class SimpleRouter
      * @param string $url
      * @param string|array|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl
+     * @return RouteUrl|IRoute
      */
     public static function post(string $url, $callback, array $settings = null): IRoute
     {
@@ -211,7 +212,7 @@ class SimpleRouter
      * @param string $url
      * @param string|array|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl
+     * @return RouteUrl|IRoute
      */
     public static function put(string $url, $callback, array $settings = null): IRoute
     {
@@ -224,7 +225,7 @@ class SimpleRouter
      * @param string $url
      * @param string|array|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl
+     * @return RouteUrl|IRoute
      */
     public static function patch(string $url, $callback, array $settings = null): IRoute
     {
@@ -237,7 +238,7 @@ class SimpleRouter
      * @param string $url
      * @param string|array|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl
+     * @return RouteUrl|IRoute
      */
     public static function options(string $url, $callback, array $settings = null): IRoute
     {
@@ -250,7 +251,7 @@ class SimpleRouter
      * @param string $url
      * @param string|array|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl
+     * @return RouteUrl|IRoute
      */
     public static function delete(string $url, $callback, array $settings = null): IRoute
     {
@@ -262,15 +263,11 @@ class SimpleRouter
      *
      * @param array $settings
      * @param Closure $callback
-     * @return RouteGroup
+     * @return RouteGroup|IGroupRoute
      * @throws InvalidArgumentException
      */
     public static function group(array $settings, Closure $callback): IGroupRoute
     {
-        if (is_callable($callback) === false) {
-            throw new InvalidArgumentException('Invalid callback provided. Only functions or methods supported');
-        }
-
         $group = new RouteGroup();
         $group->setCallback($callback);
         $group->setSettings($settings);
@@ -287,15 +284,11 @@ class SimpleRouter
      * @param string $url
      * @param Closure $callback
      * @param array $settings
-     * @return RoutePartialGroup
+     * @return RoutePartialGroup|IPartialGroupRoute
      * @throws InvalidArgumentException
      */
     public static function partialGroup(string $url, Closure $callback, array $settings = []): IPartialGroupRoute
     {
-        if (is_callable($callback) === false) {
-            throw new InvalidArgumentException('Invalid callback provided. Only functions or methods supported');
-        }
-
         $settings['prefix'] = $url;
 
         $group = new RoutePartialGroup();
@@ -313,7 +306,7 @@ class SimpleRouter
      * @param string $url
      * @param string|array|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl
+     * @return RouteUrl|IRoute
      * @see SimpleRouter::form
      */
     public static function basic(string $url, $callback, array $settings = null): IRoute
@@ -328,7 +321,7 @@ class SimpleRouter
      * @param string $url
      * @param string|array|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl
+     * @return RouteUrl|IRoute
      * @see SimpleRouter::form
      */
     public static function form(string $url, $callback, array $settings = null): IRoute
@@ -499,7 +492,7 @@ class SimpleRouter
     /**
      * Prepends the default namespace to all new routes added.
      *
-     * @param IRoute $route
+     * @param ILoadableRoute|IRoute $route
      * @return IRoute
      */
     public static function addDefaultNamespace(IRoute $route): IRoute

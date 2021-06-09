@@ -115,7 +115,7 @@ class InputHandler
 
             // Handle array input
             if (is_array($value['name']) === false) {
-                $values['index'] = $parentKey ?? $key;
+                $values = ['index' => $parentKey ?? $key];
 
                 try {
                     $list[$key] = InputFile::createFromArray($values + $value);
@@ -161,7 +161,7 @@ class InputHandler
                 try {
 
                     $file = InputFile::createFromArray([
-                        'index'    => (empty($key) === true && empty($originalIndex) === false) ? $originalIndex : $key,
+                        'index'    => ($key === '' && $originalIndex !== '') ? $originalIndex : $key,
                         'name'     => $original['name'][$key],
                         'error'    => $original['error'][$key],
                         'tmp_name' => $original['tmp_name'][$key],
