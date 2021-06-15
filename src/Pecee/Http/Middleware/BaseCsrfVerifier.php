@@ -18,11 +18,16 @@ class BaseCsrfVerifier implements IMiddleware
      * @var array|null
      */
     protected $except;
+
     /**
      * Urls to include. Can be used to include urls from a certain path.
      * @var array|null
      */
     protected $include;
+
+    /**
+     * @var ITokenProvider
+     */
     protected $tokenProvider;
 
     /**
