@@ -6,12 +6,39 @@ use Pecee\Exceptions\InvalidArgumentException;
 
 class InputFile implements IInputItem
 {
+    /**
+     * @var string
+     */
     public $index;
+
+    /**
+     * @var string
+     */
     public $name;
+
+    /**
+     * @var string|null
+     */
     public $filename;
+
+    /**
+     * @var int|null
+     */
     public $size;
+
+    /**
+     * @var int|null
+     */
     public $type;
+
+    /**
+     * @var int
+     */
     public $errors;
+
+    /**
+     * @var string|null
+     */
     public $tmpName;
 
     public function __construct(string $index)

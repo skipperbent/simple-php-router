@@ -6,7 +6,12 @@ use Pecee\Http\Request;
 
 class RouteUrl extends LoadableRoute
 {
-    public function __construct($url, $callback)
+    /**
+     * RouteUrl constructor.
+     * @param string $url
+     * @param \Closure|string $callback
+     */
+    public function __construct(string $url, $callback)
     {
         $this->setUrl($url);
         $this->setCallback($callback);
