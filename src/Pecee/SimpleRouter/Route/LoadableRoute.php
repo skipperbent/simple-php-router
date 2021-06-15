@@ -19,6 +19,9 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      */
     protected $name;
 
+    /**
+     * @var string|null
+     */
     protected $regex;
 
     /**
@@ -59,7 +62,14 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             return null;
         }
 
-        return ((bool)preg_match($this->regex, $url) !== false);
+        $parameters = [];
+        if ((bool)preg_match($this->regex, $url, $parameters) !== false) {
+            $this->setParameters($parameters);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

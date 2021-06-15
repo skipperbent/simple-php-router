@@ -181,6 +181,22 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
 
         $output = TestRouter::debugOutput('/admin/asd/bec/123', 'get');
         $this->assertEquals('match', $output);
+
+        TestRouter::router()->reset();
+    }
+
+    public function testCustomRegexWithParameter()
+    {
+        TestRouter::request()->setHost('google.com');
+
+        $results = '';
+
+        TestRouter::get('/tester/{param}', function ($param = null) use($results) {
+            return $results = $param;
+        })->setMatch('/(.*)/i');
+
+        $output = TestRouter::debugOutput('/tester/abepik/ko');
+        $this->assertEquals('/tester/abepik/ko/', $output);
     }
 
     public function testRenderMultipleRoutesDisabled()

@@ -17,6 +17,9 @@ use Pecee\Http\Request;
 class CallbackExceptionHandler implements IExceptionHandler
 {
 
+    /**
+     * @var Closure
+     */
     protected $callback;
 
     public function __construct(Closure $callback)

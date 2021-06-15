@@ -6,10 +6,17 @@ use Throwable;
 
 class ClassNotFoundHttpException extends NotFoundHttpException
 {
+    /**
+     * @var string
+     */
     protected $class;
+
+    /**
+     * @var string|null
+     */
     protected $method;
 
-    public function __construct(string $class, ?string $method = null, $message = "", $code = 0, Throwable $previous = null)
+    public function __construct(string $class, ?string $method = null, string $message = "", int $code = 0, Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
 

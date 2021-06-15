@@ -7,15 +7,49 @@ use Pecee\Http\Exceptions\MalformedUrlException;
 
 class Url implements JsonSerializable
 {
+    /**
+     * @var string|null
+     */
     private $originalUrl;
 
+    /**
+     * @var string|null
+     */
     private $scheme;
+
+    /**
+     * @var string|null
+     */
     private $host;
+
+    /**
+     * @var int|null
+     */
     private $port;
+
+    /**
+     * @var string|null
+     */
     private $username;
+
+    /**
+     * @var string|null
+     */
     private $password;
+
+    /**
+     * @var string|null
+     */
     private $path;
+
+    /**
+     * @var array
+     */
     private $params = [];
+
+    /**
+     * @var string|null
+     */
     private $fragment;
 
     /**
