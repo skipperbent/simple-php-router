@@ -791,7 +791,7 @@ If you want to store the token elsewhere, please refer to the "Creating custom T
 When you've created your CSRF-verifier you need to tell simple-php-router that it should use it. You can do this by adding the following line in your `routes.php` file:
 
 ```php
-Router::csrfVerifier(new \Demo\Middlewares\CsrfVerifier());
+SimpleRouter::csrfVerifier(new \Demo\Middlewares\CsrfVerifier());
 ```
 
 ## Getting CSRF-token
@@ -807,7 +807,7 @@ csrf_token();
 You can also get the token directly:
 
 ```php
-return Router::router()->getCsrfVerifier()->getTokenProvider()->getToken();
+return SimpleRouter::router()->getCsrfVerifier()->getTokenProvider()->getToken();
 ```
 
 The default name/key for the input-field is `csrf_token` and is defined in the `POST_KEY` constant in the `BaseCsrfVerifier` class.
@@ -893,10 +893,10 @@ class SessionTokenProvider implements ITokenProvider
 Next you need to set your custom `ITokenProvider` implementation on your `BaseCsrfVerifier` class in your routes file:
 
 ```php
-$verifier = new \dscuz\Middleware\CsrfVerifier();
+$verifier = new \Demo\Middlewares\CsrfVerifier();
 $verifier->setTokenProvider(new SessionTokenProvider());
 
-Router::csrfVerifier($verifier);
+SimpleRouter::csrfVerifier($verifier);
 ```
 
 ---
@@ -938,7 +938,7 @@ ExceptionHandler are classes that handles all exceptions. ExceptionsHandlers mus
 
 ## Handling 404, 403 and other errors
 
-If you simply want to catch a 404 (page not found) etc. you can use the `Router::error($callback)` static helper method.
+If you simply want to catch a 404 (page not found) etc. you can use the `SimpleRouter::error($callback)` static helper method.
 
 This will add a callback method which is fired whenever an error occurs on all routes.
 
@@ -946,15 +946,29 @@ The basic example below simply redirect the page to `/not-found` if an `NotFound
 The code should be placed in the file that contains your routes.
 
 ```php
-Router::get('/not-found', 'PageController@notFound');
+SimpleRouter::get('/not-found', 'PageController@notFound');
+SimpleRouter::get('/forbidden', 'PageController@notFound');
 
-Router::error(function(Request $request, \Exception $exception) {
+SimpleRouter::error(function(Request $request, \Exception $exception) {
 
-    if($exception instanceof NotFoundHttpException && $exception->getCode() === 404) {
-        response()->redirect('/not-found');
+    switch($exception->getCode()) {
+        // Page not found
+        case 404:
+            response()->redirect('/not-found');
+        // Forbidden
+        case 403:
+            response()->redirect('/forbidden');
     }
     
 });
+```
+
+The example above will redirect all errors with http-code `404` (page not found) to `/not-found` and `403` (forbidden) to `/forbidden`.
+
+If you do not want a redirect, but want the error-page rendered on the current-url, you can tell the router to execute a rewrite callback like so:
+
+```php
+$request->setRewriteCallback('ErrorController@notFound');
 ```
 
 ## Using custom exception handlers
@@ -1297,7 +1311,7 @@ All event callbacks will retrieve a `EventArgument` object as parameter. This ob
 | `EVENT_RENDER_BOOTMANAGER`  | `bootmanagers`<br>`bootmanager` | Fires before a boot-manager is rendered. |
 | `EVENT_LOAD_ROUTES`         | `routes` | Fires when the router is about to load all routes. |
 | `EVENT_FIND_ROUTE`          | `name` | Fires whenever the `findRoute` method is called within the `Router`. This usually happens when the router tries to find routes that contains a certain url, usually after the `EventHandler::EVENT_GET_URL` event. |
-| `EVENT_GET_URL`             | `name`<br>`parameters`<br>`getParams` | Fires whenever the `Router::getUrl` method or `url`-helper function is called and the router tries to find the route. |
+| `EVENT_GET_URL`             | `name`<br>`parameters`<br>`getParams` | Fires whenever the `SimpleRouter::getUrl` method or `url`-helper function is called and the router tries to find the route. |
 | `EVENT_MATCH_ROUTE`         | `route` | Fires when a route is matched and valid (correct request-type etc). and before the route is rendered. |
 | `EVENT_RENDER_ROUTE`        | `route` | Fires before a route is rendered. |
 | `EVENT_LOAD_EXCEPTIONS`     | `exception`<br>`exceptionHandlers` | Fires when the router is loading exception-handlers. |
@@ -1480,7 +1494,7 @@ $eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function(EventArgument $e
 	
 });
 
-TestRouter::addEventHandler($eventHandler);
+SimpleRouter::addEventHandler($eventHandler);
 ```
 
 In the example shown above, we create a new `EVENT_ADD_ROUTE` event that triggers, when a new route is added.
