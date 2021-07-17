@@ -62,7 +62,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 - [ExceptionHandlers](#exceptionhandlers)
     - [Handling 404, 403 and other errors](#handling-404-403-and-other-errors)
 	- [Using custom exception handlers](#using-custom-exception-handlers)
-		- [Stop merge of parent exception-handlers](#stop-merge-of-parent-exception-handlers)
+		- [Prevent merge of parent exception-handlers](#prevent-merge-of-parent-exception-handlers)
 - [Urls](#urls)
     - [Get the current url](#get-the-current-url)
  	- [Get by name (single route)](#get-by-name-single-route)
@@ -1026,7 +1026,7 @@ SimpleRouter::group(['exceptionHandler' => \Demo\Handlers\CustomExceptionHandler
 });
 ```
 
-### Stop merge of parent exception-handlers
+### Prevent merge of parent exception-handlers
 
 By default the router will merge exception-handlers to any handlers provided by parent groups, and will be executed in the order of newest to oldest.
 
@@ -1048,7 +1048,7 @@ SimpleRouter::group(['prefix' => '/', 'exceptionHandler' => \Demo\Handlers\First
 	});
 
 });
-``.
+```
 
 ---
 
