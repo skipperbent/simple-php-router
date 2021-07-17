@@ -78,7 +78,7 @@ class RouteGroup extends Route implements IGroupRoute
         }
 
         /* Skip if prefix doesn't match */
-        if ($this->prefix !== null && stripos($url, $parsedPrefix) === false) {
+        if ($this->prefix !== null && stripos($url, rtrim($parsedPrefix, '/') . '/') === false) {
             return false;
         }
 
