@@ -12,6 +12,7 @@ class RouteGroup extends Route implements IGroupRoute
     protected $name;
     protected $domains = [];
     protected $exceptionHandlers = [];
+    protected $mergeExceptionHandlers = true;
 
     /**
      * Method called to check if a domain matches
@@ -36,6 +37,7 @@ class RouteGroup extends Route implements IGroupRoute
 
             if ($parameters !== null && count($parameters) !== 0) {
                 $this->parameters = $parameters;
+
                 return true;
             }
         }
@@ -175,6 +177,29 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
+     * When enabled group will overwrite any existing exception-handlers.
+     *
+     * @param bool $merge
+     * @return static
+     */
+    public function setMergeExceptionHandlers(bool $merge): IGroupRoute
+    {
+        $this->mergeExceptionHandlers = $merge;
+
+        return $this;
+    }
+
+    /**
+     * Returns true if group should overwrite existing exception-handlers.
+     *
+     * @return bool
+     */
+    public function getMergeExceptionHandlers(): bool
+    {
+        return $this->mergeExceptionHandlers;
+    }
+
+    /**
      * Merge with information from another route.
      *
      * @param array $settings
@@ -185,6 +210,10 @@ class RouteGroup extends Route implements IGroupRoute
     {
         if (isset($settings['prefix']) === true) {
             $this->setPrefix($settings['prefix'] . $this->prefix);
+        }
+
+        if (isset($settings['mergeExceptionHandlers']) === true) {
+            $this->setMergeExceptionHandlers($settings['mergeExceptionHandlers']);
         }
 
         if ($merge === false && isset($settings['exceptionHandler']) === true) {
