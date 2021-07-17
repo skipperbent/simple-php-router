@@ -160,7 +160,7 @@ class Router
     public function addRoute(IRoute $route): IRoute
     {
         $this->fireEvents(EventHandler::EVENT_ADD_ROUTE, [
-            'route' => $route,
+            'route'      => $route,
             'isSubRoute' => $this->isProcessingRoute,
         ]);
 
@@ -203,16 +203,13 @@ class Router
     /**
      * Process added routes.
      *
-     * @param array $routes
+     * @param array|IRoute[] $routes
      * @param IGroupRoute|null $group
      * @throws NotFoundHttpException
      */
     protected function processRoutes(array $routes, ?IGroupRoute $group = null): void
     {
         $this->debug('Processing routes');
-
-        // Loop through each route-request
-        $exceptionHandlers = [];
 
         // Stop processing routes if no valid route is found.
         if ($this->request->getRewriteRoute() === null && $this->request->getUrl()->getOriginalUrl() === '') {
@@ -223,7 +220,7 @@ class Router
 
         $url = $this->request->getRewriteUrl() ?? $this->request->getUrl()->getPath();
 
-        /* @var $route IRoute */
+        // Loop through each route-request
         foreach ($routes as $route) {
 
             $this->debug('Processing route "%s"', get_class($route));
@@ -240,13 +237,22 @@ class Router
 
                     /* Add exception handlers */
                     if (count($route->getExceptionHandlers()) !== 0) {
-                        /** @noinspection AdditionOperationOnArraysInspection */
-                        $exceptionHandlers += $route->getExceptionHandlers();
+
+                        if ($route->getMergeExceptionHandlers() === true) {
+
+                            foreach ($route->getExceptionHandlers() as $handler) {
+                                $this->exceptionHandlers[] = $handler;
+                            }
+
+                        } else {
+                            $this->exceptionHandlers = $route->getExceptionHandlers();
+                        }
                     }
 
                     /* Only render partial group if it matches */
                     if ($route instanceof IPartialGroupRoute === true) {
                         $this->renderAndProcess($route);
+                        continue;
                     }
 
                 }
@@ -264,8 +270,6 @@ class Router
                 $this->processedRoutes[] = $route;
             }
         }
-
-        $this->exceptionHandlers = array_merge($exceptionHandlers, $this->exceptionHandlers);
     }
 
     /**
@@ -679,7 +683,7 @@ class Router
                 ->setParams($getParams);
         }
 
-        if($name !== null) {
+        if ($name !== null) {
             /* We try to find a match on the given name */
             $route = $this->findRoute($name);
 
@@ -942,6 +946,7 @@ class Router
     public function addExceptionHandler(IExceptionHandler $handler): self
     {
         $this->exceptionHandlers[] = $handler;
+
         return $this;
     }
 
