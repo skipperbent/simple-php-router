@@ -182,7 +182,7 @@ class RouteGroup extends Route implements IGroupRoute
      * @param bool $merge
      * @return static
      */
-    public function setMergeExceptionHandlers(bool $merge): self
+    public function setMergeExceptionHandlers(bool $merge): IGroupRoute
     {
         $this->mergeExceptionHandlers = $merge;
 
