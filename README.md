@@ -62,6 +62,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 - [ExceptionHandlers](#exceptionhandlers)
     - [Handling 404, 403 and other errors](#handling-404-403-and-other-errors)
 	- [Using custom exception handlers](#using-custom-exception-handlers)
+		- [Stop merge of parent exception-handlers](#stop-merge-of-parent-exception-handlers)
 - [Urls](#urls)
     - [Get the current url](#get-the-current-url)
  	- [Get by name (single route)](#get-by-name-single-route)
@@ -1013,6 +1014,41 @@ class CustomExceptionHandler implements IExceptionHandler
 
 }
 ```
+
+You can add your custom exception-handler class to your group by using the `exceptionHandler` settings-attribute.
+`exceptionHandler` can be either class-name or array of class-names.
+
+```php
+SimpleRouter::group(['exceptionHandler' => \Demo\Handlers\CustomExceptionHandler::class], function() {
+
+    // Your routes here
+
+});
+```
+
+### Stop merge of parent exception-handlers
+
+By default the router will merge exception-handlers to any handlers provided by parent groups, and will be executed in the order of newest to oldest.
+
+If you want your groups exception handler to be executed independently, you can add the `mergeExceptionHandlers` attribute and set it to `false`.
+
+```php
+SimpleRouter::group(['prefix' => '/', 'exceptionHandler' => \Demo\Handlers\FirstExceptionHandler::class, 'mergeExceptionHandlers' => false], function() {
+
+	SimpleRouter::group(['prefix' => '/admin', 'exceptionHandler' => \Demo\Handlers\SecondExceptionHandler::class], function() {
+	
+		// Both SecondExceptionHandler and FirstExceptionHandler will trigger (in that order).
+	
+	});
+	
+	SimpleRouter::group(['prefix' => '/user', 'exceptionHandler' => \Demo\Handlers\SecondExceptionHandler::class, 'mergeExceptionHandlers' => false], function() {
+	
+		// Only SecondExceptionHandler will trigger.
+	
+	});
+
+});
+``.
 
 ---
 

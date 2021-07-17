@@ -32,6 +32,21 @@ interface IGroupRoute extends IRoute
     public function setExceptionHandlers(array $handlers): self;
 
     /**
+     * Returns true if group should overwrite existing exception-handlers.
+     *
+     * @return bool
+     */
+    public function getMergeExceptionHandlers(): bool;
+
+    /**
+     * When enabled group will overwrite any existing exception-handlers.
+     *
+     * @param bool $merge
+     * @return static
+     */
+    public function setMergeExceptionHandlers(bool $merge): self;
+
+    /**
      * Get exception-handlers for group
      *
      * @return array
