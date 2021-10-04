@@ -209,7 +209,7 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
             TestRouter::get('/test/{key}', 'DummyController@param');
         });
 
-        $response = TestRouter::debugOutputnoReset('/test', 'get');
+        $response = TestRouter::debugOutputNoReset('/test', 'get');
 
         $this->assertEquals('world.com', $response);
 
