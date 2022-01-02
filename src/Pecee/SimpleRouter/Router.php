@@ -35,6 +35,12 @@ class Router
      * @var bool
      */
     protected $isProcessingRoute;
+    
+    /**
+     * Defines all data from current processing route.
+     * @var array
+     */
+    protected $currentProcessingRoute = [];
 
     /**
      * All added routes
@@ -371,6 +377,9 @@ class Router
             foreach ($this->processedRoutes as $key => $route) {
 
                 $this->debug('Matching route "%s"', get_class($route));
+                
+                /* Add current processing route to constants */
+                $this->currentProcessingRoute = $route;
 
                 /* If the route matches */
                 if ($route->matchRoute($url, $this->request) === true) {
@@ -429,6 +438,9 @@ class Router
                     }
                 }
             }
+            
+            /* Remove the current processing route after handle all possible routes */
+            $this->currentProcessingRoute = [];
 
         } catch (Exception $e) {
             $this->handleException($e);
