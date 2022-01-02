@@ -939,6 +939,16 @@ class Router
     {
         return $this->debugList;
     }
+    
+    /**
+     * Get the current processing route details.
+     *
+     * @return array
+     */
+    public function getCurrentProcessingRoute(): array
+    {
+        return $this->currentProcessingRoute;
+    }
 
     /**
      * Changes the rendering behavior of the router.
