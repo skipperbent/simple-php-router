@@ -15,7 +15,6 @@ class TestRouter extends \Pecee\SimpleRouter\SimpleRouter
         $request->setUrl((new \Pecee\Http\Url($testUrl))->setHost('local.unitTest'));
         $request->setMethod($testMethod);
 
-        echo '[1;' . json_encode($request->getUrl()->getPath()) . ']';
         static::start();
     }
 
