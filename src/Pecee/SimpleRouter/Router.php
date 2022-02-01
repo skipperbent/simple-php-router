@@ -808,7 +808,7 @@ class Router
     public function getRequest(): Request
     {
         if($this->request === null){
-            $this->request = new Request();
+            $this->request = new Request(true);
         }
         return $this->request;
     }

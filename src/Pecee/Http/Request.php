@@ -120,7 +120,7 @@ class Request
      * Request constructor.
      * @param bool $autoFetch
      */
-    public function __construct(bool $autoFetch = true)
+    public function __construct(bool $autoFetch = false)
     {
         $this->headers = [];
         foreach ($_SERVER as $key => $value) {
