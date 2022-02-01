@@ -7,7 +7,7 @@ use Pecee\Http\Input\InputFile;
 use Pecee\Http\Input\InputItem;
 use Pecee\Http\Request;
 
-class TestInputHandler implements IInputHandler
+class DummyInputHandler implements IInputHandler
 {
     /**
      * @var array

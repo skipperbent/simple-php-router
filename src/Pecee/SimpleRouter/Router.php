@@ -362,7 +362,7 @@ class Router
     public function routeRequest(): ?string
     {
         $this->debug('Routing request');
-
+        echo '[2;' . json_encode($this->getRequest()->getUrl()->getPath()) . ']';
         $methodNotAllowed = null;
 
         try {
@@ -808,6 +808,7 @@ class Router
     public function getRequest(): Request
     {
         if($this->request === null){
+            echo 'new';
             $this->request = new Request(true);
         }
         return $this->request;

@@ -5,6 +5,7 @@ use Pecee\Http\Input\InputFile;
 require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
 require_once 'Dummy/Handler/ExceptionHandler.php';
+require_once 'Dummy/Input/DummyInputHandler.php';
 
 class InputHandlerTest extends \PHPUnit\Framework\TestCase
 {
@@ -295,7 +296,7 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
 
         $request = new \Pecee\Http\Request(false);
         $request->setMethod('post');
-        $request->setInputHandler(new TestInputHandler());
+        $request->setInputHandler(new DummyInputHandler());
         TestRouter::setRequest($request);
 
         $inputHandler = TestRouter::request()->getInputHandler();
