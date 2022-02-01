@@ -144,6 +144,16 @@ class SimpleRouter
     }
 
     /**
+     * Base CSRF verifier
+     *
+     * @param Request $request
+     */
+    public static function setRequest(Request $request): void
+    {
+        static::router()->setRequest($request);
+    }
+
+    /**
      * Add new event handler to the router
      *
      * @param IEventHandler $eventHandler

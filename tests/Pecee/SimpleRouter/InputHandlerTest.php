@@ -41,9 +41,9 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
             'sodas' => $this->sodas,
         ];
 
-        $router = TestRouter::router();
-        $router->reset();
-        $router->getRequest()->setMethod('post');
+        $request = new \Pecee\Http\Request(false);
+        $request->setMethod('post');
+        TestRouter::setRequest($request);
 
         $handler = TestRouter::request()->getInputHandler();
 
@@ -87,9 +87,9 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
             'day' => $this->day,
         ];
 
-        $router = TestRouter::router();
-        $router->reset();
-        $router->getRequest()->setMethod('get');
+        $request = new \Pecee\Http\Request(false);
+        $request->setMethod('get');
+        TestRouter::setRequest($request);
 
         $handler = TestRouter::request()->getInputHandler();
 
@@ -127,9 +127,10 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         global $_POST;
         $_POST['hello'] = 'motto';
 
-        $router = TestRouter::router();
-        $router->reset();
-        $router->getRequest()->setMethod('post');
+        $request = new \Pecee\Http\Request(false);
+        $request->setMethod('post');
+        TestRouter::setRequest($request);
+
         $inputHandler = TestRouter::request()->getInputHandler();
 
         $value = $inputHandler->value('hello', null, \Pecee\Http\Request::$requestTypesPost);
@@ -147,9 +148,10 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
             'test_input' => $testFile,
         ];
 
-        $router = TestRouter::router();
-        $router->reset();
-        $router->getRequest()->setMethod('post');
+        $request = new \Pecee\Http\Request(false);
+        $request->setMethod('post');
+        TestRouter::setRequest($request);
+
         $inputHandler = TestRouter::request()->getInputHandler();
 
         $testFileContent = md5(uniqid('test', false));
@@ -187,9 +189,10 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
             'my_files' => $testFiles,
         ];
 
-        $router = TestRouter::router();
-        $router->reset();
-        $router->getRequest()->setMethod('post');
+        $request = new \Pecee\Http\Request(false);
+        $request->setMethod('post');
+        TestRouter::setRequest($request);
+
         $inputHandler = TestRouter::request()->getInputHandler();
 
         $files = $inputHandler->file('my_files');
@@ -233,9 +236,9 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
             'is_happy' => true,
         ];
 
-        $router = TestRouter::router();
-        $router->reset();
-        $router->getRequest()->setMethod('post');
+        $request = new \Pecee\Http\Request(false);
+        $request->setMethod('post');
+        TestRouter::setRequest($request);
 
         $handler = TestRouter::request()->getInputHandler();
 
@@ -282,6 +285,24 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
     protected function generateFileContent()
     {
         return md5(uniqid('', false));
+    }
+
+
+    public function testCustomInputHandler()
+    {
+        global $_POST;
+        $_POST['hello'] = 'motto';
+
+        $request = new \Pecee\Http\Request(false);
+        $request->setMethod('post');
+        $request->setInputHandler(new TestInputHandler());
+        TestRouter::setRequest($request);
+
+        $inputHandler = TestRouter::request()->getInputHandler();
+
+        $value = $inputHandler->value('hello', null, \Pecee\Http\Request::$requestTypesPost);
+
+        $this->assertEquals($_POST['hello'], $value);
     }
 
 }

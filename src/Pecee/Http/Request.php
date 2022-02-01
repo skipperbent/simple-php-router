@@ -3,7 +3,8 @@
 namespace Pecee\Http;
 
 use Pecee\Http\Exceptions\MalformedUrlException;
-use Pecee\Http\Input\InputHandler;
+use Pecee\Http\Input\BaseInputHandler;
+use Pecee\Http\Input\IInputHandler;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\SimpleRouter\Route\ILoadableRoute;
 use Pecee\SimpleRouter\Route\RouteUrl;
@@ -89,7 +90,7 @@ class Request
 
     /**
      * Input handler
-     * @var InputHandler
+     * @var IInputHandler
      */
     protected $inputHandler;
 
@@ -117,10 +118,26 @@ class Request
 
     /**
      * Request constructor.
+     * @param bool $autoFetch
+     */
+    public function __construct(bool $autoFetch = true)
+    {
+        if($autoFetch){
+            try {
+                $this->fetch();
+            } catch (MalformedUrlException $e) {
+                SimpleRouter::router()->debug(sprintf('Invalid request-uri url: %s', $e->getMessage()));
+            }
+        }
+    }
+
+    /**
+     * @return void
      * @throws MalformedUrlException
      */
-    public function __construct()
+    public function fetch()
     {
+        $this->headers = [];
         foreach ($_SERVER as $key => $value) {
             $this->headers[strtolower($key)] = $value;
             $this->headers[str_replace('_', '-', strtolower($key))] = $value;
@@ -132,7 +149,9 @@ class Request
         $this->setUrl(new Url($this->getFirstHeader(['unencoded-url', 'request-uri'])));
         $this->setContentType((string)$this->getHeader('content-type'));
         $this->setMethod((string)($_POST[static::FORCE_METHOD_KEY] ?? $this->getHeader('request-method')));
-        $this->inputHandler = new InputHandler($this);
+        if($this->inputHandler === null)
+            $this->inputHandler = new BaseInputHandler();
+        $this->getInputHandler()->parseInputs($this);
     }
 
     public function isSecure(): bool
@@ -333,11 +352,19 @@ class Request
 
     /**
      * Get input class
-     * @return InputHandler
+     * @return IInputHandler
      */
-    public function getInputHandler(): InputHandler
+    public function getInputHandler(): IInputHandler
     {
         return $this->inputHandler;
+    }
+
+    /**
+     * @param IInputHandler $inputHandler
+     * @return void
+     */
+    public function setInputHandler(IInputHandler $inputHandler){
+        $this->inputHandler = $inputHandler;
     }
 
     /**
@@ -364,7 +391,7 @@ class Request
 
     /**
      * Returns true when request-method is type that could contain data in the page body.
-     * 
+     *
      * @return bool
      */
     public function isPostBack(): bool

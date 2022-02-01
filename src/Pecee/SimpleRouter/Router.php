@@ -134,11 +134,12 @@ class Router
         $this->debugStartTime = microtime(true);
         $this->isProcessingRoute = false;
 
-        try {
+        $this->request = null;
+        /*try {
             $this->request = new Request();
         } catch (MalformedUrlException $e) {
             $this->debug(sprintf('Invalid request-uri url: %s', $e->getMessage()));
-        }
+        }*/
 
         $this->routes = [];
         $this->bootManagers = [];
@@ -186,7 +187,7 @@ class Router
     protected function renderAndProcess(IRoute $route): void
     {
         $this->isProcessingRoute = true;
-        $route->renderRoute($this->request, $this);
+        $route->renderRoute($this->getRequest(), $this);
         $this->isProcessingRoute = false;
 
         if (count($this->routeStack) !== 0) {
@@ -212,13 +213,13 @@ class Router
         $this->debug('Processing routes');
 
         // Stop processing routes if no valid route is found.
-        if ($this->request->getRewriteRoute() === null && $this->request->getUrl()->getOriginalUrl() === '') {
+        if ($this->getRequest()->getRewriteRoute() === null && $this->getRequest()->getUrl()->getOriginalUrl() === '') {
             $this->debug('Halted route-processing as no valid route was found');
 
             return;
         }
 
-        $url = $this->request->getRewriteUrl() ?? $this->request->getUrl()->getPath();
+        $url = $this->getRequest()->getRewriteUrl() ?? $this->getRequest()->getUrl()->getPath();
 
         // Loop through each route-request
         foreach ($routes as $route) {
@@ -233,7 +234,7 @@ class Router
             /* @var $route IGroupRoute */
             if ($route instanceof IGroupRoute) {
 
-                if ($route->matchRoute($url, $this->request) === true) {
+                if ($route->matchRoute($url, $this->getRequest()) === true) {
 
                     /* Add exception handlers */
                     if (count($route->getExceptionHandlers()) !== 0) {
@@ -305,7 +306,7 @@ class Router
             ]);
 
             /* Render bootmanager */
-            $manager->boot($this, $this->request);
+            $manager->boot($this, $this->getRequest());
 
             $this->debug('Finished rendering bootmanager "%s"', $className);
         }
@@ -337,7 +338,7 @@ class Router
             ]);
 
             /* Verify csrf token for request */
-            $this->csrfVerifier->handle($this->request);
+            $this->csrfVerifier->handle($this->getRequest());
         }
 
         $output = $this->routeRequest();
@@ -365,7 +366,7 @@ class Router
         $methodNotAllowed = null;
 
         try {
-            $url = $this->request->getRewriteUrl() ?? $this->request->getUrl()->getPath();
+            $url = $this->getRequest()->getRewriteUrl() ?? $this->getRequest()->getUrl()->getPath();
 
             /* @var $route ILoadableRoute */
             foreach ($this->processedRoutes as $key => $route) {
@@ -373,15 +374,15 @@ class Router
                 $this->debug('Matching route "%s"', get_class($route));
 
                 /* If the route matches */
-                if ($route->matchRoute($url, $this->request) === true) {
+                if ($route->matchRoute($url, $this->getRequest()) === true) {
 
                     $this->fireEvents(EventHandler::EVENT_MATCH_ROUTE, [
                         'route' => $route,
                     ]);
 
                     /* Check if request method matches */
-                    if (count($route->getRequestMethods()) !== 0 && in_array($this->request->getMethod(), $route->getRequestMethods(), true) === false) {
-                        $this->debug('Method "%s" not allowed', $this->request->getMethod());
+                    if (count($route->getRequestMethods()) !== 0 && in_array($this->getRequest()->getMethod(), $route->getRequestMethods(), true) === false) {
+                        $this->debug('Method "%s" not allowed', $this->getRequest()->getMethod());
 
                         // Only set method not allowed is not already set
                         if ($methodNotAllowed === null) {
@@ -396,7 +397,7 @@ class Router
                         'middlewares' => $route->getMiddlewares(),
                     ]);
 
-                    $route->loadMiddleware($this->request, $this);
+                    $route->loadMiddleware($this->getRequest(), $this);
 
                     $output = $this->handleRouteRewrite($key, $url);
                     if ($output !== null) {
@@ -405,13 +406,13 @@ class Router
 
                     $methodNotAllowed = false;
 
-                    $this->request->addLoadedRoute($route);
+                    $this->getRequest()->addLoadedRoute($route);
 
                     $this->fireEvents(EventHandler::EVENT_RENDER_ROUTE, [
                         'route' => $route,
                     ]);
 
-                    $routeOutput = $route->renderRoute($this->request, $this);
+                    $routeOutput = $route->renderRoute($this->getRequest(), $this);
 
                     if ($this->renderMultipleRoutes === true) {
                         if ($routeOutput !== null) {
@@ -435,18 +436,18 @@ class Router
         }
 
         if ($methodNotAllowed === true) {
-            $message = sprintf('Route "%s" or method "%s" not allowed.', $this->request->getUrl()->getPath(), $this->request->getMethod());
+            $message = sprintf('Route "%s" or method "%s" not allowed.', $this->getRequest()->getUrl()->getPath(), $this->getRequest()->getMethod());
             $this->handleException(new NotFoundHttpException($message, 403));
         }
 
-        if (count($this->request->getLoadedRoutes()) === 0) {
+        if (count($this->getRequest()->getLoadedRoutes()) === 0) {
 
-            $rewriteUrl = $this->request->getRewriteUrl();
+            $rewriteUrl = $this->getRequest()->getRewriteUrl();
 
             if ($rewriteUrl !== null) {
-                $message = sprintf('Route not found: "%s" (rewrite from: "%s")', $rewriteUrl, $this->request->getUrl()->getPath());
+                $message = sprintf('Route not found: "%s" (rewrite from: "%s")', $rewriteUrl, $this->getRequest()->getUrl()->getPath());
             } else {
-                $message = sprintf('Route not found: "%s"', $this->request->getUrl()->getPath());
+                $message = sprintf('Route not found: "%s"', $this->getRequest()->getUrl()->getPath());
             }
 
             $this->debug($message);
@@ -469,26 +470,26 @@ class Router
     protected function handleRouteRewrite(string $key, string $url): ?string
     {
         /* If the request has changed */
-        if ($this->request->hasPendingRewrite() === false) {
+        if ($this->getRequest()->hasPendingRewrite() === false) {
             return null;
         }
 
-        $route = $this->request->getRewriteRoute();
+        $route = $this->getRequest()->getRewriteRoute();
 
         if ($route !== null) {
             /* Add rewrite route */
             $this->processedRoutes[] = $route;
         }
 
-        if ($this->request->getRewriteUrl() !== $url) {
+        if ($this->getRequest()->getRewriteUrl() !== $url) {
 
             unset($this->processedRoutes[$key]);
 
-            $this->request->setHasPendingRewrite(false);
+            $this->getRequest()->setHasPendingRewrite(false);
 
             $this->fireEvents(EventHandler::EVENT_REWRITE, [
-                'rewriteUrl'   => $this->request->getRewriteUrl(),
-                'rewriteRoute' => $this->request->getRewriteRoute(),
+                'rewriteUrl'   => $this->getRequest()->getRewriteUrl(),
+                'rewriteRoute' => $this->getRequest()->getRewriteRoute(),
             ]);
 
             return $this->routeRequest();
@@ -533,22 +534,22 @@ class Router
 
             try {
                 $this->debug('Start rendering exception handler');
-                $handler->handleError($this->request, $e);
+                $handler->handleError($this->getRequest(), $e);
                 $this->debug('Finished rendering exception-handler');
 
-                if (isset($this->loadedExceptionHandlers[$key]) === false && $this->request->hasPendingRewrite() === true) {
+                if (isset($this->loadedExceptionHandlers[$key]) === false && $this->getRequest()->hasPendingRewrite() === true) {
 
                     $this->loadedExceptionHandlers[$key] = $handler;
 
                     $this->debug('Exception handler contains rewrite, reloading routes');
 
                     $this->fireEvents(EventHandler::EVENT_REWRITE, [
-                        'rewriteUrl'   => $this->request->getRewriteUrl(),
-                        'rewriteRoute' => $this->request->getRewriteRoute(),
+                        'rewriteUrl'   => $this->getRequest()->getRewriteUrl(),
+                        'rewriteRoute' => $this->getRequest()->getRewriteRoute(),
                     ]);
 
-                    if ($this->request->getRewriteRoute() !== null) {
-                        $this->processedRoutes[] = $this->request->getRewriteRoute();
+                    if ($this->getRequest()->getRewriteRoute() !== null) {
+                        $this->processedRoutes[] = $this->getRequest()->getRewriteRoute();
                     }
 
                     return $this->routeRequest();
@@ -668,16 +669,16 @@ class Router
 
         /* Return current route if no options has been specified */
         if ($name === null && $parameters === null) {
-            return $this->request
+            return $this->getRequest()
                 ->getUrlCopy()
                 ->setParams($getParams);
         }
 
-        $loadedRoute = $this->request->getLoadedRoute();
+        $loadedRoute = $this->getRequest()->getLoadedRoute();
 
         /* If nothing is defined and a route is loaded we use that */
         if ($name === null && $loadedRoute !== null) {
-            return $this->request
+            return $this->getRequest()
                 ->getUrlCopy()
                 ->setPath($loadedRoute->findUrl($loadedRoute->getMethod(), $parameters, $name))
                 ->setParams($getParams);
@@ -688,7 +689,7 @@ class Router
             $route = $this->findRoute($name);
 
             if ($route !== null) {
-                return $this->request
+                return $this->getRequest()
                     ->getUrlCopy()
                     ->setPath($route->findUrl($route->getMethod(), $parameters, $name))
                     ->setParams($getParams);
@@ -706,7 +707,7 @@ class Router
 
                 /* Check if the route contains the name/alias */
                 if ($processedRoute->hasName($controller) === true) {
-                    return $this->request
+                    return $this->getRequest()
                         ->getUrlCopy()
                         ->setPath($processedRoute->findUrl($method, $parameters, $name))
                         ->setParams($getParams);
@@ -714,7 +715,7 @@ class Router
 
                 /* Check if the route controller is equal to the name */
                 if ($processedRoute instanceof IControllerRoute && strtolower($processedRoute->getController()) === strtolower($controller)) {
-                    return $this->request
+                    return $this->getRequest()
                         ->getUrlCopy()
                         ->setPath($processedRoute->findUrl($method, $parameters, $name))
                         ->setParams($getParams);
@@ -727,7 +728,7 @@ class Router
         $url = trim(implode('/', array_merge((array)$name, (array)$parameters)), '/');
         $url = (($url === '') ? '/' : '/' . $url . '/');
 
-        return $this->request
+        return $this->getRequest()
             ->getUrlCopy()
             ->setPath($url)
             ->setParams($getParams);
@@ -806,7 +807,25 @@ class Router
      */
     public function getRequest(): Request
     {
+        if($this->request === null){
+            $this->request = new Request();
+        }
         return $this->request;
+    }
+
+    /**
+     * Set Request class
+     *
+     * @param Request $request
+     */
+    public function setRequest(Request $request): void
+    {
+        try {
+            $request->fetch();
+        } catch (MalformedUrlException $e) {
+            $this->debug(sprintf('Invalid request-uri url: %s', $e->getMessage()));
+        }
+        $this->request = $request;
     }
 
     /**

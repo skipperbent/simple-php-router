@@ -5,7 +5,7 @@ namespace Pecee\Http\Input;
 use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Request;
 
-class InputHandler
+class BaseInputHandler implements IInputHandler
 {
     /**
      * @var array
@@ -47,21 +47,18 @@ class InputHandler
 
     /**
      * Input constructor.
-     * @param Request $request
      */
-    public function __construct(Request $request)
+    public function __construct()
     {
-        $this->request = $request;
-
-        $this->parseInputs();
     }
 
     /**
      * Parse input values
      *
      */
-    public function parseInputs(): void
+    public function parseInputs(Request $request): void
     {
+        $this->request = $request;
         /* Parse get requests */
         if (count($_GET) !== 0) {
             $this->originalParams = $_GET;
@@ -300,7 +297,7 @@ class InputHandler
      * @param array ...$methods
      * @return bool
      */
-    public function exists($index, ...$methods): bool
+    public function exists(string $index, ...$methods): bool
     {
         // Check array
         if(is_array($index) === true) {
