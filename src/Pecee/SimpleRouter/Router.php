@@ -820,11 +820,7 @@ class Router
      */
     public function setRequest(Request $request): void
     {
-        try {
-            $request->fetch();
-        } catch (MalformedUrlException $e) {
-            $this->debug(sprintf('Invalid request-uri url: %s', $e->getMessage()));
-        }
+        $request->fetch();
         $this->request = $request;
     }
 

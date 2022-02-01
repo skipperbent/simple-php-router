@@ -122,21 +122,6 @@ class Request
      */
     public function __construct(bool $autoFetch = true)
     {
-        if($autoFetch){
-            try {
-                $this->fetch();
-            } catch (MalformedUrlException $e) {
-                SimpleRouter::router()->debug(sprintf('Invalid request-uri url: %s', $e->getMessage()));
-            }
-        }
-    }
-
-    /**
-     * @return void
-     * @throws MalformedUrlException
-     */
-    public function fetch()
-    {
         $this->headers = [];
         foreach ($_SERVER as $key => $value) {
             $this->headers[strtolower($key)] = $value;
@@ -146,9 +131,23 @@ class Request
         $this->setHost($this->getHeader('http-host'));
 
         // Check if special IIS header exist, otherwise use default.
-        $this->setUrl(new Url($this->getFirstHeader(['unencoded-url', 'request-uri'])));
+        try {
+            $this->setUrl(new Url($this->getFirstHeader(['unencoded-url', 'request-uri'])));
+        } catch (MalformedUrlException $e) {
+            SimpleRouter::router()->debug(sprintf('Invalid request-uri url: %s', $e->getMessage()));
+        }
         $this->setContentType((string)$this->getHeader('content-type'));
         $this->setMethod((string)($_POST[static::FORCE_METHOD_KEY] ?? $this->getHeader('request-method')));
+        if($autoFetch){
+            $this->fetch();
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function fetch()
+    {
         if($this->inputHandler === null)
             $this->inputHandler = new BaseInputHandler();
         $this->getInputHandler()->parseInputs($this);
