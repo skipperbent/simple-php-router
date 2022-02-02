@@ -431,12 +431,18 @@ class Router
             }
 
         } catch (Exception $e) {
-            $this->handleException($e);
+            $output = $this->handleException($e);
+            if ($output !== null) {
+                return $output;
+            }
         }
 
         if ($methodNotAllowed === true) {
             $message = sprintf('Route "%s" or method "%s" not allowed.', $this->request->getUrl()->getPath(), $this->request->getMethod());
-            $this->handleException(new NotFoundHttpException($message, 403));
+            $output = $this->handleException(new NotFoundHttpException($message, 403));
+            if ($output !== null) {
+                return $output;
+            }
         }
 
         if (count($this->request->getLoadedRoutes()) === 0) {
