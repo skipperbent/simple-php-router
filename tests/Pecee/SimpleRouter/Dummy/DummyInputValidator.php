@@ -2,9 +2,9 @@
 
 use Pecee\Http\Request;
 
-class DummyInputValidator implements \Pecee\Http\Input\IInputValidator
+class DummyInputValidator
 {
-	public function handle(Request $request) : bool
+	public function validator1(Request $request) : bool
 	{
 		if($request->getInputHandler()->exists('fullname'))
             return true;

@@ -5,6 +5,7 @@ namespace Pecee\SimpleRouter\Route;
 use Pecee\Http\Input\IInputValidator;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException;
 use Pecee\SimpleRouter\Exceptions\HttpException;
 use Pecee\SimpleRouter\Router;
 
@@ -89,23 +90,44 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
         foreach($this->getInputValidators() as $validator){
 
-            if (is_object($validator) === false) {
-                $validator = $router->getClassLoader()->loadClass($validator);
-            }
+            if (is_callable($validator) === true) {
+                /* Load class from type hinting */
+                if (is_array($validator) === true && isset($validator[0], $validator[1]) === true) {
+                    $validator[0] = $router->getClassLoader()->loadClass($validator[0]);
+                }
 
-            if (($validator instanceof IInputValidator) === false) {
-                throw new HttpException($validator . ' must be inherit the IInputValidator interface');
-            }
-            $className = get_class($validator);
+                /* When the callback is a function */
 
-            $router->debug('Loading InputValidator "%s"', $className);
-            $callback = $validator->handle($request);
-            if(!$callback)
-                $valid = false;
-            $router->debug('Finished loading InputValidator "%s"', $className);
+                $callback = $router->getClassLoader()->loadClosure($validator, [$request]);
+                if(!$callback)
+                    $valid = false;
+            }else {
+                $className = null;
+                $method = null;
+                if(is_array($validator) === true && isset($validator[0], $validator[1]) === true){
+                    $className = $validator[0];
+                    $method = $validator[1];
+                } else if(is_string($validator) === true && strpos($validator, '@') !== false){
+                    $tmp = explode('@', $validator);
+                    $className = $tmp[0];
+                    $method = $tmp[1];
+                }
+                if($className !== null && $method !== null){
+                    $class = $router->getClassLoader()->loadClass($className);
+
+                    if (method_exists($class, $method) === false) {
+                        throw new ClassNotFoundHttpException($className, $method, sprintf('Method "%s" does not exist in class "%s"', $method, $className), 404, null);
+                    }
+
+                    $callback = $router->getClassLoader()->loadClassMethod($class, $method, [$request]);
+                    if(!$callback)
+                        $valid = false;
+                }
+
+            }
         }
 
-        $router->debug('Finished loading InputValidators');
+        $router->debug('Finished loading InputValidators: %s', ($valid ? 'Valid' : 'Not valid'));
         return $valid;
     }
 

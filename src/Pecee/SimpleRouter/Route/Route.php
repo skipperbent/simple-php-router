@@ -2,6 +2,7 @@
 
 namespace Pecee\SimpleRouter\Route;
 
+use Closure;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
@@ -274,7 +275,7 @@ abstract class Route implements IRoute
     /**
      * Set callback
      *
-     * @param string|array|\Closure $callback
+     * @param string|array|Closure $callback
      * @return static
      */
     public function setCallback($callback): IRoute
@@ -636,9 +637,9 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Add InputValidator class-name
+     * Add InputValidator class@method, array[class, method] or Closure
      *
-     * @param string $validator
+     * @param string|array|Closure $validator
      * @return void
      */
     public function addInputValidator($validator)
