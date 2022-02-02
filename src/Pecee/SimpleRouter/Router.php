@@ -38,9 +38,9 @@ class Router
     
     /**
      * Defines all data from current processing route.
-     * @var array
+     * @var ILoadableRoute
      */
-    protected $currentProcessingRoute = [];
+    protected $currentProcessingRoute;
 
     /**
      * All added routes
@@ -438,9 +438,6 @@ class Router
                     }
                 }
             }
-            
-            /* Remove the current processing route after handle all possible routes */
-            $this->currentProcessingRoute = [];
 
         } catch (Exception $e) {
             $this->handleException($e);
@@ -943,9 +940,9 @@ class Router
     /**
      * Get the current processing route details.
      *
-     * @return array
+     * @return ILoadableRoute
      */
-    public function getCurrentProcessingRoute(): array
+    public function getCurrentProcessingRoute(): ILoadableRoute
     {
         return $this->currentProcessingRoute;
     }
