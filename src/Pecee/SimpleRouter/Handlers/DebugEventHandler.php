@@ -17,7 +17,7 @@ class DebugEventHandler implements IEventHandler
 
     public function __construct()
     {
-        $this->callback = static function (EventArgument $argument) {
+        $this->callback = static function (EventArgument $argument): void {
             // todo: log in database
         };
     }
@@ -47,7 +47,7 @@ class DebugEventHandler implements IEventHandler
     public function fireEvents(Router $router, string $name, array $eventArgs = []): void
     {
         $callback = $this->callback;
-        $callback(new EventArgument($router, $eventArgs));
+        $callback(new EventArgument($name, $router, $eventArgs));
     }
 
     /**

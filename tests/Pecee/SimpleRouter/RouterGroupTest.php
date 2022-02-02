@@ -3,20 +3,20 @@
 require_once 'Dummy/DummyMiddleware.php';
 require_once 'Dummy/DummyController.php';
 
-class GroupTest extends \PHPUnit\Framework\TestCase
+class RouterGroupTest extends \PHPUnit\Framework\TestCase
 {
 
     public function testGroupLoad()
     {
         $result = false;
 
-        TestRouter::group(['prefix' => '/group'], function () use(&$result) {
+        TestRouter::group(['prefix' => '/group'], function () use (&$result) {
             $result = true;
         });
 
         try {
             TestRouter::debug('/', 'get');
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
 
         }
         $this->assertTrue($result);
@@ -79,6 +79,42 @@ class GroupTest extends \PHPUnit\Framework\TestCase
 
         TestRouter::router()->reset();
 
+    }
+
+    public function testNamespaceExtend()
+    {
+        TestRouter::group(['namespace' => '\My\Namespace'], function () use (&$result) {
+
+            TestRouter::group(['namespace' => 'Service'], function () use (&$result) {
+
+                TestRouter::get('/test', function () use (&$result) {
+                    return \Pecee\SimpleRouter\SimpleRouter::router()->getRequest()->getLoadedRoute()->getNamespace();
+                });
+
+            });
+
+        });
+
+        $namespace = TestRouter::debugOutput('/test');
+        $this->assertEquals('\My\Namespace\Service', $namespace);
+    }
+
+    public function testNamespaceOverwrite()
+    {
+        TestRouter::group(['namespace' => '\My\Namespace'], function () use (&$result) {
+
+            TestRouter::group(['namespace' => '\Service'], function () use (&$result) {
+
+                TestRouter::get('/test', function () use (&$result) {
+                    return \Pecee\SimpleRouter\SimpleRouter::router()->getRequest()->getLoadedRoute()->getNamespace();
+                });
+
+            });
+
+        });
+
+        $namespace = TestRouter::debugOutput('/test');
+        $this->assertEquals('\Service', $namespace);
     }
 
 }

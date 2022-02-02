@@ -6,12 +6,39 @@ use Pecee\Exceptions\InvalidArgumentException;
 
 class InputFile implements IInputItem
 {
+    /**
+     * @var string
+     */
     public $index;
+
+    /**
+     * @var string
+     */
     public $name;
+
+    /**
+     * @var string|null
+     */
     public $filename;
+
+    /**
+     * @var int|null
+     */
     public $size;
+
+    /**
+     * @var int|null
+     */
     public $type;
+
+    /**
+     * @var int
+     */
     public $errors;
+
+    /**
+     * @var string|null
+     */
     public $tmpName;
 
     public function __construct(string $index)
@@ -216,11 +243,11 @@ class InputFile implements IInputItem
     /**
      * Get upload-error code.
      *
-     * @return int
+     * @return int|null
      */
-    public function getError(): int
+    public function getError(): ?int
     {
-        return (int)$this->errors;
+        return $this->errors;
     }
 
     /**

@@ -8,7 +8,7 @@ class TestRouter extends \Pecee\SimpleRouter\SimpleRouter
         static::request()->setHost('testhost.com');
     }
 
-    public static function debugNoReset($testUrl, $testMethod = 'get')
+    public static function debugNoReset(string $testUrl, string $testMethod = 'get'): void
     {
         $request = static::request();
 
@@ -18,22 +18,24 @@ class TestRouter extends \Pecee\SimpleRouter\SimpleRouter
         static::start();
     }
 
-    public static function debug($testUrl, $testMethod = 'get', bool $reset = true)
+    public static function debug(string $testUrl, string $testMethod = 'get', bool $reset = true): void
     {
         try {
             static::debugNoReset($testUrl, $testMethod);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
+            static::$defaultNamespace = null;
             static::router()->reset();
             throw $e;
         }
 
-        if($reset === true) {
+        if ($reset === true) {
+            static::$defaultNamespace = null;
             static::router()->reset();
         }
 
     }
 
-    public static function debugOutput($testUrl, $testMethod = 'get', bool $reset = true)
+    public static function debugOutput(string $testUrl, string $testMethod = 'get', bool $reset = true): string
     {
         $response = null;
 

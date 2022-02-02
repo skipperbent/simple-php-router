@@ -16,11 +16,11 @@ class CustomClassLoader implements \Pecee\SimpleRouter\ClassLoader\IClassLoader
      */
     public function loadClassMethod($class, string $method, array $parameters)
     {
-        return call_user_func_array([$class, $method], array_values(['result' => true]));
+        return call_user_func_array([$class, $method], [true]);
     }
 
     public function loadClosure(callable $closure, array $parameters)
     {
-        return call_user_func_array($closure, array_values(['result' => true]));
+        return call_user_func_array($closure, [true]);
     }
 }

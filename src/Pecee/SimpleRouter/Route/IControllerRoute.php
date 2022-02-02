@@ -2,7 +2,7 @@
 
 namespace Pecee\SimpleRouter\Route;
 
-interface IControllerRoute extends IRoute
+interface IControllerRoute extends ILoadableRoute
 {
     /**
      * Get controller class-name

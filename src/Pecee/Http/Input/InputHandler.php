@@ -115,7 +115,7 @@ class InputHandler
 
             // Handle array input
             if (is_array($value['name']) === false) {
-                $values['index'] = $parentKey ?? $key;
+                $values = ['index' => $parentKey ?? $key];
 
                 try {
                     $list[$key] = InputFile::createFromArray($values + $value);
@@ -161,7 +161,7 @@ class InputHandler
                 try {
 
                     $file = InputFile::createFromArray([
-                        'index'    => (empty($key) === true && empty($originalIndex) === false) ? $originalIndex : $key,
+                        'index'    => ($key === '' && $originalIndex !== '') ? $originalIndex : $key,
                         'name'     => $original['name'][$key],
                         'error'    => $original['error'][$key],
                         'tmp_name' => $original['tmp_name'][$key],
@@ -293,14 +293,26 @@ class InputHandler
     }
 
     /**
-     * Check if a input-item exist
+     * Check if a input-item exist.
+     * If an array is as $index parameter the method returns true if all elements exist.
      *
-     * @param string $index
+     * @param string|array $index
      * @param array ...$methods
      * @return bool
      */
-    public function exists(string $index, ...$methods): bool
+    public function exists($index, ...$methods): bool
     {
+        // Check array
+        if(is_array($index) === true) {
+            foreach($index as $key) {
+                if($this->value($key, null, ...$methods) === null) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         return $this->value($index, null, ...$methods) !== null;
     }
 
@@ -308,10 +320,10 @@ class InputHandler
      * Find post-value by index or return default value.
      *
      * @param string $index
-     * @param string|null $defaultValue
+     * @param mixed|null $defaultValue
      * @return InputItem|array|string|null
      */
-    public function post(string $index, ?string $defaultValue = null)
+    public function post(string $index, $defaultValue = null)
     {
         return $this->post[$index] ?? $defaultValue;
     }
@@ -320,10 +332,10 @@ class InputHandler
      * Find file by index or return default value.
      *
      * @param string $index
-     * @param string|null $defaultValue
+     * @param mixed|null $defaultValue
      * @return InputFile|array|string|null
      */
-    public function file(string $index, ?string $defaultValue = null)
+    public function file(string $index, $defaultValue = null)
     {
         return $this->file[$index] ?? $defaultValue;
     }
@@ -332,10 +344,10 @@ class InputHandler
      * Find parameter/query-string by index or return default value.
      *
      * @param string $index
-     * @param string|null $defaultValue
+     * @param mixed|null $defaultValue
      * @return InputItem|array|string|null
      */
-    public function get(string $index, ?string $defaultValue = null)
+    public function get(string $index, $defaultValue = null)
     {
         return $this->get[$index] ?? $defaultValue;
     }

@@ -33,9 +33,9 @@ class RouterRewriteTest extends \PHPUnit\Framework\TestCase
         global $stack;
         $stack = [];
 
-        TestRouter::group(['exceptionHandler' => [ExceptionHandlerFirst::class, ExceptionHandlerSecond::class]], function () use ($stack) {
+        TestRouter::group(['exceptionHandler' => [ExceptionHandlerFirst::class, ExceptionHandlerSecond::class]], function () {
 
-            TestRouter::group(['exceptionHandler' => ExceptionHandlerThird::class], function () use ($stack) {
+            TestRouter::group(['prefix' => '/test', 'exceptionHandler' => ExceptionHandlerThird::class], function () {
 
                 TestRouter::get('/my-path', 'DummyController@method1');
 
@@ -43,19 +43,46 @@ class RouterRewriteTest extends \PHPUnit\Framework\TestCase
         });
 
         try {
-            TestRouter::debug('/my-non-existing-path', 'get');
+            TestRouter::debug('/test/non-existing', 'get');
         } catch (\ResponseException $e) {
 
         }
 
         $expectedStack = [
-            ExceptionHandlerFirst::class,
-            ExceptionHandlerSecond::class,
             ExceptionHandlerThird::class,
+            ExceptionHandlerSecond::class,
+            ExceptionHandlerFirst::class,
         ];
 
         $this->assertEquals($expectedStack, $stack);
 
+    }
+
+    public function testStopMergeExceptionHandlers()
+    {
+        global $stack;
+        $stack = [];
+
+        TestRouter::group(['prefix' => '/', 'exceptionHandler' => ExceptionHandlerFirst::class], function () {
+
+            TestRouter::group(['prefix' => '/admin', 'exceptionHandler' => ExceptionHandlerSecond::class, 'mergeExceptionHandlers' => false], function () {
+
+                TestRouter::get('/my-path', 'DummyController@method1');
+
+            });
+        });
+
+        try {
+            TestRouter::debug('/admin/my-path-test', 'get');
+        } catch (\Pecee\SimpleRouter\Exceptions\NotFoundHttpException $e) {
+
+        }
+
+        $expectedStack = [
+            ExceptionHandlerSecond::class,
+        ];
+
+        $this->assertEquals($expectedStack, $stack);
     }
 
     public function testRewriteExceptionMessage()

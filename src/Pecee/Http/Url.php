@@ -7,15 +7,49 @@ use Pecee\Http\Exceptions\MalformedUrlException;
 
 class Url implements JsonSerializable
 {
+    /**
+     * @var string|null
+     */
     private $originalUrl;
 
+    /**
+     * @var string|null
+     */
     private $scheme;
+
+    /**
+     * @var string|null
+     */
     private $host;
+
+    /**
+     * @var int|null
+     */
     private $port;
+
+    /**
+     * @var string|null
+     */
     private $username;
+
+    /**
+     * @var string|null
+     */
     private $password;
+
+    /**
+     * @var string|null
+     */
     private $path;
+
+    /**
+     * @var array
+     */
     private $params = [];
+
+    /**
+     * @var string|null
+     */
     private $fragment;
 
     /**
@@ -248,8 +282,9 @@ class Url implements JsonSerializable
     public function setQueryString(string $queryString): self
     {
         $params = [];
+        parse_str($queryString, $params);
 
-        if(parse_str($queryString, $params) !== false) {
+        if(count($params) > 0) {
             return $this->setParams($params);
         }
 
@@ -341,7 +376,7 @@ class Url implements JsonSerializable
      */
     public function removeParams(...$names): self
     {
-        $params = array_diff_key($this->getParams(), array_flip($names));
+        $params = array_diff_key($this->getParams(), array_flip(...$names));
         $this->setParams($params);
 
         return $this;
@@ -386,7 +421,7 @@ class Url implements JsonSerializable
     {
         $encodedUrl = preg_replace_callback(
             '/[^:\/@?&=#]+/u',
-            static function ($matches) {
+            static function ($matches): string {
                 return urlencode($matches[0]);
             },
             $url
@@ -413,7 +448,7 @@ class Url implements JsonSerializable
         if (count($getParams) !== 0) {
 
             if ($includeEmpty === false) {
-                $getParams = array_filter($getParams, static function ($item) {
+                $getParams = array_filter($getParams, static function ($item): bool {
                     return (trim($item) !== '');
                 });
             }
@@ -430,7 +465,7 @@ class Url implements JsonSerializable
      * @param bool $includeParams
      * @return string
      */
-    public function getRelativeUrl($includeParams = true): string
+    public function getRelativeUrl(bool $includeParams = true): string
     {
         $path = $this->path ?? '/';
 
@@ -450,14 +485,14 @@ class Url implements JsonSerializable
      * @param bool $includeParams
      * @return string
      */
-    public function getAbsoluteUrl($includeParams = true): string
+    public function getAbsoluteUrl(bool $includeParams = true): string
     {
         $scheme = $this->scheme !== null ? $this->scheme . '://' : '';
         $host = $this->host ?? '';
         $port = $this->port !== null ? ':' . $this->port : '';
         $user = $this->username ?? '';
         $pass = $this->password !== null ? ':' . $this->password : '';
-        $pass = ($user || $pass) ? $pass . '@' : '';
+        $pass = ($user !== '' || $pass !== '') ? $pass . '@' : '';
 
         return $scheme . $user . $pass . $host . $port . $this->getRelativeUrl($includeParams);
     }
@@ -465,7 +500,7 @@ class Url implements JsonSerializable
     /**
      * Specify data which should be serialized to JSON
      * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * @return string data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      * @since 5.4.0
      */

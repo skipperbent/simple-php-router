@@ -62,6 +62,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 - [ExceptionHandlers](#exceptionhandlers)
     - [Handling 404, 403 and other errors](#handling-404-403-and-other-errors)
 	- [Using custom exception handlers](#using-custom-exception-handlers)
+		- [Prevent merge of parent exception-handlers](#prevent-merge-of-parent-exception-handlers)
 - [Urls](#urls)
     - [Get the current url](#get-the-current-url)
  	- [Get by name (single route)](#get-by-name-single-route)
@@ -77,6 +78,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 	    - [Get parameter object](#get-parameter-object)
 	    - [Managing files](#managing-files)
 	    - [Get all parameters](#get-all-parameters)
+	    - [Check if parameters exists](#check-if-parameters-exists)
 - [Events](#events)
     - [Available events](#available-events)
     - [Registering new event](#registering-new-event)
@@ -790,7 +792,7 @@ If you want to store the token elsewhere, please refer to the "Creating custom T
 When you've created your CSRF-verifier you need to tell simple-php-router that it should use it. You can do this by adding the following line in your `routes.php` file:
 
 ```php
-Router::csrfVerifier(new \Demo\Middlewares\CsrfVerifier());
+SimpleRouter::csrfVerifier(new \Demo\Middlewares\CsrfVerifier());
 ```
 
 ## Getting CSRF-token
@@ -806,7 +808,7 @@ csrf_token();
 You can also get the token directly:
 
 ```php
-return Router::router()->getCsrfVerifier()->getTokenProvider()->getToken();
+return SimpleRouter::router()->getCsrfVerifier()->getTokenProvider()->getToken();
 ```
 
 The default name/key for the input-field is `csrf_token` and is defined in the `POST_KEY` constant in the `BaseCsrfVerifier` class.
@@ -892,10 +894,10 @@ class SessionTokenProvider implements ITokenProvider
 Next you need to set your custom `ITokenProvider` implementation on your `BaseCsrfVerifier` class in your routes file:
 
 ```php
-$verifier = new \dscuz\Middleware\CsrfVerifier();
+$verifier = new \Demo\Middlewares\CsrfVerifier();
 $verifier->setTokenProvider(new SessionTokenProvider());
 
-Router::csrfVerifier($verifier);
+SimpleRouter::csrfVerifier($verifier);
 ```
 
 ---
@@ -937,7 +939,7 @@ ExceptionHandler are classes that handles all exceptions. ExceptionsHandlers mus
 
 ## Handling 404, 403 and other errors
 
-If you simply want to catch a 404 (page not found) etc. you can use the `Router::error($callback)` static helper method.
+If you simply want to catch a 404 (page not found) etc. you can use the `SimpleRouter::error($callback)` static helper method.
 
 This will add a callback method which is fired whenever an error occurs on all routes.
 
@@ -945,15 +947,29 @@ The basic example below simply redirect the page to `/not-found` if an `NotFound
 The code should be placed in the file that contains your routes.
 
 ```php
-Router::get('/not-found', 'PageController@notFound');
+SimpleRouter::get('/not-found', 'PageController@notFound');
+SimpleRouter::get('/forbidden', 'PageController@notFound');
 
-Router::error(function(Request $request, \Exception $exception) {
+SimpleRouter::error(function(Request $request, \Exception $exception) {
 
-    if($exception instanceof NotFoundHttpException && $exception->getCode() === 404) {
-        response()->redirect('/not-found');
+    switch($exception->getCode()) {
+        // Page not found
+        case 404:
+            response()->redirect('/not-found');
+        // Forbidden
+        case 403:
+            response()->redirect('/forbidden');
     }
     
 });
+```
+
+The example above will redirect all errors with http-code `404` (page not found) to `/not-found` and `403` (forbidden) to `/forbidden`.
+
+If you do not want a redirect, but want the error-page rendered on the current-url, you can tell the router to execute a rewrite callback like so:
+
+```php
+$request->setRewriteCallback('ErrorController@notFound');
 ```
 
 ## Using custom exception handlers
@@ -997,6 +1013,41 @@ class CustomExceptionHandler implements IExceptionHandler
 	}
 
 }
+```
+
+You can add your custom exception-handler class to your group by using the `exceptionHandler` settings-attribute.
+`exceptionHandler` can be either class-name or array of class-names.
+
+```php
+SimpleRouter::group(['exceptionHandler' => \Demo\Handlers\CustomExceptionHandler::class], function() {
+
+    // Your routes here
+
+});
+```
+
+### Prevent merge of parent exception-handlers
+
+By default the router will merge exception-handlers to any handlers provided by parent groups, and will be executed in the order of newest to oldest.
+
+If you want your groups exception handler to be executed independently, you can add the `mergeExceptionHandlers` attribute and set it to `false`.
+
+```php
+SimpleRouter::group(['prefix' => '/', 'exceptionHandler' => \Demo\Handlers\FirstExceptionHandler::class, 'mergeExceptionHandlers' => false], function() {
+
+	SimpleRouter::group(['prefix' => '/admin', 'exceptionHandler' => \Demo\Handlers\SecondExceptionHandler::class], function() {
+	
+		// Both SecondExceptionHandler and FirstExceptionHandler will trigger (in that order).
+	
+	});
+	
+	SimpleRouter::group(['prefix' => '/user', 'exceptionHandler' => \Demo\Handlers\SecondExceptionHandler::class, 'mergeExceptionHandlers' => false], function() {
+	
+		// Only SecondExceptionHandler will trigger.
+	
+	});
+
+});
 ```
 
 ---
@@ -1236,8 +1287,11 @@ $values = input()->all([
 All object implements the `IInputItem` interface and will always contain these methods:
 
 - `getIndex()` - returns the index/key of the input.
+- `setIndex()` - set the index/key of the input.
 - `getName()` - returns a human friendly name for the input (company_name will be Company Name etc).
+- `setName()` - sets a human friendly name for the input (company_name will be Company Name etc).
 - `getValue()` - returns the value of the input.
+- `setValue()` - sets the value of the input.
 
 `InputFile` has the same methods as above along with some other file-specific methods like:
 
@@ -1252,6 +1306,24 @@ All object implements the `IInputItem` interface and will always contain these m
 - `toArray()` - returns raw array
 
 ---
+
+### Check if parameters exists
+
+You can easily if multiple items exists by using the `exists` method. It's simular to `value` as it can be used 
+to filter on request-methods and supports both `string` and `array` as parameter value.
+
+**Example:**
+
+```php
+if(input()->exists(['name', 'lastname'])) {
+	// Do stuff
+}
+
+/* Similar to code above */
+if(input()->exists('name') && input()->exists('lastname')) {
+	// Do stuff
+}
+```
 
 # Events
 
@@ -1275,7 +1347,7 @@ All event callbacks will retrieve a `EventArgument` object as parameter. This ob
 | `EVENT_RENDER_BOOTMANAGER`  | `bootmanagers`<br>`bootmanager` | Fires before a boot-manager is rendered. |
 | `EVENT_LOAD_ROUTES`         | `routes` | Fires when the router is about to load all routes. |
 | `EVENT_FIND_ROUTE`          | `name` | Fires whenever the `findRoute` method is called within the `Router`. This usually happens when the router tries to find routes that contains a certain url, usually after the `EventHandler::EVENT_GET_URL` event. |
-| `EVENT_GET_URL`             | `name`<br>`parameters`<br>`getParams` | Fires whenever the `Router::getUrl` method or `url`-helper function is called and the router tries to find the route. |
+| `EVENT_GET_URL`             | `name`<br>`parameters`<br>`getParams` | Fires whenever the `SimpleRouter::getUrl` method or `url`-helper function is called and the router tries to find the route. |
 | `EVENT_MATCH_ROUTE`         | `route` | Fires when a route is matched and valid (correct request-type etc). and before the route is rendered. |
 | `EVENT_RENDER_ROUTE`        | `route` | Fires before a route is rendered. |
 | `EVENT_LOAD_EXCEPTIONS`     | `exception`<br>`exceptionHandlers` | Fires when the router is loading exception-handlers. |
@@ -1458,7 +1530,7 @@ $eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function(EventArgument $e
 	
 });
 
-TestRouter::addEventHandler($eventHandler);
+SimpleRouter::addEventHandler($eventHandler);
 ```
 
 In the example shown above, we create a new `EVENT_ADD_ROUTE` event that triggers, when a new route is added.
