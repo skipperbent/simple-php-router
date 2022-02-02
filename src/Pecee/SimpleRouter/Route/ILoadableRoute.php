@@ -27,6 +27,15 @@ interface ILoadableRoute extends IRoute
     public function loadMiddleware(Request $request, Router $router): void;
 
     /**
+     * Loads and runs InputValidators
+     *
+     * @param Request $request
+     * @param Router $router
+     * @return bool
+     */
+    public function loadInputValidators(Request $request, Router $router): bool;
+
+    /**
      * Get url
      * @return string
      */

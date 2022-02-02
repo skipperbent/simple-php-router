@@ -43,6 +43,7 @@ abstract class Route implements IRoute
     protected $parameters = [];
     protected $originalParameters = [];
     protected $middlewares = [];
+    protected $inputValidators = [];
 
     /**
      * Render route
@@ -415,6 +416,10 @@ abstract class Route implements IRoute
             $values['defaultParameterRegex'] = $this->defaultParameterRegex;
         }
 
+        if (count($this->inputValidators) !== 0) {
+            $values['inputValidators'] = $this->inputValidators;
+        }
+
         return $values;
     }
 
@@ -450,6 +455,10 @@ abstract class Route implements IRoute
 
         if (isset($settings['defaultParameterRegex']) === true) {
             $this->setDefaultParameterRegex($settings['defaultParameterRegex']);
+        }
+
+        if (isset($settings['inputValidator']) === true) {
+            $this->addInputValidator($settings['inputValidator']);
         }
 
         return $this;
@@ -613,6 +622,36 @@ abstract class Route implements IRoute
     public function getFilterEmptyParams(): bool
     {
         return $this->filterEmptyParams;
+    }
+
+    /**
+     * Set InputValidator array
+     *
+     * @param array $validators
+     * @return void
+     */
+    public function setInputValidators(array $validators)
+    {
+        $this->inputValidators = $validators;
+    }
+
+    /**
+     * Add InputValidator class-name
+     *
+     * @param string $validator
+     * @return void
+     */
+    public function addInputValidator($validator)
+    {
+        $this->inputValidators[] = $validator;
+    }
+
+    /**
+     * @return array
+     */
+    public function getInputValidators(): array
+    {
+        return $this->inputValidators;
     }
 
 }

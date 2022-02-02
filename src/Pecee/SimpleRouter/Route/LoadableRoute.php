@@ -2,6 +2,7 @@
 
 namespace Pecee\SimpleRouter\Route;
 
+use Pecee\Http\Input\IInputValidator;
 use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\HttpException;
@@ -70,6 +71,42 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         }
 
         return false;
+    }
+
+    /**
+     * Loads and runs InputValidators
+     *
+     * @param Request $request
+     * @param Router $router
+     * @return void
+     * @throws HttpException
+     */
+    public function loadInputValidators(Request $request, Router $router): bool
+    {
+        $router->debug('Loading InputValidators');
+
+        $valid = true;
+
+        foreach($this->getInputValidators() as $validator){
+
+            if (is_object($validator) === false) {
+                $validator = $router->getClassLoader()->loadClass($validator);
+            }
+
+            if (($validator instanceof IInputValidator) === false) {
+                throw new HttpException($validator . ' must be inherit the IInputValidator interface');
+            }
+            $className = get_class($validator);
+
+            $router->debug('Loading InputValidator "%s"', $className);
+            $callback = $validator->handle($request);
+            if(!$callback)
+                $valid = false;
+            $router->debug('Finished loading InputValidator "%s"', $className);
+        }
+
+        $router->debug('Finished loading InputValidators');
+        return $valid;
     }
 
     /**

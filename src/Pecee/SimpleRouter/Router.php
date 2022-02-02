@@ -5,6 +5,7 @@ namespace Pecee\SimpleRouter;
 use Exception;
 use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Exceptions\MalformedUrlException;
+use Pecee\Http\Input\Exceptions\InputValidationException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
 use Pecee\Http\Url;
@@ -397,6 +398,18 @@ class Router
                     ]);
 
                     $route->loadMiddleware($this->getRequest(), $this);
+
+                    $output = $this->handleRouteRewrite($key, $url);
+                    if ($output !== null) {
+                        return $output;
+                    }
+
+                    $valid = $route->loadInputValidators($this->getRequest(), $this);
+
+                    if($valid === false){
+                        $message = sprintf('Failed validating inputs for Route "%s"', $this->getRequest()->getUrl()->getPath());
+                        throw new InputValidationException($message, 400);
+                    }
 
                     $output = $this->handleRouteRewrite($key, $url);
                     if ($output !== null) {
