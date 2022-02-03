@@ -77,7 +77,7 @@ class RouterGroupTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('/my/fancy/url/1/', TestRouter::getUrl('fancy1'));
         $this->assertEquals('/my/fancy/url/2/', TestRouter::getUrl('fancy2'));
 
-        TestRouter::router()->reset();
+        TestRouter::resetRouter();
 
     }
 

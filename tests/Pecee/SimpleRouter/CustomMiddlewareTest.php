@@ -13,6 +13,7 @@ class CustomMiddlewareTest extends \PHPUnit\Framework\TestCase
         global $_SERVER;
 
         // Test exact ip
+        TestRouter::resetRouter();
 
         $_SERVER['remote-addr'] = '5.5.5.5';
 
@@ -24,9 +25,10 @@ class CustomMiddlewareTest extends \PHPUnit\Framework\TestCase
 
         // Test ip-range
 
-        $_SERVER['remote-addr'] = '8.8.4.4';
 
-        TestRouter::router()->reset();
+        TestRouter::resetRouter();
+
+        $_SERVER['remote-addr'] = '8.8.4.4';
 
         TestRouter::group(['middleware' => IpRestrictMiddleware::class], function() {
             TestRouter::get('/fail', 'DummyController@method1');
@@ -40,11 +42,10 @@ class CustomMiddlewareTest extends \PHPUnit\Framework\TestCase
 
         global $_SERVER;
 
+        TestRouter::resetRouter();
         // Test ip that is not blocked
 
         $_SERVER['remote-addr'] = '6.6.6.6';
-
-        TestRouter::router()->reset();
 
         TestRouter::group(['middleware' => IpRestrictMiddleware::class], function() {
             TestRouter::get('/success', 'DummyController@method1');
@@ -53,10 +54,9 @@ class CustomMiddlewareTest extends \PHPUnit\Framework\TestCase
         TestRouter::debug('/success');
 
         // Test ip in whitelist
+        TestRouter::resetRouter();
 
         $_SERVER['remote-addr'] = '8.8.2.2';
-
-        TestRouter::router()->reset();
 
         TestRouter::group(['middleware' => IpRestrictMiddleware::class], function() {
             TestRouter::get('/success', 'DummyController@method1');

@@ -72,7 +72,7 @@ class RouterPartialGroupTest extends \PHPUnit\Framework\TestCase
 
     public function testPhp8CallUserFunc() {
 
-        TestRouter::router()->reset();
+        TestRouter::resetRouter();
 
         $result = false;
         $lang = 'de';

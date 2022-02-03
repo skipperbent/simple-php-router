@@ -48,4 +48,14 @@ class TestRouter extends \Pecee\SimpleRouter\SimpleRouter
         return $response;
     }
 
+    public static function resetRouter(){
+        global $_SERVER;
+        $_SERVER = [];
+        global $_GET;
+        $_GET = [];
+        global $_POST;
+        $_POST = [];
+        TestRouter::router()->reset();
+    }
+
 }

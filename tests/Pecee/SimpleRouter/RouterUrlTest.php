@@ -24,7 +24,7 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
         $output = TestRouter::debugOutput('/test-output', 'get');
         $this->assertEquals('return value', $output);
 
-        TestRouter::router()->reset();
+        TestRouter::resetRouter();
     }
 
     public function testUnicodeCharacters()
@@ -47,7 +47,7 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals('/kategori/økse/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
 
-        TestRouter::router()->reset();
+        TestRouter::resetRouter();
     }
 
     public function testOptionalParameters()
@@ -72,7 +72,7 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
         TestRouter::debugNoReset('/avisolegal', 'get');
         $this->assertEquals('/{pagina?}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
 
-        TestRouter::router()->reset();
+        TestRouter::resetRouter();
     }
 
     public function testSimilarUrls()
@@ -86,7 +86,7 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals(TestRouter::getUrl('match'), TestRouter::getUrl());
 
-        TestRouter::router()->reset();
+        TestRouter::resetRouter();
     }
 
     public function testUrls()
@@ -167,7 +167,7 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
         // Should match /?jackdaniels=true&cola=yeah
         $this->assertEquals('/?jackdaniels=true&cola=yeah', TestRouter::getUrl('home', null, ['jackdaniels' => 'true', 'cola' => 'yeah']));
 
-        TestRouter::router()->reset();
+        TestRouter::resetRouter();
 
     }
 
@@ -182,7 +182,7 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
         $output = TestRouter::debugOutput('/admin/asd/bec/123', 'get');
         $this->assertEquals('match', $output);
 
-        TestRouter::router()->reset();
+        TestRouter::resetRouter();
     }
 
     public function testCustomRegexWithParameter()
@@ -284,7 +284,7 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals('\\New\\Namespace\\DummyController', $class);
 
-        TestRouter::router()->reset();
+        TestRouter::resetRouter();
     }
 
     public function testGroupPrefix() {

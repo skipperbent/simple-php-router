@@ -146,7 +146,7 @@ class RouterRewriteTest extends \PHPUnit\Framework\TestCase
 
         $output = TestRouter::debugOutput('/old');
 
-        TestRouter::router()->reset();
+        TestRouter::resetRouter();
 
         $this->assertEquals('ok', $output);
 
@@ -175,7 +175,7 @@ class RouterRewriteTest extends \PHPUnit\Framework\TestCase
 
         $output = TestRouter::debugOutput('/match');
 
-        TestRouter::router()->reset();
+        TestRouter::resetRouter();
 
         $this->assertEquals('ok', $output);
 

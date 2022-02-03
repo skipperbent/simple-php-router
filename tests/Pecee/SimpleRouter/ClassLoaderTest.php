@@ -24,7 +24,7 @@ class ClassLoaderTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('method3', $classLoaderClass);
         $this->assertTrue($result);
 
-        TestRouter::router()->reset();
+        TestRouter::resetRouter();
     }
 
 }

@@ -12,12 +12,12 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
 {
     public function testInputValidator()
     {
+        TestRouter::resetRouter();
         global $_GET;
 
         $_GET = [
             'fullname' => 'Max Mustermann'
         ];
-        TestRouter::router()->reset();
 
         TestRouter::get('/my/test/url', 'DummyController@method3')
             ->validateInputs(
@@ -35,10 +35,10 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
 
     public function testInputValidatorFailed()
     {
+        TestRouter::resetRouter();
         global $_GET;
 
         $_GET = [];
-        TestRouter::router()->reset();
 
         $this->expectException(\Pecee\Http\Input\Exceptions\InputValidationException::class);
         TestRouter::get('/my/test/url', 'DummyController@method1')
@@ -55,12 +55,12 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
 
     public function testInputValidator2()
     {
+        TestRouter::resetRouter();
         global $_GET;
 
         $_GET = [
             'fullname' => 'Max Mustermann'
         ];
-        TestRouter::router()->reset();
 
         TestRouter::get('/my/test/url', 'DummyController@method3')
             ->validateInputs([
@@ -74,10 +74,10 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
 
     public function testInputValidatorFailed2()
     {
+        TestRouter::resetRouter();
         global $_GET;
 
         $_GET = [];
-        TestRouter::router()->reset();
 
         $this->expectException(\Pecee\Http\Input\Exceptions\InputValidationException::class);
         TestRouter::get('/my/test/url', 'DummyController@method1')
@@ -90,12 +90,12 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
 
     public function testInputValidatorFailed3()
     {
+        TestRouter::resetRouter();
         global $_GET;
 
         $_GET = [
             'fullname' => 'Max Mustermann'
         ];
-        TestRouter::router()->reset();
 
         $this->expectException(\Pecee\Http\Input\Exceptions\InputValidationException::class);
         TestRouter::get('/my/test/url', 'DummyController@method1')

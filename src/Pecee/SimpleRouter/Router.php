@@ -404,7 +404,7 @@ class Router
                         return $output;
                     }
 
-                    if($route->getInputValidator() !== null){
+                    if($route instanceof IRoute && $route->getInputValidator() !== null){
                         $this->getRequest()->validate($route->getInputValidator());
 
                         $output = $this->handleRouteRewrite($key, $url);
