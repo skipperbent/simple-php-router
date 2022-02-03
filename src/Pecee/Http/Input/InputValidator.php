@@ -9,16 +9,68 @@ use Pecee\Http\Request;
 
 class InputValidator{
 
+    /* Static config settings */
+
     /**
      * Allow throwing exceptions
      * @var bool
      */
-    public static $throwExceptions = true;
+    private static $throwExceptions = true;
+
+    /**
+     * @param bool $throwExceptions
+     */
+    public static function setThrowExceptions(bool $throwExceptions): void{
+        self::$throwExceptions = $throwExceptions;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isThrowExceptions(): bool{
+        return self::$throwExceptions;
+    }
+
     /**
      * Allow Information Leakage
      * @var bool
      */
-    public static $informationLeakage = false;
+    private static $informationLeakage = false;
+
+    /**
+     * @param bool $informationLeakage
+     */
+    public static function setInformationLeakage(bool $informationLeakage): void{
+        self::$informationLeakage = $informationLeakage;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isInformationLeakage(): bool{
+        return self::$informationLeakage;
+    }
+
+    /**
+     * @var string|null $customValidatorRuleNamespace
+     */
+    private static $customValidatorRuleNamespace = null;
+
+    /**
+     * @param string $customValidatorRuleNamespace
+     */
+    public static function setCustomValidatorRuleNamespace(string $customValidatorRuleNamespace): void{
+        self::$customValidatorRuleNamespace = $customValidatorRuleNamespace;
+    }
+
+    /**
+     * @return string|null
+     */
+    public static function getCustomValidatorRuleNamespace(): ?string{
+        return self::$customValidatorRuleNamespace;
+    }
+
+    /* InputValidator Object */
 
     /**
      * @var string|Closure|null
@@ -122,9 +174,9 @@ class InputValidator{
         if($this->fails()){
             if($this->rewriteCallbackOnFailure !== null)
                 $request->setRewriteCallback($this->rewriteCallbackOnFailure);
-            if(self::$throwExceptions){
+            if(self::isThrowExceptions()){
                 $message = array();
-                if(self::$informationLeakage){
+                if(self::isInformationLeakage()){
                     $message_2 = array();
                     foreach($this->getErrors() as $error){
                         foreach($error->getErrors() as $error_2){

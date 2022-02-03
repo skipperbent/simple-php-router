@@ -81,8 +81,10 @@ class InputValidatorItem{
             $class = $rule;
         }else if(class_exists('Pecee\Http\Input\ValidatorRules\ValidatorRule' . ucfirst(strtolower($rule)))){
             $class = 'Pecee\Http\Input\ValidatorRules\ValidatorRule' . ucfirst(strtolower($rule));
+        }else if(InputValidator::getCustomValidatorRuleNamespace() !== null && class_exists(InputValidator::getCustomValidatorRuleNamespace() . '\ValidatorRule' . ucfirst(strtolower($rule)))){
+            $class = InputValidator::getCustomValidatorRuleNamespace() . '\ValidatorRule' . ucfirst(strtolower($rule));
         }
-        if(is_a($class, IInputValidatorRule::class, true)){
+        if($class !== null && is_a($class, IInputValidatorRule::class, true)){
             $this->rules[] = $class::make(...$attributes);
         }
         return $this;
