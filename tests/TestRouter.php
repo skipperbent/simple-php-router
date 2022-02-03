@@ -50,7 +50,12 @@ class TestRouter extends \Pecee\SimpleRouter\SimpleRouter
 
     public static function resetRouter(){
         global $_SERVER;
-        $_SERVER = [];
+        unset($_SERVER['content_type']);
+        unset($_SERVER['remote_addr']);
+        unset($_SERVER['http-cf-connecting-ip']);
+        unset($_SERVER['http-client-ip']);
+        unset($_SERVER['http-x-forwarded-for']);
+        unset($_SERVER['emote-addr']);
         global $_GET;
         $_GET = [];
         global $_POST;
