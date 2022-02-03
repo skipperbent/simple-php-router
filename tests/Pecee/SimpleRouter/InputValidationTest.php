@@ -146,4 +146,41 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
         TestRouter::debug('/my/test/url', 'get');
     }
 
+    public function testCustomInputValidatorRule2()
+    {
+        TestRouter::resetRouter();
+        global $_GET;
+
+        $_GET = [
+            'customParam' => 'customValue'
+        ];
+
+        TestRouter::get('/my/test/url', 'DummyController@method3')
+            ->validateInputs([
+                'customParam' => 'Dummy\InputValidatorRules\ValidatorRuleCustom'
+            ]);
+
+        $output = TestRouter::debugOutput('/my/test/url', 'get');
+
+        $this->assertEquals('method3', $output);
+    }
+
+    public function testCustomInputValidatorRuleFailed2()
+    {
+        TestRouter::resetRouter();
+        global $_GET;
+
+        $_GET = [
+            'customParam' => 'notCustomValue'
+        ];
+
+        $this->expectException(InputValidationException::class);
+        TestRouter::get('/my/test/url', 'DummyController@method3')
+            ->validateInputs([
+                'customParam' => 'Dummy\InputValidatorRules\ValidatorRuleCustom'
+            ]);
+
+        TestRouter::debug('/my/test/url', 'get');
+    }
+
 }

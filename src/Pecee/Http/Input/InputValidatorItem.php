@@ -44,7 +44,8 @@ class InputValidatorItem{
 
     public function parseSettings(string $settings){
         $matches = array();
-        preg_match_all('/([a-zA-Z]+)(?::([a-z-A-Z0-9]+))*/', $settings, $matches);
+        //Add "\\\\" to allow one Backslash
+        preg_match_all('/([a-zA-Z\\\\=\/<>]+)(?::([a-z-A-Z0-9=<>]+))*/', $settings, $matches);
         for($i = 0; $i < sizeof($matches[0]); $i++){
             $tag = $matches[1][$i];
             $attributes = array();
