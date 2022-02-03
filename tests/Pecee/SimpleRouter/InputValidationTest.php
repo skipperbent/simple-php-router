@@ -1,8 +1,8 @@
 <?php
 
+use Pecee\Http\Input\Exceptions\InputValidationException;
 use Pecee\Http\Input\InputValidator;
 use Pecee\Http\Input\InputValidatorItem;
-use Pecee\Http\Request;
 
 require_once 'Dummy/InputValidatorRules/ValidatorRuleCustom.php';
 require_once 'Dummy/DummyController.php';
@@ -39,7 +39,7 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
 
         $_GET = [];
 
-        $this->expectException(\Pecee\Http\Input\Exceptions\InputValidationException::class);
+        $this->expectException(InputValidationException::class);
         TestRouter::get('/my/test/url', 'DummyController@method1')
             ->validateInputs(
                 InputValidator::make()
@@ -78,7 +78,7 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
 
         $_GET = [];
 
-        $this->expectException(\Pecee\Http\Input\Exceptions\InputValidationException::class);
+        $this->expectException(InputValidationException::class);
         TestRouter::get('/my/test/url', 'DummyController@method1')
             ->validateInputs([
                 'fullname' => 'string|max:50'
@@ -96,7 +96,7 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
             'fullname' => 'Max Mustermann'
         ];
 
-        $this->expectException(\Pecee\Http\Input\Exceptions\InputValidationException::class);
+        $this->expectException(InputValidationException::class);
         TestRouter::get('/my/test/url', 'DummyController@method1')
             ->validateInputs([
                 'fullname' => 'string|max:5'
@@ -107,7 +107,7 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
 
     public function testCustomInputValidatorRule()
     {
-        \Pecee\Http\Input\InputValidator::setCustomValidatorRuleNamespace('Dummy\InputValidatorRules');
+        InputValidator::setCustomValidatorRuleNamespace('Dummy\InputValidatorRules');
 
         TestRouter::resetRouter();
         global $_GET;
@@ -116,7 +116,6 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
             'customParam' => 'customValue'
         ];
 
-        //$this->expectException(\Pecee\Http\Input\Exceptions\InputValidationException::class);
         TestRouter::get('/my/test/url', 'DummyController@method3')
             ->validateInputs([
                 'customParam' => 'custom'
@@ -129,7 +128,7 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
 
     public function testCustomInputValidatorRuleFailed()
     {
-        \Pecee\Http\Input\InputValidator::setCustomValidatorRuleNamespace('Dummy\InputValidatorRules');
+        InputValidator::setCustomValidatorRuleNamespace('Dummy\InputValidatorRules');
 
         TestRouter::resetRouter();
         global $_GET;
@@ -138,7 +137,7 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
             'customParam' => 'notCustomValue'
         ];
 
-        $this->expectException(\Pecee\Http\Input\Exceptions\InputValidationException::class);
+        $this->expectException(InputValidationException::class);
         TestRouter::get('/my/test/url', 'DummyController@method3')
             ->validateInputs([
                 'customParam' => 'custom'
