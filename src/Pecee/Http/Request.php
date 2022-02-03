@@ -5,6 +5,8 @@ namespace Pecee\Http;
 use Pecee\Http\Exceptions\MalformedUrlException;
 use Pecee\Http\Input\BaseInputHandler;
 use Pecee\Http\Input\IInputHandler;
+use Pecee\Http\Input\InputValidator;
+use Pecee\Http\Input\InputValidatorItem;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\SimpleRouter\Route\ILoadableRoute;
 use Pecee\SimpleRouter\Route\RouteUrl;
@@ -550,6 +552,20 @@ class Request
     public function hasPendingRewrite(): bool
     {
         return $this->hasPendingRewrite;
+    }
+
+    /**
+     * @param InputValidator|array $validator
+     * @return InputValidator
+     */
+    public function validate($validator): InputValidator{
+        if(!$validator instanceof InputValidator){
+            $tmp = InputValidator::make();
+            $tmp->parseSettings($validator);
+            $validator = $tmp;
+        }
+        $validator->validate($this);
+        return $validator;
     }
 
     /**

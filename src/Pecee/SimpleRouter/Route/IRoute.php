@@ -2,6 +2,7 @@
 
 namespace Pecee\SimpleRouter\Route;
 
+use Pecee\Http\Input\InputValidator;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Router;
 
@@ -220,4 +221,10 @@ interface IRoute
      */
     public function getFilterEmptyParams(): bool;
 
+    /**
+     * Get InputValidator if one is present
+     *
+     * @return InputValidator|array|null
+     */
+    public function getInputValidator();
 }

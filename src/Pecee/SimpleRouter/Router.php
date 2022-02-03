@@ -404,16 +404,13 @@ class Router
                         return $output;
                     }
 
-                    $valid = $route->loadInputValidators($this->getRequest(), $this);
+                    if($route->getInputValidator() !== null){
+                        $this->getRequest()->validate($route->getInputValidator());
 
-                    if($valid === false){
-                        $message = sprintf('Failed validating inputs for Route "%s"', $this->getRequest()->getUrl()->getPath());
-                        throw new InputValidationException($message, 400);
-                    }
-
-                    $output = $this->handleRouteRewrite($key, $url);
-                    if ($output !== null) {
-                        return $output;
+                        $output = $this->handleRouteRewrite($key, $url);
+                        if($output !== null){
+                            return $output;
+                        }
                     }
 
                     $methodNotAllowed = false;

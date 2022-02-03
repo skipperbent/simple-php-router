@@ -3,6 +3,7 @@
 namespace Pecee\SimpleRouter\Route;
 
 use Closure;
+use Pecee\Http\Input\InputValidator;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
@@ -44,7 +45,7 @@ abstract class Route implements IRoute
     protected $parameters = [];
     protected $originalParameters = [];
     protected $middlewares = [];
-    protected $inputValidators = [];
+    protected $inputValidator = null;
 
     /**
      * Render route
@@ -417,8 +418,8 @@ abstract class Route implements IRoute
             $values['defaultParameterRegex'] = $this->defaultParameterRegex;
         }
 
-        if (count($this->inputValidators) !== 0) {
-            $values['inputValidators'] = $this->inputValidators;
+        if ($this->getInputValidator() !== null) {
+            $values['validator'] = $this->getInputValidator();
         }
 
         return $values;
@@ -626,33 +627,21 @@ abstract class Route implements IRoute
     }
 
     /**
-     * Set InputValidator array
-     *
-     * @param array $validators
-     * @return void
+     * Get InputValidator if one is present
+     * @return InputValidator|array|null
      */
-    public function setInputValidators(array $validators)
+    public function getInputValidator()
     {
-        $this->inputValidators = $validators;
+        return $this->inputValidator;
     }
 
     /**
-     * Add InputValidator class@method, array[class, method] or Closure
-     *
-     * @param string|array|Closure $validator
+     * @param InputValidator|array $validator
      * @return void
      */
-    public function addInputValidator($validator)
+    public function validateInputs($validator)
     {
-        $this->inputValidators[] = $validator;
-    }
-
-    /**
-     * @return array
-     */
-    public function getInputValidators(): array
-    {
-        return $this->inputValidators;
+        $this->inputValidator = $validator;
     }
 
 }
