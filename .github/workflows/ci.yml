@@ -19,6 +19,7 @@ jobs:
         php-version:
           - 7.3
           - 8
+          - 8.1
         phpunit-version:
           - 9.5.4
         dependencies:
