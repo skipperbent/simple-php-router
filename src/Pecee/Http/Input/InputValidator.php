@@ -32,26 +32,6 @@ class InputValidator{
     }
 
     /**
-     * Allow Information Leakage
-     * @var bool
-     */
-    private static $informationLeakage = false;
-
-    /**
-     * @param bool $informationLeakage
-     */
-    public static function setInformationLeakage(bool $informationLeakage): void{
-        self::$informationLeakage = $informationLeakage;
-    }
-
-    /**
-     * @return bool
-     */
-    public static function isInformationLeakage(): bool{
-        return self::$informationLeakage;
-    }
-
-    /**
      * @var string|null $customValidatorRuleNamespace
      */
     private static $customValidatorRuleNamespace = null;
@@ -175,17 +155,7 @@ class InputValidator{
             if($this->rewriteCallbackOnFailure !== null)
                 $request->setRewriteCallback($this->rewriteCallbackOnFailure);
             if(self::isThrowExceptions()){
-                $message = array();
-                if(self::isInformationLeakage()){
-                    $message_2 = array();
-                    foreach($this->getErrors() as $error){
-                        foreach($error->getErrors() as $error_2){
-                            $message_2[] = sprintf($error_2->getErrorMessage(), $error->getKey(), ...$error_2->getAttributes());
-                        }
-                    }
-                    $message[] = join(',', $message_2);
-                }
-                throw new InputValidationException(join(';', $message));
+                throw new InputValidationException('Failed to validate inputs', $this->getErrors());
             }
         }
         return $this->valid;

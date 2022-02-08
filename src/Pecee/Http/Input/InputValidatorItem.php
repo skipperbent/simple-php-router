@@ -28,6 +28,11 @@ class InputValidatorItem{
     protected $errors = null;
 
     /**
+     * @var IInputItem|null $inputItem - Set after validation
+     */
+    protected $inputItem = null;
+
+    /**
      * @param string $key
      * @return InputValidatorItem
      */
@@ -109,6 +114,7 @@ class InputValidatorItem{
     }
 
     public function validate(IInputItem $inputItem): bool{
+        $this->inputItem = $inputItem;
         $this->errors = array();
         foreach($this->getRules() as $rule){
             $callback = $rule->validate($inputItem);
@@ -117,6 +123,15 @@ class InputValidatorItem{
         }
         $this->valid = empty($this->errors);
         return $this->valid;
+    }
+
+    /**
+     * @return IInputItem
+     */
+    private function getInputItem(): IInputItem{
+        if($this->valid === null)
+            throw new InputsNotValidatedException();
+        return $this->inputItem;
     }
 
     /**
@@ -146,6 +161,19 @@ class InputValidatorItem{
         if($this->valid === null)
             throw new InputsNotValidatedException();
         return $this->errors;
+    }
+
+    /**
+     * @return array
+     */
+    public function getErrorMessages(): array{
+        if($this->valid === null)
+            throw new InputsNotValidatedException();
+        $messages = array();
+        foreach($this->getErrors() as $rule){
+            $messages[] = $rule->formatErrorMessage($this->getInputItem()->getIndex());
+        }
+        return $messages;
     }
 
 }
