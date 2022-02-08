@@ -17,10 +17,11 @@ jobs:
           - ubuntu-latest
           - windows-latest
         php-version:
-          - 7.1
           - 7.4
+          - 8
+          - 8.1
         phpunit-version:
-          - 7.5.20
+          - 9.5.4
         dependencies:
           - lowest
           - highest
@@ -51,9 +52,9 @@ jobs:
             php${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-
       - name: Install lowest dependencies with composer
         if: matrix.dependencies == 'lowest'
-        run: composer update --no-ansi --no-interaction --no-progress --prefer-lowest
+        run: composer update --no-ansi --no-interaction --no-progress --prefer-lowest --ignore-platform-reqs
       - name: Install highest dependencies with composer
         if: matrix.dependencies == 'highest'
-        run: composer update --no-ansi --no-interaction --no-progress
+        run: composer update --no-ansi --no-interaction --no-progress --ignore-platform-reqs
       - name: Run tests with phpunit
         run: composer test
