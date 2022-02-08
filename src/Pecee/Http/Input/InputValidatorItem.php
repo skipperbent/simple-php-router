@@ -46,10 +46,12 @@ class InputValidatorItem{
         $matches = array();
         //Add "\\\\" to allow one Backslash
         //https://stackoverflow.com/questions/11044136/right-way-to-escape-backslash-in-php-regex/15369828#answer-15369828
-        preg_match_all('/([a-zA-Z\\\\=\/<>]+)(?::([^:\|]+)*)?\|?/', $settings, $matches);
+        preg_match_all('/([a-zA-Z\\\\=\/<>]+)(?::((?:\\\\[:|]|[^:\|])+))?\|?/', $settings, $matches);
         for($i = 0; $i < sizeof($matches[0]); $i++){
             $tag = $matches[1][$i];
-            $attributes = array_filter(explode(',', $matches[2][$i]));
+            $attributes = array_filter(explode(',', $matches[2][$i]), function($attribute){
+                return empty($attribute) ? false : $attribute;
+            });
 
             $this->addRuleByTag($tag, $attributes);
         }
