@@ -3,7 +3,7 @@
 class TestBootManager implements \Pecee\SimpleRouter\IRouterBootManager
 {
 
-    protected $rewrite;
+    protected array $rewrite;
 
     public function __construct(array $rewrite)
     {

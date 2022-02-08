@@ -6,6 +6,7 @@ use Pecee\Http\Exceptions\MalformedUrlException;
 use Pecee\Http\Input\InputHandler;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\SimpleRouter\Route\ILoadableRoute;
+use Pecee\SimpleRouter\Route\LoadableRoute;
 use Pecee\SimpleRouter\Route\RouteUrl;
 use Pecee\SimpleRouter\SimpleRouter;
 
@@ -29,7 +30,7 @@ class Request
      * All request-types
      * @var string[]
      */
-    public static $requestTypes = [
+    public static array $requestTypes = [
         self::REQUEST_TYPE_GET,
         self::REQUEST_TYPE_POST,
         self::REQUEST_TYPE_PUT,
@@ -43,7 +44,7 @@ class Request
      * Post request-types.
      * @var string[]
      */
-    public static $requestTypesPost = [
+    public static array $requestTypesPost = [
         self::REQUEST_TYPE_POST,
         self::REQUEST_TYPE_PUT,
         self::REQUEST_TYPE_PATCH,
@@ -55,65 +56,65 @@ class Request
      *
      * @var array
      */
-    private $data = [];
+    private array $data = [];
 
     /**
      * Server headers
      * @var array
      */
-    protected $headers = [];
+    protected array $headers = [];
 
     /**
      * Request ContentType
      * @var string
      */
-    protected $contentType;
+    protected string $contentType;
 
     /**
      * Request host
-     * @var string
+     * @var string|null
      */
-    protected $host;
+    protected ?string $host;
 
     /**
      * Current request url
      * @var Url
      */
-    protected $url;
+    protected Url $url;
 
     /**
      * Request method
      * @var string
      */
-    protected $method;
+    protected string $method;
 
     /**
      * Input handler
      * @var InputHandler
      */
-    protected $inputHandler;
+    protected InputHandler $inputHandler;
 
     /**
      * Defines if request has pending rewrite
      * @var bool
      */
-    protected $hasPendingRewrite = false;
+    protected bool $hasPendingRewrite = false;
 
     /**
      * @var ILoadableRoute|null
      */
-    protected $rewriteRoute;
+    protected ?ILoadableRoute $rewriteRoute = null;
 
     /**
      * Rewrite url
      * @var string|null
      */
-    protected $rewriteUrl;
+    protected ?string $rewriteUrl = null;
 
     /**
      * @var array
      */
-    protected $loadedRoutes = [];
+    protected array $loadedRoutes = [];
 
     /**
      * Request constructor.
@@ -135,6 +136,9 @@ class Request
         $this->inputHandler = new InputHandler($this);
     }
 
+    /**
+     * @return bool
+     */
     public function isSecure(): bool
     {
         return $this->getHeader('http-x-forwarded-proto') === 'https' || $this->getHeader('https') !== null || (int)$this->getHeader('server-port') === 443;
@@ -422,7 +426,12 @@ class Request
     public function setRewriteRoute(ILoadableRoute $route): self
     {
         $this->hasPendingRewrite = true;
-        $this->rewriteRoute = SimpleRouter::addDefaultNamespace($route);
+        /**
+         * Hint that input parameter is returned with same type
+         * @var ILoadableRoute $rewriteRoute
+         */
+        $rewriteRoute = SimpleRouter::addDefaultNamespace($route);
+        $this->rewriteRoute = $rewriteRoute;
 
         return $this;
     }

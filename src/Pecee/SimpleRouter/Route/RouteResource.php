@@ -6,7 +6,7 @@ use Pecee\Http\Request;
 
 class RouteResource extends LoadableRoute implements IControllerRoute
 {
-    protected $urls = [
+    protected array $urls = [
         'index'   => '',
         'create'  => 'create',
         'store'   => '',
@@ -16,7 +16,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         'destroy' => '',
     ];
 
-    protected $methodNames = [
+    protected array $methodNames = [
         'index'   => 'index',
         'create'  => 'create',
         'store'   => 'store',
@@ -26,10 +26,14 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         'destroy' => 'destroy',
     ];
 
-    protected $names = [];
-    protected $controller;
+    protected array $names = [];
+    protected string $controller;
 
-    public function __construct($url, $controller)
+    /**
+     * @param string $url
+     * @param string $controller
+     */
+    public function __construct(string $url, string $controller)
     {
         $this->setUrl($url);
         $this->controller = $controller;
@@ -44,11 +48,11 @@ class RouteResource extends LoadableRoute implements IControllerRoute
      */
     public function hasName(string $name): bool
     {
-        if ($this->name === null) {
+        if ($this->getName() === null) {
             return false;
         }
 
-        if (strtolower($this->name) === strtolower($name)) {
+        if (strtolower($this->getName()) === strtolower($name)) {
             return true;
         }
 
@@ -57,7 +61,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
             $name = substr($name, 0, strrpos($name, '.'));
         }
 
-        return (strtolower($this->name) === strtolower($name));
+        return (strtolower($this->getName()) === strtolower($name));
     }
 
     /**
@@ -76,7 +80,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         return $this->url;
     }
 
-    protected function call($method): bool
+    protected function call(string $method): bool
     {
         $this->setCallback([$this->controller, $method]);
 
@@ -102,50 +106,50 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         $this->parameters = $this->parseParameters($route, $url);
 
         /* If no custom regular expression or parameters was found on this route, we stop */
-        if ($regexMatch === null && $this->parameters === null) {
+        if ($regexMatch === null && $this->getParameters() === null) {
             return false;
         }
 
-        $action = strtolower(trim($this->parameters['action']));
-        $id = $this->parameters['id'];
+        $action = strtolower(trim($this->getParameters()['action']));
+        $id = $this->getParameters()['id'];
 
         // Remove action parameter
-        unset($this->parameters['action']);
+        unset($this->getParameters()['action']);
 
         $method = $request->getMethod();
 
         // Delete
         if ($method === Request::REQUEST_TYPE_DELETE && $id !== null) {
-            return $this->call($this->methodNames['destroy']);
+            return $this->call($this->getMethodNames()['destroy']);
         }
 
         // Update
         if ($id !== null && in_array($method, [Request::REQUEST_TYPE_PATCH, Request::REQUEST_TYPE_PUT], true) === true) {
-            return $this->call($this->methodNames['update']);
+            return $this->call($this->getMethodNames()['update']);
         }
 
         // Edit
         if ($method === Request::REQUEST_TYPE_GET && $id !== null && $action === 'edit') {
-            return $this->call($this->methodNames['edit']);
+            return $this->call($this->getMethodNames()['edit']);
         }
 
         // Create
         if ($method === Request::REQUEST_TYPE_GET && $id === 'create') {
-            return $this->call($this->methodNames['create']);
+            return $this->call($this->getMethodNames()['create']);
         }
 
         // Save
         if ($method === Request::REQUEST_TYPE_POST) {
-            return $this->call($this->methodNames['store']);
+            return $this->call($this->getMethodNames()['store']);
         }
 
         // Show
         if ($method === Request::REQUEST_TYPE_GET && $id !== null) {
-            return $this->call($this->methodNames['show']);
+            return $this->call($this->getMethodNames()['show']);
         }
 
         // Index
-        return $this->call($this->methodNames['index']);
+        return $this->call($this->getMethodNames()['index']);
     }
 
     /**

@@ -9,38 +9,41 @@ class InputFile implements IInputItem
     /**
      * @var string
      */
-    public $index;
+    public string $index;
 
     /**
      * @var string
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string|null
      */
-    public $filename;
+    public ?string $filename = null;
 
     /**
      * @var int|null
      */
-    public $size;
+    public ?int $size = null;
 
     /**
-     * @var int|null
+     * @var string|null
      */
-    public $type;
+    public ?string $type = null;
 
     /**
      * @var int
      */
-    public $errors;
+    public int $errors;
 
     /**
      * @var string|null
      */
-    public $tmpName;
+    public ?string $tmpName = null;
 
+    /**
+     * @param string $index
+     */
     public function __construct(string $index)
     {
         $this->index = $index;
@@ -202,7 +205,7 @@ class InputFile implements IInputItem
     /**
      * Get filename
      *
-     * @return string mixed
+     * @return string|null
      */
     public function getFilename(): ?string
     {

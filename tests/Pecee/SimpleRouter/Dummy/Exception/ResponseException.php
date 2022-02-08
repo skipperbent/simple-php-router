@@ -2,15 +2,15 @@
 
 class ResponseException extends \Exception
 {
-    protected $response;
+    protected string $response;
 
-    public function __construct($response)
+    public function __construct(string $response)
     {
         $this->response = $response;
         parent::__construct('', 0);
     }
 
-    public function getResponse()
+    public function getResponse(): string
     {
         return $this->response;
     }

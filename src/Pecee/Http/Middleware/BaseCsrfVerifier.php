@@ -17,18 +17,18 @@ class BaseCsrfVerifier implements IMiddleware
      * For example: /admin/*
      * @var array|null
      */
-    protected $except;
+    protected ?array $except = null;
 
     /**
      * Urls to include. Can be used to include urls from a certain path.
      * @var array|null
      */
-    protected $include;
+    protected ?array $include;
 
     /**
      * @var ITokenProvider
      */
-    protected $tokenProvider;
+    protected ITokenProvider $tokenProvider;
 
     /**
      * BaseCsrfVerifier constructor.
@@ -110,6 +110,9 @@ class BaseCsrfVerifier implements IMiddleware
         $this->tokenProvider->refresh();
     }
 
+    /**
+     * @return ITokenProvider
+     */
     public function getTokenProvider(): ITokenProvider
     {
         return $this->tokenProvider;

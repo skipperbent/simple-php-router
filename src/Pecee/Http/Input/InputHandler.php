@@ -10,40 +10,40 @@ class InputHandler
     /**
      * @var array
      */
-    protected $get = [];
+    protected array $get = [];
 
     /**
      * @var array
      */
-    protected $post = [];
+    protected array $post = [];
 
     /**
      * @var array
      */
-    protected $file = [];
+    protected array $file = [];
 
     /**
      * @var Request
      */
-    protected $request;
+    protected Request $request;
 
     /**
      * Original post variables
      * @var array
      */
-    protected $originalPost = [];
+    protected array $originalPost = [];
 
     /**
      * Original get/params variables
      * @var array
      */
-    protected $originalParams = [];
+    protected array $originalParams = [];
 
     /**
      * Get original file variables
      * @var array
      */
-    protected $originalFile = [];
+    protected array $originalFile = [];
 
     /**
      * Input constructor.
@@ -270,7 +270,7 @@ class InputHandler
      * Get input element value matching index
      *
      * @param string $index
-     * @param string|mixed|null $defaultValue
+     * @param mixed|null $defaultValue
      * @param array ...$methods
      * @return string|array
      */

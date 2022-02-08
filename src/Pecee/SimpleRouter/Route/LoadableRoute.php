@@ -12,17 +12,17 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     /**
      * @var string
      */
-    protected $url;
-
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $url;
 
     /**
      * @var string|null
      */
-    protected $regex;
+    protected ?string $name = null;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $regex = null;
 
     /**
      * Loads and renders middlewares-classes
@@ -55,7 +55,12 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         $router->debug('Finished loading middlewares');
     }
 
-    public function matchRegex(Request $request, $url): ?bool
+    /**
+     * @param Request $request
+     * @param string $url
+     * @return bool|null
+     */
+    public function matchRegex(Request $request, string $url): ?bool
     {
         /* Match on custom defined regular expression */
         if ($this->regex === null) {
@@ -195,7 +200,9 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      */
     public function hasName(string $name): bool
     {
-        return strtolower($this->name) === strtolower($name);
+        if($this->getName() === null)
+            return false;
+        return strtolower($this->getName()) === strtolower($name);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Pecee\SimpleRouter\Route;
 
+use Closure;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
@@ -18,31 +19,31 @@ abstract class Route implements IRoute
      *
      * @var bool
      */
-    protected $filterEmptyParams = true;
+    protected bool $filterEmptyParams = true;
 
     /**
      * Default regular expression used for parsing parameters.
      * @var string|null
      */
-    protected $defaultParameterRegex;
-    protected $paramModifiers = '{}';
-    protected $paramOptionalSymbol = '?';
-    protected $urlRegex = '/^%s\/?$/u';
-    protected $group;
-    protected $parent;
+    protected ?string $defaultParameterRegex = null;
+    protected string $paramModifiers = '{}';
+    protected string $paramOptionalSymbol = '?';
+    protected string $urlRegex = '/^%s\/?$/u';
+    protected ?IGroupRoute $group = null;
+    protected ?IRoute $parent = null;
     /**
      * @var string|callable|null
      */
     protected $callback;
-    protected $defaultNamespace;
+    protected ?string $defaultNamespace = null;
 
     /* Default options */
-    protected $namespace;
-    protected $requestMethods = [];
-    protected $where = [];
-    protected $parameters = [];
-    protected $originalParameters = [];
-    protected $middlewares = [];
+    protected ?string $namespace = null;
+    protected array $requestMethods = [];
+    protected array $where = [];
+    protected array $parameters = [];
+    protected array $originalParameters = [];
+    protected array $middlewares = [];
 
     /**
      * Render route
@@ -273,7 +274,7 @@ abstract class Route implements IRoute
     /**
      * Set callback
      *
-     * @param string|array|\Closure $callback
+     * @param string|array|Closure $callback
      * @return static
      */
     public function setCallback($callback): IRoute

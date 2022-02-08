@@ -8,10 +8,24 @@ use IteratorAggregate;
 
 class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
 {
-    public $index;
-    public $name;
+
+    /**
+     * @var string $index
+     */
+    public string $index;
+    /**
+     * @var string $name
+     */
+    public string $name;
+    /**
+     * @var mixed|null $value
+     */
     public $value;
 
+    /**
+     * @param string $index
+     * @param mixed|null $value
+     */
     public function __construct(string $index, $value = null)
     {
         $this->index = $index;
@@ -29,6 +43,10 @@ class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
         return $this->index;
     }
 
+    /**
+     * @param string $index
+     * @return IInputItem
+     */
     public function setIndex(string $index): IInputItem
     {
         $this->index = $index;

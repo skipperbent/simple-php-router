@@ -2,8 +2,15 @@
 
 class FindUrlBootManager implements \Pecee\SimpleRouter\IRouterBootManager
 {
+
+    /**
+     * @var mixed $result
+     */
     protected $result;
 
+    /**
+     * @param mixed $result
+     */
     public function __construct(&$result)
     {
         $this->result = &$result;

@@ -6,12 +6,16 @@ use Pecee\Http\Request;
 
 class RouteController extends LoadableRoute implements IControllerRoute
 {
-    protected $defaultMethod = 'index';
-    protected $controller;
-    protected $method;
-    protected $names = [];
+    protected string $defaultMethod = 'index';
+    protected string $controller;
+    protected ?string $method = null;
+    protected array $names = [];
 
-    public function __construct($url, $controller)
+    /**
+     * @param string $url
+     * @param string $controller
+     */
+    public function __construct(string $url, string $controller)
     {
         $this->setUrl($url);
         $this->setName(trim(str_replace('/', '.', $url), '/'));
@@ -86,6 +90,11 @@ class RouteController extends LoadableRoute implements IControllerRoute
         return '/' . trim($url, '/') . '/';
     }
 
+    /**
+     * @param string $url
+     * @param Request $request
+     * @return bool
+     */
     public function matchRoute(string $url, Request $request): bool
     {
         if ($this->matchGroup($url, $request) === false) {

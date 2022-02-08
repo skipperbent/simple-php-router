@@ -14,11 +14,13 @@ use Closure;
 use Exception;
 use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
+use Pecee\Http\Middleware\Exceptions\TokenMismatchException;
 use Pecee\Http\Request;
 use Pecee\Http\Response;
 use Pecee\Http\Url;
 use Pecee\SimpleRouter\ClassLoader\IClassLoader;
 use Pecee\SimpleRouter\Exceptions\HttpException;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\Handlers\CallbackExceptionHandler;
 use Pecee\SimpleRouter\Handlers\IEventHandler;
 use Pecee\SimpleRouter\Route\IGroupRoute;
@@ -37,25 +39,25 @@ class SimpleRouter
      * Default namespace added to all routes
      * @var string|null
      */
-    protected static $defaultNamespace;
+    protected static ?string $defaultNamespace = null;
 
     /**
      * The response object
-     * @var Response
+     * @var Response|null
      */
-    protected static $response;
+    protected static ?Response $response = null;
 
     /**
      * Router instance
-     * @var Router
+     * @var Router|null
      */
-    protected static $router;
+    protected static ?Router $router = null;
 
     /**
      * Start routing
      *
-     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
-     * @throws \Pecee\Http\Middleware\Exceptions\TokenMismatchException
+     * @throws NotFoundHttpException
+     * @throws TokenMismatchException
      * @throws HttpException
      * @throws Exception
      */

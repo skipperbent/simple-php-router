@@ -10,14 +10,14 @@ class CookieTokenProvider implements ITokenProvider
     public const CSRF_KEY = 'CSRF-TOKEN';
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $token;
+    protected ?string $token = null;
 
     /**
      * @var int
      */
-    protected $cookieTimeoutMinutes = 120;
+    protected int $cookieTimeoutMinutes = 120;
 
     /**
      * CookieTokenProvider constructor.

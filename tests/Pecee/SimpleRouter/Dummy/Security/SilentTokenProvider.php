@@ -2,7 +2,7 @@
 
 class SilentTokenProvider implements \Pecee\Http\Security\ITokenProvider {
 
-    protected $token;
+    protected ?string $token;
 
     public function __construct()
     {
@@ -25,7 +25,7 @@ class SilentTokenProvider implements \Pecee\Http\Security\ITokenProvider {
      */
     public function validate(string $token): bool
     {
-        return ($token === $this->token);
+        return ($token === $this->getToken());
     }
 
     /**

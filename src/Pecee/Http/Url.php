@@ -10,52 +10,52 @@ class Url implements JsonSerializable
     /**
      * @var string|null
      */
-    private $originalUrl;
+    private ?string $originalUrl;
 
     /**
      * @var string|null
      */
-    private $scheme;
+    private ?string $scheme = null;
 
     /**
      * @var string|null
      */
-    private $host;
+    private ?string $host = null;
 
     /**
      * @var int|null
      */
-    private $port;
+    private ?int $port = null;
 
     /**
      * @var string|null
      */
-    private $username;
+    private ?string $username = null;
 
     /**
      * @var string|null
      */
-    private $password;
+    private ?string $password = null;
 
     /**
      * @var string|null
      */
-    private $path;
+    private ?string $path = null;
 
     /**
      * @var array
      */
-    private $params = [];
+    private array $params = [];
 
     /**
      * @var string|null
      */
-    private $fragment;
+    private ?string $fragment = null;
 
     /**
      * Url constructor.
      *
-     * @param ?string $url
+     * @param string|null $url
      * @throws MalformedUrlException
      */
     public function __construct(?string $url)

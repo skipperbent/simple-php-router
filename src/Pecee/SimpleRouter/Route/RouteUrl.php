@@ -2,6 +2,7 @@
 
 namespace Pecee\SimpleRouter\Route;
 
+use Closure;
 use Pecee\Http\Request;
 
 class RouteUrl extends LoadableRoute
@@ -9,7 +10,7 @@ class RouteUrl extends LoadableRoute
     /**
      * RouteUrl constructor.
      * @param string $url
-     * @param \Closure|string $callback
+     * @param Closure|string $callback
      */
     public function __construct(string $url, $callback)
     {

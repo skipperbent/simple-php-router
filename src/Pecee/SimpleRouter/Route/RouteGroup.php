@@ -7,12 +7,12 @@ use Pecee\SimpleRouter\Handlers\IExceptionHandler;
 
 class RouteGroup extends Route implements IGroupRoute
 {
-    protected $urlRegex = '/^%s\/?/u';
-    protected $prefix;
-    protected $name;
-    protected $domains = [];
-    protected $exceptionHandlers = [];
-    protected $mergeExceptionHandlers = true;
+    protected string $urlRegex = '/^%s\/?/u';
+    protected ?string $prefix = null;
+    protected ?string $name = null;
+    protected array $domains = [];
+    protected array $exceptionHandlers = [];
+    protected bool $mergeExceptionHandlers = true;
 
     /**
      * Method called to check if a domain matches
@@ -22,7 +22,7 @@ class RouteGroup extends Route implements IGroupRoute
      */
     public function matchDomain(Request $request): bool
     {
-        if ($this->domains === null || count($this->domains) === 0) {
+        if (count($this->domains) === 0) {
             return true;
         }
 
@@ -58,9 +58,9 @@ class RouteGroup extends Route implements IGroupRoute
             return false;
         }
 
-        if ($this->prefix !== null) {
+        if ($this->getPrefix() !== null) {
             /* Parse parameters from current route */
-            $parameters = $this->parseParameters($this->prefix, $url);
+            $parameters = $this->parseParameters($this->getPrefix(), $url);
 
             /* If no custom regular expression or parameters was found on this route, we stop */
             if ($parameters === null) {
@@ -71,14 +71,14 @@ class RouteGroup extends Route implements IGroupRoute
             $this->setParameters($parameters);
         }
 
-        $parsedPrefix = $this->prefix;
+        $parsedPrefix = $this->getPrefix();
 
         foreach ($this->getParameters() as $parameter => $value) {
             $parsedPrefix = str_ireplace('{' . $parameter . '}', $value, $parsedPrefix);
         }
 
         /* Skip if prefix doesn't match */
-        if ($this->prefix !== null && stripos($url, rtrim($parsedPrefix, '/') . '/') === false) {
+        if ($this->getPrefix() !== null && stripos($url, rtrim($parsedPrefix, '/') . '/') === false) {
             return false;
         }
 
@@ -163,17 +163,37 @@ class RouteGroup extends Route implements IGroupRoute
      */
     public function prependPrefix(string $url): IGroupRoute
     {
-        return $this->setPrefix(rtrim($url, '/') . $this->prefix);
+        return $this->setPrefix(rtrim($url, '/') . ($this->getPrefix() ?? ''));
     }
 
     /**
-     * Set prefix that child-routes will inherit.
+     * Get prefix that child-routes will inherit.
      *
      * @return string|null
      */
     public function getPrefix(): ?string
     {
         return $this->prefix;
+    }
+    /**
+     * @param string $name
+     * @return static
+     */
+    public function setName(string $name): IGroupRoute
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string|null
+     */
+    public function getName(): ?string
+    {
+        return $this->name;
     }
 
     /**
@@ -209,7 +229,7 @@ class RouteGroup extends Route implements IGroupRoute
     public function setSettings(array $settings, bool $merge = false): IRoute
     {
         if (isset($settings['prefix']) === true) {
-            $this->setPrefix($settings['prefix'] . $this->prefix);
+            $this->setPrefix($settings['prefix'] . ($this->getPrefix() ?? ''));
         }
 
         if (isset($settings['mergeExceptionHandlers']) === true) {
@@ -228,11 +248,11 @@ class RouteGroup extends Route implements IGroupRoute
 
             $name = $settings['as'];
 
-            if ($this->name !== null && $merge !== false) {
-                $name .= '.' . $this->name;
+            if ($this->getName() !== null && $merge !== false) {
+                $name .= '.' . $this->getName();
             }
 
-            $this->name = $name;
+            $this->setName($name);
         }
 
         return parent::setSettings($settings, $merge);
@@ -247,16 +267,16 @@ class RouteGroup extends Route implements IGroupRoute
     {
         $values = [];
 
-        if ($this->prefix !== null) {
+        if ($this->getPrefix() !== null) {
             $values['prefix'] = $this->getPrefix();
         }
 
-        if ($this->name !== null) {
-            $values['as'] = $this->name;
+        if ($this->getName() !== null) {
+            $values['as'] = $this->getName();
         }
 
-        if (count($this->parameters) !== 0) {
-            $values['parameters'] = $this->parameters;
+        if (count($this->getParameters()) !== 0) {
+            $values['parameters'] = $this->getParameters();
         }
 
         return array_merge($values, parent::toArray());

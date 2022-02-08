@@ -7,8 +7,15 @@ use Pecee\Exceptions\InvalidArgumentException;
 
 class Response
 {
-    protected $request;
 
+    /**
+     * @var Request
+     */
+    protected Request $request;
+
+    /**
+     * @param Request $request
+     */
     public function __construct(Request $request)
     {
         $this->request = $request;
@@ -31,7 +38,7 @@ class Response
      * Redirect the response
      *
      * @param string $url
-     * @param ?int $httpCode
+     * @param int|null $httpCode
      */
     public function redirect(string $url, ?int $httpCode = null): void
     {
@@ -63,6 +70,11 @@ class Response
         return $this;
     }
 
+    /**
+     * @param string $eTag
+     * @param int $lastModifiedTime
+     * @return $this
+     */
     public function cache(string $eTag, int $lastModifiedTime = 2592000): self
     {
 
@@ -87,7 +99,7 @@ class Response
     /**
      * Json encode
      * @param array|JsonSerializable $value
-     * @param ?int $options JSON options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_PRESERVE_ZERO_FRACTION, JSON_UNESCAPED_UNICODE, JSON_PARTIAL_OUTPUT_ON_ERROR.
+     * @param int|null $options JSON options Bitmask consisting of JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_PRESERVE_ZERO_FRACTION, JSON_UNESCAPED_UNICODE, JSON_PARTIAL_OUTPUT_ON_ERROR.
      * @param int $dept JSON debt.
      * @throws InvalidArgumentException
      */
