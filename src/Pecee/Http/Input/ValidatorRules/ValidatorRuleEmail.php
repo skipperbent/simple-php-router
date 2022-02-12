@@ -15,7 +15,7 @@ class ValidatorRuleEmail extends InputValidatorRule
     {
         if ($inputItem->getValue() === null)
             return false;
-        return filter_var($inputItem->getValue(), FILTER_VALIDATE_IP) !== false;
+        return filter_var($inputItem->getValue(), FILTER_VALIDATE_EMAIL) !== false;
     }
 
     public function getErrorMessage(): string

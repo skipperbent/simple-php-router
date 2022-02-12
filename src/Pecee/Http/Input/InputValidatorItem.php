@@ -57,10 +57,10 @@ class InputValidatorItem
         //Add "\\\\" to allow one Backslash
         //https://stackoverflow.com/questions/11044136/right-way-to-escape-backslash-in-php-regex/15369828#answer-15369828
         preg_match_all('/([a-zA-Z\\\\=\/<>]+)(?::((?:\\\\[:|]|[^:\|])+))?\|?/', $settings, $matches);
-        for($i = 0; $i < sizeof($matches[0]); $i++){
+        for ($i = 0; $i < sizeof($matches[0]); $i++) {
             $tag = $matches[1][$i];
-            $attributes = array_filter(explode(',', $matches[2][$i]), function($attribute){
-                return empty($attribute) ? false : $attribute;
+            $attributes = array_filter(explode(',', $matches[2][$i]), function ($attribute) {
+                return !empty($attribute);
             });
 
             $this->addRuleByTag($tag, $attributes);
@@ -122,9 +122,10 @@ class InputValidatorItem
      */
     public function validate(IInputItem $inputItem): bool
     {
+        $this->inputItem = $inputItem;
         $this->errors = array();
 
-        $nullable = array_filter($this->getRules(), function($rule) {
+        $nullable = array_filter($this->getRules(), function ($rule) {
             return $rule instanceof ValidatorRuleNullable;
         });
         // If the nullable rule is present and the value is null we move on without validation
@@ -142,8 +143,9 @@ class InputValidatorItem
     /**
      * @return IInputItem
      */
-    private function getInputItem(): IInputItem{
-        if($this->valid === null)
+    private function getInputItem(): IInputItem
+    {
+        if ($this->valid === null)
             throw new InputsNotValidatedException();
         return $this->inputItem;
     }
@@ -183,11 +185,12 @@ class InputValidatorItem
     /**
      * @return array
      */
-    public function getErrorMessages(): array{
-        if($this->valid === null)
+    public function getErrorMessages(): array
+    {
+        if ($this->valid === null)
             throw new InputsNotValidatedException();
         $messages = array();
-        foreach($this->getErrors() as $rule){
+        foreach ($this->getErrors() as $rule) {
             $messages[] = $rule->formatErrorMessage($this->getInputItem()->getIndex());
         }
         return $messages;
