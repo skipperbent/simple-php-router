@@ -2,17 +2,16 @@
 
 namespace Pecee\Http\Input\ValidatorRules;
 
-use Pecee\Http\Input\Exceptions\InputValidationException;
 use Pecee\Http\Input\IInputItem;
 use Pecee\Http\Input\InputFile;
 use Pecee\Http\Input\InputValidatorRule;
 
-class ValidatorRuleMax extends InputValidatorRule
+class ValidatorRuleSize extends InputValidatorRule
 {
 
-    protected $tag = 'max';
+    protected $tag = 'size';
 
-    public function getMax(): int
+    public function getSize(): int
     {
         if (sizeof($this->getAttributes()) > 0) {
             return is_int($this->getAttributes()[0]) ? intval($this->getAttributes()[0]) : floatval($this->getAttributes()[0]);
@@ -36,12 +35,12 @@ class ValidatorRuleMax extends InputValidatorRule
     {
         if ($inputItem->getValue() === null)
             return false;
-        return $this->getNumber($inputItem) <= $this->getMax();
+        return $this->getNumber($inputItem) === $this->getSize();
     }
 
     public function getErrorMessage(): string
     {
-        return 'The Input %s is too big';
+        return 'The Input %s has more than %s characteres';
     }
 
 }

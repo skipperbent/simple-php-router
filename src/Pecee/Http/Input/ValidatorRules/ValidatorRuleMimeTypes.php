@@ -3,16 +3,17 @@
 namespace Pecee\Http\Input\ValidatorRules;
 
 use Pecee\Http\Input\IInputItem;
+use Pecee\Http\Input\InputFile;
 use Pecee\Http\Input\InputValidatorRule;
 
-class ValidatorRuleString extends InputValidatorRule
+class ValidatorRuleMimeTypes extends InputValidatorRule
 {
 
-    protected $tag = 'string';
+    protected $tag = 'mime_types';
 
     public function validate(IInputItem $inputItem): bool
     {
-        return is_string($inputItem->getValue());
+        return is_a($inputItem, InputFile::class);
     }
 
     public function getErrorMessage(): string

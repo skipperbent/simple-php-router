@@ -28,7 +28,8 @@
   ],
   "require": {
     "php": ">=7.1",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-fileinfo": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "^7",
