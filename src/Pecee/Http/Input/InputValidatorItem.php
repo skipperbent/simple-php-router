@@ -7,6 +7,12 @@ use Pecee\Http\Input\ValidatorRules\ValidatorRuleMax;
 use Pecee\Http\Input\ValidatorRules\ValidatorRuleNullable;
 use Pecee\Http\Input\ValidatorRules\ValidatorRuleString;
 
+/**
+ * Class InputValidatorItem
+ * @package Pecee\Http\Input
+ *
+ * @method InputValidatorItem boolean()
+ */
 class InputValidatorItem
 {
 
