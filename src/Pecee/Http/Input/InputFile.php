@@ -129,8 +129,7 @@ class InputFile implements IInputItem
      */
     public function getMime(): string
     {
-        // The mime supplied by the client may not be the real mime of the file, so we try to get the real mime first
-        return @mime_content_type($this->getTmpName()) ?: $this->type;
+        return $this->type;
     }
 
     /**

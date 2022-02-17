@@ -12,6 +12,18 @@ use Pecee\Http\Input\ValidatorRules\ValidatorRuleString;
  * @package Pecee\Http\Input
  *
  * @method InputValidatorItem boolean()
+ * @method InputValidatorItem email()
+ * @method InputValidatorItem ends_with()
+ * @method InputValidatorItem file()
+ * @method InputValidatorItem ip()
+ * @method InputValidatorItem max($max)
+ *
+ * @method InputValidatorItem nullable()
+ * @method InputValidatorItem required()
+ * @method InputValidatorItem size()
+ * @method InputValidatorItem starts_with()
+ * @method InputValidatorItem string()
+ * @method InputValidatorItem xss()
  */
 class InputValidatorItem
 {
