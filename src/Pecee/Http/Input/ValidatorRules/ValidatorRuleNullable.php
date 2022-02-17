@@ -3,21 +3,22 @@
 namespace Pecee\Http\Input\ValidatorRules;
 
 use Pecee\Http\Input\IInputItem;
+use Pecee\Http\Input\InputFile;
 use Pecee\Http\Input\InputValidatorRule;
 
-class ValidatorRuleString extends InputValidatorRule
+class ValidatorRuleNullable extends InputValidatorRule
 {
 
-    protected $tag = 'string';
+    protected $tag = 'nullable';
 
     public function validate(IInputItem $inputItem): bool
     {
-        return is_string($inputItem->getValue());
+        return true;
     }
 
     public function getErrorMessage(): string
     {
-        return 'The Input %s is not of type string';
+        return '';
     }
 
 }

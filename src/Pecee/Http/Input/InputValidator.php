@@ -7,7 +7,8 @@ use Pecee\Http\Input\Exceptions\InputsNotValidatedException;
 use Pecee\Http\Input\Exceptions\InputValidationException;
 use Pecee\Http\Request;
 
-class InputValidator{
+class InputValidator
+{
 
     /* Static config settings */
 
@@ -20,14 +21,16 @@ class InputValidator{
     /**
      * @param bool $throwExceptions
      */
-    public static function setThrowExceptions(bool $throwExceptions): void{
+    public static function setThrowExceptions(bool $throwExceptions): void
+    {
         self::$throwExceptions = $throwExceptions;
     }
 
     /**
      * @return bool
      */
-    public static function isThrowExceptions(): bool{
+    public static function isThrowExceptions(): bool
+    {
         return self::$throwExceptions;
     }
 
@@ -39,14 +42,16 @@ class InputValidator{
     /**
      * @param string $customValidatorRuleNamespace
      */
-    public static function setCustomValidatorRuleNamespace(string $customValidatorRuleNamespace): void{
+    public static function setCustomValidatorRuleNamespace(string $customValidatorRuleNamespace): void
+    {
         self::$customValidatorRuleNamespace = $customValidatorRuleNamespace;
     }
 
     /**
      * @return string|null
      */
-    public static function getCustomValidatorRuleNamespace(): ?string{
+    public static function getCustomValidatorRuleNamespace(): ?string
+    {
         return self::$customValidatorRuleNamespace;
     }
 
@@ -73,22 +78,26 @@ class InputValidator{
      * Creates a new InputValidator
      * @return InputValidator
      */
-    public static function make(): InputValidator{
+    public static function make(): InputValidator
+    {
         return new InputValidator();
     }
 
-    public function __construct(){}
+    public function __construct()
+    {
+    }
 
     /**
      * @param $settings
      * @return self
      */
-    public function parseSettings($settings): self{
-        if(is_array($settings)){
-            foreach($settings as $key => $item){
-                if($item instanceof InputValidatorItem)
+    public function parseSettings($settings): self
+    {
+        if (is_array($settings)) {
+            foreach ($settings as $key => $item) {
+                if ($item instanceof InputValidatorItem)
                     $this->add($item);
-                else if(is_string($item) && is_string($key)){
+                else if (is_string($item) && is_string($key)) {
                     $itemObject = InputValidatorItem::make($key);
                     $itemObject->parseSettings($item);
                     $this->add($itemObject);
@@ -102,7 +111,8 @@ class InputValidator{
      * @param string|Closure $callback
      * @return self
      */
-    protected function rewriteCallbackOnFailure(string $callback): self{
+    protected function rewriteCallbackOnFailure(string $callback): self
+    {
         $this->rewriteCallbackOnFailure = $callback;
         return $this;
     }
@@ -110,7 +120,8 @@ class InputValidator{
     /**
      * @return InputValidatorItem[]
      */
-    public function getItems(): array{
+    public function getItems(): array
+    {
         return $this->items;
     }
 
@@ -118,7 +129,8 @@ class InputValidator{
      * @param InputValidatorItem $validator
      * @return self
      */
-    public function add(InputValidatorItem $validator): self{
+    public function add(InputValidatorItem $validator): self
+    {
         $this->items[] = $validator;
         return $this;
     }
@@ -128,7 +140,8 @@ class InputValidator{
      * @param InputValidatorItem[] $items
      * @return self
      */
-    public function items(array $items): self{
+    public function items(array $items): self
+    {
         $this->items = $items;
         return $this;
     }
@@ -138,21 +151,22 @@ class InputValidator{
      * @param Request $request
      * @return bool
      */
-    public function validate(Request $request): bool{
+    public function validate(Request $request): bool
+    {
         $this->errors = array();
         $inputHandler = $request->getInputHandler();
-        foreach($this->getItems() as $item){
+        foreach ($this->getItems() as $item) {
             $inputItem = $inputHandler->find($item->getKey());
-            if(!$inputItem instanceof IInputItem){
+            if (!$inputItem instanceof IInputItem) {
                 $inputItem = new InputItem($item->getKey(), $inputItem);
             }
             $callback = $item->validate($inputItem);
-            if(!$callback)
+            if (!$callback)
                 $this->errors[] = $item;
         }
         $this->valid = empty($this->errors);
-        if($this->fails()){
-            if($this->rewriteCallbackOnFailure !== null)
+        if ($this->fails()) {
+            if ($this->rewriteCallbackOnFailure !== null)
                 $request->setRewriteCallback($this->rewriteCallbackOnFailure);
             if(self::isThrowExceptions()){
                 throw new InputValidationException('Failed to validate inputs', $this->getErrors());
@@ -165,8 +179,9 @@ class InputValidator{
      * Check if inputs passed validation
      * @return bool
      */
-    public function passes(): bool{
-        if($this->valid === null)
+    public function passes(): bool
+    {
+        if ($this->valid === null)
             throw new InputsNotValidatedException();
         return $this->valid;
     }
@@ -175,8 +190,9 @@ class InputValidator{
      * Check if inputs failed valida
      * @return bool
      */
-    public function fails(): bool{
-        if($this->valid === null)
+    public function fails(): bool
+    {
+        if ($this->valid === null)
             throw new InputsNotValidatedException();
         return !$this->valid;
     }
@@ -184,8 +200,9 @@ class InputValidator{
     /**
      * @return InputValidatorItem[]|null
      */
-    public function getErrors(): ?array{
-        if($this->valid === null)
+    public function getErrors(): ?array
+    {
+        if ($this->valid === null)
             throw new InputsNotValidatedException();
         return $this->errors;
     }
