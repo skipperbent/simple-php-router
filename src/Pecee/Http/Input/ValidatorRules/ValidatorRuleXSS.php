@@ -17,8 +17,10 @@ class ValidatorRuleXSS extends InputValidatorRule{
 REGEXP;
 
     protected $tag = 'XSS';
+    protected $requires = array('string');
 
-    public function validate(IInputItem $inputItem): bool{
+    public function validate(IInputItem $inputItem): bool
+    {
         $value = strtolower($inputItem->getValue());
         $value = html_entity_decode($value);
         $value = urldecode($value);
@@ -26,11 +28,13 @@ REGEXP;
         return empty($matches);
     }
 
-    public function getErrorMessage(): string{
+    public function getErrorMessage(): string
+    {
         return 'The Input %s has XSS contents';
     }
 
-    private function generateRegEx(){
+    private function generateRegEx()
+    {
         $tags = array('script', 'x:script', 'meta', 'applet', 'object', 'source', 'link', 'iframe', 'frameset', 'embed');
         $script_starts_tmp = array('javascript', 'vbscript', 'livescript', 'background-image');
         $script_starts_breakers = '(?:&#[a-z0-9]+;?|\\\\\\\\0|\s)?';//|<!--(?:.|\n)*?-->|\/\*(?:.|\n)*?\*\/

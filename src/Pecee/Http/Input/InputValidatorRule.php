@@ -4,9 +4,23 @@ namespace Pecee\Http\Input;
 
 abstract class InputValidatorRule implements IInputValidatorRule{
 
+    /**
+     * @var string $tag
+     */
     protected $tag = null;
+    /**
+     * @var array $attributes
+     */
     protected $attributes;
+    /**
+     * @var array $requires
+     */
+    protected $requires = array();
 
+    /**
+     * @param ...$attributes
+     * @return InputValidatorRule
+     */
     public static function make(...$attributes): InputValidatorRule{
         return new static(...$attributes);
     }
@@ -30,6 +44,13 @@ abstract class InputValidatorRule implements IInputValidatorRule{
      */
     public function getAttributes(): array{
         return $this->attributes;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRequiredRules(): array{
+        return $this->requires;
     }
 
     /**

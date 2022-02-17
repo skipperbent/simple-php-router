@@ -10,6 +10,7 @@ class ValidatorRuleSize extends InputValidatorRule
 {
 
     protected $tag = 'size';
+    protected $requires = array('file', 'array', 'numeric', 'string');
 
     public function getSize(): int
     {
@@ -19,22 +20,26 @@ class ValidatorRuleSize extends InputValidatorRule
         return 0;
     }
 
-    public function getNumber($input)
+    /**
+     * @param IInputItem $input
+     * @return float|int|null
+     */
+    public function getNumber(IInputItem $input)
     {
         if (is_a($input, InputFile::class))
             return intval($input->getSize()) / 1024; // Size in Kb
-        if (is_array($input))
-            return count($input);
-        if (is_numeric($input))
-            return is_int($input) ? intval($input) : floatval($input);
-
-        return strlen($input);
+        $input_value = $input->getValue();
+        if (is_array($input_value))
+            return count($input_value);
+        if (is_numeric($input_value))
+            return is_int($input_value) ? $input_value : floatval($input_value);
+        if(is_string($input_value))
+            return strlen($input_value);
+        return null;
     }
 
     public function validate(IInputItem $inputItem): bool
     {
-        if ($inputItem->getValue() === null)
-            return false;
         return $this->getNumber($inputItem) === $this->getSize();
     }
 

@@ -5,21 +5,20 @@ namespace Pecee\Http\Input\ValidatorRules;
 use Pecee\Http\Input\IInputItem;
 use Pecee\Http\Input\InputValidatorRule;
 
-class ValidatorRuleBoolean extends InputValidatorRule
+class ValidatorRuleInteger extends InputValidatorRule
 {
 
-    protected $tag = 'boolean';
+    protected $tag = 'integer';
     protected $requires = array('required');
 
     public function validate(IInputItem $inputItem): bool
     {
-        $accepted = [true, false, 'true', 'false', 1, 0, '1', '0'];
-        return in_array($inputItem->getValue(), $accepted, true);
+        return is_int($inputItem->getValue()) || (is_numeric($inputItem->getValue()) && strpos($inputItem->getValue(), '.') === false);
     }
 
     public function getErrorMessage(): string
     {
-        return 'The Input %s is not of type boolean';
+        return 'The Input %s is not of type integer';
     }
 
 }

@@ -5,9 +5,9 @@ namespace Dummy\InputValidatorRules;
 use Pecee\Http\Input\IInputItem;
 use Pecee\Http\Input\InputValidatorRule;
 
-class ValidatorRuleCustom extends InputValidatorRule{
+class ValidatorRuleCustomTest extends InputValidatorRule{
 
-    protected $tag = 'custom';
+    protected $tag = 'customTest';
 
     /**
      * @param IInputItem $inputItem

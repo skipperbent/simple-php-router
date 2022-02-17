@@ -5,21 +5,22 @@ namespace Pecee\Http\Input\ValidatorRules;
 use Pecee\Http\Input\IInputItem;
 use Pecee\Http\Input\InputValidatorRule;
 
-class ValidatorRuleBoolean extends InputValidatorRule
+class ValidatorRuleEquals extends InputValidatorRule
 {
 
-    protected $tag = 'boolean';
+    protected $tag = 'equals';
     protected $requires = array('required');
 
     public function validate(IInputItem $inputItem): bool
     {
-        $accepted = [true, false, 'true', 'false', 1, 0, '1', '0'];
-        return in_array($inputItem->getValue(), $accepted, true);
+        if(sizeof($this->getAttributes()) > 0)
+            return $inputItem->getValue() == $this->getAttributes()[0];
+        return false;
     }
 
     public function getErrorMessage(): string
     {
-        return 'The Input %s is not of type boolean';
+        return 'The Input %s is not equal to %2$s';
     }
 
 }

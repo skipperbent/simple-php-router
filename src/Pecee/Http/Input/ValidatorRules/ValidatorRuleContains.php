@@ -5,11 +5,11 @@ namespace Pecee\Http\Input\ValidatorRules;
 use Pecee\Http\Input\IInputItem;
 use Pecee\Http\Input\InputValidatorRule;
 
-class ValidatorRuleStartsWith extends InputValidatorRule
+class ValidatorRuleContains extends InputValidatorRule
 {
 
-    protected $tag = 'starts_with';
-    protected $requires = array('string', 'numeric', 'array');
+    protected $tag = 'contains';
+    protected $requires = array('string', 'array');
 
     /**
      * @param array $value
@@ -23,26 +23,24 @@ class ValidatorRuleStartsWith extends InputValidatorRule
 
     public function validate(IInputItem $inputItem): bool
     {
-        if(is_string($inputItem->getValue()) || is_numeric($inputItem->getValue())){
-            $value = strval($inputItem->getValue());
+        if(is_string($inputItem->getValue())){
             foreach($this->getAttributes() as $attribute){
-                if(strncmp($value, $attribute, strlen($attribute)) === 0)
+                if(strpos($inputItem->getValue(), $attribute) !== false)
                     return true;
             }
             return false;
         }
-
         if(is_array($inputItem->getValue())){
             if($this->isAssociativeArray($inputItem->getValue())){
-                //Support for PHP 7.1, array_key_first since PHP 7.3
-                $key = array_keys($inputItem->getValue())[0];
-                $first_value = $inputItem->getValue()[$key];
+                foreach($this->getAttributes() as $attribute){
+                    if(array_search($attribute, $inputItem->getValue()) !== false)
+                        return true;
+                }
             }else{
-                $first_value = $inputItem->getValue()[0];
-            }
-            foreach($this->getAttributes() as $attribute){
-                if($first_value === $attribute)
-                    return true;
+                foreach($this->getAttributes() as $attribute){
+                    if(in_array($attribute, $inputItem->getValue()))
+                        return true;
+                }
             }
             return false;
         }
@@ -52,7 +50,7 @@ class ValidatorRuleStartsWith extends InputValidatorRule
 
     public function getErrorMessage(): string
     {
-        return 'The Input %s must start with %s';
+        return 'The Input %s does not contain %2$s';
     }
 
 }

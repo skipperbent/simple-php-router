@@ -4,6 +4,7 @@ namespace Pecee\Http\Input\Exceptions;
 
 use Exception;
 use Pecee\Http\Input\InputValidatorItem;
+use Pecee\Http\Input\InputValidatorRule;
 use Throwable;
 
 class InputValidationException extends Exception
@@ -27,6 +28,17 @@ class InputValidationException extends Exception
     }
 
     /**
+     * @return InputValidatorRule[]|null
+     */
+    public function getErrorsForItem(string $key): ?array{
+        foreach($this->getErrors() as $item){
+            if($item->getKey() == $key)
+                return $item->getErrors();
+        }
+        return null;
+    }
+
+    /**
      * @return array[]
      */
     public function getErrorMessages(): array{
@@ -43,9 +55,9 @@ class InputValidationException extends Exception
     public function getDetailedMessage(): string{
         $messages = array();
         foreach($this->getErrors() as $item){
-            $messages[] = join(',', $item->getErrorMessages());
+            $messages[] = join(', ', $item->getErrorMessages());
         }
-        return 'Failed to validate inputs: ' . join(';', $messages);
+        return 'Failed to validate inputs: ' . join('; ', $messages);
     }
 
 }

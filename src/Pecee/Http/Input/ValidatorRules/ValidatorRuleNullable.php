@@ -3,7 +3,6 @@
 namespace Pecee\Http\Input\ValidatorRules;
 
 use Pecee\Http\Input\IInputItem;
-use Pecee\Http\Input\InputFile;
 use Pecee\Http\Input\InputValidatorRule;
 
 class ValidatorRuleNullable extends InputValidatorRule

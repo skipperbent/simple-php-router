@@ -97,7 +97,7 @@ class InputValidator
             foreach ($settings as $key => $item) {
                 if ($item instanceof InputValidatorItem)
                     $this->add($item);
-                else if (is_string($item) && is_string($key)) {
+                else if ((is_string($item) || is_array($item) || $item instanceof InputValidatorRule) && is_string($key)) {
                     $itemObject = InputValidatorItem::make($key);
                     $itemObject->parseSettings($item);
                     $this->add($itemObject);

@@ -9,6 +9,7 @@ class ValidatorRuleString extends InputValidatorRule
 {
 
     protected $tag = 'string';
+    protected $requires = array('required');
 
     public function validate(IInputItem $inputItem): bool
     {

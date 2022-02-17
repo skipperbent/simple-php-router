@@ -3,8 +3,9 @@
 use Pecee\Http\Input\Exceptions\InputValidationException;
 use Pecee\Http\Input\InputValidator;
 use Pecee\Http\Input\InputValidatorItem;
+use Pecee\Http\Input\ValidatorRules\ValidatorRuleCustom;
 
-require_once 'Dummy/InputValidatorRules/ValidatorRuleCustom.php';
+require_once 'Dummy/InputValidatorRules/ValidatorRuleCustomTest.php';
 require_once 'Dummy/DummyController.php';
 
 class InputValidationTest extends \PHPUnit\Framework\TestCase
@@ -28,13 +29,13 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
                         InputValidatorItem::make('fullname')->string()->max(14)->startsWith('Max')->endsWith('mann')
                     )
                     ->add(
-                        InputValidatorItem::make('isAdmin')->required()->boolean()
+                        InputValidatorItem::make('isAdmin')->boolean()
                     )
                     ->add(
-                        InputValidatorItem::make('email')->required()->email()
+                        InputValidatorItem::make('email')->email()
                     )
                     ->add(
-                        InputValidatorItem::make('ip')->required()->ip()
+                        InputValidatorItem::make('ip')->ip()
                     )
                     ->add(
                         InputValidatorItem::make('nullable')->nullable()
@@ -66,13 +67,13 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
                         InputValidatorItem::make('fullname')->string()->max(10)->startsWith('Maxx')->endsWith('x')
                     )
                     ->add(
-                        InputValidatorItem::make('isAdmin')->required()->boolean()
+                        InputValidatorItem::make('isAdmin')->boolean()
                     )
                     ->add(
-                        InputValidatorItem::make('email')->required()->email()
+                        InputValidatorItem::make('email')->email()
                     )
                     ->add(
-                        InputValidatorItem::make('ip')->required()->ip()
+                        InputValidatorItem::make('ip')->ip()
                     )
                     ->add(
                         InputValidatorItem::make('nullable')->required()
@@ -97,9 +98,9 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
         TestRouter::get('/my/test/url', 'DummyController@method3')
             ->validateInputs([
                 'fullname' => 'string|max:14|starts_with:Max|ends_with:mann',
-                'isAdmin' => 'required|boolean',
-                'email' => 'required|email',
-                'ip' => 'required|ip',
+                'isAdmin' => 'boolean',
+                'email' => 'email',
+                'ip' => 'ip',
                 'nullable' => 'nullable'
             ]);
 
@@ -124,9 +125,9 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
         TestRouter::get('/my/test/url', 'DummyController@method1')
             ->validateInputs([
                 'fullname' => 'string|max:10|starts_with:Maxx|ends_with:x',
-                'isAdmin' => 'required|boolean',
-                'email' => 'required|email',
-                'ip' => 'reuquired|ip',
+                'isAdmin' => 'boolean',
+                'email' => 'email',
+                'ip' => 'ip',
                 'nullable' => 'required'
             ]);
 
@@ -149,9 +150,9 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
         TestRouter::get('/my/test/url', 'DummyController@method1')
             ->validateInputs([
                 'fullname' => 'string|max:10|starts_with:Maxx|ends_with:x',
-                'isAdmin' => 'required|boolean',
-                'email' => 'required|email',
-                'ip' => 'reuquired|ip',
+                'isAdmin' => 'boolean',
+                'email' => 'email',
+                'ip' => 'ip',
                 'nullable' => 'required'
             ]);
 
@@ -171,7 +172,7 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
 
         TestRouter::get('/my/test/url', 'DummyController@method3')
             ->validateInputs([
-                'customParam' => 'custom'
+                'customParam' => 'customTest'
             ]);
 
         $output = TestRouter::debugOutput('/my/test/url', 'get');
@@ -230,7 +231,70 @@ class InputValidationTest extends \PHPUnit\Framework\TestCase
         $this->expectException(InputValidationException::class);
         TestRouter::get('/my/test/url', 'DummyController@method3')
             ->validateInputs([
-                'customParam' => 'Dummy\InputValidatorRules\ValidatorRuleCustom'
+                'customParam' => 'Dummy\InputValidatorRules\ValidatorRuleCustomTest'
+            ]);
+
+        TestRouter::debug('/my/test/url', 'get');
+    }
+
+    public function testCustomInputValidatorRule3()
+    {
+        TestRouter::resetRouter();
+        global $_GET;
+
+        $_GET = [
+            'customParam' => 'notCustomValue'
+        ];
+
+        TestRouter::get('/my/test/url', 'DummyController@method3')
+            ->validateInputs([
+                'customParam' => [
+                    ValidatorRuleCustom::make(function(\Pecee\Http\Input\IInputItem $item){
+                        return $item->getValue() == 'notCustomValue';
+                    })
+                ]
+            ]);
+
+        $output = TestRouter::debugOutput('/my/test/url', 'get');
+
+        $this->assertEquals('method3', $output);
+    }
+
+    public function testCustomInputValidatorRuleFailed3()
+    {
+        TestRouter::resetRouter();
+        global $_GET;
+
+        $_GET = [
+            'customParam' => 'notCustomValue'
+        ];
+
+        $this->expectException(InputValidationException::class);
+        TestRouter::get('/my/test/url', 'DummyController@method3')
+            ->validateInputs([
+                'customParam' => [
+                    ValidatorRuleCustom::make(function(\Pecee\Http\Input\IInputItem $item){
+                        return $item->getValue() !== 'notCustomValue';
+                    })
+                ]
+            ]);
+
+        TestRouter::debug('/my/test/url', 'get');
+    }
+
+    public function testCustomInputValidatorRuleRequireFailed()
+    {
+        TestRouter::resetRouter();
+        global $_GET;
+
+        $_GET = [
+            'emailAddress' => 1
+        ];
+
+        $this->expectException(InputValidationException::class);
+        TestRouter::get('/my/test/url', 'DummyController@method3')
+            ->validateInputs([
+                'emailAddress' => 'email'
             ]);
 
         TestRouter::debug('/my/test/url', 'get');

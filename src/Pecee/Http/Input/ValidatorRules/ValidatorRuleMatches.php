@@ -5,21 +5,22 @@ namespace Pecee\Http\Input\ValidatorRules;
 use Pecee\Http\Input\IInputItem;
 use Pecee\Http\Input\InputValidatorRule;
 
-class ValidatorRuleBoolean extends InputValidatorRule
+class ValidatorRuleMatches extends InputValidatorRule
 {
 
-    protected $tag = 'boolean';
+    protected $tag = 'matches';
     protected $requires = array('required');
 
     public function validate(IInputItem $inputItem): bool
     {
-        $accepted = [true, false, 'true', 'false', 1, 0, '1', '0'];
-        return in_array($inputItem->getValue(), $accepted, true);
+        if(sizeof($this->getAttributes()) > 0)
+            return preg_match($this->getAttributes()[0], $inputItem->getValue());
+        return false;
     }
 
     public function getErrorMessage(): string
     {
-        return 'The Input %s is not of type boolean';
+        return 'The Input %s do not match RegEx';
     }
 
 }
