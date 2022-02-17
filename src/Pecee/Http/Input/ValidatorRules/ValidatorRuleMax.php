@@ -12,7 +12,10 @@ class ValidatorRuleMax extends InputValidatorRule
 
     protected $tag = 'max';
 
-    public function getMax(): int
+    /**
+     * @return float|int
+     */
+    private function getMax()
     {
         if (sizeof($this->getAttributes()) > 0) {
             return is_int($this->getAttributes()[0]) ? intval($this->getAttributes()[0]) : floatval($this->getAttributes()[0]);
@@ -20,7 +23,11 @@ class ValidatorRuleMax extends InputValidatorRule
         return 0;
     }
 
-    public function getNumber($input)
+    /**
+     * @param $input
+     * @return float|int
+     */
+    private function getNumber($input)
     {
         if (is_a($input, InputFile::class))
             return intval($input->getSize()) / 1024; // Size in Kb

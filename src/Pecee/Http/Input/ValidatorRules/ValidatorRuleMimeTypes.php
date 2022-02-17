@@ -13,7 +13,12 @@ class ValidatorRuleMimeTypes extends InputValidatorRule
 
     public function validate(IInputItem $inputItem): bool
     {
-        return is_a($inputItem, InputFile::class);
+        if (sizeof($this->getAttributes()) > 0) {
+            if(is_a($inputItem, InputFile::class)){
+                return $this->getAttributes()[0] === $inputItem->getMime();
+            }
+        }
+        return false;
     }
 
     public function getErrorMessage(): string
