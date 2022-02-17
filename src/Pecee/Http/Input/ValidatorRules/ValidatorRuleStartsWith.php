@@ -14,7 +14,7 @@ class ValidatorRuleStartsWith extends InputValidatorRule
     {
         $value = strval($inputItem->getValue());
         foreach ($this->getAttributes() as $attribute) {
-            if (strpos($value, $attribute) === 0)
+            if(strncmp($value, $attribute, strlen($attribute)) === 0)
                 return true;
         }
 
