@@ -13,15 +13,15 @@ use Pecee\Http\Input\ValidatorRules\ValidatorRuleString;
  *
  * @method InputValidatorItem boolean()
  * @method InputValidatorItem email()
- * @method InputValidatorItem ends_with()
+ * @method InputValidatorItem endsWith($value)
  * @method InputValidatorItem file()
  * @method InputValidatorItem ip()
- * @method InputValidatorItem max($max)
+ * @method InputValidatorItem max($value)
  *
  * @method InputValidatorItem nullable()
  * @method InputValidatorItem required()
  * @method InputValidatorItem size()
- * @method InputValidatorItem starts_with()
+ * @method InputValidatorItem startsWith($value)
  * @method InputValidatorItem string()
  * @method InputValidatorItem xss()
  */

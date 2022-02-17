@@ -18,8 +18,7 @@ class ValidatorRuleEndsWith extends InputValidatorRule
 
         $value = strval($inputItem->getValue());
         foreach ($this->getAttributes() as $attribute) {
-            $expectedPosition = strlen($value) - strlen($attribute) - 1;
-            if (strpos($value, $attribute) === $expectedPosition)
+            if(substr($value, -1 * strlen($attribute)) === $attribute)
                 return true;
         }
 
