@@ -124,6 +124,7 @@ abstract class Route implements IRoute
 
         // Ensures that host names/domains will work with parameters
         $url = '/' . ltrim($url, '/');
+        $url = urldecode($url);
         $urlRegex = '';
         $parameters = [];
 
