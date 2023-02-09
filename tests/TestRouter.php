@@ -48,4 +48,17 @@ class TestRouter extends \Pecee\SimpleRouter\SimpleRouter
         return $response;
     }
 
+    public static function debugOutputNoReset(string $testUrl, string $testMethod = 'get', bool $reset = true): string
+    {
+        $response = null;
+
+        // Route request
+        ob_start();
+        static::debugNoReset($testUrl, $testMethod, $reset);
+        $response = ob_get_clean();
+
+        // Return response
+        return $response;
+    }
+
 }

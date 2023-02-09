@@ -177,6 +177,70 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
 
         $this->assertFalse($result);
 
+    }    
+    
+    public function testFixedSubdomainDynamicDomain()
+    {
+        TestRouter::request()->setHost('other.world.com');
+
+        $result = false;
+
+        TestRouter::group(['domain' => 'other.{domain}'], function () use (&$result) {
+            TestRouter::get('/test', function ($domain = null) use (&$result) {
+
+                $result = true;
+            });
+        });
+
+        TestRouter::debug('/test', 'get');
+
+        $this->assertTrue($result);
+
+    }
+
+    public function testFixedSubdomainDynamicDomainParameter()
+    {
+        TestRouter::request()->setHost('other.world.com');
+
+        $result = false;
+
+        TestRouter::group(['domain' => 'other.{domain}'], function () use (&$result) {
+            TestRouter::get('/test', 'DummyController@param');
+            TestRouter::get('/test/{key}', 'DummyController@param');
+        });
+
+        $response = TestRouter::debugOutputNoReset('/test', 'get');
+
+        $this->assertEquals('world.com', $response);
+
+        $response = TestRouter::debugOutput('/test/unittest', 'get');
+
+        $this->assertEquals('unittest, world.com', $response);
+
+    }
+
+    public function testWrongFixedSubdomainDynamicDomain()
+    {
+        TestRouter::request()->setHost('wrong.world.com');
+
+        $result = false;
+
+        TestRouter::group(['domain' => 'other.{domain}'], function () use (&$result) {
+            TestRouter::get('/test', function ($domain = null) use (&$result) {
+
+                $result = true;
+            });
+        });
+
+        try {
+            TestRouter::debug('/test', 'get');
+        } catch(\Exception $e) {
+
+        }
+
+
+        $this->assertFalse($result);
+
     }
 
     public function testRegEx()
