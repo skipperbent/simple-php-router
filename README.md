@@ -972,6 +972,12 @@ If you do not want a redirect, but want the error-page rendered on the current-u
 $request->setRewriteCallback('ErrorController@notFound');
 ```
 
+If you will set the correct status for the browser error use:
+
+```php
+SimpleRouter::response()->httpCode(404);
+```
+
 ## Using custom exception handlers
 
 This is a basic example of an ExceptionHandler implementation (please see "[Easily overwrite route about to be loaded](#easily-overwrite-route-about-to-be-loaded)" for examples on how to change callback).

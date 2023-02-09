@@ -35,6 +35,12 @@ class Router
      * @var bool
      */
     protected $isProcessingRoute;
+    
+    /**
+     * Defines all data from current processing route.
+     * @var ILoadableRoute
+     */
+    protected $currentProcessingRoute;
 
     /**
      * All added routes
@@ -371,6 +377,9 @@ class Router
             foreach ($this->processedRoutes as $key => $route) {
 
                 $this->debug('Matching route "%s"', get_class($route));
+                
+                /* Add current processing route to constants */
+                $this->currentProcessingRoute = $route;
 
                 /* If the route matches */
                 if ($route->matchRoute($url, $this->request) === true) {
@@ -926,6 +935,16 @@ class Router
     public function getDebugLog(): array
     {
         return $this->debugList;
+    }
+    
+    /**
+     * Get the current processing route details.
+     *
+     * @return ILoadableRoute
+     */
+    public function getCurrentProcessingRoute(): ILoadableRoute
+    {
+        return $this->currentProcessingRoute;
     }
 
     /**
