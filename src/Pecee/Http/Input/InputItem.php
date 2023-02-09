@@ -81,7 +81,7 @@ class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
         return isset($this->value[$offset]);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): ?self
     {
         if ($this->offsetExists($offset) === true) {
             return $this->value[$offset];
