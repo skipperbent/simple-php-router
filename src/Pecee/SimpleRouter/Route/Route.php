@@ -123,7 +123,8 @@ abstract class Route implements IRoute
             );
 
         // Ensures that host names/domains will work with parameters
-        $url = '/' . ltrim($url, '/');
+        
+        if($route[0] == '{') $url = '/' . ltrim($url, '/');
         $urlRegex = '';
         $parameters = [];
 
@@ -131,7 +132,7 @@ abstract class Route implements IRoute
             $urlRegex = preg_quote($route, '/');
         } else {
 
-            foreach (preg_split('/((-?\/?){[^}]+})/', $route) as $key => $t) {
+            foreach (preg_split('/((\.?-?\/?){[^}]+})/', $route) as $key => $t) {
 
                 $regex = '';
 
@@ -146,7 +147,7 @@ abstract class Route implements IRoute
                         $regex = $parameterRegex ?? $this->defaultParameterRegex ?? static::PARAMETERS_DEFAULT_REGEX;
                     }
 
-                    $regex = sprintf('((\/|-)(?P<%2$s>%3$s))%1$s', $parameters[2][$key], $name, $regex);
+                    $regex = sprintf('((\/|-|\.)(?P<%2$s>%3$s))%1$s', $parameters[2][$key], $name, $regex);
                 }
 
                 $urlRegex .= preg_quote($t, '/') . $regex;
