@@ -195,7 +195,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      */
     public function hasName(string $name): bool
     {
-        return strtolower($this->name) === strtolower($name);
+        return strtolower((string)$this->name) === strtolower((string)$name);
     }
 
     /**
