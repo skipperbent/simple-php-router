@@ -47,5 +47,10 @@
     "psr-4": {
       "Pecee\\": "src/Pecee/"
     }
+  },
+  "config": {
+    "allow-plugins": {
+      "ocramius/package-versions": true
+    }
   }
 }
