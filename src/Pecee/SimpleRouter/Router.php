@@ -608,7 +608,7 @@ class Router
             if (strpos($name, '@') !== false) {
                 [$controller, $method] = array_map('strtolower', explode('@', $name));
 
-                if ($controller === strtolower($route->getClass()) && $method === strtolower($route->getMethod())) {
+                if ($controller === strtolower((string)$route->getClass()) && $method === strtolower((string)$route->getMethod())) {
                     $this->debug('Found route "%s" by controller "%s" and method "%s"', $route->getUrl(), $controller, $method);
 
                     return $route;
