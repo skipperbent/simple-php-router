@@ -17,8 +17,8 @@ jobs:
           - ubuntu-latest
           - windows-latest
         php-version:
-          - 7.1
           - 7.4
+          - 8.0
         phpunit-version:
           - 7.5.20
         dependencies:
