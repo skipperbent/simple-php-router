@@ -106,7 +106,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
             return false;
         }
 
-        $action = strtolower(trim($this->parameters['action']));
+        $action = strtolower(trim((string)$this->parameters['action']));
         $id = $this->parameters['id'];
 
         // Remove action parameter
