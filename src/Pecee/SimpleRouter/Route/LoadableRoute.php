@@ -167,7 +167,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
             if (stripos($url, $param1) !== false || stripos($url, $param) !== false) {
                 /* Add parameter to the correct position */
-                $url = str_ireplace([sprintf($param1, $param), sprintf($param2, $param)], $value, $url);
+                $url = str_ireplace([sprintf($param1, $param), sprintf($param2, $param)], (string)$value, $url);
             } else {
                 /* Parameter aren't recognized and will be appended at the end of the url */
                 $url .= $value . '/';
