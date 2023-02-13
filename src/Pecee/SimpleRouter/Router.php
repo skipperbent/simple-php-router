@@ -342,8 +342,12 @@ class Router
                 'csrfVerifier' => $this->csrfVerifier,
             ]);
 
-            /* Verify csrf token for request */
-            $this->csrfVerifier->handle($this->request);
+            try {
+                /* Verify csrf token for request */
+                $this->csrfVerifier->handle($this->request);
+            } catch(\Exception $e) {
+                $this->handleException($e);
+            }
         }
 
         $output = $this->routeRequest();
