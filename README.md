@@ -36,11 +36,12 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 		- [Available methods](#available-methods)
 		- [Multiple HTTP-verbs](#multiple-http-verbs)
 	- [Route parameters](#route-parameters)
-		- [Required parameters](#required-parameters)
-		- [Optional parameters](#optional-parameters)
-		- [Regular expression constraints](#regular-expression-constraints)
-		- [Regular expression route-match](#regular-expression-route-match)
-		- [Custom regex for matching parameters](#custom-regex-for-matching-parameters)
+        - [Required parameters](#required-parameters)
+        - [Optional parameters](#optional-parameters)
+        - [Including slash in parameters](#including-slash-in-parameters)
+        - [Regular expression constraints](#regular-expression-constraints)
+        - [Regular expression route-match](#regular-expression-route-match)
+        - [Custom regex for matching parameters](#custom-regex-for-matching-parameters)
 	- [Named routes](#named-routes)
 		- [Generating URLs To Named Routes](#generating-urls-to-named-routes)
 	- [Router groups](#router-groups)
@@ -489,6 +490,28 @@ SimpleRouter::get('/user/{name?}', function ($name = 'Simon') {
     return $name;
 });
 ```
+
+### Including slash in parameters
+
+If you're working with WebDAV services the url could mean the difference between a file and a folder.
+
+For instance `/path` will be considered a file - whereas `/path/` will be considered a folder.
+
+The router can add the ending slash for the last parameter in your route based on the path. So if `/path/` is requested the parameter will contain the value of `path/` and visa versa.
+
+To ensure compatibility with older versions, this feature is disabled by default and has to be enabled by setting 
+the `setSettings(['includeSlash' => true])` or by using setting `setSlashParameterEnabled(true)` for your route.
+
+**Example**
+
+```php
+SimpleRouter::get('/path/{fileOrFolder}', function ($fileOrFolder) {
+	return $fileOrFolder;
+})->setSettings(['includeSlash' => true]);
+```
+
+- Requesting `/path/file` will return the `$fileOrFolder` value: `file`.
+- Requesting `/path/folder/` will return the `$fileOrFolder` value: `folder/`.
 
 ### Regular expression constraints
 
