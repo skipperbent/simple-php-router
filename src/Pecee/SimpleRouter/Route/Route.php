@@ -21,6 +21,12 @@ abstract class Route implements IRoute
     protected $filterEmptyParams = true;
 
     /**
+     * If true the last parameter of the route will include ending trail/slash.
+     * @var bool
+     */
+    protected $slashParameterEnabled = false;
+
+    /**
      * Default regular expression used for parsing parameters.
      * @var string|null
      */
@@ -111,7 +117,7 @@ abstract class Route implements IRoute
         return $router->getClassLoader()->loadClassMethod($class, $method, $parameters);
     }
 
-    protected function parseParameters($route, $url, $parameterRegex = null): ?array
+    protected function parseParameters($route, $url, Request $request, $parameterRegex = null): ?array
     {
         $regex = (strpos($route, $this->paramModifiers[0]) === false) ? null :
             sprintf
@@ -123,8 +129,10 @@ abstract class Route implements IRoute
             );
 
         // Ensures that host names/domains will work with parameters
-        
-        if($route[0] == '{') $url = '/' . ltrim($url, '/');
+        if ($route[0] === $this->paramModifiers[0]) {
+            $url = '/' . ltrim($url, '/');
+        }
+
         $urlRegex = '';
         $parameters = [];
 
@@ -132,7 +140,7 @@ abstract class Route implements IRoute
             $urlRegex = preg_quote($route, '/');
         } else {
 
-            foreach (preg_split('/((\.?-?\/?){[^}]+})/', $route) as $key => $t) {
+            foreach (preg_split('/((\.?-?\/?){[^' . $this->paramModifiers[1] . ']+' . $this->paramModifiers[1] . ')/', $route) as $key => $t) {
 
                 $regex = '';
 
@@ -154,6 +162,17 @@ abstract class Route implements IRoute
             }
         }
 
+        // Get name of last param
+        /*$lastParam = null;
+        $start = strrpos($route, '{');
+        if($start > -1) {
+            $param = substr($route, $start, strrpos($route, '}') + 1 - $start);
+            if(str_ends_with($route, $param . '/')) {
+                $lastParam = $param;
+            }
+        }*/
+
+
         if (trim($urlRegex) === '' || (bool)preg_match(sprintf($this->urlRegex, $urlRegex), $url, $matches) === false) {
             return null;
         }
@@ -167,7 +186,8 @@ abstract class Route implements IRoute
             $lastParams = [];
 
             /* Only take matched parameters with name */
-            foreach ((array)$parameters[1] as $name) {
+            $originalPath = $request->getUrl()->getOriginalPath();
+            foreach ((array)$parameters[1] as $i => $name) {
 
                 // Ignore parent parameters
                 if (isset($groupParameters[$name]) === true) {
@@ -175,10 +195,15 @@ abstract class Route implements IRoute
                     continue;
                 }
 
+                // If last parameter, use slash according to original path (non sanitized version)
+                if ($this->slashParameterEnabled && ($i === count($parameters[1]) - 1) && str_ends_with($route, $this->paramModifiers[0] . $name . $this->paramModifiers[1] . '/') && $originalPath[strlen($originalPath) - 1] === '/') {
+                    $matches[$name] .= '/';
+                }
+
                 $values[$name] = (isset($matches[$name]) === true && $matches[$name] !== '') ? $matches[$name] : null;
             }
 
-            $values = array_merge($values, $lastParams);
+            $values += $lastParams;
         }
 
         $this->originalParameters = $values;
@@ -387,6 +412,17 @@ abstract class Route implements IRoute
         return $this->namespace ?? $this->defaultNamespace;
     }
 
+    public function setSlashParameterEnabled(bool $enabled): self
+    {
+        $this->slashParameterEnabled = $enabled;
+        return $this;
+    }
+
+    public function getSlashParameterEnabled(): bool
+    {
+        return $this->slashParameterEnabled;
+    }
+
     /**
      * Export route settings to array so they can be merged with another route.
      *
@@ -414,6 +450,10 @@ abstract class Route implements IRoute
 
         if ($this->defaultParameterRegex !== null) {
             $values['defaultParameterRegex'] = $this->defaultParameterRegex;
+        }
+
+        if ($this->slashParameterEnabled === true) {
+            $values['includeSlash'] = $this->slashParameterEnabled;
         }
 
         return $values;
@@ -451,6 +491,10 @@ abstract class Route implements IRoute
 
         if (isset($settings['defaultParameterRegex']) === true) {
             $this->setDefaultParameterRegex($settings['defaultParameterRegex']);
+        }
+
+        if (isset($settings['includeSlash']) === true) {
+            $this->setSlashParameterEnabled($settings['includeSlash']);
         }
 
         return $this;

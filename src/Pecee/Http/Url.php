@@ -43,6 +43,12 @@ class Url implements JsonSerializable
     private $path;
 
     /**
+     * Original path with no sanitization to ending slash
+     * @var string|null
+     */
+    private $originalPath;
+
+    /**
      * @var array
      */
     private $params = [];
@@ -73,6 +79,7 @@ class Url implements JsonSerializable
 
             if (isset($data['path']) === true) {
                 $this->setPath($data['path']);
+                $this->originalPath = $data['path'];
             }
 
             $this->fragment = $data['fragment'] ?? null;
@@ -227,6 +234,15 @@ class Url implements JsonSerializable
     }
 
     /**
+     * Get original path with no sanitization of ending trail/slash.
+     * @return string|null
+     */
+    public function getOriginalPath(): ?string
+    {
+        return $this->originalPath;
+    }
+
+    /**
      * Set the url path
      *
      * @param string $path
@@ -284,7 +300,7 @@ class Url implements JsonSerializable
         $params = [];
         parse_str($queryString, $params);
 
-        if(count($params) > 0) {
+        if (count($params) > 0) {
             return $this->setParams($params);
         }
 
@@ -469,7 +485,7 @@ class Url implements JsonSerializable
     {
         $path = $this->path ?? '/';
 
-        if($includeParams === false) {
+        if ($includeParams === false) {
             return $path;
         }
 
