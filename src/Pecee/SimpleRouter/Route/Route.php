@@ -163,16 +163,6 @@ abstract class Route implements IRoute
         }
 
         // Get name of last param
-        /*$lastParam = null;
-        $start = strrpos($route, '{');
-        if($start > -1) {
-            $param = substr($route, $start, strrpos($route, '}') + 1 - $start);
-            if(str_ends_with($route, $param . '/')) {
-                $lastParam = $param;
-            }
-        }*/
-
-
         if (trim($urlRegex) === '' || (bool)preg_match(sprintf($this->urlRegex, $urlRegex), $url, $matches) === false) {
             return null;
         }
@@ -195,8 +185,9 @@ abstract class Route implements IRoute
                     continue;
                 }
 
-                // If last parameter, use slash according to original path (non sanitized version)
-                if ($this->slashParameterEnabled && ($i === count($parameters[1]) - 1) && str_ends_with($route, $this->paramModifiers[0] . $name . $this->paramModifiers[1] . '/') && $originalPath[strlen($originalPath) - 1] === '/') {
+                // If last parameter and slash parameter is enabled, use slash according to original path (non sanitized version)
+                $lastParameter = $this->paramModifiers[0] . $name . $this->paramModifiers[1] . '/';
+                if ($this->slashParameterEnabled && ($i === count($parameters[1]) - 1) && (substr_compare($route, $lastParameter, -strlen($lastParameter)) === 0) && $originalPath[strlen($originalPath) - 1] === '/') {
                     $matches[$name] .= '/';
                 }
 
