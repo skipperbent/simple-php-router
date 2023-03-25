@@ -99,7 +99,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         $route = rtrim($this->url, '/') . '/{id?}/{action?}';
 
         /* Parse parameters from current route */
-        $this->parameters = $this->parseParameters($route, $url);
+        $this->parameters = $this->parseParameters($route, $url, $request);
 
         /* If no custom regular expression or parameters was found on this route, we stop */
         if ($regexMatch === null && $this->parameters === null) {

@@ -33,7 +33,7 @@ class RouteGroup extends Route implements IGroupRoute
                 return true;
             }
 
-            $parameters = $this->parseParameters($domain, $request->getHost(), '.*');
+            $parameters = $this->parseParameters($domain, $request->getHost(), $request, '.*');
 
             if ($parameters !== null && count($parameters) !== 0) {
                 $this->parameters = $parameters;
@@ -60,7 +60,7 @@ class RouteGroup extends Route implements IGroupRoute
 
         if ($this->prefix !== null) {
             /* Parse parameters from current route */
-            $parameters = $this->parseParameters($this->prefix, $url);
+            $parameters = $this->parseParameters($this->prefix, $url, $request);
 
             /* If no custom regular expression or parameters was found on this route, we stop */
             if ($parameters === null) {
