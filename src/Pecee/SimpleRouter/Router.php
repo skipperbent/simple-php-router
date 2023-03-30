@@ -122,7 +122,7 @@ class Router
      * When disabled the router will stop execution when first route is found.
      * @var bool
      */
-    protected $renderMultipleRoutes = true;
+    protected $renderMultipleRoutes = false;
 
     /**
      * Router constructor.
