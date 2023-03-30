@@ -85,7 +85,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
     - [Registering new event](#registering-new-event)
     - [Custom EventHandlers](#custom-eventhandlers)
 - [Advanced](#advanced)
-	- [Disable multiple route rendering](#disable-multiple-route-rendering)
+	- [Multiple route rendering](#multiple-route-rendering)
 	- [Restrict access to IP](#restrict-access-to-ip)
 	- [Setting custom base path](#setting-custom-base-path)
 	- [Url rewriting](#url-rewriting)
@@ -1492,11 +1492,12 @@ class DatabaseDebugHandler implements IEventHandler
 
 # Advanced
 
-## Disable multiple route rendering
+## Multiple route rendering
 
-By default the router will try to execute all routes that matches a given url. To stop the router from executing any further routes any method can return a value.
+If you need multiple routes to be executed on the same url, you can enable this feature by setting `SimpleRouter::enableMultiRouteRendering(true)`
+in your `routes.php` file.
 
-This behavior can be easily disabled by setting `SimpleRouter::enableMultiRouteRendering(false)` in your `routes.php` file. This is the same behavior as version 3 and below.
+This is most commonly used in advanced cases, for example in CMS systems where multiple routes needs to be rendered.
 
 ## Restrict access to IP
 

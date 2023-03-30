@@ -39,6 +39,9 @@ class Response
             $this->httpCode($httpCode);
         }
 
+        // Gracefully end session (avoid any changes being lost)
+        session_write_close();
+
         $this->header('location: ' . $url);
         exit(0);
     }
