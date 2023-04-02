@@ -27,7 +27,7 @@ class ClassLoader implements IClassLoader
      * @param object $class
      * @param string $method
      * @param array $parameters
-     * @return object
+     * @return mixed
      */
     public function loadClassMethod($class, string $method, array $parameters)
     {

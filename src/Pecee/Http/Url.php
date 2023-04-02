@@ -10,53 +10,53 @@ class Url implements JsonSerializable
     /**
      * @var string|null
      */
-    private $originalUrl;
+    private ?string $originalUrl = null;
 
     /**
      * @var string|null
      */
-    private $scheme;
+    private ?string $scheme = null;
 
     /**
      * @var string|null
      */
-    private $host;
+    private ?string $host = null;
 
     /**
      * @var int|null
      */
-    private $port;
+    private ?int $port = null;
 
     /**
      * @var string|null
      */
-    private $username;
+    private ?string $username = null;
 
     /**
      * @var string|null
      */
-    private $password;
+    private ?string $password = null;
 
     /**
      * @var string|null
      */
-    private $path;
+    private ?string $path = null;
 
     /**
      * Original path with no sanitization to ending slash
      * @var string|null
      */
-    private $originalPath;
+    private ?string $originalPath = null;
 
     /**
      * @var array
      */
-    private $params = [];
+    private array $params = [];
 
     /**
      * @var string|null
      */
-    private $fragment;
+    private ?string $fragment = null;
 
     /**
      * Url constructor.

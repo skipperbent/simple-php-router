@@ -9,37 +9,37 @@ class InputFile implements IInputItem
     /**
      * @var string
      */
-    public $index;
+    public string $index;
 
     /**
      * @var string
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string|null
      */
-    public $filename;
+    public ?string $filename = null;
 
     /**
      * @var int|null
      */
-    public $size;
+    public ?int $size = null;
 
     /**
-     * @var int|null
+     * @var string|null
      */
-    public $type;
+    public ?string $type = null;
 
     /**
      * @var int
      */
-    public $errors;
+    public int $errors = 0;
 
     /**
      * @var string|null
      */
-    public $tmpName;
+    public ?string $tmpName = null;
 
     public function __construct(string $index)
     {
@@ -74,7 +74,7 @@ class InputFile implements IInputItem
             'error'    => null,
         ];
 
-        return (new static($values['index']))
+        return (new self($values['index']))
             ->setSize((int)$values['size'])
             ->setError((int)$values['error'])
             ->setType($values['type'])
@@ -104,9 +104,9 @@ class InputFile implements IInputItem
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getSize(): string
+    public function getSize(): ?int
     {
         return $this->size;
     }

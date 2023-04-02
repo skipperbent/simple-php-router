@@ -12,12 +12,12 @@ class CookieTokenProvider implements ITokenProvider
     /**
      * @var string
      */
-    protected $token;
+    protected ?string $token = null;
 
     /**
      * @var int
      */
-    protected $cookieTimeoutMinutes = 120;
+    protected int $cookieTimeoutMinutes = 120;
 
     /**
      * CookieTokenProvider constructor.

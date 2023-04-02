@@ -28,56 +28,56 @@ class Router
      * Current request
      * @var Request
      */
-    protected $request;
+    protected Request $request;
 
     /**
      * Defines if a route is currently being processed.
      * @var bool
      */
-    protected $isProcessingRoute;
+    protected bool $isProcessingRoute;
     
     /**
      * Defines all data from current processing route.
      * @var ILoadableRoute
      */
-    protected $currentProcessingRoute;
+    protected ILoadableRoute $currentProcessingRoute;
 
     /**
      * All added routes
      * @var array
      */
-    protected $routes = [];
+    protected array $routes = [];
 
     /**
      * List of processed routes
      * @var array|ILoadableRoute[]
      */
-    protected $processedRoutes = [];
+    protected array $processedRoutes = [];
 
     /**
      * Stack of routes used to keep track of sub-routes added
      * when a route is being processed.
      * @var array
      */
-    protected $routeStack = [];
+    protected array$routeStack = [];
 
     /**
      * List of added bootmanagers
      * @var array
      */
-    protected $bootManagers = [];
+    protected array $bootManagers = [];
 
     /**
      * Csrf verifier class
      * @var BaseCsrfVerifier|null
      */
-    protected $csrfVerifier;
+    protected ?BaseCsrfVerifier $csrfVerifier;
 
     /**
      * Get exception handlers
      * @var array
      */
-    protected $exceptionHandlers = [];
+    protected array $exceptionHandlers = [];
 
     /**
      * List of loaded exception that has been loaded.
@@ -85,44 +85,44 @@ class Router
      *
      * @var array
      */
-    protected $loadedExceptionHandlers = [];
+    protected array $loadedExceptionHandlers = [];
 
     /**
      * Enable or disabled debugging
      * @var bool
      */
-    protected $debugEnabled = false;
+    protected bool $debugEnabled = false;
 
     /**
      * The start time used when debugging is enabled
      * @var float
      */
-    protected $debugStartTime;
+    protected float $debugStartTime;
 
     /**
      * List containing all debug messages
      * @var array
      */
-    protected $debugList = [];
+    protected array $debugList = [];
 
     /**
      * Contains any registered event-handler.
      * @var array
      */
-    protected $eventHandlers = [];
+    protected array $eventHandlers = [];
 
     /**
      * Class loader instance
      * @var IClassLoader
      */
-    protected $classLoader;
+    protected IClassLoader $classLoader;
 
     /**
      * When enabled the router will render all routes that matches.
      * When disabled the router will stop execution when first route is found.
      * @var bool
      */
-    protected $renderMultipleRoutes = false;
+    protected bool $renderMultipleRoutes = false;
 
     /**
      * Router constructor.
@@ -345,7 +345,7 @@ class Router
             try {
                 /* Verify csrf token for request */
                 $this->csrfVerifier->handle($this->request);
-            } catch(\Exception $e) {
+            } catch(Exception $e) {
                 $this->handleException($e);
             }
         }

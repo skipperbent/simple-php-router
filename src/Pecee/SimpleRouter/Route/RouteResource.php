@@ -6,7 +6,7 @@ use Pecee\Http\Request;
 
 class RouteResource extends LoadableRoute implements IControllerRoute
 {
-    protected $urls = [
+    protected array $urls = [
         'index'   => '',
         'create'  => 'create',
         'store'   => '',
@@ -16,7 +16,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         'destroy' => '',
     ];
 
-    protected $methodNames = [
+    protected array $methodNames = [
         'index'   => 'index',
         'create'  => 'create',
         'store'   => 'store',
@@ -26,8 +26,8 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         'destroy' => 'destroy',
     ];
 
-    protected $names = [];
-    protected $controller;
+    protected array $names = [];
+    protected string $controller;
 
     public function __construct($url, $controller)
     {
