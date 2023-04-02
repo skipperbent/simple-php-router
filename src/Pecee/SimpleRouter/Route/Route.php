@@ -18,37 +18,37 @@ abstract class Route implements IRoute
      *
      * @var bool
      */
-    protected $filterEmptyParams = true;
+    protected bool $filterEmptyParams = true;
 
     /**
      * If true the last parameter of the route will include ending trail/slash.
      * @var bool
      */
-    protected $slashParameterEnabled = false;
+    protected bool $slashParameterEnabled = false;
 
     /**
      * Default regular expression used for parsing parameters.
      * @var string|null
      */
-    protected $defaultParameterRegex;
-    protected $paramModifiers = '{}';
-    protected $paramOptionalSymbol = '?';
-    protected $urlRegex = '/^%s\/?$/u';
-    protected $group;
-    protected $parent;
+    protected ?string $defaultParameterRegex = null;
+    protected string $paramModifiers = '{}';
+    protected string $paramOptionalSymbol = '?';
+    protected string $urlRegex = '/^%s\/?$/u';
+    protected ?IGroupRoute $group = null;
+    protected ?IRoute $parent = null;
     /**
      * @var string|callable|null
      */
     protected $callback;
-    protected $defaultNamespace;
+    protected ?string $defaultNamespace = null;
 
     /* Default options */
-    protected $namespace;
-    protected $requestMethods = [];
-    protected $where = [];
-    protected $parameters = [];
-    protected $originalParameters = [];
-    protected $middlewares = [];
+    protected ?string $namespace = null;
+    protected array $requestMethods = [];
+    protected array $where = [];
+    protected array $parameters = [];
+    protected array $originalParameters = [];
+    protected array $middlewares = [];
 
     /**
      * Render route

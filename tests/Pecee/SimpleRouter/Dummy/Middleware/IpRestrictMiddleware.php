@@ -2,12 +2,12 @@
 
 class IpRestrictMiddleware extends \Pecee\Http\Middleware\IpRestrictAccess {
 
-    protected $ipBlacklist = [
+    protected array $ipBlacklist = [
         '5.5.5.5',
         '8.8.*',
     ];
 
-    protected $ipWhitelist = [
+    protected array $ipWhitelist = [
         '8.8.2.2',
     ];
 

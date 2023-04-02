@@ -12,17 +12,17 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     /**
      * @var string
      */
-    protected $url;
+    protected string $url;
 
     /**
      * @var string
      */
-    protected $name;
+    protected ?string $name = null;
 
     /**
      * @var string|null
      */
-    protected $regex;
+    protected ?string $regex = null;
 
     /**
      * Loads and renders middlewares-classes
@@ -195,7 +195,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      */
     public function hasName(string $name): bool
     {
-        return strtolower((string)$this->name) === strtolower((string)$name);
+        return strtolower((string)$this->name) === strtolower($name);
     }
 
     /**

@@ -97,7 +97,7 @@ class EventHandler implements IEventHandler
      * All available events
      * @var array
      */
-    public static $events = [
+    public static array $events = [
         self::EVENT_ALL,
         self::EVENT_INIT,
         self::EVENT_LOAD,
@@ -120,7 +120,7 @@ class EventHandler implements IEventHandler
      * List of all registered events
      * @var array
      */
-    private $registeredEvents = [];
+    private array $registeredEvents = [];
 
     /**
      * Register new event
