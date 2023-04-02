@@ -13,7 +13,7 @@ class DebugEventHandler implements IEventHandler
      * Debug callback
      * @var Closure
      */
-    protected $callback;
+    protected Closure $callback;
 
     public function __construct()
     {
