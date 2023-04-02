@@ -7,7 +7,7 @@ use Pecee\Exceptions\InvalidArgumentException;
 
 class Response
 {
-    protected $request;
+    protected Request $request;
 
     public function __construct(Request $request)
     {
@@ -39,9 +39,6 @@ class Response
             $this->httpCode($httpCode);
         }
 
-        // Gracefully end session (avoid any changes being lost)
-        session_write_close();
-
         $this->header('location: ' . $url);
         exit(0);
     }
@@ -68,7 +65,6 @@ class Response
 
     public function cache(string $eTag, int $lastModifiedTime = 2592000): self
     {
-
         $this->headers([
             'Cache-Control: public',
             sprintf('Last-Modified: %s GMT', gmdate('D, d M Y H:i:s', $lastModifiedTime)),

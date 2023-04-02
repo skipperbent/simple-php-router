@@ -7,12 +7,12 @@ use Pecee\SimpleRouter\Handlers\IExceptionHandler;
 
 class RouteGroup extends Route implements IGroupRoute
 {
-    protected $urlRegex = '/^%s\/?/u';
-    protected $prefix;
-    protected $name;
-    protected $domains = [];
-    protected $exceptionHandlers = [];
-    protected $mergeExceptionHandlers = true;
+    protected string $urlRegex = '/^%s\/?/u';
+    protected ?string $prefix = null;
+    protected ?string $name = null;
+    protected array $domains = [];
+    protected array $exceptionHandlers = [];
+    protected bool $mergeExceptionHandlers = true;
 
     /**
      * Method called to check if a domain matches
@@ -22,7 +22,7 @@ class RouteGroup extends Route implements IGroupRoute
      */
     public function matchDomain(Request $request): bool
     {
-        if ($this->domains === null || count($this->domains) === 0) {
+        if (count($this->domains) === 0) {
             return true;
         }
 
