@@ -41,9 +41,9 @@ class SimpleRouter
 
     /**
      * The response object
-     * @var Response
+     * @var Response|null
      */
-    protected static Response $response;
+    protected static ?Response $response = null;
 
     /**
      * Router instance
