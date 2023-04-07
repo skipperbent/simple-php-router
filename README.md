@@ -1036,6 +1036,17 @@ class CustomExceptionHandler implements IExceptionHandler
 			return;
 			
 		}
+		
+		/* Other error */
+		if($error instanceof MyCustomException) {
+
+			$request->setRewriteRoute(
+				// Add new route based on current url (minus query-string) and add custom parameters.
+				(new RouteUrl(url(null, null, []), 'PageController@error'))->setParameters(['exception' => $error])
+			);
+			return;
+			
+		}
 
 		throw $error;
 

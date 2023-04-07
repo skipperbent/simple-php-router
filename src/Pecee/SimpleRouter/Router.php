@@ -346,7 +346,7 @@ class Router
                 /* Verify csrf token for request */
                 $this->csrfVerifier->handle($this->request);
             } catch(Exception $e) {
-                $this->handleException($e);
+                return $this->handleException($e);
             }
         }
 
@@ -427,7 +427,7 @@ class Router
                     $routeOutput = $route->renderRoute($this->request, $this);
 
                     if ($this->renderMultipleRoutes === true) {
-                        if ($routeOutput !== null) {
+                        if ($routeOutput !== '') {
                             return $routeOutput;
                         }
 
@@ -444,12 +444,12 @@ class Router
             }
 
         } catch (Exception $e) {
-            $this->handleException($e);
+            return $this->handleException($e);
         }
 
         if ($methodNotAllowed === true) {
             $message = sprintf('Route "%s" or method "%s" not allowed.', $this->request->getUrl()->getPath(), $this->request->getMethod());
-            $this->handleException(new NotFoundHttpException($message, 403));
+            return $this->handleException(new NotFoundHttpException($message, 403));
         }
 
         if (count($this->request->getLoadedRoutes()) === 0) {
