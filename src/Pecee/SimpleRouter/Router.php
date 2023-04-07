@@ -427,7 +427,7 @@ class Router
                     $routeOutput = $route->renderRoute($this->request, $this);
 
                     if ($this->renderMultipleRoutes === true) {
-                        if ($routeOutput !== null) {
+                        if ($routeOutput !== '') {
                             return $routeOutput;
                         }
 
