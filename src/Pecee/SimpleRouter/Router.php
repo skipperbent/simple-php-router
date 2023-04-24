@@ -443,12 +443,8 @@ class Router
                 }
             }
 
-        } catch (\Throwable $e) {
-            if ($e instanceof Exception) {
-                return $this->handleException($e);
-            }
-
-            return $this->handleException(new Exception($e->getMessage(), $e->getCode()));
+        } catch (Exception $e) {
+            return $this->handleException($e);
         }
 
         if ($methodNotAllowed === true) {
