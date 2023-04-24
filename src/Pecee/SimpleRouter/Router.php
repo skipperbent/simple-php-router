@@ -444,7 +444,7 @@ class Router
             }
 
         } catch (Exception $e) {
-            return $this->handleException(new Exception($e->getMessage(), $e->getCode()));
+            return $this->handleException($e);
         }
 
         if ($methodNotAllowed === true) {
