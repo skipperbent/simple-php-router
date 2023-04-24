@@ -443,11 +443,7 @@ class Router
                 }
             }
 
-        } catch (\Throwable $e) {
-            if ($e instanceof Exception) {
-                return $this->handleException($e);
-            }
-
+        } catch (Exception $e) {
             return $this->handleException(new Exception($e->getMessage(), $e->getCode()));
         }
 
