@@ -184,7 +184,7 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
         // Should match /?jackdaniels=true&cola=yeah
         $this->assertEquals('/?jackdaniels=true&cola=yeah', TestRouter::getUrl('home', null, ['jackdaniels' => 'true', 'cola' => 'yeah']));
 
-        TestRouter::router()->reset();
+        TestRouter::reset();
 
     }
 

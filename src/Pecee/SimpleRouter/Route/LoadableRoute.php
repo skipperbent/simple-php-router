@@ -91,6 +91,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
                 $parameters = array_fill_keys($matches[1], null);
             }
         }
+
         $this->parameters = $parameters;
 
         return $this;
