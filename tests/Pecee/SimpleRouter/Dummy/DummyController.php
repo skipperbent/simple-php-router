@@ -1,5 +1,7 @@
 <?php
 
+use Pecee\Http\Request;
+
 class DummyController
 {
     public function index()
@@ -8,10 +10,10 @@ class DummyController
     }
 
 
-	public function method1()
-	{
+    public function method1(Request $request)
+    {
 
-	}
+    }
 
     public function method2()
     {
@@ -20,15 +22,25 @@ class DummyController
 
     public function method3()
     {
-        return 'method3';
+        echo 'method3';
     }
 
-	public function param($params = null)
-	{
-		echo join(', ', func_get_args());
-	}
+    public function param($param1 = null)
+    {
+        echo join(', ', func_get_args());
+    }
 
-	public function getTest()
+    public function params($lang, $name)
+    {
+        echo join(', ', func_get_args());
+    }
+
+    public function paramRegex($path)
+    {
+        echo $path;
+    }
+
+    public function getTest()
     {
         echo 'getTest';
     }

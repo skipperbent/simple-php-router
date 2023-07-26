@@ -27,7 +27,7 @@ class EventHandlerTest extends \PHPUnit\Framework\TestCase
 
         TestRouter::addEventHandler($eventHandler);
 
-        // Add rewrite
+        //Add rewrite
         TestRouter::error(function (\Pecee\Http\Request $request, \Exception $error) {
 
             // Trigger rewrite
@@ -103,15 +103,16 @@ class EventHandlerTest extends \PHPUnit\Framework\TestCase
 
     }
 
-    public function testCustomBasePath() {
+    public function testCustomBasePath()
+    {
 
         $basePath = '/basepath/';
 
         $eventHandler = new EventHandler();
-        $eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function(EventArgument $data) use($basePath) {
+        $eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function (EventArgument $data) use ($basePath) {
 
             // Skip routes added by group
-            if($data->isSubRoute === false) {
+            if ($data->isSubRoute === false) {
 
                 switch (true) {
                     case $data->route instanceof \Pecee\SimpleRouter\Route\ILoadableRoute:
@@ -130,12 +131,12 @@ class EventHandlerTest extends \PHPUnit\Framework\TestCase
 
         TestRouter::addEventHandler($eventHandler);
 
-        TestRouter::get('/about', function() use(&$results) {
+        TestRouter::get('/about', function () use (&$results) {
             $results[] = 'about';
         });
 
-        TestRouter::group(['prefix' => '/admin'], function() use(&$results) {
-            TestRouter::get('/', function() use(&$results) {
+        TestRouter::group(['prefix' => '/admin'], function () use (&$results) {
+            TestRouter::get('/', function () use (&$results) {
                 $results[] = 'admin';
             });
         });

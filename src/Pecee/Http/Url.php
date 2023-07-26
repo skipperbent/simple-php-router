@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Pecee\Http;
 
@@ -156,7 +156,7 @@ class Url implements JsonSerializable
      */
     public function getPort(): ?int
     {
-        return ($this->port !== null) ? (int)$this->port : null;
+        return ($this->port !== null) ? (int) $this->port : null;
     }
 
     /**
@@ -284,7 +284,7 @@ class Url implements JsonSerializable
         $params = [];
         parse_str($queryString, $params);
 
-        if(count($params) > 0) {
+        if (count($params) > 0) {
             return $this->setParams($params);
         }
 
@@ -469,7 +469,7 @@ class Url implements JsonSerializable
     {
         $path = $this->path ?? '/';
 
-        if($includeParams === false) {
+        if ($includeParams === false) {
             return $path;
         }
 

@@ -21,7 +21,7 @@ class BootManagerTest extends \PHPUnit\Framework\TestCase
 
         // Add boot-manager
         TestRouter::addBootManager(new TestBootManager([
-            '/con'     => '/about',
+            '/con' => '/about',
             '/contact' => '/',
         ]));
 
@@ -32,9 +32,9 @@ class BootManagerTest extends \PHPUnit\Framework\TestCase
 
     public function testFindUrlFromBootManager()
     {
-        TestRouter::get('/', 'DummyController@method1');
-        TestRouter::get('/about', 'DummyController@method2')->name('about');
-        TestRouter::get('/contact', 'DummyController@method3')->name('contact');
+        TestRouter::get('/', [DummyController::class, 'method1']);
+        TestRouter::get('/about', [DummyController::class, 'method2'])->name('about');
+        TestRouter::get('/contact', [DummyController::class, 'method3'])->name('contact');
 
         $result = false;
 

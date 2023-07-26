@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Pecee\Http\Input;
 
@@ -6,30 +6,15 @@ use Pecee\Exceptions\InvalidArgumentException;
 
 class InputFile implements IInputItem
 {
-    /**
-     * @var string
-     */
-    public $index;
+    public string $index;
 
-    /**
-     * @var string
-     */
-    public $name;
+    public string $name;
 
-    /**
-     * @var string|null
-     */
-    public $filename;
+    public string $filename;
 
-    /**
-     * @var int|null
-     */
-    public $size;
+    public int $size;
 
-    /**
-     * @var int|null
-     */
-    public $type;
+    public string $type;
 
     /**
      * @var int
@@ -104,9 +89,9 @@ class InputFile implements IInputItem
     }
 
     /**
-     * @return string
+     * @return int|string
      */
-    public function getSize(): string
+    public function getSize(): int|string
     {
         return $this->size;
     }

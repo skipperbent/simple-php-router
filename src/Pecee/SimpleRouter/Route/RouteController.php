@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Pecee\SimpleRouter\Route;
 
@@ -54,12 +54,12 @@ class RouteController extends LoadableRoute implements IControllerRoute
         if (strpos($name, '.') !== false) {
             $found = array_search(substr($name, strrpos($name, '.') + 1), $this->names, true);
             if ($found !== false) {
-                $method = (string)$found;
+                $method = (string) $found;
             }
         }
 
         $url = '';
-        $parameters = (array)$parameters;
+        $parameters = (array) $parameters;
 
         if ($method !== null) {
 
@@ -81,9 +81,18 @@ class RouteController extends LoadableRoute implements IControllerRoute
             $url .= '//' . $group->getDomains()[0];
         }
 
-        $url .= '/' . trim($this->getUrl(), '/') . '/' . strtolower($method) . implode('/', $parameters);
 
-        return '/' . trim($url, '/') . '/';
+        $url .= '/' . trim($this->getUrl(), '/');
+
+        if ($method) {
+            $url .= '/' . strtolower($method);
+        }
+
+        $url .= '/' . implode('/', $parameters);
+
+        $url = '/' . trim($url, '/') . '/';
+
+        return str_replace('//', '/', $url);
     }
 
     public function matchRoute(string $url, Request $request): bool

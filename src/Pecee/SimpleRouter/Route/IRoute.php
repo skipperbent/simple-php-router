@@ -22,10 +22,10 @@ interface IRoute
      *
      * @param Request $request
      * @param Router $router
-     * @return string
+     * @return string|null|object
      * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
      */
-    public function renderRoute(Request $request, Router $router): ?string;
+    public function renderRoute(Request $request, Router $router);
 
     /**
      * Returns callback name/identifier for the current route based on the callback.

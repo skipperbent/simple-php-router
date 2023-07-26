@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Pecee\Http\Input;
 
@@ -12,13 +12,13 @@ class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
     public $name;
     public $value;
 
-    public function __construct(string $index, $value = null)
+    public function __construct(int|string $index, $value = null)
     {
         $this->index = $index;
         $this->value = $value;
 
         // Make the name human friendly, by replace _ with space
-        $this->name = ucfirst(str_replace('_', ' ', strtolower($this->index)));
+        $this->name = is_string($index) ? ucfirst(str_replace('_', ' ', strtolower($index))) : $index;
     }
 
     /**
@@ -81,7 +81,7 @@ class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
         return isset($this->value[$offset]);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         if ($this->offsetExists($offset) === true) {
             return $this->value[$offset];
