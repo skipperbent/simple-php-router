@@ -31,7 +31,7 @@ class RouteUrl extends LoadableRoute
         }
 
         /* Parse parameters from current route */
-        $parameters = $this->parseParameters($this->url, $url);
+        $parameters = $this->parseParameters($this->url, $url, $request);
 
         /* If no custom regular expression or parameters was found on this route, we stop */
         if ($regexMatch === null && $parameters === null) {

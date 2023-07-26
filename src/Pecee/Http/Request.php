@@ -29,7 +29,7 @@ class Request
      * All request-types
      * @var string[]
      */
-    public static $requestTypes = [
+    public static array $requestTypes = [
         self::REQUEST_TYPE_GET,
         self::REQUEST_TYPE_POST,
         self::REQUEST_TYPE_PUT,
@@ -43,7 +43,7 @@ class Request
      * Post request-types.
      * @var string[]
      */
-    public static $requestTypesPost = [
+    public static array $requestTypesPost = [
         self::REQUEST_TYPE_POST,
         self::REQUEST_TYPE_PUT,
         self::REQUEST_TYPE_PATCH,
@@ -55,65 +55,65 @@ class Request
      *
      * @var array
      */
-    private $data = [];
+    private array $data = [];
 
     /**
      * Server headers
      * @var array
      */
-    protected $headers = [];
+    protected array $headers = [];
 
     /**
      * Request ContentType
      * @var string
      */
-    protected $contentType;
+    protected string $contentType;
 
     /**
      * Request host
-     * @var string
+     * @var string|null
      */
-    protected $host;
+    protected ?string $host;
 
     /**
      * Current request url
      * @var Url
      */
-    protected $url;
+    protected Url $url;
 
     /**
      * Request method
      * @var string
      */
-    protected $method;
+    protected string $method;
 
     /**
      * Input handler
      * @var InputHandler
      */
-    protected $inputHandler;
+    protected InputHandler $inputHandler;
 
     /**
      * Defines if request has pending rewrite
      * @var bool
      */
-    protected $hasPendingRewrite = false;
+    protected bool $hasPendingRewrite = false;
 
     /**
      * @var ILoadableRoute|null
      */
-    protected $rewriteRoute;
+    protected ?ILoadableRoute $rewriteRoute = null;
 
     /**
      * Rewrite url
      * @var string|null
      */
-    protected $rewriteUrl;
+    protected ?string $rewriteUrl = null;
 
     /**
      * @var array
      */
-    protected $loadedRoutes = [];
+    protected array $loadedRoutes = [];
 
     /**
      * Request constructor.
@@ -129,7 +129,12 @@ class Request
         $this->setHost($this->getHeader('http-host'));
 
         // Check if special IIS header exist, otherwise use default.
-        $this->setUrl(new Url($this->getFirstHeader(['unencoded-url', 'request-uri'])));
+        $url = $this->getHeader('unencoded-url');
+        if($url !== null){
+            $this->setUrl(new Url($url));
+        }else{
+            $this->setUrl(new Url(urldecode((string)$this->getHeader('request-uri'))));
+        }
         $this->setContentType((string)$this->getHeader('content-type'));
         $this->setMethod((string)($_POST[static::FORCE_METHOD_KEY] ?? $this->getHeader('request-method')));
         $this->inputHandler = new InputHandler($this);
@@ -219,14 +224,16 @@ class Request
      */
     public function getIp(bool $safeMode = false): ?string
     {
-        $headers = ['remote-addr'];
+        $headers = [];
         if($safeMode === false) {
-            $headers = array_merge($headers, [
+            $headers = [
                 'http-cf-connecting-ip',
                 'http-client-ip',
                 'http-x-forwarded-for',
-            ]);
+            ];
         }
+
+        $headers[] = 'remote-addr';
 
         return $this->getFirstHeader($headers);
     }
@@ -359,7 +366,7 @@ class Request
      */
     public function isAjax(): bool
     {
-        return (strtolower($this->getHeader('http-x-requested-with')) === 'xmlhttprequest');
+        return (strtolower((string)$this->getHeader('http-x-requested-with')) === 'xmlhttprequest');
     }
 
     /**

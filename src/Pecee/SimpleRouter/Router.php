@@ -39,6 +39,12 @@ class Router
     protected bool $isProcessingRoute;
 
     /**
+     * Defines all data from current processing route.
+     * @var ILoadableRoute
+     */
+    protected ILoadableRoute $currentProcessingRoute;
+
+    /**
      * All added routes
      * @var array
      */
@@ -48,7 +54,7 @@ class Router
      * List of processed routes
      * @var array|ILoadableRoute[]
      */
-    protected array|ILoadableRoute $processedRoutes = [];
+    protected array $processedRoutes = [];
 
     /**
      * Stack of routes used to keep track of sub-routes added
@@ -67,7 +73,7 @@ class Router
      * Csrf verifier class
      * @var BaseCsrfVerifier|null
      */
-    protected BaseCsrfVerifier|null $csrfVerifier;
+    protected ?BaseCsrfVerifier $csrfVerifier;
 
     /**
      * Get exception handlers
@@ -118,7 +124,7 @@ class Router
      * When disabled the router will stop execution when first route is found.
      * @var bool
      */
-    protected bool $renderMultipleRoutes = true;
+    protected bool $renderMultipleRoutes = false;
 
     /**
      * Router constructor.
@@ -336,8 +342,12 @@ class Router
                 'csrfVerifier' => $this->csrfVerifier,
             ]);
 
-            /* Verify csrf token for request */
-            $this->csrfVerifier->handle($this->request);
+            try {
+                /* Verify csrf token for request */
+                $this->csrfVerifier->handle($this->request);
+            } catch (Exception $e) {
+                return $this->handleException($e);
+            }
         }
 
         $output = $this->routeRequest();
@@ -375,6 +385,9 @@ class Router
             foreach ($this->processedRoutes as $key => $route) {
 
                 $this->debug('Matching route "%s"', get_class($route));
+
+                /* Add current processing route to constants */
+                $this->currentProcessingRoute = $route;
 
                 /* If the route matches */
                 if ($route->matchRoute($url, $this->request) === true) {
@@ -419,7 +432,7 @@ class Router
                     $routeOutput = $route->renderRoute($this->request, $this);
 
                     if ($this->renderMultipleRoutes === true) {
-                        if ($routeOutput !== null) {
+                        if ($routeOutput !== '') {
                             return $routeOutput;
                         }
 
@@ -435,12 +448,12 @@ class Router
                 }
             }
         } catch (Exception $e) {
-            $this->handleException($e);
+            return $this->handleException($e);
         }
 
         if ($methodNotAllowed === true) {
             $message = sprintf('Route "%s" or method "%s" not allowed.', $this->request->getUrl()->getPath(), $this->request->getMethod());
-            $this->handleException(new NotFoundHttpException($message, 403));
+            return $this->handleException(new NotFoundHttpException($message, 403));
         }
 
         if (count($this->request->getLoadedRoutes()) === 0) {
@@ -941,6 +954,16 @@ class Router
     public function getDebugLog(): array
     {
         return $this->debugList;
+    }
+
+    /**
+     * Get the current processing route details.
+     *
+     * @return ILoadableRoute
+     */
+    public function getCurrentProcessingRoute(): ILoadableRoute
+    {
+        return $this->currentProcessingRoute;
     }
 
     /**

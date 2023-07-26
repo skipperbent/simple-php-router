@@ -36,11 +36,12 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
 		- [Available methods](#available-methods)
 		- [Multiple HTTP-verbs](#multiple-http-verbs)
 	- [Route parameters](#route-parameters)
-		- [Required parameters](#required-parameters)
-		- [Optional parameters](#optional-parameters)
-		- [Regular expression constraints](#regular-expression-constraints)
-		- [Regular expression route-match](#regular-expression-route-match)
-		- [Custom regex for matching parameters](#custom-regex-for-matching-parameters)
+        - [Required parameters](#required-parameters)
+        - [Optional parameters](#optional-parameters)
+        - [Including slash in parameters](#including-slash-in-parameters)
+        - [Regular expression constraints](#regular-expression-constraints)
+        - [Regular expression route-match](#regular-expression-route-match)
+        - [Custom regex for matching parameters](#custom-regex-for-matching-parameters)
 	- [Named routes](#named-routes)
 		- [Generating URLs To Named Routes](#generating-urls-to-named-routes)
 	- [Router groups](#router-groups)
@@ -84,7 +85,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
     - [Registering new event](#registering-new-event)
     - [Custom EventHandlers](#custom-eventhandlers)
 - [Advanced](#advanced)
-	- [Disable multiple route rendering](#disable-multiple-route-rendering)
+	- [Multiple route rendering](#multiple-route-rendering)
 	- [Restrict access to IP](#restrict-access-to-ip)
 	- [Setting custom base path](#setting-custom-base-path)
 	- [Url rewriting](#url-rewriting)
@@ -489,6 +490,28 @@ SimpleRouter::get('/user/{name?}', function ($name = 'Simon') {
     return $name;
 });
 ```
+
+### Including slash in parameters
+
+If you're working with WebDAV services the url could mean the difference between a file and a folder.
+
+For instance `/path` will be considered a file - whereas `/path/` will be considered a folder.
+
+The router can add the ending slash for the last parameter in your route based on the path. So if `/path/` is requested the parameter will contain the value of `path/` and visa versa.
+
+To ensure compatibility with older versions, this feature is disabled by default and has to be enabled by setting 
+the `setSettings(['includeSlash' => true])` or by using setting `setSlashParameterEnabled(true)` for your route.
+
+**Example**
+
+```php
+SimpleRouter::get('/path/{fileOrFolder}', function ($fileOrFolder) {
+	return $fileOrFolder;
+})->setSettings(['includeSlash' => true]);
+```
+
+- Requesting `/path/file` will return the `$fileOrFolder` value: `file`.
+- Requesting `/path/folder/` will return the `$fileOrFolder` value: `folder/`.
 
 ### Regular expression constraints
 
@@ -972,6 +995,12 @@ If you do not want a redirect, but want the error-page rendered on the current-u
 $request->setRewriteCallback('ErrorController@notFound');
 ```
 
+If you will set the correct status for the browser error use:
+
+```php
+SimpleRouter::response()->httpCode(404);
+```
+
 ## Using custom exception handlers
 
 This is a basic example of an ExceptionHandler implementation (please see "[Easily overwrite route about to be loaded](#easily-overwrite-route-about-to-be-loaded)" for examples on how to change callback).
@@ -1004,6 +1033,17 @@ class CustomExceptionHandler implements IExceptionHandler
 
 			// Render custom 404-page
 			$request->setRewriteCallback('Demo\Controllers\PageController@notFound');
+			return;
+			
+		}
+		
+		/* Other error */
+		if($error instanceof MyCustomException) {
+
+			$request->setRewriteRoute(
+				// Add new route based on current url (minus query-string) and add custom parameters.
+				(new RouteUrl(url(null, null, []), 'PageController@error'))->setParameters(['exception' => $error])
+			);
 			return;
 			
 		}
@@ -1463,11 +1503,12 @@ class DatabaseDebugHandler implements IEventHandler
 
 # Advanced
 
-## Disable multiple route rendering
+## Multiple route rendering
 
-By default the router will try to execute all routes that matches a given url. To stop the router from executing any further routes any method can return a value.
+If you need multiple routes to be executed on the same url, you can enable this feature by setting `SimpleRouter::enableMultiRouteRendering(true)`
+in your `routes.php` file.
 
-This behavior can be easily disabled by setting `SimpleRouter::enableMultiRouteRendering(false)` in your `routes.php` file. This is the same behavior as version 3 and below.
+This is most commonly used in advanced cases, for example in CMS systems where multiple routes needs to be rendered.
 
 ## Restrict access to IP
 

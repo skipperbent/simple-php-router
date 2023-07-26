@@ -63,7 +63,22 @@ class RouterResourceTest extends \PHPUnit\Framework\TestCase
         $response = TestRouter::debugOutput('/resource/38', 'get');
 
         $this->assertEquals('show 38', $response);
+    }
 
+    public function testResourceUrls()
+    {
+        TestRouter::resource('/resource', 'ResourceController')->name('resource');
+
+        TestRouter::debugNoReset('/resource');
+
+        $this->assertEquals('/resource/3/create/', TestRouter::router()->getUrl('resource.create', ['id' => 3]));
+        $this->assertEquals('/resource/5/edit/', TestRouter::router()->getUrl('resource.edit', ['id' => 5]));
+        $this->assertEquals('/resource/6/', TestRouter::router()->getUrl('resource.update', ['id' => 6]));
+        $this->assertEquals('/resource/9/', TestRouter::router()->getUrl('resource.destroy', ['id' => 9]));
+        $this->assertEquals('/resource/12/', TestRouter::router()->getUrl('resource.delete', ['id' => 12]));
+        $this->assertEquals('/resource/', TestRouter::router()->getUrl('resource'));
+
+        TestRouter::router()->reset();
     }
 
 }

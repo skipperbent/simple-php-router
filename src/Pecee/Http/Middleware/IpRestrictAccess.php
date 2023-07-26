@@ -7,8 +7,8 @@ use Pecee\SimpleRouter\Exceptions\HttpException;
 
 abstract class IpRestrictAccess implements IMiddleware
 {
-    protected $ipBlacklist = [];
-    protected $ipWhitelist = [];
+    protected array $ipBlacklist = [];
+    protected array $ipWhitelist = [];
 
     protected function validate(string $ip): bool
     {

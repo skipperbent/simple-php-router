@@ -6,10 +6,10 @@ use Pecee\Http\Request;
 
 class RouteController extends LoadableRoute implements IControllerRoute
 {
-    protected $defaultMethod = 'index';
-    protected $controller;
-    protected $method;
-    protected $names = [];
+    protected string $defaultMethod = 'index';
+    protected string $controller;
+    protected ?string $method = null;
+    protected array $names = [];
 
     public function __construct($url, $controller)
     {
@@ -80,7 +80,6 @@ class RouteController extends LoadableRoute implements IControllerRoute
         if ($group !== null && count($group->getDomains()) !== 0) {
             $url .= '//' . $group->getDomains()[0];
         }
-
 
         $url .= '/' . trim($this->getUrl(), '/');
 

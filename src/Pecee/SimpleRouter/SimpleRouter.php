@@ -37,19 +37,19 @@ class SimpleRouter
      * Default namespace added to all routes
      * @var string|null
      */
-    protected static $defaultNamespace;
+    protected static ?string $defaultNamespace = null;
 
     /**
      * The response object
-     * @var Response
+     * @var Response|null
      */
-    protected static $response;
+    protected static ?Response $response = null;
 
     /**
      * Router instance
      * @var Router
      */
-    protected static $router;
+    protected static ?Router $router = null;
 
     /**
      * Start routing
@@ -493,7 +493,7 @@ class SimpleRouter
      * Prepends the default namespace to all new routes added.
      *
      * @param ILoadableRoute|IRoute $route
-     * @return IRoute
+     * @return IRoute|ILoadableRoute
      */
     public static function addDefaultNamespace(IRoute $route): IRoute
     {

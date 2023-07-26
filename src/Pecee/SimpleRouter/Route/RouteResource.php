@@ -6,28 +6,28 @@ use Pecee\Http\Request;
 
 class RouteResource extends LoadableRoute implements IControllerRoute
 {
-    protected $urls = [
-        'index'   => '',
-        'create'  => 'create',
-        'store'   => '',
-        'show'    => '',
-        'edit'    => 'edit',
-        'update'  => '',
+    protected array $urls = [
+        'index' => '',
+        'create' => 'create',
+        'store' => '',
+        'show' => '',
+        'edit' => 'edit',
+        'update' => '',
         'destroy' => '',
     ];
 
-    protected $methodNames = [
-        'index'   => 'index',
-        'create'  => 'create',
-        'store'   => 'store',
-        'show'    => 'show',
-        'edit'    => 'edit',
-        'update'  => 'update',
+    protected array $methodNames = [
+        'index' => 'index',
+        'create' => 'create',
+        'store' => 'store',
+        'show' => 'show',
+        'edit' => 'edit',
+        'update' => 'update',
         'destroy' => 'destroy',
     ];
 
-    protected $names = [];
-    protected $controller;
+    protected array $names = [];
+    protected string $controller;
 
     public function __construct($url, $controller)
     {
@@ -69,11 +69,18 @@ class RouteResource extends LoadableRoute implements IControllerRoute
     public function findUrl(?string $method = null, $parameters = null, ?string $name = null): string
     {
         $url = array_search($name, $this->names, true);
-        if ($url !== false) {
-            return rtrim($this->url . $this->urls[$url], '/') . '/';
+
+        $parametersUrl = '';
+
+        if ($parameters !== null && count($parameters) > 0) {
+            $parametersUrl = join('/', $parameters) . '/';
         }
 
-        return $this->url;
+        if ($url !== false) {
+            return rtrim($this->url . $parametersUrl . $this->urls[$url], '/') . '/';
+        }
+
+        return $this->url . $parametersUrl;
     }
 
     protected function call($method): bool
@@ -99,14 +106,14 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         $route = rtrim($this->url, '/') . '/{id?}/{action?}';
 
         /* Parse parameters from current route */
-        $this->parameters = $this->parseParameters($route, $url);
+        $this->parameters = $this->parseParameters($route, $url, $request);
 
         /* If no custom regular expression or parameters was found on this route, we stop */
         if ($regexMatch === null && $this->parameters === null) {
             return false;
         }
 
-        $action = $this->parameters['action'] ? strtolower(trim($this->parameters['action'])) : null;
+        $action = strtolower(trim((string) $this->parameters['action']));
         $id = $this->parameters['id'];
 
         // Remove action parameter
@@ -172,12 +179,12 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         $this->name = $name;
 
         $this->names = [
-            'index'   => $this->name . '.index',
-            'create'  => $this->name . '.create',
-            'store'   => $this->name . '.store',
-            'show'    => $this->name . '.show',
-            'edit'    => $this->name . '.edit',
-            'update'  => $this->name . '.update',
+            'index' => $this->name . '.index',
+            'create' => $this->name . '.create',
+            'store' => $this->name . '.store',
+            'show' => $this->name . '.show',
+            'edit' => $this->name . '.edit',
+            'update' => $this->name . '.update',
             'destroy' => $this->name . '.destroy',
         ];
 

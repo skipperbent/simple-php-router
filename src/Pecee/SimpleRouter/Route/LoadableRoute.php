@@ -12,17 +12,17 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     /**
      * @var string
      */
-    protected $url;
+    protected string $url;
 
     /**
      * @var string
      */
-    protected $name;
+    protected ?string $name = null;
 
     /**
      * @var string|null
      */
-    protected $regex;
+    protected ?string $regex = null;
 
     /**
      * Loads and renders middlewares-classes
@@ -82,14 +82,17 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     {
         $this->url = ($url === '/') ? '/' : '/' . trim($url, '/') . '/';
 
+        $parameters = [];
         if (strpos($this->url, $this->paramModifiers[0]) !== false) {
 
             $regex = sprintf(static::PARAMETERS_REGEX_FORMAT, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
             if ((bool) preg_match_all('/' . $regex . '/u', $this->url, $matches) !== false) {
-                $this->parameters = array_fill_keys($matches[1], null);
+                $parameters = array_fill_keys($matches[1], null);
             }
         }
+
+        $this->parameters = $parameters;
 
         return $this;
     }

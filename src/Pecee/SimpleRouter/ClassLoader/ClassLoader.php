@@ -30,7 +30,7 @@ class ClassLoader implements IClassLoader
      * @param object $class
      * @param string $method
      * @param array $parameters
-     * @return object
+     * @return string
      */
     public function loadClassMethod($class, string $method, array $parameters): object
     {
@@ -44,7 +44,7 @@ class ClassLoader implements IClassLoader
      *
      * @param callable $closure
      * @param array $parameters
-     * @return mixed
+     * @return string
      */
     public function loadClosure(callable $closure, array $parameters)
     {

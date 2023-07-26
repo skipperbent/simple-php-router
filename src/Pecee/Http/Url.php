@@ -10,47 +10,53 @@ class Url implements JsonSerializable
     /**
      * @var string|null
      */
-    private $originalUrl;
+    private ?string $originalUrl = null;
 
     /**
      * @var string|null
      */
-    private $scheme;
+    private ?string $scheme = null;
 
     /**
      * @var string|null
      */
-    private $host;
+    private ?string $host = null;
 
     /**
      * @var int|null
      */
-    private $port;
+    private ?int $port = null;
 
     /**
      * @var string|null
      */
-    private $username;
+    private ?string $username = null;
 
     /**
      * @var string|null
      */
-    private $password;
+    private ?string $password = null;
 
     /**
      * @var string|null
      */
-    private $path;
+    private ?string $path = null;
+
+    /**
+     * Original path with no sanitization to ending slash
+     * @var string|null
+     */
+    private ?string $originalPath = null;
 
     /**
      * @var array
      */
-    private $params = [];
+    private array $params = [];
 
     /**
      * @var string|null
      */
-    private $fragment;
+    private ?string $fragment = null;
 
     /**
      * Url constructor.
@@ -73,6 +79,7 @@ class Url implements JsonSerializable
 
             if (isset($data['path']) === true) {
                 $this->setPath($data['path']);
+                $this->originalPath = $data['path'];
             }
 
             $this->fragment = $data['fragment'] ?? null;
@@ -224,6 +231,15 @@ class Url implements JsonSerializable
     public function getPath(): ?string
     {
         return $this->path ?? '/';
+    }
+
+    /**
+     * Get original path with no sanitization of ending trail/slash.
+     * @return string|null
+     */
+    public function getOriginalPath(): ?string
+    {
+        return $this->originalPath;
     }
 
     /**

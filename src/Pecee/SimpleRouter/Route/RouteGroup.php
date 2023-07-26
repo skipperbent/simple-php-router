@@ -7,12 +7,12 @@ use Pecee\SimpleRouter\Handlers\IExceptionHandler;
 
 class RouteGroup extends Route implements IGroupRoute
 {
-    protected $urlRegex = '/^%s\/?/u';
-    protected $prefix;
-    protected $name;
-    protected $domains = [];
-    protected $exceptionHandlers = [];
-    protected $mergeExceptionHandlers = true;
+    protected string $urlRegex = '/^%s\/?/u';
+    protected ?string $prefix = null;
+    protected ?string $name = null;
+    protected array $domains = [];
+    protected array $exceptionHandlers = [];
+    protected bool $mergeExceptionHandlers = true;
 
     /**
      * Method called to check if a domain matches
@@ -22,7 +22,7 @@ class RouteGroup extends Route implements IGroupRoute
      */
     public function matchDomain(Request $request): bool
     {
-        if ($this->domains === null || count($this->domains) === 0) {
+        if (count($this->domains) === 0) {
             return true;
         }
 
@@ -33,7 +33,7 @@ class RouteGroup extends Route implements IGroupRoute
                 return true;
             }
 
-            $parameters = $this->parseParameters($domain, $request->getHost(), '.*');
+            $parameters = $this->parseParameters($domain, $request->getHost(), $request, '.*');
 
             if ($parameters !== null && count($parameters) !== 0) {
                 $this->parameters = $parameters;
@@ -60,7 +60,7 @@ class RouteGroup extends Route implements IGroupRoute
 
         if ($this->prefix !== null) {
             /* Parse parameters from current route */
-            $parameters = $this->parseParameters($this->prefix, $url);
+            $parameters = $this->parseParameters($this->prefix, $url, $request);
 
             /* If no custom regular expression or parameters was found on this route, we stop */
             if ($parameters === null) {
@@ -74,7 +74,7 @@ class RouteGroup extends Route implements IGroupRoute
         $parsedPrefix = $this->prefix ?? '';
 
         foreach ($this->getParameters() as $parameter => $value) {
-            $parsedPrefix = str_ireplace('{' . $parameter . '}', $value, $parsedPrefix);
+            $parsedPrefix = str_ireplace('{' . $parameter . '}', (string)$value, (string)$parsedPrefix);
         }
 
         /* Skip if prefix doesn't match */

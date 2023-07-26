@@ -2,12 +2,12 @@
 
 class DummyCsrfVerifier extends \Pecee\Http\Middleware\BaseCsrfVerifier {
 
-    protected $except = [
+    protected array $except = [
         '/exclude-page',
         '/exclude-all/*',
     ];
 
-    protected $include = [
+    protected array $include = [
         '/exclude-all/include-page',
     ];
 
