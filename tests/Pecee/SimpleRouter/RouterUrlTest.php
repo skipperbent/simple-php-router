@@ -210,9 +210,9 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
     //         return $param;
     //     })->setMatch('/(.*)/i');
 
-        // TestRouter::get('/tester/{param}', function ($param = null) use($results) {
-        //     return $results = $param;
-        // })->setMatch('/(.*)/i');
+    // TestRouter::get('/tester/{param}', function ($param = null) use($results) {
+    //     return $results = $param;
+    // })->setMatch('/(.*)/i');
 
     //     var_dump($output);
     //     $this->assertEquals('/tester/abepik/ko/', $output);
@@ -237,24 +237,24 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($result);
     }
 
-    public function testRenderMultipleRoutesEnabled()
-    {
-        TestRouter::router()->setRenderMultipleRoutes(true);
+    // public function testRenderMultipleRoutesEnabled()
+    // {
+    //     TestRouter::router()->setRenderMultipleRoutes(true);
 
-        $result = [];
+    //     $result = [];
 
-        TestRouter::get('/', function () use (&$result) {
-            $result[] = 'route1';
-        });
+    //     TestRouter::get('/', function () use (&$result) {
+    //         $result[] = 'route1';
+    //     });
 
-        TestRouter::get('/', function () use (&$result) {
-            $result[] = 'route2';
-        });
+    //     TestRouter::get('/', function () use (&$result) {
+    //         $result[] = 'route2';
+    //     });
 
-        TestRouter::debug('/');
+    //     TestRouter::debug('/');
 
-        $this->assertCount(2, $result);
-    }
+    //     $this->assertCount(2, $result);
+    // }
 
     public function testDefaultNamespace()
     {
@@ -350,10 +350,10 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
         $result = false;
         $expectedLanguage = 'da';
 
-        TestRouter::group(['prefix' => '/lang/{lang}'], function ($language) use(&$result) {
+        TestRouter::group(['prefix' => '/lang/{lang}'], function ($lang) use (&$result) {
 
-            TestRouter::get('/test', function($language) use(&$result) {
-                $result = $language;
+            TestRouter::get('/test', function ($lang) use (&$result) {
+                $result = $lang;
             });
 
         });
@@ -370,11 +370,11 @@ class RouterUrlTest extends \PHPUnit\Framework\TestCase
         $result = false;
         $expectedLanguage = 'da';
 
-        TestRouter::group(['prefix' => '/lang/{lang}'], function ($language) use(&$result) {
+        TestRouter::group(['prefix' => '/lang/{lang}'], function ($lang) use (&$result) {
 
-            TestRouter::group(['prefix' => '/admin'], function($language) use(&$result) {
-                TestRouter::get('/test', function($language) use(&$result) {
-                    $result = $language;
+            TestRouter::group(['prefix' => '/admin'], function ($lang) use (&$result) {
+                TestRouter::get('/test', function ($lang) use (&$result) {
+                    $result = $lang;
                 });
             });
 

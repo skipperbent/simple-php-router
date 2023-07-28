@@ -177,6 +177,7 @@ abstract class Route implements IRoute
 
             /* Only take matched parameters with name */
             $originalPath = $request->getUrl()->getOriginalPath();
+
             foreach ((array) $parameters[1] as $i => $name) {
 
                 // Ignore parent parameters

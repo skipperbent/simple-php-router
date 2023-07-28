@@ -485,6 +485,7 @@ class Url implements JsonSerializable
     {
         $path = $this->path ?? '/';
 
+
         if ($includeParams === false) {
             return $path;
         }

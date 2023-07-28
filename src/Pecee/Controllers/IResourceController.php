@@ -2,6 +2,8 @@
 
 namespace Pecee\Controllers;
 
+use Pecee\Http\Request;
+
 interface IResourceController
 {
 
@@ -19,7 +21,7 @@ interface IResourceController
     /**
      * @return mixed
      */
-    public function store();
+    public function store(Request $request);
 
     /**
      * @return mixed
@@ -37,7 +39,7 @@ interface IResourceController
      * @param mixed $id
      * @return mixed
      */
-    public function update($id);
+    public function update(Request $request, $id);
 
     /**
      * @param mixed $id

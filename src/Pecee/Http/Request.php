@@ -130,19 +130,19 @@ class Request
 
         // Check if special IIS header exist, otherwise use default.
         $url = $this->getHeader('unencoded-url');
-        if($url !== null){
+        if ($url !== null) {
             $this->setUrl(new Url($url));
-        }else{
-            $this->setUrl(new Url(urldecode((string)$this->getHeader('request-uri'))));
+        } else {
+            $this->setUrl(new Url(urldecode((string) $this->getHeader('request-uri'))));
         }
-        $this->setContentType((string)$this->getHeader('content-type'));
-        $this->setMethod((string)($_POST[static::FORCE_METHOD_KEY] ?? $this->getHeader('request-method')));
+        $this->setContentType((string) $this->getHeader('content-type'));
+        $this->setMethod((string) ($_POST[static::FORCE_METHOD_KEY] ?? $this->getHeader('request-method')));
         $this->inputHandler = new InputHandler($this);
     }
 
     public function isSecure(): bool
     {
-        return $this->getHeader('http-x-forwarded-proto') === 'https' || $this->getHeader('https') !== null || (int)$this->getHeader('server-port') === 443;
+        return $this->getHeader('http-x-forwarded-proto') === 'https' || $this->getHeader('https') !== null || (int) $this->getHeader('server-port') === 443;
     }
 
     /**
@@ -177,6 +177,15 @@ class Request
     public function getMethod(): ?string
     {
         return $this->method;
+    }
+
+    public function input($index = null, $defaultValue = null, ...$methods)
+    {
+        if ($index !== null) {
+            return $this->getInputHandler()->value($index, $defaultValue, ...$methods);
+        }
+
+        return $this->getInputHandler();
     }
 
     /**
@@ -225,7 +234,7 @@ class Request
     public function getIp(bool $safeMode = false): ?string
     {
         $headers = [];
-        if($safeMode === false) {
+        if ($safeMode === false) {
             $headers = [
                 'http-cf-connecting-ip',
                 'http-client-ip',
@@ -303,9 +312,9 @@ class Request
      */
     public function getFirstHeader(array $headers, $defaultValue = null)
     {
-        foreach($headers as $header) {
+        foreach ($headers as $header) {
             $header = $this->getHeader($header);
-            if($header !== null) {
+            if ($header !== null) {
                 return $header;
             }
         }
@@ -329,7 +338,7 @@ class Request
      */
     protected function setContentType(string $contentType): self
     {
-        if(strpos($contentType, ';') > 0) {
+        if (strpos($contentType, ';') > 0) {
             $this->contentType = strtolower(substr($contentType, 0, strpos($contentType, ';')));
         } else {
             $this->contentType = strtolower($contentType);
@@ -366,7 +375,7 @@ class Request
      */
     public function isAjax(): bool
     {
-        return (strtolower((string)$this->getHeader('http-x-requested-with')) === 'xmlhttprequest');
+        return (strtolower((string) $this->getHeader('http-x-requested-with')) === 'xmlhttprequest');
     }
 
     /**
@@ -396,10 +405,10 @@ class Request
         $this->url = $url;
 
         if ($this->url->getHost() === null) {
-            $this->url->setHost((string)$this->getHost());
+            $this->url->setHost((string) $this->getHost());
         }
 
-        if($this->isSecure() === true) {
+        if ($this->isSecure() === true) {
             $this->url->setScheme('https');
         }
     }
