@@ -12,109 +12,96 @@ SimpleRouter::get('/', function() {
 });
 ```
 
-### Support the project
-
-If you like simple-router and wish to see the continued development and maintenance of the project, please consider showing your support by buying me a coffee. Supporters will be listed under the credits section of this documentation.
-
-You can donate any amount of your choice by [clicking here](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NNX4D2RUSALCN).
-
 ## Table of Contents
 
 - [Getting started](#getting-started)
-	- [Notes](#notes-1)
-	- [Requirements](#requirements)
-	- [Features](#features)
-	- [Installation](#installation)
-		- [Setting up Apache](#setting-up-apache)
-		- [Setting up Nginx](#setting-up-nginx)
-		- [Setting up IIS](#setting-up-iis)
-		- [Configuration](#configuration)
-		- [Helper functions](#helper-functions)
+  - [Notes](#notes-1)
+  - [Requirements](#requirements)
+  - [Features](#features)
+  - [Installation](#installation)
+    - [Setting up Apache](#setting-up-apache)
+    - [Setting up Nginx](#setting-up-nginx)
+    - [Setting up IIS](#setting-up-iis)
+    - [Configuration](#configuration)
+    - [Helper functions](#helper-functions)
 - [Routes](#routes)
-	- [Basic routing](#basic-routing)
-		- [Class hinting](#class-hinting)
-		- [Available methods](#available-methods)
-		- [Multiple HTTP-verbs](#multiple-http-verbs)
-	- [Route parameters](#route-parameters)
-        - [Required parameters](#required-parameters)
-        - [Optional parameters](#optional-parameters)
-        - [Including slash in parameters](#including-slash-in-parameters)
-        - [Regular expression constraints](#regular-expression-constraints)
-        - [Regular expression route-match](#regular-expression-route-match)
-        - [Custom regex for matching parameters](#custom-regex-for-matching-parameters)
-	- [Named routes](#named-routes)
-		- [Generating URLs To Named Routes](#generating-urls-to-named-routes)
-	- [Router groups](#router-groups)
-		- [Middleware](#middleware)
-		- [Namespaces](#namespaces)
-		- [Subdomain-routing](#subdomain-routing)
-		- [Route prefixes](#route-prefixes)
-	- [Partial groups](#partial-groups)
-	- [Form Method Spoofing](#form-method-spoofing)
-	- [Accessing The Current Route](#accessing-the-current-route)
-	- [Other examples](#other-examples)
+  - [Basic routing](#basic-routing)
+    - [Class hinting](#class-hinting)
+    - [Available methods](#available-methods)
+    - [Multiple HTTP-verbs](#multiple-http-verbs)
+  - [Route parameters](#route-parameters) - [Required parameters](#required-parameters) - [Optional parameters](#optional-parameters) - [Including slash in parameters](#including-slash-in-parameters) - [Regular expression constraints](#regular-expression-constraints) - [Regular expression route-match](#regular-expression-route-match) - [Custom regex for matching parameters](#custom-regex-for-matching-parameters)
+  - [Named routes](#named-routes)
+    - [Generating URLs To Named Routes](#generating-urls-to-named-routes)
+  - [Router groups](#router-groups)
+    - [Middleware](#middleware)
+    - [Namespaces](#namespaces)
+    - [Subdomain-routing](#subdomain-routing)
+    - [Route prefixes](#route-prefixes)
+  - [Partial groups](#partial-groups)
+  - [Form Method Spoofing](#form-method-spoofing)
+  - [Accessing The Current Route](#accessing-the-current-route)
+  - [Other examples](#other-examples)
 - [CSRF-protection](#csrf-protection)
-	- [Adding CSRF-verifier](#adding-csrf-verifier)
-	- [Getting CSRF-token](#getting-csrf-token)
-	- [Custom CSRF-verifier](#custom-csrf-verifier)
-	- [Custom Token-provider](#custom-token-provider)
+  - [Adding CSRF-verifier](#adding-csrf-verifier)
+  - [Getting CSRF-token](#getting-csrf-token)
+  - [Custom CSRF-verifier](#custom-csrf-verifier)
+  - [Custom Token-provider](#custom-token-provider)
 - [Middlewares](#middlewares)
-	- [Example](#example-1)
+  - [Example](#example-1)
 - [ExceptionHandlers](#exceptionhandlers)
-    - [Handling 404, 403 and other errors](#handling-404-403-and-other-errors)
-	- [Using custom exception handlers](#using-custom-exception-handlers)
-		- [Prevent merge of parent exception-handlers](#prevent-merge-of-parent-exception-handlers)
+  - [Handling 404, 403 and other errors](#handling-404-403-and-other-errors)
+  - [Using custom exception handlers](#using-custom-exception-handlers)
+    - [Prevent merge of parent exception-handlers](#prevent-merge-of-parent-exception-handlers)
 - [Urls](#urls)
-    - [Get the current url](#get-the-current-url)
- 	- [Get by name (single route)](#get-by-name-single-route)
- 	- [Get by name (controller route)](#get-by-name-controller-route)
- 	- [Get by class](#get-by-class)
- 	- [Using custom names for methods on a controller/resource route](#using-custom-names-for-methods-on-a-controllerresource-route)
- 	- [Getting REST/resource controller urls](#getting-restresource-controller-urls)
- 	- [Manipulating url](#manipulating-url)
- 	- [Useful url tricks](#useful-url-tricks)
+  - [Get the current url](#get-the-current-url)
+  - [Get by name (single route)](#get-by-name-single-route)
+  - [Get by name (controller route)](#get-by-name-controller-route)
+  - [Get by class](#get-by-class)
+  - [Using custom names for methods on a controller/resource route](#using-custom-names-for-methods-on-a-controllerresource-route)
+  - [Getting REST/resource controller urls](#getting-restresource-controller-urls)
+  - [Manipulating url](#manipulating-url)
+  - [Useful url tricks](#useful-url-tricks)
 - [Input & parameters](#input--parameters)
-    - [Using the Input class to manage parameters](#using-the-input-class-to-manage-parameters)
-	    - [Get single parameter value](#get-single-parameter-value)
-	    - [Get parameter object](#get-parameter-object)
-	    - [Managing files](#managing-files)
-	    - [Get all parameters](#get-all-parameters)
-	    - [Check if parameters exists](#check-if-parameters-exists)
+  - [Using the Input class to manage parameters](#using-the-input-class-to-manage-parameters)
+    - [Get single parameter value](#get-single-parameter-value)
+    - [Get parameter object](#get-parameter-object)
+    - [Managing files](#managing-files)
+    - [Get all parameters](#get-all-parameters)
+    - [Check if parameters exists](#check-if-parameters-exists)
 - [Events](#events)
-    - [Available events](#available-events)
-    - [Registering new event](#registering-new-event)
-    - [Custom EventHandlers](#custom-eventhandlers)
+  - [Available events](#available-events)
+  - [Registering new event](#registering-new-event)
+  - [Custom EventHandlers](#custom-eventhandlers)
 - [Advanced](#advanced)
-	- [Multiple route rendering](#multiple-route-rendering)
-	- [Restrict access to IP](#restrict-access-to-ip)
-	- [Setting custom base path](#setting-custom-base-path)
-	- [Url rewriting](#url-rewriting)
-		- [Changing current route](#changing-current-route)
-		- [Bootmanager: loading routes dynamically](#bootmanager-loading-routes-dynamically)
-		- [Adding routes manually](#adding-routes-manually)
-	- [Custom class-loader](#custom-class-loader)
-	  - [Integrating with php-di](#Integrating-with-php-di)
-	- [Parameters](#parameters)
-	- [Extending](#extending)
+  - [Multiple route rendering](#multiple-route-rendering)
+  - [Restrict access to IP](#restrict-access-to-ip)
+  - [Setting custom base path](#setting-custom-base-path)
+  - [Url rewriting](#url-rewriting)
+    - [Changing current route](#changing-current-route)
+    - [Bootmanager: loading routes dynamically](#bootmanager-loading-routes-dynamically)
+    - [Adding routes manually](#adding-routes-manually)
+  - [Custom class-loader](#custom-class-loader)
+    - [Integrating with php-di](#Integrating-with-php-di)
+  - [Parameters](#parameters)
+  - [Extending](#extending)
 - [Help and support](#help-and-support)
-    - [Common issues and fixes](#common-issues-and-fixes)
-        - [Multiple routes matches? Which one has the priority?](#multiple-routes-matches-which-one-has-the-priority)
-        - [Parameters won't match or route not working with special characters](#parameters-wont-match-or-route-not-working-with-special-characters)
-        - [Using the router on sub-paths](#using-the-router-on-sub-paths)
-    - [Debugging](#debugging)
-        - [Creating unit-tests](#creating-unit-tests) 
-        - [Debug information](#debug-information)
-        - [Benchmark and log-info](#benchmark-and-log-info)
-    - [Reporting a new issue](#reporting-a-new-issue)
-        - [Procedure for reporting a new issue](#procedure-for-reporting-a-new-issue)
-        - [Issue template](#issue-template)
-    - [Feedback and development](#feedback-and-development)
-   	    - [Contribution development guidelines](#contribution-development-guidelines)
+  - [Common issues and fixes](#common-issues-and-fixes)
+    - [Multiple routes matches? Which one has the priority?](#multiple-routes-matches-which-one-has-the-priority)
+    - [Parameters won't match or route not working with special characters](#parameters-wont-match-or-route-not-working-with-special-characters)
+    - [Using the router on sub-paths](#using-the-router-on-sub-paths)
+  - [Debugging](#debugging)
+    - [Creating unit-tests](#creating-unit-tests)
+    - [Debug information](#debug-information)
+    - [Benchmark and log-info](#benchmark-and-log-info)
+  - [Reporting a new issue](#reporting-a-new-issue)
+    - [Procedure for reporting a new issue](#procedure-for-reporting-a-new-issue)
+    - [Issue template](#issue-template)
+  - [Feedback and development](#feedback-and-development) - [Contribution development guidelines](#contribution-development-guidelines)
 - [Credits](#credits)
-	- [Sites](#sites)
-	- [License](#license)
+  - [Sites](#sites)
+  - [License](#license)
 
-___
+---
 
 # Getting started
 
@@ -262,7 +249,7 @@ You can also make one exception for files with some extensions:
 <add input="{REQUEST_FILENAME}" pattern="\.ico|\.png|\.css|\.jpg" negate="true" ignoreCase="true" />
 ```
 
-If you are using `$_SERVER['ORIG_PATH_INFO']`, you will get `\index.php\` as part of the returned value. 
+If you are using `$_SERVER['ORIG_PATH_INFO']`, you will get `\index.php\` as part of the returned value.
 
 **Example:**
 
@@ -276,11 +263,11 @@ Create a new file, name it `routes.php` and place it in your library folder. Thi
 
 **WARNING: NEVER PLACE YOUR ROUTES.PHP IN YOUR PUBLIC FOLDER!**
 
-In your ```index.php``` require your newly-created ```routes.php``` and call the ```SimpleRouter::start()``` method. This will trigger and do the actual routing of the requests.
+In your `index.php` require your newly-created `routes.php` and call the `SimpleRouter::start()` method. This will trigger and do the actual routing of the requests.
 
 It's not required, but you can set `SimpleRouter::setDefaultNamespace('\Demo\Controllers');` to prefix all routes with the namespace to your controllers. This will simplify things a bit, as you won't have to specify the namespace for your controllers on each route.
 
-**This is an example of a basic ```index.php``` file:**
+**This is an example of a basic `index.php` file:**
 
 ```php
 <?php
@@ -399,7 +386,7 @@ function csrf_token(): ?string
 
 # Routes
 
-Remember the ```routes.php``` file you required in your ```index.php```? This file be where you place all your custom rules for routing.
+Remember the `routes.php` file you required in your `index.php`? This file be where you place all your custom rules for routing.
 
 ## Basic routing
 
@@ -475,7 +462,7 @@ SimpleRouter::get('/posts/{post}/comments/{comment}', function ($postId, $commen
 ```
 
 **Note:** Route parameters are always encased within `{` `}` braces and should consist of alphabetic characters. Route parameters can only contain certain characters like `A-Z`, `a-z`, `0-9`, `-` and `_`.
-If your route contain other characters, please see  [Custom regex for matching parameters](#custom-regex-for-matching-parameters).
+If your route contain other characters, please see [Custom regex for matching parameters](#custom-regex-for-matching-parameters).
 
 ### Optional parameters
 
@@ -499,7 +486,7 @@ For instance `/path` will be considered a file - whereas `/path/` will be consid
 
 The router can add the ending slash for the last parameter in your route based on the path. So if `/path/` is requested the parameter will contain the value of `path/` and visa versa.
 
-To ensure compatibility with older versions, this feature is disabled by default and has to be enabled by setting 
+To ensure compatibility with older versions, this feature is disabled by default and has to be enabled by setting
 the `setSettings(['includeSlash' => true])` or by using setting `setSlashParameterEnabled(true)` for your route.
 
 **Example**
@@ -519,21 +506,21 @@ You may constrain the format of your route parameters using the where method on 
 
 ```php
 SimpleRouter::get('/user/{name}', function ($name) {
-    
+
     // ... do stuff
-    
+
 })->where([ 'name' => '[A-Za-z]+' ]);
 
 SimpleRouter::get('/user/{id}', function ($id) {
-    
+
     // ... do stuff
-    
+
 })->where([ 'id' => '[0-9]+' ]);
 
 SimpleRouter::get('/user/{id}/{name}', function ($id, $name) {
-    
+
     // ... do stuff
-    
+
 })->where(['id' => '[0-9]+', 'name' => '[a-z]+']);
 ```
 
@@ -651,6 +638,7 @@ SimpleRouter::group(['middleware' => \Demo\Middleware\Auth::class], function () 
 Another common use-case for route groups is assigning the same PHP namespace to a group of controllers using the `namespace` parameter in the group array:
 
 #### Note
+
 Group namespaces will only be added to routes with relative callbacks.
 For example if your route has an absolute callback like `\Demo\Controller\DefaultController@home`, the namespace from the route will not be prepended.
 To fix this you can make the callback relative by removing the `\` in the beginning of the callback.
@@ -663,18 +651,18 @@ SimpleRouter::group(['namespace' => 'Admin'], function () {
 
 You can add parameters to the prefixes of your routes.
 
-Parameters from your previous routes will be injected 
+Parameters from your previous routes will be injected
 into your routes after any route-required parameters, starting from oldest to newest.
 
 ```php
 SimpleRouter::group(['prefix' => '/lang/{lang}'], function ($language) {
-    
+
     SimpleRouter::get('/about', function($language) {
-    	
+
     	// Will match /lang/da/about
-    	
+
     });
-    
+
 });
 ```
 
@@ -714,13 +702,13 @@ SimpleRouter::group(['prefix' => '/lang/{language}'], function ($language) {
 
 ## Partial groups
 
-Partial router groups has the same benefits as a normal group, but **are only rendered once the url has matched** 
+Partial router groups has the same benefits as a normal group, but **are only rendered once the url has matched**
 in contrast to a normal group which are always rendered in order to retrieve it's child routes.
 Partial groups are therefore more like a hybrid of a traditional route with the benefits of a group.
 
 This can be extremely useful in situations where you only want special routes to be added, but only when a certain criteria or logic has been met.
 
-**NOTE:** Use partial groups with caution as routes added within are only rendered and available once the url of the partial-group has matched. 
+**NOTE:** Use partial groups with caution as routes added within are only rendered and available once the url of the partial-group has matched.
 This can cause `url()` not to find urls for the routes added within before the partial-group has been matched and is rendered.
 
 **Example:**
@@ -769,7 +757,7 @@ SimpleRouter::group(['middleware' => \Demo\Middlewares\Site::class, 'exceptionHa
 	/**
      * Class hinting is supported too
      */
-     
+
      SimpleRouter::get('/answers/{id}', [ControllerAnswers::class, 'show'], ['where' => ['id' => '[0-9]+']]);
 
     /**
@@ -843,8 +831,8 @@ The example below will post to the current url with a hidden field "`csrf_token`
 
 ```html
 <form method="post" action="<?= url(); ?>">
-    <input type="hidden" name="csrf_token" value="<?= csrf_token(); ?>">
-    <!-- other input elements here -->
+  <input type="hidden" name="csrf_token" value="<?= csrf_token(); ?>" />
+  <!-- other input elements here -->
 </form>
 ```
 
@@ -853,7 +841,7 @@ The example below will post to the current url with a hidden field "`csrf_token`
 Create a new class and extend the `BaseCsrfVerifier` middleware class provided by default with the simple-php-router library.
 
 Add the property `except` with an array of the urls to the routes you want to exclude/whitelist from the CSRF validation.
-Using ```*``` at the end for the url will match the entire url.
+Using `*` at the end for the url will match the entire url.
 
 **Here's a basic example on a CSRF-verifier class:**
 
@@ -899,14 +887,14 @@ class SessionTokenProvider implements ITokenProvider
     {
         // Implement your own functionality here...
     }
-    
+
     /**
      * Get token token
      *
      * @param string|null $defaultValue
      * @return string|null
      */
-    public function getToken(?string $defaultValue = null): ?string 
+    public function getToken(?string $defaultValue = null): ?string
     {
         // Implement your own functionality here...
     }
@@ -939,9 +927,9 @@ use Pecee\Http\Request;
 
 class CustomMiddleware implements IMiddleware {
 
-    public function handle(Request $request): void 
+    public function handle(Request $request): void
     {
-    
+
         // Authenticate user, will be available using request()->user
         $request->user = User::authenticate();
 
@@ -983,7 +971,7 @@ SimpleRouter::error(function(Request $request, \Exception $exception) {
         case 403:
             response()->redirect('/forbidden');
     }
-    
+
 });
 ```
 
@@ -1034,9 +1022,9 @@ class CustomExceptionHandler implements IExceptionHandler
 			// Render custom 404-page
 			$request->setRewriteCallback('Demo\Controllers\PageController@notFound');
 			return;
-			
+
 		}
-		
+
 		/* Other error */
 		if($error instanceof MyCustomException) {
 
@@ -1045,7 +1033,7 @@ class CustomExceptionHandler implements IExceptionHandler
 				(new RouteUrl(url(null, null, []), 'PageController@error'))->setParameters(['exception' => $error])
 			);
 			return;
-			
+
 		}
 
 		throw $error;
@@ -1076,15 +1064,15 @@ If you want your groups exception handler to be executed independently, you can 
 SimpleRouter::group(['prefix' => '/', 'exceptionHandler' => \Demo\Handlers\FirstExceptionHandler::class, 'mergeExceptionHandlers' => false], function() {
 
 	SimpleRouter::group(['prefix' => '/admin', 'exceptionHandler' => \Demo\Handlers\SecondExceptionHandler::class], function() {
-	
+
 		// Both SecondExceptionHandler and FirstExceptionHandler will trigger (in that order).
-	
+
 	});
-	
+
 	SimpleRouter::group(['prefix' => '/user', 'exceptionHandler' => \Demo\Handlers\SecondExceptionHandler::class, 'mergeExceptionHandlers' => false], function() {
-	
+
 		// Only SecondExceptionHandler will trigger.
-	
+
 	});
 
 });
@@ -1098,8 +1086,8 @@ By default all controller and resource routes will use a simplified version of t
 
 You easily use the `url()` shortcut helper function to retrieve urls for your routes or manipulate the current url.
 
-`url()` will return a `Url` object which will return a `string` when rendered, so it can be used safely in templates etc. but 
-contains all the useful helpers methods in the `Url` class like `contains`, `indexOf` etc. 
+`url()` will return a `Url` object which will return a `string` when rendered, so it can be used safely in templates etc. but
+contains all the useful helpers methods in the `Url` class like `contains`, `indexOf` etc.
 Check the [Useful url tricks](#useful-url-tricks) below.
 
 ### Get the current url
@@ -1192,7 +1180,7 @@ You can easily manipulate the query-strings, by adding your get param arguments.
 url(null, null, ['q' => 'cars']);
 ```
 
-You can remove a query-string parameter by setting the value to `null`. 
+You can remove a query-string parameter by setting the value to `null`.
 
 The example below will remove any query-string parameter named `q` from the url but keep all others query-string parameters:
 
@@ -1238,18 +1226,18 @@ You can use the `InputHandler` class to easily access and manage parameters from
 
 ### Get single parameter value
 
-```input($index, $defaultValue, ...$methods);```
+`input($index, $defaultValue, ...$methods);`
 
 To quickly get a value from a parameter, you can use the `input` helper function.
 
 This will automatically trim the value and ensure that it's not empty. If it's empty the `$defaultValue` will be returned instead.
 
-**Note:** 
+**Note:**
 This function returns a `string` unless the parameters are grouped together, in that case it will return an `array` of values.
 
 **Example:**
 
-This example matches both POST and GET request-methods and if name is empty the default-value "Guest" will be returned. 
+This example matches both POST and GET request-methods and if name is empty the default-value "Guest" will be returned.
 
 ```php
 $name = input('name', 'Guest', 'post', 'get');
@@ -1302,7 +1290,7 @@ $object = input()->file($index, $defaultValue = null);
 /* @var $image \Pecee\Http\Input\InputFile */
 foreach(input()->file('images', []) as $image)
 {
-    if($image->getMime() === 'image/jpeg') 
+    if($image->getMime() === 'image/jpeg')
     {
         $destinationFilname = sprintf('%s.%s', uniqid(), $image->getExtension());
         $image->move(sprintf('/uploads/%s', $destinationFilename));
@@ -1349,7 +1337,7 @@ All object implements the `IInputItem` interface and will always contain these m
 
 ### Check if parameters exists
 
-You can easily if multiple items exists by using the `exists` method. It's simular to `value` as it can be used 
+You can easily if multiple items exists by using the `exists` method. It's simular to `value` as it can be used
 to filter on request-methods and supports both `string` and `array` as parameter value.
 
 **Example:**
@@ -1374,32 +1362,32 @@ It will also cover the basics of event-handlers; how to use the handlers provide
 
 This section contains all available events that can be registered using the `EventHandler`.
 
-All event callbacks will retrieve a `EventArgument` object as parameter. This object contains easy access to event-name, router- and request instance and any special event-arguments related to the given event. You can see what special event arguments each event returns in the list below.  
+All event callbacks will retrieve a `EventArgument` object as parameter. This object contains easy access to event-name, router- and request instance and any special event-arguments related to the given event. You can see what special event arguments each event returns in the list below.
 
-| Name                        | Special arguments | Description               | 
-| -------------               |-----------      | ----                      | 
-| `EVENT_ALL`                 | - | Fires when a event is triggered. |
-| `EVENT_INIT`                | - | Fires when router is initializing and before routes are loaded. |
-| `EVENT_LOAD`                | `loadedRoutes` | Fires when all routes has been loaded and rendered, just before the output is returned. |
-| `EVENT_ADD_ROUTE`           | `route`<br>`isSubRoute` | Fires when route is added to the router. `isSubRoute` is true when sub-route is rendered. |
-| `EVENT_REWRITE`             | `rewriteUrl`<br>`rewriteRoute` | Fires when a url-rewrite is and just before the routes are re-initialized. |
-| `EVENT_BOOT`                | `bootmanagers` | Fires when the router is booting. This happens just before boot-managers are rendered and before any routes has been loaded. |
-| `EVENT_RENDER_BOOTMANAGER`  | `bootmanagers`<br>`bootmanager` | Fires before a boot-manager is rendered. |
-| `EVENT_LOAD_ROUTES`         | `routes` | Fires when the router is about to load all routes. |
-| `EVENT_FIND_ROUTE`          | `name` | Fires whenever the `findRoute` method is called within the `Router`. This usually happens when the router tries to find routes that contains a certain url, usually after the `EventHandler::EVENT_GET_URL` event. |
-| `EVENT_GET_URL`             | `name`<br>`parameters`<br>`getParams` | Fires whenever the `SimpleRouter::getUrl` method or `url`-helper function is called and the router tries to find the route. |
-| `EVENT_MATCH_ROUTE`         | `route` | Fires when a route is matched and valid (correct request-type etc). and before the route is rendered. |
-| `EVENT_RENDER_ROUTE`        | `route` | Fires before a route is rendered. |
-| `EVENT_LOAD_EXCEPTIONS`     | `exception`<br>`exceptionHandlers` | Fires when the router is loading exception-handlers. |
-| `EVENT_RENDER_EXCEPTION`    | `exception`<br>`exceptionHandler`<br>`exceptionHandlers` | Fires before the router is rendering a exception-handler. |
-| `EVENT_RENDER_MIDDLEWARES`  | `route`<br>`middlewares` | Fires before middlewares for a route is rendered. |
-| `EVENT_RENDER_CSRF`         | `csrfVerifier` | Fires before the CSRF-verifier is rendered. |
+| Name                       | Special arguments                                        | Description                                                                                                                                                                                                        |
+| -------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `EVENT_ALL`                | -                                                        | Fires when a event is triggered.                                                                                                                                                                                   |
+| `EVENT_INIT`               | -                                                        | Fires when router is initializing and before routes are loaded.                                                                                                                                                    |
+| `EVENT_LOAD`               | `loadedRoutes`                                           | Fires when all routes has been loaded and rendered, just before the output is returned.                                                                                                                            |
+| `EVENT_ADD_ROUTE`          | `route`<br>`isSubRoute`                                  | Fires when route is added to the router. `isSubRoute` is true when sub-route is rendered.                                                                                                                          |
+| `EVENT_REWRITE`            | `rewriteUrl`<br>`rewriteRoute`                           | Fires when a url-rewrite is and just before the routes are re-initialized.                                                                                                                                         |
+| `EVENT_BOOT`               | `bootmanagers`                                           | Fires when the router is booting. This happens just before boot-managers are rendered and before any routes has been loaded.                                                                                       |
+| `EVENT_RENDER_BOOTMANAGER` | `bootmanagers`<br>`bootmanager`                          | Fires before a boot-manager is rendered.                                                                                                                                                                           |
+| `EVENT_LOAD_ROUTES`        | `routes`                                                 | Fires when the router is about to load all routes.                                                                                                                                                                 |
+| `EVENT_FIND_ROUTE`         | `name`                                                   | Fires whenever the `findRoute` method is called within the `Router`. This usually happens when the router tries to find routes that contains a certain url, usually after the `EventHandler::EVENT_GET_URL` event. |
+| `EVENT_GET_URL`            | `name`<br>`parameters`<br>`getParams`                    | Fires whenever the `SimpleRouter::getUrl` method or `url`-helper function is called and the router tries to find the route.                                                                                        |
+| `EVENT_MATCH_ROUTE`        | `route`                                                  | Fires when a route is matched and valid (correct request-type etc). and before the route is rendered.                                                                                                              |
+| `EVENT_RENDER_ROUTE`       | `route`                                                  | Fires before a route is rendered.                                                                                                                                                                                  |
+| `EVENT_LOAD_EXCEPTIONS`    | `exception`<br>`exceptionHandlers`                       | Fires when the router is loading exception-handlers.                                                                                                                                                               |
+| `EVENT_RENDER_EXCEPTION`   | `exception`<br>`exceptionHandler`<br>`exceptionHandlers` | Fires before the router is rendering a exception-handler.                                                                                                                                                          |
+| `EVENT_RENDER_MIDDLEWARES` | `route`<br>`middlewares`                                 | Fires before middlewares for a route is rendered.                                                                                                                                                                  |
+| `EVENT_RENDER_CSRF`        | `csrfVerifier`                                           | Fires before the CSRF-verifier is rendered.                                                                                                                                                                        |
 
 ## Registering new event
 
 To register a new event you need to create a new instance of the `EventHandler` object. On this object you can add as many callbacks as you like by calling the `registerEvent` method.
 
-When you've registered events, make sure to add it to the router by calling 
+When you've registered events, make sure to add it to the router by calling
 `SimpleRouter::addEventHandler()`. We recommend that you add your event-handlers within your `routes.php`.
 
 **Example:**
@@ -1414,12 +1402,12 @@ $eventHandler = new EventHandler();
 
 // Add event that fires when a route is rendered
 $eventHandler->register(EventHandler::EVENT_RENDER_ROUTE, function(EventArgument $argument) {
-   
+
    // Get the route by using the special argument for this event.
    $route = $argument->route;
-   
+
    // DO STUFF...
-    
+
 });
 
 SimpleRouter::addEventHandler($eventHandler);
@@ -1428,7 +1416,7 @@ SimpleRouter::addEventHandler($eventHandler);
 
 ## Custom EventHandlers
 
-`EventHandler` is the class that manages events and must inherit from the `IEventHandler` interface. The handler knows how to handle events for the given handler-type. 
+`EventHandler` is the class that manages events and must inherit from the `IEventHandler` interface. The handler knows how to handle events for the given handler-type.
 
 Most of the time the basic `\Pecee\SimpleRouter\Handler\EventHandler` class will be more than enough for most people as you simply register an event which fires when triggered.
 
@@ -1523,7 +1511,7 @@ You can use `*` to restrict access to a range of ips.
 ```php
 use \Pecee\Http\Middleware\IpRestrictAccess;
 
-class IpBlockerMiddleware extends IpRestrictAccess 
+class IpBlockerMiddleware extends IpRestrictAccess
 {
 
     protected $ipBlacklist = [
@@ -1558,7 +1546,7 @@ $eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function(EventArgument $e
 	if(!$event->isSubRoute) {
 		return;
 	}
-	
+
 	switch (true) {
 		case $route instanceof ILoadableRoute:
 			$route->prependUrl($basePath);
@@ -1568,7 +1556,7 @@ $eventHandler->register(EventHandler::EVENT_ADD_ROUTE, function(EventArgument $e
 			break;
 
 	}
-	
+
 });
 
 SimpleRouter::addEventHandler($eventHandler);
@@ -1588,7 +1576,6 @@ All information about the current route is stored in the `\Pecee\SimpleRouter\Ro
 
 For easy access you can use the shortcut helper function `request()` instead of calling the class directly `\Pecee\SimpleRouter\SimpleRouter::router()`.
 
-
 ```php
 request()->setRewriteCallback('Example\MyCustomClass@hello');
 
@@ -1599,16 +1586,16 @@ request()->setRewriteUrl('/my-rewrite-url');
 
 ### Bootmanager: loading routes dynamically
 
-Sometimes it can be necessary to keep urls stored in the database, file or similar. In this example, we want the url ```/my-cat-is-beatiful``` to load the route ```/article/view/1``` which the router knows, because it's defined in the ```routes.php``` file.
+Sometimes it can be necessary to keep urls stored in the database, file or similar. In this example, we want the url `/my-cat-is-beatiful` to load the route `/article/view/1` which the router knows, because it's defined in the `routes.php` file.
 
-To interfere with the router, we create a class that implements the ```IRouterBootManager``` interface. This class will be loaded before any other rules in ```routes.php``` and allow us to "change" the current route, if any of our criteria are fulfilled (like coming from the url ```/my-cat-is-beatiful```).
+To interfere with the router, we create a class that implements the `IRouterBootManager` interface. This class will be loaded before any other rules in `routes.php` and allow us to "change" the current route, if any of our criteria are fulfilled (like coming from the url `/my-cat-is-beatiful`).
 
 ```php
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\IRouterBootManager;
 use Pecee\SimpleRouter\Router;
 
-class CustomRouterRules implement IRouterBootManager 
+class CustomRouterRules implement IRouterBootManager
 {
 
     /**
@@ -1641,11 +1628,11 @@ class CustomRouterRules implement IRouterBootManager
 
 The above should be pretty self-explanatory and can easily be changed to loop through urls store in the database, file or cache.
 
-What happens is that if the current route matches the route defined in the index of our ```$rewriteRules``` array, we set the route to the array value instead.
+What happens is that if the current route matches the route defined in the index of our `$rewriteRules` array, we set the route to the array value instead.
 
-By doing this the route will now load the url ```/article/view/1``` instead of ```/my-cat-is-beatiful```.
+By doing this the route will now load the url `/article/view/1` instead of `/my-cat-is-beatiful`.
 
-The last thing we need to do, is to add our custom boot-manager to the ```routes.php``` file. You can create as many bootmanagers as you like and easily add them in your ```routes.php``` file.
+The last thing we need to do, is to add our custom boot-manager to the `routes.php` file. You can create as many bootmanagers as you like and easily add them in your `routes.php` file.
 
 ```php
 SimpleRouter::addBootManager(new CustomRouterRules());
@@ -1653,8 +1640,8 @@ SimpleRouter::addBootManager(new CustomRouterRules());
 
 ### Adding routes manually
 
-The ```SimpleRouter``` class referenced in the previous example, is just a simple helper class that knows how to communicate with the ```Router``` class.
-If you are up for a challenge, want the full control or simply just want to create your own ```Router``` helper class, this example is for you.
+The `SimpleRouter` class referenced in the previous example, is just a simple helper class that knows how to communicate with the `Router` class.
+If you are up for a challenge, want the full control or simply just want to create your own `Router` helper class, this example is for you.
 
 ```php
 use \Pecee\SimpleRouter\Router;
@@ -1703,7 +1690,7 @@ class MyCustomClassLoader implements IClassLoader
 
         return new $class();
     }
-    
+
     /**
      * Called when loading class method
      * @param object $class
@@ -1776,7 +1763,7 @@ class MyCustomClassLoader implements IClassLoader
 			throw new NotFoundHttpException($e->getMessage(), (int)$e->getCode(), $e->getPrevious());
 		}
     }
-    
+
     /**
      * Called when loading class method
      * @param object $class
@@ -1819,7 +1806,7 @@ This section contains advanced tips & tricks on extending the usage for paramete
 
 This is a simple example of an integration into a framework.
 
-The framework has it's own ```Router``` class which inherits from the ```SimpleRouter``` class. This allows the framework to add custom functionality like loading a custom `routes.php` file or add debugging information etc.
+The framework has it's own `Router` class which inherits from the `SimpleRouter` class. This allows the framework to add custom functionality like loading a custom `routes.php` file or add debugging information etc.
 
 ```php
 namespace Demo;
@@ -1856,7 +1843,7 @@ This section will go over common issues and how to resolve them.
 
 ### Parameters won't match or route not working with special characters
 
-Often people experience this issue when one or more parameters contains special characters. The router uses a sparse regular-expression that matches letters from a-z along with numbers when matching parameters, to improve performance. 
+Often people experience this issue when one or more parameters contains special characters. The router uses a sparse regular-expression that matches letters from a-z along with numbers when matching parameters, to improve performance.
 
 All other characters has to be defined via the `defaultParameterRegex` option on your route.
 
@@ -1868,7 +1855,7 @@ The router will match routes in the order they're added and will render multiple
 
 If you want the router to stop when a route is matched, you simply return a value in your callback or stop the execution manually (using `response()->json()` etc.) or simply by returning a result.
 
-Any returned objects that implements the `__toString()` magic method will also prevent other routes from being rendered. 
+Any returned objects that implements the `__toString()` magic method will also prevent other routes from being rendered.
 
 If you want the router only to execute one route per request, you can [disabling multiple route rendering](#disable-multiple-route-rendering).
 
@@ -1878,9 +1865,9 @@ Please refer to [Setting custom base path](#setting-custom-base-path) part of th
 
 ## Debugging
 
-This section will show you how to write unit-tests for the router, view useful debugging information and answer some of the frequently asked questions. 
+This section will show you how to write unit-tests for the router, view useful debugging information and answer some of the frequently asked questions.
 
-It will also covers how to report any issue you might encounter. 
+It will also covers how to report any issue you might encounter.
 
 ### Creating unit-tests
 
@@ -1895,13 +1882,13 @@ public function testUnicodeCharacters()
 {
     // Add route containing two optional paramters with special spanish characters like "í".
     TestRouter::get('/cursos/listado/{listado?}/{category?}', 'DummyController@method1', ['defaultParameterRegex' => '[\w\p{L}\s-]+']);
-    
+
     // Start the routing and simulate the url "/cursos/listado/especialidad/cirugía local".
     TestRouter::debugNoReset('/cursos/listado/especialidad/cirugía local', 'GET');
-    
+
     // Verify that the url for the loaded route matches the expected route.
     $this->assertEquals('/cursos/listado/{listado?}/{category?}/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
-    
+
     // Start the routing and simulate the url "/test/Dermatología" using "GET" as request-method.
     TestRouter::debugNoReset('/test/Dermatología', 'GET');
 
@@ -1916,10 +1903,10 @@ public function testUnicodeCharacters()
 
     // Add route testing danish special characters like "ø".
     TestRouter::get('/category/økse', 'DummyController@method1', ['defaultParameterRegex' => '[\w\ø]+']);
-    
+
     // Start the routing and simulate the url "/kategory/økse" using "GET" as request-method.
     TestRouter::debugNoReset('/category/økse', 'GET');
-    
+
     // Validate that the URL of the loaded-route matches the expected url.
     $this->assertEquals('/category/økse/', TestRouter::router()->getRequest()->getLoadedRoute()->getUrl());
 
@@ -1932,18 +1919,17 @@ public function testUnicodeCharacters()
 
 Depending on your test, you can use the methods below when rendering routes in your unit-tests.
 
-
-| Method        | Description  |
-| ------------- |-------------|
-| ```TestRouter::debug($url, $method)``` | Will render the route without returning anything. Exceptions will be thrown and the router will be reset automatically. |
-| ```TestRouter::debugOutput($url, $method)``` | Will render the route and return any value that the route might output. Manual reset required by calling `TestRouter::router()->reset()`. |
-| ```TestRouter::debugNoReset($url, $method);```  | Will render the route without resetting the router. Useful if you need to get loaded route, parameters etc. from the router. Manual reset required by calling `TestRouter::router()->reset()`. |
+| Method                                     | Description                                                                                                                                                                                    |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TestRouter::debug($url, $method)`         | Will render the route without returning anything. Exceptions will be thrown and the router will be reset automatically.                                                                        |
+| `TestRouter::debugOutput($url, $method)`   | Will render the route and return any value that the route might output. Manual reset required by calling `TestRouter::router()->reset()`.                                                      |
+| `TestRouter::debugNoReset($url, $method);` | Will render the route without resetting the router. Useful if you need to get loaded route, parameters etc. from the router. Manual reset required by calling `TestRouter::router()->reset()`. |
 
 ### Debug information
 
 The library can output debug-information, which contains information like loaded routes, the parsed request-url etc. It also contains info which are important when reporting a new issue like PHP-version, library version, server-variables, router debug log etc.
 
-You can activate the debug-information by calling the alternative start-method. 
+You can activate the debug-information by calling the alternative start-method.
 
 The example below will start the routing an return array with debugging-information
 
@@ -1957,20 +1943,20 @@ exit;
 
 **The example above will provide you with an output containing:**
 
-| Key               | Description  |
-| -------------     |------------- |
-| `url`             | The parsed request-uri. This url should match the url in the browser.|
-| `method`          | The browsers request method (example: `GET`, `POST`, `PUT`, `PATCH`, `DELETE` etc).|
-| `host`            | The website host (example: `domain.com`).|
-| `loaded_routes`   | List of all the routes that matched the `url` and that has been rendered/loaded. |
-| `all_routes`      | All available routes |
-| `boot_managers`   | All available BootManagers |
-| `csrf_verifier`   | CsrfVerifier class |
-| `log`             | List of debug messages/log from the router. |
-| `router_output`   | The rendered callback output from the router. |
-| `library_version` | The version of simple-php-router you are using. |
-| `php_version`     | The version of PHP you are using. |
-| `server_params`   | List of all `$_SERVER` variables/headers. | 
+| Key               | Description                                                                         |
+| ----------------- | ----------------------------------------------------------------------------------- |
+| `url`             | The parsed request-uri. This url should match the url in the browser.               |
+| `method`          | The browsers request method (example: `GET`, `POST`, `PUT`, `PATCH`, `DELETE` etc). |
+| `host`            | The website host (example: `domain.com`).                                           |
+| `loaded_routes`   | List of all the routes that matched the `url` and that has been rendered/loaded.    |
+| `all_routes`      | All available routes                                                                |
+| `boot_managers`   | All available BootManagers                                                          |
+| `csrf_verifier`   | CsrfVerifier class                                                                  |
+| `log`             | List of debug messages/log from the router.                                         |
+| `router_output`   | The rendered callback output from the router.                                       |
+| `library_version` | The version of simple-php-router you are using.                                     |
+| `php_version`     | The version of PHP you are using.                                                   |
+| `server_params`   | List of all `$_SERVER` variables/headers.                                           |
 
 #### Benchmark and logging
 
@@ -2059,7 +2045,7 @@ Remember that a more detailed issue- description and debug-info might suck to wr
 
 ## Feedback and development
 
-If the library is missing a feature that you need in your project or if you have feedback, we'd love to hear from you. 
+If the library is missing a feature that you need in your project or if you have feedback, we'd love to hear from you.
 Feel free to leave us feedback by [creating a new issue](https://github.com/skipperbent/simple-php-router/issues/new).
 
 **Experiencing an issue?**
@@ -2071,7 +2057,7 @@ Please refer to our [Help and support](#help-and-support) section in the documen
 - Please try to follow the PSR-2 codestyle guidelines.
 
 - Please create your pull requests to the development base that matches the version number you want to change.
-For example when pushing changes to version 3, the pull request should use the `v3-development` base/branch.
+  For example when pushing changes to version 3, the pull request should use the `v3-development` base/branch.
 
 - Create detailed descriptions for your commits, as these will be used in the changelog for new releases.
 
