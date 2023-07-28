@@ -10,7 +10,7 @@ class DummyController
     }
 
 
-    public function method1(Request $request)
+    public function method1()
     {
 
     }

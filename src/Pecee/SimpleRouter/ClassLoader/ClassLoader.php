@@ -5,6 +5,7 @@ namespace Pecee\SimpleRouter\ClassLoader;
 use Pecee\Container\Container;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 class ClassLoader implements IClassLoader
 {
@@ -17,11 +18,11 @@ class ClassLoader implements IClassLoader
      */
     public function loadClass(string $class)
     {
-        if (class_exists($class) === false) {
-            throw new ClassNotFoundHttpException($class, null, sprintf('Class "%s" does not exist', $class), 404, null);
+        if (\class_exists($class) === false) {
+            throw new NotFoundHttpException(sprintf('Class "%s" does not exist', $class), 404);
         }
 
-        return (new Container)->resolve($class);
+        return new $class();
 
     }
 
@@ -34,7 +35,7 @@ class ClassLoader implements IClassLoader
      */
     public function loadClassMethod($class, string $method, array $parameters): object
     {
-        $result = (new Container)->resolveMethod($class, $method, $parameters);
+        $result = call_user_func_array([$class, $method], array_values($parameters));
 
         return is_object($result) ? $result : new \stdClass();
     }
@@ -48,7 +49,7 @@ class ClassLoader implements IClassLoader
      */
     public function loadClosure(callable $closure, array $parameters)
     {
-        return (new Container)->resolveClousure($closure, $parameters);
+        return \call_user_func_array($closure, array_values($parameters));
     }
 
 }

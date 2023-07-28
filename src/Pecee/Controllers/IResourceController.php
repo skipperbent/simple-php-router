@@ -21,7 +21,7 @@ interface IResourceController
     /**
      * @return mixed
      */
-    public function store(Request $request);
+    public function store();
 
     /**
      * @return mixed
@@ -39,7 +39,7 @@ interface IResourceController
      * @param mixed $id
      * @return mixed
      */
-    public function update(Request $request, $id);
+    public function update($id);
 
     /**
      * @param mixed $id
