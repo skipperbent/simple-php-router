@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Pecee\Http\Input;
 
@@ -8,8 +8,8 @@ use IteratorAggregate;
 
 class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
 {
-    public string $index;
-    public string $name;
+    public mixed $index;
+    public mixed $name;
 
     /**
      * @var mixed|null
@@ -17,16 +17,16 @@ class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
     public $value;
 
     /**
-     * @param string $index
+     * @param $index
      * @param mixed $value
      */
-    public function __construct(string $index, $value = null)
+    public function __construct($index, $value = null)
     {
         $this->index = $index;
         $this->value = $value;
 
         // Make the name human friendly, by replace _ with space
-        $this->name = ucfirst(str_replace('_', ' ', strtolower($this->index)));
+        $this->name = is_string($index) ? ucfirst(str_replace('_', ' ', strtolower($index))) : $index;
     }
 
     /**
@@ -37,7 +37,7 @@ class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
         return $this->index;
     }
 
-    public function setIndex(string $index): IInputItem
+    public function setIndex($index): IInputItem
     {
         $this->index = $index;
 

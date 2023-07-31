@@ -13,8 +13,8 @@ class ClassLoaderTest extends \PHPUnit\Framework\TestCase
 
         TestRouter::setCustomClassLoader(new CustomClassLoader());
 
-        TestRouter::get('/', 'NonExistingClass@method3');
-        TestRouter::get('/test-closure', function($status) use(&$result) {
+        TestRouter::get('/', [NonExistingClass::class, 'method3']);
+        TestRouter::get('/test-closure', function ($status) use (&$result) {
             $result = $status;
         });
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pecee\SimpleRouter;
 
 use Exception;
@@ -249,7 +251,6 @@ class Router
                             foreach ($route->getExceptionHandlers() as $handler) {
                                 $this->exceptionHandlers[] = $handler;
                             }
-
                         } else {
                             $this->exceptionHandlers = $route->getExceptionHandlers();
                         }
@@ -260,7 +261,6 @@ class Router
                         $this->renderAndProcess($route);
                         continue;
                     }
-
                 }
 
                 if ($route instanceof IPartialGroupRoute === false) {
@@ -322,13 +322,13 @@ class Router
     /**
      * Start the routing
      *
-     * @return string|null
+     * @return 
      * @throws NotFoundHttpException
      * @throws \Pecee\Http\Middleware\Exceptions\TokenMismatchException
      * @throws HttpException
      * @throws Exception
      */
-    public function start(): ?string
+    public function start()
     {
         $this->debug('Router starting');
 
@@ -358,17 +358,21 @@ class Router
 
         $this->debug('Routing complete');
 
+        if (!is_string($output)) {
+            return '';
+        }
+
         return $output;
     }
 
     /**
      * Routes the request
      *
-     * @return string|null
+     * @return 
      * @throws HttpException
      * @throws Exception
      */
-    public function routeRequest(): ?string
+    public function routeRequest()
     {
         $this->debug('Routing request');
 
@@ -412,6 +416,7 @@ class Router
                     $route->loadMiddleware($this->request, $this);
 
                     $output = $this->handleRouteRewrite($key, $url);
+
                     if ($output !== null) {
                         return $output;
                     }
@@ -442,7 +447,6 @@ class Router
                     }
                 }
             }
-
         } catch (Exception $e) {
             return $this->handleException($e);
         }
@@ -473,13 +477,13 @@ class Router
     /**
      * Handle route-rewrite
      *
-     * @param string $key
+     * @param int|string $key
      * @param string $url
      * @return string|null
      * @throws HttpException
      * @throws Exception
      */
-    protected function handleRouteRewrite(string $key, string $url): ?string
+    protected function handleRouteRewrite(int|string $key, string $url): ?string
     {
         /* If the request has changed */
         if ($this->request->hasPendingRewrite() === false) {
@@ -516,7 +520,7 @@ class Router
      * @throws Exception
      * @throws HttpException
      */
-    protected function handleException(Exception $e): ?string
+    protected function handleException(Exception $e)
     {
         $this->debug('Starting exception handling for "%s"', get_class($e));
 
@@ -566,9 +570,7 @@ class Router
 
                     return $this->routeRequest();
                 }
-
             } catch (Exception $e) {
-
             }
 
             $this->debug('Finished processing');
@@ -595,7 +597,7 @@ class Router
         foreach ($this->processedRoutes as $route) {
 
             /* Check if the name matches with a name on the route. Should match either router alias or controller alias. */
-            if ($route->hasName($name) === true) {
+            if ($route->hasName($name)) {
                 $this->debug('Found route "%s" by name "%s"', $route->getUrl(), $name);
 
                 return $route;
@@ -612,7 +614,15 @@ class Router
             if (strpos($name, '@') !== false) {
                 [$controller, $method] = array_map('strtolower', explode('@', $name));
 
-                if ($controller === strtolower((string)$route->getClass()) && $method === strtolower((string)$route->getMethod())) {
+                $class = $route->getClass();
+
+                if (!$class) {
+                    $this->debug('Route not found by controller');
+                    return null;
+                }
+
+
+                if ($controller === strtolower($class) && $method === strtolower($route->getMethod())) {
                     $this->debug('Found route "%s" by controller "%s" and method "%s"', $route->getUrl(), $controller, $method);
 
                     return $route;
@@ -677,7 +687,7 @@ class Router
         }
 
         /* Only merge $_GET when all parameters are null */
-        $getParams = ($name === null && $parameters === null && $getParams === null) ? $_GET : (array)$getParams;
+        $getParams = ($name === null && $parameters === null && $getParams === null) ? $_GET : (array) $getParams;
 
         /* Return current route if no options has been specified */
         if ($name === null && $parameters === null) {
@@ -690,6 +700,7 @@ class Router
 
         /* If nothing is defined and a route is loaded we use that */
         if ($name === null && $loadedRoute !== null) {
+
             return $this->request
                 ->getUrlCopy()
                 ->setPath($loadedRoute->findUrl($loadedRoute->getMethod(), $parameters, $name))
@@ -697,6 +708,7 @@ class Router
         }
 
         if ($name !== null) {
+
             /* We try to find a match on the given name */
             $route = $this->findRoute($name);
 
@@ -707,6 +719,9 @@ class Router
                     ->setParams($getParams);
             }
         }
+
+
+
 
         /* Using @ is most definitely a controller@method or alias@method */
         if (is_string($name) === true && strpos($name, '@') !== false) {
@@ -732,13 +747,13 @@ class Router
                         ->setPath($processedRoute->findUrl($method, $parameters, $name))
                         ->setParams($getParams);
                 }
-
             }
         }
 
         /* No result so we assume that someone is using a hardcoded url and join everything together. */
-        $url = trim(implode('/', array_merge((array)$name, (array)$parameters)), '/');
+        $url = trim(implode('/', array_merge((array) $name, (array) $parameters)), '/');
         $url = (($url === '') ? '/' : '/' . $url . '/');
+
 
         return $this->request
             ->getUrlCopy()
@@ -972,5 +987,4 @@ class Router
 
         return $this;
     }
-
 }

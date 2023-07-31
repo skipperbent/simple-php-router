@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Pecee\SimpleRouter\Route;
 
@@ -113,7 +113,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
             return false;
         }
 
-        $action = strtolower(trim((string)$this->parameters['action']));
+        $action = strtolower(trim((string) $this->parameters['action']));
         $id = $this->parameters['id'];
 
         // Remove action parameter

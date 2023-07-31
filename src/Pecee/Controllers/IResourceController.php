@@ -2,6 +2,8 @@
 
 namespace Pecee\Controllers;
 
+use Pecee\Http\Request;
+
 interface IResourceController
 {
 

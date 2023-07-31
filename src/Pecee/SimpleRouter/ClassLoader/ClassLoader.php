@@ -1,8 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Pecee\SimpleRouter\ClassLoader;
 
+use Pecee\Container\Container;
+use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 class ClassLoader implements IClassLoader
 {
@@ -15,11 +18,12 @@ class ClassLoader implements IClassLoader
      */
     public function loadClass(string $class)
     {
-        if (class_exists($class) === false) {
-            throw new ClassNotFoundHttpException($class, null, sprintf('Class "%s" does not exist', $class), 404, null);
+        if (\class_exists($class) === false) {
+            throw new NotFoundHttpException(sprintf('Class "%s" does not exist', $class), 404);
         }
 
         return new $class();
+
     }
 
     /**
@@ -29,21 +33,23 @@ class ClassLoader implements IClassLoader
      * @param array $parameters
      * @return string
      */
-    public function loadClassMethod($class, string $method, array $parameters): string
+    public function loadClassMethod($class, string $method, array $parameters): object
     {
-        return (string)call_user_func_array([$class, $method], array_values($parameters));
+        $result = call_user_func_array([$class, $method], array_values($parameters));
+
+        return is_object($result) ? $result : new \stdClass();
     }
 
     /**
      * Load closure
      *
-     * @param Callable $closure
+     * @param callable $closure
      * @param array $parameters
      * @return string
      */
-    public function loadClosure(callable $closure, array $parameters): string
+    public function loadClosure(callable $closure, array $parameters)
     {
-        return (string)call_user_func_array($closure, array_values($parameters));
+        return \call_user_func_array($closure, array_values($parameters));
     }
 
 }

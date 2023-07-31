@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Pecee\SimpleRouter\Route;
 
@@ -63,7 +63,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         }
 
         $parameters = [];
-        if ((bool)preg_match($this->regex, $url, $parameters) !== false) {
+        if ((bool) preg_match($this->regex, $url, $parameters) !== false) {
             $this->setParameters($parameters);
 
             return true;
@@ -87,7 +87,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
             $regex = sprintf(static::PARAMETERS_REGEX_FORMAT, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
-            if ((bool)preg_match_all('/' . $regex . '/u', $this->url, $matches) !== false) {
+            if ((bool) preg_match_all('/' . $regex . '/u', $this->url, $matches) !== false) {
                 $parameters = array_fill_keys($matches[1], null);
             }
         }
@@ -156,21 +156,24 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
 
         foreach (array_keys($params) as $param) {
 
+
             if ($parameters === '' || (is_array($parameters) === true && count($parameters) === 0)) {
                 $value = '';
-            } else {
-                $p = (array)$parameters;
-                $value = array_key_exists($param, $p) ? $p[$param] : $params[$param];
 
+            } else {
+
+                $p = (array) $parameters;
+                $value = array_key_exists($param, $p) ? $p[$param] : $params[$param];
                 /* If parameter is specifically set to null - use the original-defined value */
                 if ($value === null && isset($this->originalParameters[$param]) === true) {
                     $value = $this->originalParameters[$param];
                 }
             }
 
+
             if (stripos($url, $param1) !== false || stripos($url, $param) !== false) {
                 /* Add parameter to the correct position */
-                $url = str_ireplace([sprintf($param1, $param), sprintf($param2, $param)], (string)$value, $url);
+                $url = str_ireplace([sprintf($param1, $param), sprintf($param2, $param)], (string) $value, $url);
             } else {
                 /* Parameter aren't recognized and will be appended at the end of the url */
                 $url .= $value . '/';
@@ -187,6 +190,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      */
     public function getName(): ?string
     {
+
         return $this->name;
     }
 
@@ -198,7 +202,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      */
     public function hasName(string $name): bool
     {
-        return strtolower((string)$this->name) === strtolower($name);
+        return $this->name === strtolower($name);
     }
 
     /**
@@ -267,7 +271,8 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
                 $name .= '.' . $this->name;
             }
 
-            $this->setName($name);
+            $this->setName(str_replace('..', '.', $name));
+
         }
 
         if (isset($settings['prefix']) === true) {

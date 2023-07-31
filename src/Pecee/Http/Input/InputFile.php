@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Pecee\Http\Input;
 
@@ -6,30 +6,27 @@ use Pecee\Exceptions\InvalidArgumentException;
 
 class InputFile implements IInputItem
 {
-    /**
-     * @var string
-     */
     public string $index;
 
     /**
      * @var string
      */
-    public string $name;
+    public $name;
 
     /**
-     * @var string|null
+     * @var 
      */
-    public ?string $filename = null;
+    public $filename;
 
     /**
-     * @var int|null
+     * @var 
      */
-    public ?int $size = null;
+    public $size;
 
     /**
-     * @var string|null
+     * @var 
      */
-    public ?string $type = null;
+    public $type;
 
     /**
      * @var int
@@ -68,15 +65,15 @@ class InputFile implements IInputItem
 
         $values += [
             'tmp_name' => null,
-            'type'     => null,
-            'size'     => null,
-            'name'     => null,
-            'error'    => null,
+            'type' => null,
+            'size' => null,
+            'name' => null,
+            'error' => null,
         ];
 
         return (new self($values['index']))
-            ->setSize((int)$values['size'])
-            ->setError((int)$values['error'])
+            ->setSize((int) $values['size'])
+            ->setError((int) $values['error'])
             ->setType($values['type'])
             ->setTmpName($values['tmp_name'])
             ->setFilename($values['name']);
@@ -104,9 +101,9 @@ class InputFile implements IInputItem
     }
 
     /**
-     * @return int
+     * @return int|int
      */
-    public function getSize(): ?int
+    public function getSize()
     {
         return $this->size;
     }
@@ -258,7 +255,7 @@ class InputFile implements IInputItem
      */
     public function setError(?int $error): IInputItem
     {
-        $this->errors = (int)$error;
+        $this->errors = (int) $error;
 
         return $this;
     }
@@ -308,10 +305,10 @@ class InputFile implements IInputItem
     {
         return [
             'tmp_name' => $this->tmpName,
-            'type'     => $this->type,
-            'size'     => $this->size,
-            'name'     => $this->name,
-            'error'    => $this->errors,
+            'type' => $this->type,
+            'size' => $this->size,
+            'name' => $this->name,
+            'error' => $this->errors,
             'filename' => $this->filename,
         ];
     }

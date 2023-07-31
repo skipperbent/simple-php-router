@@ -1,11 +1,12 @@
 <?php
 namespace MyNamespace;
 
-class NSController {
+class NSController
+{
 
     public function method()
     {
-        return true;
+        echo true;
     }
 
 }

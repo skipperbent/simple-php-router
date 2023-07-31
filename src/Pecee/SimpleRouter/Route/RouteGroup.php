@@ -1,5 +1,5 @@
-<?php
-
+<?php declare(strict_types=1);
+ 
 namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
@@ -71,7 +71,7 @@ class RouteGroup extends Route implements IGroupRoute
             $this->setParameters($parameters);
         }
 
-        $parsedPrefix = $this->prefix;
+        $parsedPrefix = $this->prefix ?? '';
 
         foreach ($this->getParameters() as $parameter => $value) {
             $parsedPrefix = str_ireplace('{' . $parameter . '}', (string)$value, (string)$parsedPrefix);

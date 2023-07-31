@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
@@ -55,10 +57,10 @@ abstract class Route implements IRoute
      *
      * @param Request $request
      * @param Router $router
-     * @return string|null
+     * @return string|null|object
      * @throws NotFoundHttpException
      */
-    public function renderRoute(Request $request, Router $router): ?string
+    public function renderRoute(Request $request, Router $router)
     {
         $router->debug('Starting rendering route "%s"', get_class($this));
 
@@ -91,7 +93,6 @@ abstract class Route implements IRoute
             }
 
             /* When the callback is a function */
-
             return $router->getClassLoader()->loadClosure($callback, $parameters);
         }
 
@@ -100,6 +101,7 @@ abstract class Route implements IRoute
 
         $namespace = $this->getNamespace();
         $className = ($namespace !== null && $controller[0] !== '\\') ? $namespace . '\\' . $controller : $controller;
+
 
         $router->debug('Loading class %s', $className);
         $class = $router->getClassLoader()->loadClass($className);
@@ -120,8 +122,7 @@ abstract class Route implements IRoute
     protected function parseParameters($route, $url, Request $request, $parameterRegex = null): ?array
     {
         $regex = (strpos($route, $this->paramModifiers[0]) === false) ? null :
-            sprintf
-            (
+            sprintf(
                 static::PARAMETERS_REGEX_FORMAT,
                 $this->paramModifiers[0],
                 $this->paramOptionalSymbol,
@@ -136,7 +137,7 @@ abstract class Route implements IRoute
         $urlRegex = '';
         $parameters = [];
 
-        if ($regex === null || (bool)preg_match_all('/' . $regex . '/u', $route, $parameters) === false) {
+        if ($regex === null || (bool) preg_match_all('/' . $regex . '/u', $route, $parameters) === false) {
             $urlRegex = preg_quote($route, '/');
         } else {
 
@@ -162,8 +163,7 @@ abstract class Route implements IRoute
             }
         }
 
-        // Get name of last param
-        if (trim($urlRegex) === '' || (bool)preg_match(sprintf($this->urlRegex, $urlRegex), $url, $matches) === false) {
+        if (trim($urlRegex) === '' || (bool) preg_match(sprintf($this->urlRegex, $urlRegex), $url, $matches) === false) {
             return null;
         }
 
@@ -177,7 +177,8 @@ abstract class Route implements IRoute
 
             /* Only take matched parameters with name */
             $originalPath = $request->getUrl()->getOriginalPath();
-            foreach ((array)$parameters[1] as $i => $name) {
+
+            foreach ((array) $parameters[1] as $i => $name) {
 
                 // Ignore parent parameters
                 if (isset($groupParameters[$name]) === true) {
@@ -464,20 +465,20 @@ abstract class Route implements IRoute
         }
 
         if (isset($settings['method']) === true) {
-            $this->setRequestMethods(array_merge($this->requestMethods, (array)$settings['method']));
+            $this->setRequestMethods(array_merge($this->requestMethods, (array) $settings['method']));
         }
 
         if (isset($settings['where']) === true) {
-            $this->setWhere(array_merge($this->where, (array)$settings['where']));
+            $this->setWhere(array_merge($this->where, (array) $settings['where']));
         }
 
         if (isset($settings['parameters']) === true) {
-            $this->setParameters(array_merge($this->parameters, (array)$settings['parameters']));
+            $this->setParameters(array_merge($this->parameters, (array) $settings['parameters']));
         }
 
         // Push middleware if multiple
         if (isset($settings['middleware']) === true) {
-            $this->setMiddlewares(array_merge((array)$settings['middleware'], $this->middlewares));
+            $this->setMiddlewares(array_merge((array) $settings['middleware'], $this->middlewares));
         }
 
         if (isset($settings['defaultParameterRegex']) === true) {
@@ -650,5 +651,4 @@ abstract class Route implements IRoute
     {
         return $this->filterEmptyParams;
     }
-
 }
