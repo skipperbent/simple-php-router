@@ -1742,7 +1742,7 @@ SimpleRouter::setCustomClassLoader(new MyCustomClassLoader());
 php-di support was discontinued by version 4.3, however you can easily add it again by creating your own class-loader like the example below:
 
 ```php
-use Pecee\SimpleRouter\Exceptions\ClassNotFoundHttpException;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 
 class MyCustomClassLoader implements IClassLoader
 {
