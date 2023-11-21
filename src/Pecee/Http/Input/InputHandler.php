@@ -83,7 +83,9 @@ class InputHandler
                     $this->originalPost += $post;
                 }
             } else {
-                parse_str($contents, $this->originalPost);
+                $post = [];
+                parse_str($contents, $post);
+                $this->originalPost += $post;
             }
         }
 
