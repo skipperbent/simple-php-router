@@ -82,6 +82,8 @@ class InputHandler
                 if ($post !== false) {
                     $this->originalPost += $post;
                 }
+            } else {
+                parse_str($contents, $this->originalPost);
             }
         }
 
@@ -108,7 +110,7 @@ class InputHandler
         foreach ($files as $key => $value) {
 
             // Parse multi dept file array
-            if(isset($value['name']) === false && is_array($value) === true) {
+            if (isset($value['name']) === false && is_array($value) === true) {
                 $list[$key] = $this->parseFiles($value, $key);
                 continue;
             }
@@ -161,12 +163,12 @@ class InputHandler
                 try {
 
                     $file = InputFile::createFromArray([
-                        'index'    => ($key === '' && $originalIndex !== '') ? $originalIndex : $key,
-                        'name'     => $original['name'][$key],
-                        'error'    => $original['error'][$key],
+                        'index' => ($key === '' && $originalIndex !== '') ? $originalIndex : $key,
+                        'name' => $original['name'][$key],
+                        'error' => $original['error'][$key],
                         'tmp_name' => $original['tmp_name'][$key],
-                        'type'     => $original['type'][$key],
-                        'size'     => $original['size'][$key],
+                        'type' => $original['type'][$key],
+                        'size' => $original['size'][$key],
                     ]);
 
                     if (isset($output[$key]) === true) {
@@ -231,7 +233,7 @@ class InputHandler
     {
         $element = null;
 
-        if(count($methods) > 0) {
+        if (count($methods) > 0) {
             $methods = is_array(...$methods) ? array_values(...$methods) : $methods;
         }
 
@@ -303,9 +305,9 @@ class InputHandler
     public function exists($index, ...$methods): bool
     {
         // Check array
-        if(is_array($index) === true) {
-            foreach($index as $key) {
-                if($this->value($key, null, ...$methods) === null) {
+        if (is_array($index) === true) {
+            foreach ($index as $key) {
+                if ($this->value($key, null, ...$methods) === null) {
                     return false;
                 }
             }
