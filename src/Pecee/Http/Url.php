@@ -67,7 +67,11 @@ class Url implements JsonSerializable
     public function __construct(?string $url)
     {
         $this->originalUrl = $url;
+        $this->parse($url, true);
+    }
 
+    public function parse(?string $url, bool $setOriginalPath = false): self
+    {
         if ($url !== null && $url !== '/') {
             $data = $this->parseUrl($url);
 
@@ -79,7 +83,10 @@ class Url implements JsonSerializable
 
             if (isset($data['path']) === true) {
                 $this->setPath($data['path']);
-                $this->originalPath = $data['path'];
+
+                if ($setOriginalPath === true) {
+                    $this->originalPath = $data['path'];
+                }
             }
 
             $this->fragment = $data['fragment'] ?? null;
@@ -88,6 +95,7 @@ class Url implements JsonSerializable
                 $this->setQueryString($data['query']);
             }
         }
+        return $this;
     }
 
     /**

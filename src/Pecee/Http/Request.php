@@ -130,9 +130,9 @@ class Request
 
         // Check if special IIS header exist, otherwise use default.
         $url = $this->getHeader('unencoded-url');
-        if($url !== null){
+        if ($url !== null) {
             $this->setUrl(new Url($url));
-        }else{
+        } else {
             $this->setUrl(new Url(urldecode((string)$this->getHeader('request-uri'))));
         }
         $this->setContentType((string)$this->getHeader('content-type'));
@@ -225,7 +225,7 @@ class Request
     public function getIp(bool $safeMode = false): ?string
     {
         $headers = [];
-        if($safeMode === false) {
+        if ($safeMode === false) {
             $headers = [
                 'http-cf-connecting-ip',
                 'http-client-ip',
@@ -303,9 +303,9 @@ class Request
      */
     public function getFirstHeader(array $headers, $defaultValue = null)
     {
-        foreach($headers as $header) {
+        foreach ($headers as $header) {
             $header = $this->getHeader($header);
-            if($header !== null) {
+            if ($header !== null) {
                 return $header;
             }
         }
@@ -329,7 +329,7 @@ class Request
      */
     protected function setContentType(string $contentType): self
     {
-        if(strpos($contentType, ';') > 0) {
+        if (strpos($contentType, ';') > 0) {
             $this->contentType = strtolower(substr($contentType, 0, strpos($contentType, ';')));
         } else {
             $this->contentType = strtolower($contentType);
@@ -371,7 +371,7 @@ class Request
 
     /**
      * Returns true when request-method is type that could contain data in the page body.
-     * 
+     *
      * @return bool
      */
     public function isPostBack(): bool
@@ -395,11 +395,11 @@ class Request
     {
         $this->url = $url;
 
-        if ($this->url->getHost() === null) {
+        if ($this->url->getHost() === null && $this->getHost() !== null) {
             $this->url->setHost((string)$this->getHost());
         }
 
-        if($this->isSecure() === true) {
+        if ($this->isSecure() === true) {
             $this->url->setScheme('https');
         }
     }

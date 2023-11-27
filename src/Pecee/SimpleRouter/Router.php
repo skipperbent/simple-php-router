@@ -691,10 +691,7 @@ class Router
 
         /* If nothing is defined and a route is loaded we use that */
         if ($name === null && $loadedRoute !== null) {
-            return $this->request
-                ->getUrlCopy()
-                ->setPath($loadedRoute->findUrl($loadedRoute->getMethod(), $parameters, $name))
-                ->setParams($getParams);
+            return $this->request->getUrlCopy()->parse($loadedRoute->findUrl($loadedRoute->getMethod(), $parameters, $name))->setParams($getParams);
         }
 
         if ($name !== null) {
@@ -702,10 +699,7 @@ class Router
             $route = $this->findRoute($name);
 
             if ($route !== null) {
-                return $this->request
-                    ->getUrlCopy()
-                    ->setPath($route->findUrl($route->getMethod(), $parameters, $name))
-                    ->setParams($getParams);
+                return $this->request->getUrlCopy()->parse($route->findUrl($route->getMethod(), $parameters, $name))->setParams($getParams);
             }
         }
 
@@ -720,18 +714,12 @@ class Router
 
                 /* Check if the route contains the name/alias */
                 if ($processedRoute->hasName($controller) === true) {
-                    return $this->request
-                        ->getUrlCopy()
-                        ->setPath($processedRoute->findUrl($method, $parameters, $name))
-                        ->setParams($getParams);
+                    return $this->request->getUrlCopy()->parse($processedRoute->findUrl($method, $parameters, $name))->setParams($getParams);
                 }
 
                 /* Check if the route controller is equal to the name */
                 if ($processedRoute instanceof IControllerRoute && strtolower($processedRoute->getController()) === strtolower($controller)) {
-                    return $this->request
-                        ->getUrlCopy()
-                        ->setPath($processedRoute->findUrl($method, $parameters, $name))
-                        ->setParams($getParams);
+                    return $this->request->getUrlCopy()->parse($processedRoute->findUrl($method, $parameters, $name))->setParams($getParams);
                 }
 
             }
@@ -741,10 +729,7 @@ class Router
         $url = trim(implode('/', array_merge((array)$name, (array)$parameters)), '/');
         $url = (($url === '') ? '/' : '/' . $url . '/');
 
-        return $this->request
-            ->getUrlCopy()
-            ->setPath($url)
-            ->setParams($getParams);
+        return $this->request->getUrlCopy()->parse($url)->setParams($getParams);
     }
 
     /**
