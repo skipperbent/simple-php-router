@@ -144,10 +144,15 @@ class Url implements JsonSerializable
     /**
      * Get url host
      *
+     * @param bool $includeTrails Prepend // in front of hostname
      * @return string|null
      */
-    public function getHost(): ?string
+    public function getHost(bool $includeTrails = false): ?string
     {
+        if ((string)$this->host !== '' && $includeTrails === true) {
+            return '//' . $this->host;
+        }
+
         return $this->host;
     }
 
@@ -530,12 +535,12 @@ class Url implements JsonSerializable
      */
     public function jsonSerialize(): string
     {
-        return $this->getRelativeUrl();
+        return $this->getHost(true) . $this->getRelativeUrl();
     }
 
     public function __toString(): string
     {
-        return $this->getRelativeUrl();
+        return $this->getHost(true) . $this->getRelativeUrl();
     }
 
 }
