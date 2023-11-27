@@ -6,6 +6,7 @@ use Pecee\Http\Middleware\IMiddleware;
 use Pecee\Http\Request;
 use Pecee\SimpleRouter\Exceptions\HttpException;
 use Pecee\SimpleRouter\Router;
+use Pecee\SimpleRouter\SimpleRouter;
 
 abstract class LoadableRoute extends Route implements ILoadableRoute
 {
@@ -138,12 +139,6 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     {
         $url = $this->getUrl();
 
-        $group = $this->getGroup();
-
-        if ($group !== null && count($group->getDomains()) !== 0) {
-            $url = '//' . $group->getDomains()[0] . $url;
-        }
-
         /* Create the param string - {parameter} */
         $param1 = $this->paramModifiers[0] . '%s' . $this->paramModifiers[1];
 
@@ -177,7 +172,15 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             }
         }
 
-        return rtrim('/' . ltrim($url, '/'), '/') . '/';
+        $url = rtrim('/' . ltrim($url, '/'), '/') . '/';
+
+        $group = $this->getGroup();
+
+        if ($group !== null && count($group->getDomains()) !== 0 && SimpleRouter::request()->getHost() !== $group->getDomains()[0]) {
+            $url = '//' . $group->getDomains()[0] . $url;
+        }
+
+        return $url;
     }
 
     /**
