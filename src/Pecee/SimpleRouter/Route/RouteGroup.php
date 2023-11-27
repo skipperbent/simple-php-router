@@ -220,7 +220,7 @@ class RouteGroup extends Route implements IGroupRoute
             $this->setExceptionHandlers((array)$settings['exceptionHandler']);
         }
 
-        if ($merge === false && isset($settings['domain']) === true) {
+        if (isset($settings['domain']) === true) {
             $this->setDomains((array)$settings['domain']);
         }
 

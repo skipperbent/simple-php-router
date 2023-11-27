@@ -3,6 +3,7 @@
 namespace Pecee\SimpleRouter\Route;
 
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\SimpleRouter;
 
 class RouteResource extends LoadableRoute implements IControllerRoute
 {
@@ -80,7 +81,14 @@ class RouteResource extends LoadableRoute implements IControllerRoute
             return rtrim($this->url . $parametersUrl . $this->urls[$url], '/') . '/';
         }
 
-        return $this->url . $parametersUrl;
+        $url = $this->url . $parametersUrl;
+
+        $group = $this->getGroup();
+        if ($group !== null && count($group->getDomains()) !== 0 && SimpleRouter::request()->getHost() !== $group->getDomains()[0]) {
+            $url = '//' . $group->getDomains()[0] . $url;
+        }
+
+        return $url;
     }
 
     protected function call($method): bool
