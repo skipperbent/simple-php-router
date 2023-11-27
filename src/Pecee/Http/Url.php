@@ -164,6 +164,11 @@ class Url implements JsonSerializable
      */
     public function setHost(string $host): self
     {
+        // Strip any potential ports from hostname
+        if (strpos($host, ':') !== false) {
+            $host = strstr($host, strrchr($host, ':'), true);
+        }
+
         $this->host = $host;
 
         return $this;
