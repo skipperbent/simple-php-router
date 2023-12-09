@@ -562,7 +562,6 @@ class Router
 
                     if ($this->request->getRewriteRoute() !== null) {
                         $this->processedRoutes[] = $this->request->getRewriteRoute();
-                        $this->request->setHasPendingRewrite(false);
                     }
 
                     return $this->routeRequest();

@@ -405,6 +405,11 @@ class Request
      */
     public function setHost(?string $host): void
     {
+        // Strip any potential ports from hostname
+        if (strpos((string)$host, ':') !== false) {
+            $host = strstr($host, strrchr($host, ':'), true);
+        }
+
         $this->host = $host;
     }
 
