@@ -72,7 +72,7 @@ class Url implements JsonSerializable
 
     public function parse(?string $url, bool $setOriginalPath = false): self
     {
-        if ($url !== null && $url !== '/') {
+        if ($url !== null) {
             $data = $this->parseUrl($url);
 
             $this->scheme = $data['scheme'] ?? null;
@@ -95,6 +95,7 @@ class Url implements JsonSerializable
                 $this->setQueryString($data['query']);
             }
         }
+
         return $this;
     }
 
