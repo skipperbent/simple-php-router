@@ -216,7 +216,7 @@ class Request
     }
 
     /**
-     * Get id address
+     * Get ip address
      * If $safe is false, this function will detect Proxys. But the user can edit this header to whatever he wants!
      * https://stackoverflow.com/questions/3003145/how-to-get-the-client-ip-address-in-php#comment-25086804
      * @param bool $safeMode When enabled, only safe non-spoofable headers will be returned. Note this can cause issues when using proxy.
