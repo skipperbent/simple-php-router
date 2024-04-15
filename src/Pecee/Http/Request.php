@@ -92,7 +92,7 @@ class Request {
     }
 
     /**
-     * Get id address
+     * Get ip address
      * @return string
      */
     public function getIp() {
