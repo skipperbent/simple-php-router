@@ -454,6 +454,14 @@ SimpleRouter::form('foo', function() {
 });
 ```
 
+We have also created a method suitable for JavaScript preflight requests. This method accepts the `GET`, `POST` and `OPTIONS` methods, but in the case of the `OPTIONS` method it will not call your callback and will return an empty page.
+
+```php
+SimpleRouter::fetch('foo', function() {
+    // ...
+});
+```
+
 ## Route parameters
 
 ### Required parameters

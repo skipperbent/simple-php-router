@@ -334,6 +334,33 @@ class SimpleRouter
 
     /**
      * This type will route the given url to your callback on the provided request methods.
+     * Route the given url to your callback on POST and GET request method.
+     * This type accepts OPTIONS request method, but will not call your callback.
+     *
+     * @param string $url
+     * @param string|array|Closure $callback
+     * @param array|null $settings
+     * @return RouteUrl|IRoute
+     * @see SimpleRouter::fetch
+     */
+    public static function fetch(string $url, $callback, array $settings = null): IRoute
+    {
+        return static::match([
+            Request::REQUEST_TYPE_GET,
+            Request::REQUEST_TYPE_POST,
+            Request::REQUEST_TYPE_OPTIONS,
+        ], $url, function (...$arguments) use ($callback) {
+            // ignore preflight requests
+            if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
+                return;
+            }
+            
+            return $callback(...$arguments);
+        }, $settings);
+    }
+
+    /**
+     * This type will route the given url to your callback on the provided request methods.
      *
      * @param array $requestMethods
      * @param string $url
