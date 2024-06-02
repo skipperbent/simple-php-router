@@ -81,6 +81,14 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue(true);
     }
 
+    public function testOptions()
+    {
+        TestRouter::options('/my/test/url', 'DummyController@method1');
+        TestRouter::debug('/my/test/url', 'options');
+
+        $this->assertTrue(true);
+    }
+
     public function testMethodNotAllowed()
     {
         TestRouter::get('/my/test/url', 'DummyController@method1');
@@ -90,6 +98,14 @@ class RouterRouteTest extends \PHPUnit\Framework\TestCase
         } catch (\Exception $e) {
             $this->assertEquals(403, $e->getCode());
         }
+    }
+    
+    public function testPreflight()
+    {
+        TestRouter::get('/my/test/url', 'DummyController@method1', ['preflight' => true]);
+        TestRouter::debug('/my/test/url', 'options');
+    
+        $this->assertTrue(true);
     }
 
     public function testSimpleParam()

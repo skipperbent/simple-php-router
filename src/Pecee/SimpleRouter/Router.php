@@ -392,8 +392,9 @@ class Router
                         'route' => $route,
                     ]);
 
-                    /* Check if request method matches */
-                    if (count($route->getRequestMethods()) !== 0 && in_array($this->request->getMethod(), $route->getRequestMethods(), true) === false) {
+                    /* Check if request method does not match */
+                    if ((count($route->getRequestMethods()) !== 0 && in_array($this->request->getMethod(), $route->getRequestMethods(), true) === false) && 
+                        !($route->getPreflightRequestsEnabled() && $this->request->getMethod() === Request::REQUEST_TYPE_OPTIONS)) {
                         $this->debug('Method "%s" not allowed', $this->request->getMethod());
 
                         // Only set method not allowed is not already set
@@ -423,6 +424,10 @@ class Router
                     $this->fireEvents(EventHandler::EVENT_RENDER_ROUTE, [
                         'route' => $route,
                     ]);
+
+                    if ($route->getPreflightRequestsEnabled() && $this->request->getMethod() === Request::REQUEST_TYPE_OPTIONS) {
+                        return '';
+                    }
 
                     $routeOutput = $route->renderRoute($this->request, $this);
 

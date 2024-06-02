@@ -39,6 +39,7 @@ You can donate any amount of your choice by [clicking here](https://www.paypal.c
         - [Required parameters](#required-parameters)
         - [Optional parameters](#optional-parameters)
         - [Including slash in parameters](#including-slash-in-parameters)
+        - [Handling CORS Preflight Requests](#handling-cors-preflight-requests)
         - [Regular expression constraints](#regular-expression-constraints)
         - [Regular expression route-match](#regular-expression-route-match)
         - [Custom regex for matching parameters](#custom-regex-for-matching-parameters)
@@ -512,6 +513,29 @@ SimpleRouter::get('/path/{fileOrFolder}', function ($fileOrFolder) {
 
 - Requesting `/path/file` will return the `$fileOrFolder` value: `file`.
 - Requesting `/path/folder/` will return the `$fileOrFolder` value: `folder/`.
+
+### Handling CORS Preflight Requests
+
+You may enable handling of CORS preflight requests for your routes using the `preflight` setting. This ensures that the router will respond to `OPTIONS` requests with a status code 200 and no content, allowing cross-origin requests to proceed.
+
+**Example**
+
+```php
+// single route
+SimpleRouter::form('foo', function () {
+    // ...
+})->setSettings(['preflight' => true]);
+
+// group routes
+SimpleRouter::group(['preflight' => true], function () {
+    SimpleRouter::form('foo', function() {
+        // ...
+    });
+});
+```
+
+- Requesting `OPTIONS /foo` will return `HTTP/1.1 200 OK`.
+- Requesting `POST /foo` will proceed normally.
 
 ### Regular expression constraints
 

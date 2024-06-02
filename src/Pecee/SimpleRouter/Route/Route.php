@@ -27,6 +27,13 @@ abstract class Route implements IRoute
     protected bool $slashParameterEnabled = false;
 
     /**
+     * Enables handling of CORS preflight requests.
+     * When true, the router responds to OPTIONS requests with status 200 and no content. Otherwise, it proceeds normally.
+     * @var bool
+     */
+    protected bool $preflightRequestsEnabled = false;
+
+    /**
      * Default regular expression used for parsing parameters.
      * @var string|null
      */
@@ -414,6 +421,17 @@ abstract class Route implements IRoute
         return $this->slashParameterEnabled;
     }
 
+    public function setPreflightRequestsEnabled(bool $enabled): self
+    {
+        $this->preflightRequestsEnabled = $enabled;
+        return $this;
+    }
+
+    public function getPreflightRequestsEnabled(): bool
+    {
+        return $this->preflightRequestsEnabled;
+    }
+
     /**
      * Export route settings to array so they can be merged with another route.
      *
@@ -445,6 +463,10 @@ abstract class Route implements IRoute
 
         if ($this->slashParameterEnabled === true) {
             $values['includeSlash'] = $this->slashParameterEnabled;
+        }
+
+        if ($this->preflightRequestsEnabled === true) {
+            $values['preflight'] = $this->preflightRequestsEnabled;
         }
 
         return $values;
@@ -486,6 +508,10 @@ abstract class Route implements IRoute
 
         if (isset($settings['includeSlash']) === true) {
             $this->setSlashParameterEnabled($settings['includeSlash']);
+        }
+
+        if (isset($settings['preflight']) === true) {
+            $this->setPreflightRequestsEnabled($settings['preflight']);
         }
 
         return $this;
