@@ -81,7 +81,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      */
     public function setUrl(string $url): ILoadableRoute
     {
-        $this->url = ($url === '/') ? '/' : '/' . trim($url, '/') . '/';
+        $this->url = ($url === '/') ? '/' : '/' . trim($url, '/');
 
         $parameters = [];
         if (strpos($this->url, $this->paramModifiers[0]) !== false) {
