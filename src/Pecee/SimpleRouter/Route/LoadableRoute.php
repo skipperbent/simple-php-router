@@ -37,8 +37,19 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         $router->debug('Loading middlewares');
 
         foreach ($this->getMiddlewares() as $middleware) {
+			$parameters = [];
 
             if (is_object($middleware) === false) {
+				if (str_contains($middleware, ',')) {
+					$options = explode(',', $middleware);
+
+					//@todo: see efficiency of trim
+					$middleware = $options[0];
+
+					// set the rest of explode as parameters
+					$parameters = array_slice($options, 1);
+				}
+
                 $middleware = $router->getClassLoader()->loadClass($middleware);
             }
 
@@ -49,7 +60,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
             $className = get_class($middleware);
 
             $router->debug('Loading middleware "%s"', $className);
-            $middleware->handle($request);
+            $middleware->handle($request, ...$parameters);
             $router->debug('Finished loading middleware "%s"', $className);
         }
 

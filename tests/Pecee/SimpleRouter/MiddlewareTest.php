@@ -1,6 +1,7 @@
 <?php
 
 require_once 'Dummy/DummyMiddleware.php';
+require_once 'Dummy/DummyMiddlewareWithParam.php';
 require_once 'Dummy/DummyController.php';
 require_once 'Dummy/Handler/ExceptionHandler.php';
 
@@ -32,4 +33,15 @@ class MiddlewareTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue(true);
     }
 
+	public function testMiddlewareWithParameters()
+	{
+		$this->expectException(MiddlewareLoadedException::class);
+
+		TestRouter::group(['exceptionHandler' => 'ExceptionHandler'], function () {
+			TestRouter::get('/my/test/url', 'DummyController@method1', ['middleware' => 'DummyMiddlewareWithParam,4,hello']);
+		});
+
+		TestRouter::debug('/my/test/url', 'get');
+
+	}
 }
