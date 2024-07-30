@@ -13,7 +13,7 @@ class ClassLoader implements IClassLoader
      * @return object
      * @throws ClassNotFoundHttpException
      */
-    public function loadClass(string $class)
+    public function loadClass(string $class): object
     {
         if (class_exists($class) === false) {
             throw new ClassNotFoundHttpException($class, null, sprintf('Class "%s" does not exist', $class), 404, null);
@@ -29,7 +29,7 @@ class ClassLoader implements IClassLoader
      * @param array $parameters
      * @return string
      */
-    public function loadClassMethod($class, string $method, array $parameters): string
+    public function loadClassMethod(object $class, string $method, array $parameters): string
     {
         return (string)call_user_func_array([$class, $method], array_values($parameters));
     }

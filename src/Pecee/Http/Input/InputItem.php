@@ -5,6 +5,7 @@ namespace Pecee\Http\Input;
 use ArrayAccess;
 use ArrayIterator;
 use IteratorAggregate;
+use ReturnTypeWillChange;
 
 class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
 {
@@ -14,13 +15,13 @@ class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
     /**
      * @var mixed|null
      */
-    public $value;
+    public mixed $value;
 
     /**
      * @param string $index
-     * @param mixed $value
+     * @param mixed|null $value
      */
-    public function __construct(string $index, $value = null)
+    public function __construct(string $index, mixed $value = null)
     {
         $this->index = $index;
         $this->value = $value;
@@ -45,7 +46,7 @@ class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getName(): ?string
     {
@@ -67,7 +68,7 @@ class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
     /**
      * @return mixed
      */
-    public function getValue()
+    public function getValue(): mixed
     {
         return $this->value;
     }
@@ -77,7 +78,7 @@ class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
      * @param mixed $value
      * @return static
      */
-    public function setValue($value): IInputItem
+    public function setValue(mixed $value): IInputItem
     {
         $this->value = $value;
 
@@ -89,7 +90,7 @@ class InputItem implements ArrayAccess, IInputItem, IteratorAggregate
         return isset($this->value[$offset]);
     }
 
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function offsetGet($offset): ?self
     {
         if ($this->offsetExists($offset) === true) {

@@ -17,13 +17,13 @@ class BaseCsrfVerifier implements IMiddleware
      * For example: /admin/*
      * @var array|null
      */
-    protected array $except = [];
+    protected ?array $except = [];
 
     /**
      * Urls to include. Can be used to include urls from a certain path.
      * @var array|null
      */
-    protected array $include = [];
+    protected ?array $include = [];
 
     /**
      * @var ITokenProvider
@@ -98,7 +98,7 @@ class BaseCsrfVerifier implements IMiddleware
      */
     public function handle(Request $request): void
     {
-        if ($this->skip($request) === false && ($request->isPostBack() === true || $request->isPostBack() === true && $this->isIncluded($request) === true)) {
+        if (!$this->skip($request) && ($request->isPostBack() || $request->isPostBack() && $this->isIncluded($request))) {
 
             $token = $request->getInputHandler()->value(
                 static::POST_KEY,

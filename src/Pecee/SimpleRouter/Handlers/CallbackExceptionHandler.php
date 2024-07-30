@@ -10,7 +10,7 @@ use Pecee\Http\Request;
  * Class CallbackExceptionHandler
  *
  * Class is used to create callbacks which are fired when an exception is reached.
- * This allows for easy handling 404-exception etc. without creating an custom ExceptionHandler.
+ * This allows for easy handling 404-exception etc. without creating a custom ExceptionHandler.
  *
  * @package \Pecee\SimpleRouter\Handlers
  */

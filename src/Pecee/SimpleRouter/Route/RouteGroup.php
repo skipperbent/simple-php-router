@@ -88,10 +88,10 @@ class RouteGroup extends Route implements IGroupRoute
     /**
      * Add exception handler
      *
-     * @param IExceptionHandler|string $handler
+     * @param string|IExceptionHandler $handler
      * @return static
      */
-    public function addExceptionHandler($handler): IGroupRoute
+    public function addExceptionHandler(IExceptionHandler|string $handler): IGroupRoute
     {
         $this->exceptionHandlers[] = $handler;
 
@@ -99,7 +99,8 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Set exception-handlers for group
+     * Set exception-handlers for
+     * a group
      *
      * @param array $handlers
      * @return static
@@ -112,7 +113,7 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Get exception-handlers for group
+     * Get exception-handlers for a group
      *
      * @return array
      */
@@ -132,7 +133,7 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Set allowed domains for group.
+     * Set allowed domains for a group.
      *
      * @param array $domains
      * @return static
@@ -167,7 +168,7 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Set prefix that child-routes will inherit.
+     * Set the prefix that child-routes will inherit.
      *
      * @return string|null
      */
@@ -177,7 +178,7 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * When enabled group will overwrite any existing exception-handlers.
+     * When an enabled group will overwrite any existing exception-handlers.
      *
      * @param bool $merge
      * @return static
@@ -239,7 +240,7 @@ class RouteGroup extends Route implements IGroupRoute
     }
 
     /**
-     * Export route settings to array so they can be merged with another route.
+     * Export route settings to array, so they can be merged with another route.
      *
      * @return array
      */

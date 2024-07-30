@@ -12,17 +12,16 @@ namespace Pecee\SimpleRouter;
 
 use Closure;
 use Exception;
-use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
 use Pecee\Http\Response;
 use Pecee\Http\Url;
 use Pecee\SimpleRouter\ClassLoader\IClassLoader;
 use Pecee\SimpleRouter\Exceptions\HttpException;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\Handlers\CallbackExceptionHandler;
 use Pecee\SimpleRouter\Handlers\IEventHandler;
 use Pecee\SimpleRouter\Route\IGroupRoute;
-use Pecee\SimpleRouter\Route\ILoadableRoute;
 use Pecee\SimpleRouter\Route\IPartialGroupRoute;
 use Pecee\SimpleRouter\Route\IRoute;
 use Pecee\SimpleRouter\Route\RouteController;
@@ -47,17 +46,15 @@ class SimpleRouter
 
     /**
      * Router instance
-     * @var Router
+     * @var Router|null
      */
     protected static ?Router $router = null;
 
     /**
      * Start routing
      *
-     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
-     * @throws \Pecee\Http\Middleware\Exceptions\TokenMismatchException
      * @throws HttpException
-     * @throws Exception
+     * @throws NotFoundHttpException
      */
     public static function start(): void
     {
@@ -70,7 +67,7 @@ class SimpleRouter
     }
 
     /**
-     * Start the routing an return array with debugging-information
+     * Start the routing and return array with debugging-information
      *
      * @return array
      */
@@ -82,11 +79,11 @@ class SimpleRouter
             ob_start();
             static::router()->setDebugEnabled(true)->start();
             $routerOutput = ob_get_clean();
-        } catch (Exception $e) {
+        } catch (Exception) {
 
         }
 
-        // Try to parse library version
+        // Try to parse a library version
         $composerFile = dirname(__DIR__, 3) . '/composer.lock';
         $version = false;
 
@@ -124,7 +121,7 @@ class SimpleRouter
     }
 
     /**
-     * Set default namespace which will be prepended to all routes.
+     * Set the default namespace which will be prepended to all routes.
      *
      * @param string $defaultNamespace
      */
@@ -144,7 +141,7 @@ class SimpleRouter
     }
 
     /**
-     * Add new event handler to the router
+     * Add a new event handler to the router
      *
      * @param IEventHandler $eventHandler
      */
@@ -154,7 +151,7 @@ class SimpleRouter
     }
 
     /**
-     * Boot managers allows you to alter the routes before the routing occurs.
+     * Boot managers allow you to alter the routes before the routing occurs.
      * Perfect if you want to load pretty-urls from a file or database.
      *
      * @param IRouterBootManager $bootManager
@@ -183,12 +180,12 @@ class SimpleRouter
      * Route the given url to your callback on GET request method.
      *
      * @param string $url
-     * @param string|array|Closure $callback
+     * @param array|string|Closure $callback
      * @param array|null $settings
      *
-     * @return RouteUrl|IRoute
+     * @return IRoute
      */
-    public static function get(string $url, $callback, array $settings = null): IRoute
+    public static function get(string $url, array|string|Closure $callback, array $settings = null): IRoute
     {
         return static::match([Request::REQUEST_TYPE_GET], $url, $callback, $settings);
     }
@@ -197,11 +194,11 @@ class SimpleRouter
      * Route the given url to your callback on POST request method.
      *
      * @param string $url
-     * @param string|array|Closure $callback
+     * @param array|string|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl|IRoute
+     * @return IRoute
      */
-    public static function post(string $url, $callback, array $settings = null): IRoute
+    public static function post(string $url, array|string|Closure $callback, array $settings = null): IRoute
     {
         return static::match([Request::REQUEST_TYPE_POST], $url, $callback, $settings);
     }
@@ -210,11 +207,11 @@ class SimpleRouter
      * Route the given url to your callback on PUT request method.
      *
      * @param string $url
-     * @param string|array|Closure $callback
+     * @param array|string|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl|IRoute
+     * @return IRoute
      */
-    public static function put(string $url, $callback, array $settings = null): IRoute
+    public static function put(string $url, array|string|Closure $callback, array $settings = null): IRoute
     {
         return static::match([Request::REQUEST_TYPE_PUT], $url, $callback, $settings);
     }
@@ -223,11 +220,11 @@ class SimpleRouter
      * Route the given url to your callback on PATCH request method.
      *
      * @param string $url
-     * @param string|array|Closure $callback
+     * @param array|string|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl|IRoute
+     * @return IRoute
      */
-    public static function patch(string $url, $callback, array $settings = null): IRoute
+    public static function patch(string $url, array|string|Closure $callback, array $settings = null): IRoute
     {
         return static::match([Request::REQUEST_TYPE_PATCH], $url, $callback, $settings);
     }
@@ -236,11 +233,11 @@ class SimpleRouter
      * Route the given url to your callback on OPTIONS request method.
      *
      * @param string $url
-     * @param string|array|Closure $callback
+     * @param array|string|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl|IRoute
+     * @return IRoute
      */
-    public static function options(string $url, $callback, array $settings = null): IRoute
+    public static function options(string $url, array|string|Closure $callback, array $settings = null): IRoute
     {
         return static::match([Request::REQUEST_TYPE_OPTIONS], $url, $callback, $settings);
     }
@@ -249,11 +246,11 @@ class SimpleRouter
      * Route the given url to your callback on DELETE request method.
      *
      * @param string $url
-     * @param string|array|Closure $callback
+     * @param array|string|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl|IRoute
+     * @return IRoute
      */
-    public static function delete(string $url, $callback, array $settings = null): IRoute
+    public static function delete(string $url, array|string|Closure $callback, array $settings = null): IRoute
     {
         return static::match([Request::REQUEST_TYPE_DELETE], $url, $callback, $settings);
     }
@@ -263,8 +260,7 @@ class SimpleRouter
      *
      * @param array $settings
      * @param Closure $callback
-     * @return RouteGroup|IGroupRoute
-     * @throws InvalidArgumentException
+     * @return IGroupRoute
      */
     public static function group(array $settings, Closure $callback): IGroupRoute
     {
@@ -278,14 +274,13 @@ class SimpleRouter
     }
 
     /**
-     * Special group that has the same benefits as group but supports
+     * A Special group that has the same benefits as a group but supports
      * parameters and which are only rendered when the url matches.
      *
      * @param string $url
      * @param Closure $callback
      * @param array $settings
-     * @return RoutePartialGroup|IPartialGroupRoute
-     * @throws InvalidArgumentException
+     * @return IPartialGroupRoute
      */
     public static function partialGroup(string $url, Closure $callback, array $settings = []): IPartialGroupRoute
     {
@@ -304,12 +299,12 @@ class SimpleRouter
      * Alias for the form method
      *
      * @param string $url
-     * @param string|array|Closure $callback
+     * @param array|string|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl|IRoute
+     * @return IRoute
      * @see SimpleRouter::form
      */
-    public static function basic(string $url, $callback, array $settings = null): IRoute
+    public static function basic(string $url, array|string|Closure $callback, array $settings = null): IRoute
     {
         return static::form($url, $callback, $settings);
     }
@@ -319,12 +314,12 @@ class SimpleRouter
      * Route the given url to your callback on POST and GET request method.
      *
      * @param string $url
-     * @param string|array|Closure $callback
+     * @param array|string|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl|IRoute
+     * @return IRoute
      * @see SimpleRouter::form
      */
-    public static function form(string $url, $callback, array $settings = null): IRoute
+    public static function form(string $url, array|string|Closure $callback, array $settings = null): IRoute
     {
         return static::match([
             Request::REQUEST_TYPE_GET,
@@ -337,11 +332,11 @@ class SimpleRouter
      *
      * @param array $requestMethods
      * @param string $url
-     * @param string|array|Closure $callback
+     * @param array|string|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl|IRoute
+     * @return IRoute
      */
-    public static function match(array $requestMethods, string $url, $callback, array $settings = null): IRoute
+    public static function match(array $requestMethods, string $url, array|string|Closure $callback, array $settings = null): IRoute
     {
         $route = new RouteUrl($url, $callback);
         $route->setRequestMethods($requestMethods);
@@ -357,11 +352,11 @@ class SimpleRouter
      * This type will route the given url to your callback and allow any type of request method
      *
      * @param string $url
-     * @param string|array|Closure $callback
+     * @param array|string|Closure $callback
      * @param array|null $settings
-     * @return RouteUrl|IRoute
+     * @return IRoute
      */
-    public static function all(string $url, $callback, array $settings = null): IRoute
+    public static function all(string $url, array|string|Closure $callback, array $settings = null): IRoute
     {
         $route = new RouteUrl($url, $callback);
 
@@ -378,7 +373,7 @@ class SimpleRouter
      * @param string $url
      * @param string $controller
      * @param array|null $settings
-     * @return RouteController|IRoute
+     * @return IRoute
      */
     public static function controller(string $url, string $controller, array $settings = null): IRoute
     {
@@ -397,7 +392,7 @@ class SimpleRouter
      * @param string $url
      * @param string $controller
      * @param array|null $settings
-     * @return RouteResource|IRoute
+     * @return IRoute
      */
     public static function resource(string $url, string $controller, array $settings = null): IRoute
     {
@@ -430,23 +425,23 @@ class SimpleRouter
      *
      * The name parameter supports the following values:
      * - Route name
-     * - Controller/resource name (with or without method)
+     * - Controller/resource name (with or without a method)
      * - Controller class name
      *
      * When searching for controller/resource by name, you can use this syntax "route.name@method".
      * You can also use the same syntax when searching for a specific controller-class "MyController@home".
-     * If no arguments is specified, it will return the url for the current loaded route.
+     * If no arguments are specified, it will return the url for the current loaded route.
      *
      * @param string|null $name
-     * @param string|array|null $parameters
+     * @param array|string|null $parameters
      * @param array|null $getParams
      * @return Url
      */
-    public static function getUrl(?string $name = null, $parameters = null, ?array $getParams = null): Url
+    public static function getUrl(?string $name = null, array|string $parameters = null, ?array $getParams = null): Url
     {
         try {
             return static::router()->getUrl($name, $parameters, $getParams);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return new Url('/');
         }
     }
@@ -492,8 +487,8 @@ class SimpleRouter
     /**
      * Prepends the default namespace to all new routes added.
      *
-     * @param ILoadableRoute|IRoute $route
-     * @return IRoute|ILoadableRoute
+     * @param IRoute $route
+     * @return IRoute
      */
     public static function addDefaultNamespace(IRoute $route): IRoute
     {
@@ -506,8 +501,8 @@ class SimpleRouter
 
     /**
      * Changes the rendering behavior of the router.
-     * When enabled the router will render all routes that matches.
-     * When disabled the router will stop rendering at the first route that matches.
+     * When enabled, the router will render all routes that match.
+     * When disabled, the router will stop rendering at the first route that matches.
      *
      * @param bool $bool
      */

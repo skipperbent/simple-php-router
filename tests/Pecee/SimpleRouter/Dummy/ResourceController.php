@@ -7,7 +7,7 @@ class ResourceController implements \Pecee\Controllers\IResourceController
         return 'index';
     }
 
-    public function show($id) : ?string
+    public function show(mixed $id) : ?string
     {
         return 'show ' . $id;
     }
@@ -22,17 +22,17 @@ class ResourceController implements \Pecee\Controllers\IResourceController
         return 'create';
     }
 
-    public function edit($id) : ?string
+    public function edit(mixed $id) : ?string
     {
         return 'edit ' . $id;
     }
 
-    public function update($id) : ?string
+    public function update(mixed $id) : ?string
     {
         return 'update ' . $id;
     }
 
-    public function destroy($id) : ?string
+    public function destroy(mixed $id) : ?string
     {
         return 'destroy ' . $id;
     }

@@ -3,7 +3,6 @@
 namespace Pecee\SimpleRouter;
 
 use Exception;
-use Pecee\Exceptions\InvalidArgumentException;
 use Pecee\Http\Exceptions\MalformedUrlException;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\Http\Request;
@@ -50,7 +49,6 @@ class Router
 
     /**
      * List of processed routes
-     * @var array|ILoadableRoute[]
      */
     protected array $processedRoutes = [];
 
@@ -118,8 +116,8 @@ class Router
     protected IClassLoader $classLoader;
 
     /**
-     * When enabled the router will render all routes that matches.
-     * When disabled the router will stop execution when first route is found.
+     * When enabled, the router will render all routes that match.
+     * When disabled, the router will stop execution when the first route is found.
      * @var bool
      */
     protected bool $renderMultipleRoutes = false;
@@ -171,7 +169,7 @@ class Router
         ]);
 
         /*
-         * If a route is currently being processed, that means that the route being added are rendered from the parent
+         * If a route is currently being processed, that means that the route being added is rendered from the parent
          * routes callback, so we add them to the stack instead.
          */
         if ($this->isProcessingRoute === true) {
@@ -255,7 +253,7 @@ class Router
                         }
                     }
 
-                    /* Only render partial group if it matches */
+                    /* Only render a partial group if it matches */
                     if ($route instanceof IPartialGroupRoute === true) {
                         $this->renderAndProcess($route);
                         continue;
@@ -272,7 +270,7 @@ class Router
 
             if ($route instanceof ILoadableRoute === true) {
 
-                /* Add the route to the map, so we can find the active one when all routes has been loaded */
+                /* Add the route to the map, so we can find the active one when all routes have been loaded */
                 $this->processedRoutes[] = $route;
             }
         }
@@ -324,7 +322,6 @@ class Router
      *
      * @return string|null
      * @throws NotFoundHttpException
-     * @throws \Pecee\Http\Middleware\Exceptions\TokenMismatchException
      * @throws HttpException
      * @throws Exception
      */
@@ -609,7 +606,7 @@ class Router
             }
 
             /* Using @ is most definitely a controller@method or alias@method */
-            if (strpos($name, '@') !== false) {
+            if (str_contains($name, '@')) {
                 [$controller, $method] = array_map('strtolower', explode('@', $name));
 
                 if ($controller === strtolower((string)$route->getClass()) && $method === strtolower((string)$route->getMethod())) {
@@ -621,10 +618,10 @@ class Router
 
             /* Check if callback matches (if it's not a function) */
             $callback = $route->getCallback();
-            if (is_string($callback) === true && is_callable($callback) === false && strpos($name, '@') !== false && strpos($callback, '@') !== false) {
+            if (is_string($callback) === true && is_callable($callback) === false && str_contains($name, '@') && str_contains($callback, '@')) {
 
                 /* Check if the entire callback is matching */
-                if (strpos($callback, $name) === 0 || strtolower($callback) === strtolower($name)) {
+                if (str_starts_with($callback, $name) || strtolower($callback) === strtolower($name)) {
                     $this->debug('Found route "%s" by callback "%s"', $route->getUrl(), $name);
 
                     return $route;
@@ -649,20 +646,20 @@ class Router
      *
      * The name parameter supports the following values:
      * - Route name
-     * - Controller/resource name (with or without method)
+     * - Controller/resource name (with or without a method)
      * - Controller class name
      *
      * When searching for controller/resource by name, you can use this syntax "route.name@method".
      * You can also use the same syntax when searching for a specific controller-class "MyController@home".
-     * If no arguments is specified, it will return the url for the current loaded route.
+     * If no arguments are specified, it will return the url for the current loaded route.
      *
      * @param string|null $name
-     * @param string|array|null $parameters
+     * @param array|string|null $parameters
      * @param array|null $getParams
      * @return Url
-     * @throws InvalidArgumentException
+     * @throws MalformedUrlException
      */
-    public function getUrl(?string $name = null, $parameters = null, ?array $getParams = null): Url
+    public function getUrl(?string $name = null, array|string $parameters = null, ?array $getParams = null): Url
     {
         $this->debug('Finding url', func_get_args());
 
@@ -679,7 +676,7 @@ class Router
         /* Only merge $_GET when all parameters are null */
         $getParams = ($name === null && $parameters === null && $getParams === null) ? $_GET : (array)$getParams;
 
-        /* Return current route if no options has been specified */
+        /* Return current route if no options have been specified */
         if ($name === null && $parameters === null) {
             return $this->request
                 ->getUrlCopy()
@@ -688,7 +685,7 @@ class Router
 
         $loadedRoute = $this->request->getLoadedRoute();
 
-        /* If nothing is defined and a route is loaded we use that */
+        /* If nothing is defined and a route is loaded, we use that */
         if ($name === null && $loadedRoute !== null) {
             return $this->request->getUrlCopy()->parse($loadedRoute->findUrl($loadedRoute->getMethod(), $parameters, $name))->setParams($getParams);
         }
@@ -703,7 +700,7 @@ class Router
         }
 
         /* Using @ is most definitely a controller@method or alias@method */
-        if (is_string($name) === true && strpos($name, '@') !== false) {
+        if (is_string($name) === true && str_contains($name, '@')) {
             [$controller, $method] = explode('@', $name);
 
             /* Loop through all the routes to see if we can find a match */
@@ -724,7 +721,7 @@ class Router
             }
         }
 
-        /* No result so we assume that someone is using a hardcoded url and join everything together. */
+        /* No result, so we assume that someone is using a hardcoded url and join everything together. */
         $url = trim(implode('/', array_merge((array)$name, (array)$parameters)), '/');
         $url = (($url === '') ? '/' : '/' . $url . '/');
 
@@ -767,7 +764,7 @@ class Router
     }
 
     /**
-     * Get routes that has been processed.
+     * Get routes that have been processed.
      *
      * @return array
      */
@@ -809,7 +806,7 @@ class Router
 
     /**
      * Get csrf verifier class
-     * @return BaseCsrfVerifier
+     * @return BaseCsrfVerifier|null
      */
     public function getCsrfVerifier(): ?BaseCsrfVerifier
     {
@@ -885,17 +882,18 @@ class Router
     }
 
     /**
-     * Add new debug message
+     * Add a new debug message
      * @param string $message
-     * @param array $args
+     * @param mixed ...$args
      */
-    public function debug(string $message, ...$args): void
+    public function debug(string $message, mixed ...$args): void
     {
         if ($this->debugEnabled === false) {
             return;
         }
 
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+
         $this->debugList[] = [
             'message' => vsprintf($message, $args),
             'time' => number_format(microtime(true) - $this->debugStartTime, 10),
@@ -927,19 +925,9 @@ class Router
     }
 
     /**
-     * Get the current processing route details.
-     *
-     * @return ILoadableRoute
-     */
-    public function getCurrentProcessingRoute(): ILoadableRoute
-    {
-        return $this->currentProcessingRoute;
-    }
-
-    /**
      * Changes the rendering behavior of the router.
-     * When enabled the router will render all routes that matches.
-     * When disabled the router will stop rendering at the first route that matches.
+     * When enabled, the router will render all routes that match.
+     * When disabled, the router will stop rendering at the first route that matches.
      *
      * @param bool $bool
      * @return $this

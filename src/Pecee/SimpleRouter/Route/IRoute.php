@@ -2,7 +2,9 @@
 
 namespace Pecee\SimpleRouter\Route;
 
+use Closure;
 use Pecee\Http\Request;
+use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\Router;
 
 interface IRoute
@@ -22,15 +24,15 @@ interface IRoute
      *
      * @param Request $request
      * @param Router $router
-     * @return string
-     * @throws \Pecee\SimpleRouter\Exceptions\NotFoundHttpException
+     * @return string|null
+     * @throws NotFoundHttpException
      */
     public function renderRoute(Request $request, Router $router): ?string;
 
     /**
      * Returns callback name/identifier for the current route based on the callback.
      * Useful if you need to get a unique identifier for the loaded route, for instance
-     * when using translations etc.
+     * when using translations, etc.
      *
      * @return string
      */
@@ -82,15 +84,15 @@ interface IRoute
     /**
      * Set callback
      *
-     * @param string|array|\Closure $callback
+     * @param array|string|Closure $callback
      * @return static
      */
-    public function setCallback($callback): self;
+    public function setCallback(array|string|Closure $callback): self;
 
     /**
-     * @return string|callable
+     * @return mixed
      */
-    public function getCallback();
+    public function getCallback():mixed;
 
     /**
      * Return active method
@@ -177,14 +179,14 @@ interface IRoute
     public function setSettings(array $settings, bool $merge = false): self;
 
     /**
-     * Export route settings to array so they can be merged with another route.
+     * Export route settings to array, so they can be merged with another route.
      *
      * @return array
      */
     public function toArray(): array;
 
     /**
-     * Get middlewares array
+     * Get a middlewares array
      *
      * @return array
      */
@@ -207,7 +209,7 @@ interface IRoute
     public function setMiddlewares(array $middlewares): self;
 
     /**
-     * If enabled parameters containing null-value will not be passed along to the callback.
+     * If enabled, parameters containing null-value will not be passed along to the callback.
      *
      * @param bool $enabled
      * @return static $this

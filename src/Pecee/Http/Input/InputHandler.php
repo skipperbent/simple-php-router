@@ -28,7 +28,7 @@ class InputHandler
     protected Request $request;
 
     /**
-     * Original post variables
+     * Original post-variables
      * @var array
      */
     protected array $originalPost = [];
@@ -75,8 +75,8 @@ class InputHandler
 
             $contents = file_get_contents('php://input');
 
-            // Append any PHP-input json
-            if (strpos(trim($contents), '{') === 0) {
+            // Append any PHP input JSON
+            if (str_starts_with(trim($contents), '{')) {
                 $post = json_decode($contents, true);
 
                 if ($post !== false) {
@@ -102,7 +102,7 @@ class InputHandler
 
     /**
      * @param array $files Array with files to parse
-     * @param string|null $parentKey Key from parent (used when parsing nested array).
+     * @param string|null $parentKey Key from parent (used when parsing a nested array).
      * @return array
      */
     public function parseFiles(array $files, ?string $parentKey = null): array
@@ -123,7 +123,7 @@ class InputHandler
 
                 try {
                     $list[$key] = InputFile::createFromArray($values + $value);
-                } catch (InvalidArgumentException $e) {
+                } catch (InvalidArgumentException) {
 
                 }
                 continue;
@@ -144,7 +144,7 @@ class InputHandler
     }
 
     /**
-     * Rearrange multi-dimensional file object created by PHP.
+     * Rearrange multidimensional file object created by PHP.
      *
      * @param array $values
      * @param array $index
@@ -154,16 +154,16 @@ class InputHandler
     protected function rearrangeFile(array $values, array &$index, ?array $original): array
     {
         $originalIndex = $index[0];
+
         array_shift($index);
 
         $output = [];
 
         foreach ($values as $key => $value) {
 
-            if (is_array($original['name'][$key]) === false) {
+            if (is_array($original['name'][$key] ?? null) === false) {
 
                 try {
-
                     $file = InputFile::createFromArray([
                         'index' => ($key === '' && $originalIndex !== '') ? $originalIndex : $key,
                         'name' => $original['name'][$key],
@@ -173,7 +173,7 @@ class InputHandler
                         'size' => $original['size'][$key],
                     ]);
 
-                    if (isset($output[$key]) === true) {
+                    if (isset($output[$key])) {
                         $output[$key][] = $file;
                         continue;
                     }
@@ -181,9 +181,7 @@ class InputHandler
                     $output[$key] = $file;
                     continue;
 
-                } catch (InvalidArgumentException $e) {
-
-                }
+                } catch (InvalidArgumentException) {}
             }
 
             $index[] = $key;
@@ -202,7 +200,7 @@ class InputHandler
     }
 
     /**
-     * Parse input item from array
+     * Parse input item from an array
      *
      * @param array $array
      * @return array
@@ -225,19 +223,20 @@ class InputHandler
     }
 
     /**
-     * Find input object
+     * Find an input object
      *
      * @param string $index
-     * @param array ...$methods
-     * @return IInputItem|array|null
+     * @param mixed ...$methods
+     * @return array|InputFile|InputItem|string|null
      */
-    public function find(string $index, ...$methods)
+    public function find(string $index, mixed ...$methods): InputFile|InputItem|array|string|null
     {
         $element = null;
 
         if (count($methods) > 0) {
-            $methods = is_array(...$methods) ? array_values(...$methods) : $methods;
+            $methods = array_values($methods);
         }
+
 
         if (count($methods) === 0 || in_array(Request::REQUEST_TYPE_GET, $methods, true) === true) {
             $element = $this->get($index);
@@ -274,11 +273,11 @@ class InputHandler
      * Get input element value matching index
      *
      * @param string $index
-     * @param string|mixed|null $defaultValue
+     * @param mixed|null $defaultValue
      * @param array ...$methods
-     * @return string|array
+     * @return IInputItem|InputFile|InputItem|array|string|null
      */
-    public function value(string $index, $defaultValue = null, ...$methods)
+    public function value(string $index, mixed $defaultValue = null, ...$methods): IInputItem|InputFile|InputItem|array|string|null
     {
         $input = $this->find($index, ...$methods);
 
@@ -297,16 +296,16 @@ class InputHandler
     }
 
     /**
-     * Check if a input-item exist.
-     * If an array is as $index parameter the method returns true if all elements exist.
+     * Check if an input-item exists.
+     * If an array is as $index parameter, the method returns true if all elements exist.
      *
-     * @param string|array $index
+     * @param array|string $index
      * @param array ...$methods
      * @return bool
      */
-    public function exists($index, ...$methods): bool
+    public function exists(array|string $index, ...$methods): bool
     {
-        // Check array
+        // Check an array
         if (is_array($index) === true) {
             foreach ($index as $key) {
                 if ($this->value($key, null, ...$methods) === null) {
@@ -327,7 +326,7 @@ class InputHandler
      * @param mixed|null $defaultValue
      * @return InputItem|array|string|null
      */
-    public function post(string $index, $defaultValue = null)
+    public function post(string $index, mixed $defaultValue = null): InputItem|array|string|null
     {
         return $this->post[$index] ?? $defaultValue;
     }
@@ -339,7 +338,7 @@ class InputHandler
      * @param mixed|null $defaultValue
      * @return InputFile|array|string|null
      */
-    public function file(string $index, $defaultValue = null)
+    public function file(string $index, mixed $defaultValue = null): InputFile|array|string|null
     {
         return $this->file[$index] ?? $defaultValue;
     }
@@ -351,13 +350,13 @@ class InputHandler
      * @param mixed|null $defaultValue
      * @return InputItem|array|string|null
      */
-    public function get(string $index, $defaultValue = null)
+    public function get(string $index, mixed $defaultValue = null): InputItem|array|string|null
     {
         return $this->get[$index] ?? $defaultValue;
     }
 
     /**
-     * Get all get/post items
+     * Get all get- / post-items
      * @param array $filter Only take items in filter
      * @return array
      */
@@ -409,7 +408,7 @@ class InputHandler
     }
 
     /**
-     * Get original post variables
+     * Get original post-variables
      * @return array
      */
     public function getOriginalPost(): array
@@ -418,7 +417,7 @@ class InputHandler
     }
 
     /**
-     * Set original post variables
+     * Set original post-variables
      * @param array $post
      * @return static $this
      */

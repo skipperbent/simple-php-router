@@ -9,7 +9,7 @@ use Pecee\SimpleRouter\Router;
 class EventHandler implements IEventHandler
 {
     /**
-     * Fires when a event is triggered.
+     * Fires when an event is triggered.
      */
     public const EVENT_ALL = '*';
 
@@ -19,7 +19,7 @@ class EventHandler implements IEventHandler
     public const EVENT_INIT = 'onInit';
 
     /**
-     * Fires when all routes has been loaded and rendered, just before the output is returned.
+     * Fires when all routes have been loaded and rendered, just before the output is returned.
      */
     public const EVENT_LOAD = 'onLoad';
 
@@ -29,13 +29,13 @@ class EventHandler implements IEventHandler
     public const EVENT_ADD_ROUTE = 'onAddRoute';
 
     /**
-     * Fires when a url-rewrite is and just before the routes are re-initialized.
+     * Fires when an url-rewrite is and just before the routes are re-initialized.
      */
     public const EVENT_REWRITE = 'onRewrite';
 
     /**
      * Fires when the router is booting.
-     * This happens just before boot-managers are rendered and before any routes has been loaded.
+     * This happens just before boot-managers are rendered and before any routes have been loaded.
      */
     public const EVENT_BOOT = 'onBoot';
 
@@ -52,19 +52,19 @@ class EventHandler implements IEventHandler
     /**
      * Fires whenever the `findRoute` method is called within the `Router`.
      * This usually happens when the router tries to find routes that
-     * contains a certain url, usually after the EventHandler::EVENT_GET_URL event.
+     * contain a certain url, usually after the EventHandler::EVENT_GET_URL event.
      */
     public const EVENT_FIND_ROUTE = 'onFindRoute';
 
     /**
      * Fires whenever the `Router::getUrl` method or `url`-helper function
-     * is called and the router tries to find the route.
+     * is called, and the router tries to find the route.
      */
     public const EVENT_GET_URL = 'onGetUrl';
 
     /**
-     * Fires when a route is matched and valid (correct request-type etc).
-     * and before the route is rendered.
+     * Fires when a route is matched and valid (correct request-type etc.).
+     * And before the route is rendered.
      */
     public const EVENT_MATCH_ROUTE = 'onMatchRoute';
 
@@ -79,7 +79,7 @@ class EventHandler implements IEventHandler
     public const EVENT_LOAD_EXCEPTIONS = 'onLoadExceptions';
 
     /**
-     * Fires before the router is rendering a exception-handler.
+     * Fires before the router is rendering an exception-handler.
      */
     public const EVENT_RENDER_EXCEPTION = 'onRenderException';
 
