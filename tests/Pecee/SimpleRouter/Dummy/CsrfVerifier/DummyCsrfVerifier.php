@@ -1,17 +1,19 @@
 <?php
 
-class DummyCsrfVerifier extends \Pecee\Http\Middleware\BaseCsrfVerifier {
+class DummyCsrfVerifier extends \Pecee\Http\Middleware\BaseCsrfVerifier
+{
 
-    protected array $except = [
+    protected ?array $except = [
         '/exclude-page',
         '/exclude-all/*',
     ];
 
-    protected array $include = [
+    protected ?array $include = [
         '/exclude-all/include-page',
     ];
 
-    public function testSkip(\Pecee\Http\Request $request) {
+    public function testSkip(\Pecee\Http\Request $request): bool
+    {
         return $this->skip($request);
     }
 

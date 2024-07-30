@@ -10,7 +10,7 @@ class CookieTokenProvider implements ITokenProvider
     public const CSRF_KEY = 'CSRF-TOKEN';
 
     /**
-     * @var string
+     * @var string|null
      */
     protected ?string $token = null;
 
@@ -64,7 +64,7 @@ class CookieTokenProvider implements ITokenProvider
 
     /**
      * Set csrf token cookie
-     * Overwrite this method to save the token to another storage like session etc.
+     * Overwrite this method to save the token to another storage like session, etc.
      *
      * @param string $token
      */

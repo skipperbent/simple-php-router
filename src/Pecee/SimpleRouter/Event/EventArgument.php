@@ -94,7 +94,7 @@ class EventArgument implements IEventArgument
      * @param mixed $value
      * @throws InvalidArgumentException
      */
-    public function __set(string $name, $value): void
+    public function __set(string $name, mixed $value): void
     {
         throw new InvalidArgumentException('Not supported');
     }

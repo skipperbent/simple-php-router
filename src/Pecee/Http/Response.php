@@ -33,7 +33,7 @@ class Response
      * @param string $url
      * @param ?int $httpCode
      *
-     * @return never
+     * @return void
      */
     public function redirect(string $url, ?int $httpCode = null): void
     {
@@ -92,12 +92,8 @@ class Response
      * @param int $dept JSON debt.
      * @throws InvalidArgumentException
      */
-    public function json($value, int $options = 0, int $dept = 512): void
+    public function json(array|JsonSerializable $value, int $options = 0, int $dept = 512): void
     {
-        if (($value instanceof JsonSerializable) === false && is_array($value) === false) {
-            throw new InvalidArgumentException('Invalid type for parameter "value". Must be of type array or object implementing the \JsonSerializable interface.');
-        }
-
         $this->header('Content-Type: application/json; charset=utf-8');
         echo json_encode($value, $options, $dept);
         exit(0);

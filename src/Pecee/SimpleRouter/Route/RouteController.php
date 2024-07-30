@@ -12,7 +12,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
     protected ?string $method = null;
     protected array $names = [];
 
-    public function __construct($url, $controller)
+    public function __construct(string $url, string $controller)
     {
         $this->setUrl($url);
         $this->setName(trim(str_replace('/', '.', $url), '/'));
@@ -32,7 +32,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
         }
 
         /* Remove method/type */
-        if (strpos($name, '.') !== false) {
+        if (str_contains($name, '.')) {
             $method = substr($name, strrpos($name, '.') + 1);
             $newName = substr($name, 0, strrpos($name, '.'));
 
@@ -46,13 +46,13 @@ class RouteController extends LoadableRoute implements IControllerRoute
 
     /**
      * @param string|null $method
-     * @param string|array|null $parameters
+     * @param array|string|null $parameters
      * @param string|null $name
      * @return string
      */
-    public function findUrl(?string $method = null, $parameters = null, ?string $name = null): string
+    public function findUrl(?string $method = null, array|string $parameters = null, ?string $name = null): string
     {
-        if (strpos($name, '.') !== false) {
+        if (str_contains($name, '.')) {
             $found = array_search(substr($name, strrpos($name, '.') + 1), $this->names, true);
             if ($found !== false) {
                 $method = (string)$found;
@@ -64,7 +64,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
 
         if ($method !== null) {
 
-            /* Remove requestType from method-name, if it exists */
+            /* Remove requestType from method-name if it exists */
             foreach (Request::$requestTypes as $requestType) {
 
                 if (stripos($method, $requestType) === 0) {
@@ -96,7 +96,7 @@ class RouteController extends LoadableRoute implements IControllerRoute
         }
 
         /* Match global regular-expression for route */
-        $regexMatch = $this->matchRegex($request, $url);
+        $regexMatch = $this->matchRegex($url);
 
         if ($regexMatch === false || (stripos($url, $this->url) !== 0 && strtoupper($url) !== strtoupper($this->url))) {
             return false;
@@ -105,20 +105,18 @@ class RouteController extends LoadableRoute implements IControllerRoute
         $strippedUrl = trim(str_ireplace($this->url, '/', $url), '/');
         $path = explode('/', $strippedUrl);
 
-        if (count($path) !== 0) {
+        if (count($path) === 0) return false;
 
-            $method = (isset($path[0]) === false || trim($path[0]) === '') ? $this->defaultMethod : $path[0];
-            $this->method = $request->getMethod() . ucfirst($method);
+        $method = (isset($path[0]) === false || trim($path[0]) === '') ? $this->defaultMethod : $path[0];
 
-            $this->parameters = array_slice($path, 1);
+        $this->method = $request->getMethod() . ucfirst($method);
 
-            // Set callback
-            $this->setCallback([$this->controller, $this->method]);
+        $this->parameters = array_slice($path, 1);
 
-            return true;
-        }
+        // Set callback
+        $this->setCallback([$this->controller, $this->method]);
 
-        return false;
+        return true;
     }
 
     /**

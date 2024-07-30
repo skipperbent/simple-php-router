@@ -1,5 +1,7 @@
 <?php
 
+use Pecee\Http\Input\InputHandler;
+use Pecee\Http\Url as UrlAlias;
 use Pecee\SimpleRouter\SimpleRouter as Router;
 use Pecee\Http\Url;
 use Pecee\Http\Response;
@@ -18,18 +20,18 @@ use Pecee\Http\Request;
  * If no arguments is specified, it will return the url for the current loaded route.
  *
  * @param string|null $name
- * @param string|array|null $parameters
+ * @param array|string|null $parameters
  * @param array|null $getParams
- * @return \Pecee\Http\Url
- * @throws \InvalidArgumentException
+ * @return UrlAlias
+ * @throws InvalidArgumentException
  */
-function url(?string $name = null, $parameters = null, ?array $getParams = null): Url
+function url(?string $name = null, array|string $parameters = null, ?array $getParams = null): Url
 {
     return Router::getUrl($name, $parameters, $getParams);
 }
 
 /**
- * @return \Pecee\Http\Response
+ * @return Response
  */
 function response(): Response
 {
@@ -37,7 +39,7 @@ function response(): Response
 }
 
 /**
- * @return \Pecee\Http\Request
+ * @return Request
  */
 function request(): Request
 {
@@ -47,11 +49,11 @@ function request(): Request
 /**
  * Get input class
  * @param string|null $index Parameter index name
- * @param string|mixed|null $defaultValue Default return value
+ * @param mixed|null $defaultValue Default return value
  * @param array ...$methods Default methods
- * @return \Pecee\Http\Input\InputHandler|array|string|null
+ * @return array|string|InputHandler|null
  */
-function input($index = null, $defaultValue = null, ...$methods)
+function input(string $index = null, mixed $defaultValue = null, ...$methods): array|string|InputHandler|null
 {
     if ($index !== null) {
         return request()->getInputHandler()->value($index, $defaultValue, ...$methods);
@@ -80,9 +82,6 @@ function redirect(string $url, ?int $code = null): void
 function csrf_token(): ?string
 {
     $baseVerifier = Router::router()->getCsrfVerifier();
-    if ($baseVerifier !== null) {
-        return $baseVerifier->getTokenProvider()->getToken();
-    }
+    return $baseVerifier?->getTokenProvider()->getToken();
 
-    return null;
 }

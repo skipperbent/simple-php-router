@@ -52,7 +52,7 @@ class InputFile implements IInputItem
     }
 
     /**
-     * Create from array
+     * Create from an array
      *
      * @param array $values
      * @throws InvalidArgumentException
@@ -65,7 +65,6 @@ class InputFile implements IInputItem
         }
 
         /* Easy way of ensuring that all indexes-are set and not filling the screen with isset() */
-
         $values += [
             'tmp_name' => null,
             'type'     => null,
@@ -104,7 +103,7 @@ class InputFile implements IInputItem
     }
 
     /**
-     * @return int
+     * @return int|null
      */
     public function getSize(): ?int
     {
@@ -116,7 +115,7 @@ class InputFile implements IInputItem
      * @param int $size
      * @return static
      */
-    public function setSize(int $size): IInputItem
+    public function setSize(int $size): self
     {
         $this->size = $size;
 
@@ -145,7 +144,7 @@ class InputFile implements IInputItem
      * @param string $type
      * @return static
      */
-    public function setType(string $type): IInputItem
+    public function setType(string $type): self
     {
         $this->type = $type;
 
@@ -165,7 +164,7 @@ class InputFile implements IInputItem
     /**
      * Get human friendly name
      *
-     * @return string
+     * @return string|null
      */
     public function getName(): ?string
     {
@@ -174,7 +173,7 @@ class InputFile implements IInputItem
 
     /**
      * Set human friendly name.
-     * Useful for adding validation etc.
+     * Useful for adding validation, etc.
      *
      * @param string $name
      * @return static
@@ -192,7 +191,7 @@ class InputFile implements IInputItem
      * @param string $name
      * @return static
      */
-    public function setFilename(string $name): IInputItem
+    public function setFilename(string $name): self
     {
         $this->filename = $name;
 
@@ -202,7 +201,7 @@ class InputFile implements IInputItem
     /**
      * Get filename
      *
-     * @return string mixed
+     * @return string|null mixed
      */
     public function getFilename(): ?string
     {
@@ -256,7 +255,7 @@ class InputFile implements IInputItem
      * @param int|null $error
      * @return static
      */
-    public function setError(?int $error): IInputItem
+    public function setError(?int $error): self
     {
         $this->errors = (int)$error;
 
@@ -276,7 +275,7 @@ class InputFile implements IInputItem
      * @param string $name
      * @return static
      */
-    public function setTmpName(string $name): IInputItem
+    public function setTmpName(string $name): self
     {
         $this->tmpName = $name;
 
@@ -297,7 +296,7 @@ class InputFile implements IInputItem
      * @param mixed $value
      * @return static
      */
-    public function setValue($value): IInputItem
+    public function setValue(mixed $value): IInputItem
     {
         $this->filename = $value;
 

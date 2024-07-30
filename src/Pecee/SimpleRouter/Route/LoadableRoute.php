@@ -16,7 +16,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     protected string $url;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected ?string $name = null;
 
@@ -56,7 +56,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         $router->debug('Finished loading middlewares');
     }
 
-    public function matchRegex(Request $request, $url): ?bool
+    public function matchRegex(string $url): bool|null
     {
         /* Match on custom defined regular expression */
         if ($this->regex === null) {
@@ -84,7 +84,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
         $this->url = ($url === '/') ? '/' : '/' . trim($url, '/') . '/';
 
         $parameters = [];
-        if (strpos($this->url, $this->paramModifiers[0]) !== false) {
+        if (str_contains($this->url, $this->paramModifiers[0])) {
 
             $regex = sprintf(static::PARAMETERS_REGEX_FORMAT, $this->paramModifiers[0], $this->paramOptionalSymbol, $this->paramModifiers[1]);
 
@@ -131,11 +131,11 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * Used when calling the url() helper.
      *
      * @param string|null $method
-     * @param string|array|null $parameters
+     * @param array|string|null $parameters
      * @param string|null $name
      * @return string
      */
-    public function findUrl(?string $method = null, $parameters = null, ?string $name = null): string
+    public function findUrl(?string $method = null, array|string $parameters = null, ?string $name = null): string
     {
         $url = $this->getUrl();
 
@@ -186,7 +186,7 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
     /**
      * Returns the provided name for the router.
      *
-     * @return string
+     * @return string|null
      */
     public function getName(): ?string
     {
@@ -231,11 +231,11 @@ abstract class LoadableRoute extends Route implements ILoadableRoute
      * Sets the router name, which makes it easier to obtain the url or router at a later point.
      * Alias for LoadableRoute::setName().
      *
-     * @param string|array $name
+     * @param array|string $name
      * @return static
      * @see LoadableRoute::setName()
      */
-    public function name($name): ILoadableRoute
+    public function name(array|string $name): ILoadableRoute
     {
         return $this->setName($name);
     }

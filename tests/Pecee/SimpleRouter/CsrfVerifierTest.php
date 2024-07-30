@@ -1,17 +1,24 @@
 <?php
+
+use Pecee\Http\Middleware\BaseCsrfVerifier;
+use Pecee\Http\Middleware\Exceptions\TokenMismatchException;
+
 require_once 'Dummy/CsrfVerifier/DummyCsrfVerifier.php';
 require_once 'Dummy/Security/SilentTokenProvider.php';
 
 class CsrfVerifierTest extends \PHPUnit\Framework\TestCase
 {
 
+    /**
+     * @throws TokenMismatchException
+     */
     public function testTokenPass()
     {
         global $_POST;
 
         $tokenProvider = new SilentTokenProvider();
 
-        $_POST[DummyCsrfVerifier::POST_KEY] = $tokenProvider->getToken();
+        $_POST[BaseCsrfVerifier::POST_KEY] = $tokenProvider->getToken();
 
         TestRouter::router()->reset();
 
@@ -29,7 +36,7 @@ class CsrfVerifierTest extends \PHPUnit\Framework\TestCase
 
     public function testTokenFail()
     {
-        $this->expectException(\Pecee\Http\Middleware\Exceptions\TokenMismatchException::class);
+        $this->expectException(TokenMismatchException::class);
 
         global $_POST;
 

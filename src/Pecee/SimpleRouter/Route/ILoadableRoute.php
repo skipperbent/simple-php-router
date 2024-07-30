@@ -16,7 +16,7 @@ interface ILoadableRoute extends IRoute
      * @param string|null $name
      * @return string
      */
-    public function findUrl(?string $method = null, $parameters = null, ?string $name = null): string;
+    public function findUrl(?string $method = null, array|string $parameters = null, ?string $name = null): string;
 
     /**
      * Loads and renders middleware-classes
@@ -72,7 +72,7 @@ interface ILoadableRoute extends IRoute
     /**
      * Get regular expression match used for matching route (if defined).
      *
-     * @return string
+     * @return string|null
      */
     public function getMatch(): ?string;
 

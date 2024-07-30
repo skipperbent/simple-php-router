@@ -20,7 +20,7 @@ abstract class IpRestrictAccess implements IMiddleware
         foreach ($this->ipBlacklist as $blackIp) {
 
             // Blocks range (8.8.*)
-            if ($blackIp[strlen($blackIp) - 1] === '*' && strpos($ip, trim($blackIp, '*')) === 0) {
+            if ($blackIp[strlen($blackIp) - 1] === '*' && str_starts_with($ip, trim($blackIp, '*'))) {
                 return false;
             }
 

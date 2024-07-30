@@ -10,7 +10,7 @@ class Url implements JsonSerializable
     /**
      * @var string|null
      */
-    private ?string $originalUrl = null;
+    private ?string $originalUrl;
 
     /**
      * @var string|null
@@ -70,6 +70,9 @@ class Url implements JsonSerializable
         $this->parse($url, true);
     }
 
+    /**
+     * @throws MalformedUrlException
+     */
     public function parse(?string $url, bool $setOriginalPath = false): self
     {
         if ($url !== null) {
@@ -171,16 +174,6 @@ class Url implements JsonSerializable
     }
 
     /**
-     * Get url port
-     *
-     * @return int|null
-     */
-    public function getPort(): ?int
-    {
-        return ($this->port !== null) ? (int)$this->port : null;
-    }
-
-    /**
      * Set the port of the url
      *
      * @param int $port
@@ -239,8 +232,8 @@ class Url implements JsonSerializable
     }
 
     /**
-     * Get path from url
-     * @return string
+     * Get a path from url
+     * @return string|null
      */
     public function getPath(): ?string
     {
@@ -248,7 +241,7 @@ class Url implements JsonSerializable
     }
 
     /**
-     * Get original path with no sanitization of ending trail/slash.
+     * Get an original path with no sanitization of ending trail/slash.
      * @return string|null
      */
     public function getOriginalPath(): ?string
@@ -467,7 +460,7 @@ class Url implements JsonSerializable
     }
 
     /**
-     * Convert array to query-string params
+     * Convert an array to query-string params
      *
      * @param array $getParams
      * @param bool $includeEmpty

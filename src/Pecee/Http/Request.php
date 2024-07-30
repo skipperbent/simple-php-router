@@ -2,10 +2,12 @@
 
 namespace Pecee\Http;
 
+use Closure;
 use Pecee\Http\Exceptions\MalformedUrlException;
 use Pecee\Http\Input\InputHandler;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
 use Pecee\SimpleRouter\Route\ILoadableRoute;
+use Pecee\SimpleRouter\Route\IRoute;
 use Pecee\SimpleRouter\Route\RouteUrl;
 use Pecee\SimpleRouter\SimpleRouter;
 
@@ -99,10 +101,8 @@ class Request
      */
     protected bool $hasPendingRewrite = false;
 
-    /**
-     * @var ILoadableRoute|null
-     */
-    protected ?ILoadableRoute $rewriteRoute = null;
+
+    protected null|ILoadableRoute|IRoute $rewriteRoute = null;
 
     /**
      * Rewrite url
@@ -128,7 +128,7 @@ class Request
 
         $this->setHost($this->getHeader('http-host'));
 
-        // Check if special IIS header exist, otherwise use default.
+        // Check if special IIS header exists, otherwise use default.
         $url = $this->getHeader('unencoded-url');
         if ($url !== null) {
             $this->setUrl(new Url($url));
@@ -218,7 +218,7 @@ class Request
     /**
      * Get id address
      * If $safe is false, this function will detect Proxys. But the user can edit this header to whatever he wants!
-     * https://stackoverflow.com/questions/3003145/how-to-get-the-client-ip-address-in-php#comment-25086804
+     * Https://stackoverflow.com/questions/3003145/how-to-get-the-client-ip-address-in-php#comment-25086804
      * @param bool $safeMode When enabled, only safe non-spoofable headers will be returned. Note this can cause issues when using proxy.
      * @return string|null
      */
@@ -271,22 +271,22 @@ class Request
      * Get header value by name
      *
      * @param string $name Name of the header.
-     * @param string|mixed|null $defaultValue Value to be returned if header is not found.
+     * @param mixed|null $defaultValue Value to be returned if header is not found.
      * @param bool $tryParse When enabled the method will try to find the header from both from client (http) and server-side variants, if the header is not found.
      *
      * @return string|null
      */
-    public function getHeader(string $name, $defaultValue = null, bool $tryParse = true): ?string
+    public function getHeader(string $name, mixed $defaultValue = null, bool $tryParse = true): ?string
     {
         $name = strtolower($name);
         $header = $this->headers[$name] ?? null;
 
         if ($tryParse === true && $header === null) {
-            if (strpos($name, 'http-') === 0) {
+            if (str_starts_with($name, 'http-')) {
                 // Trying to find client header variant which was not found, searching for header variant without http- prefix.
                 $header = $this->headers[str_replace('http-', '', $name)] ?? null;
             } else {
-                // Trying to find server variant which was not found, searching for client variant with http- prefix.
+                // Trying to find server variant which was not found, searching for client variant with http-prefix.
                 $header = $this->headers['http-' . $name] ?? null;
             }
         }
@@ -301,7 +301,7 @@ class Request
      * @param mixed|null $defaultValue
      * @return mixed|null
      */
-    public function getFirstHeader(array $headers, $defaultValue = null)
+    public function getFirstHeader(array $headers, mixed $defaultValue = null): mixed
     {
         foreach ($headers as $header) {
             $header = $this->getHeader($header);
@@ -406,7 +406,7 @@ class Request
     public function setHost(?string $host): void
     {
         // Strip any potential ports from hostname
-        if (strpos((string)$host, ':') !== false) {
+        if (str_contains((string)$host, ':')) {
             $host = strstr($host, strrchr($host, ':'), true);
         }
 
@@ -438,9 +438,9 @@ class Request
     /**
      * Get rewrite route
      *
-     * @return ILoadableRoute|null
+     * @return ILoadableRoute|IRoute|null
      */
-    public function getRewriteRoute(): ?ILoadableRoute
+    public function getRewriteRoute(): null|ILoadableRoute|IRoute
     {
         return $this->rewriteRoute;
     }
@@ -471,10 +471,10 @@ class Request
 
     /**
      * Set rewrite callback
-     * @param string|\Closure $callback
+     * @param string|Closure $callback
      * @return static
      */
-    public function setRewriteCallback($callback): self
+    public function setRewriteCallback(string|Closure $callback): self
     {
         $this->hasPendingRewrite = true;
 
@@ -546,17 +546,17 @@ class Request
         return $this;
     }
 
-    public function __isset($name): bool
+    public function __isset(mixed $name): bool
     {
         return array_key_exists($name, $this->data) === true;
     }
 
-    public function __set($name, $value = null)
+    public function __set(string $name, mixed $value = null)
     {
         $this->data[$name] = $value;
     }
 
-    public function __get($name)
+    public function __get(string $name): mixed
     {
         return $this->data[$name] ?? null;
     }

@@ -30,7 +30,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
     protected array $names = [];
     protected string $controller;
 
-    public function __construct($url, $controller)
+    public function __construct(string $url,string $controller)
     {
         $this->setUrl($url);
         $this->controller = $controller;
@@ -54,7 +54,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         }
 
         /* Remove method/type */
-        if (strpos($name, '.') !== false) {
+        if (str_contains($name, '.')) {
             $name = substr($name, 0, strrpos($name, '.'));
         }
 
@@ -67,7 +67,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
      * @param string|null $name
      * @return string
      */
-    public function findUrl(?string $method = null, $parameters = null, ?string $name = null): string
+    public function findUrl(?string $method = null, array|string $parameters = null, ?string $name = null): string
     {
         $url = array_search($name, $this->names, true);
 
@@ -91,7 +91,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         return $url;
     }
 
-    protected function call($method): bool
+    protected function call(string $method): bool
     {
         $this->setCallback([$this->controller, $method]);
 
@@ -105,7 +105,7 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         }
 
         /* Match global regular-expression for route */
-        $regexMatch = $this->matchRegex($request, $url);
+        $regexMatch = $this->matchRegex($url);
 
         if ($regexMatch === false || (stripos($url, $this->url) !== 0 && strtoupper($url) !== strtoupper($this->url))) {
             return false;
@@ -117,9 +117,6 @@ class RouteResource extends LoadableRoute implements IControllerRoute
         $this->parameters = $this->parseParameters($route, $url, $request);
 
         /* If no custom regular expression or parameters was found on this route, we stop */
-        if ($regexMatch === null && $this->parameters === null) {
-            return false;
-        }
 
         $action = strtolower(trim((string)$this->parameters['action']));
         $id = $this->parameters['id'];

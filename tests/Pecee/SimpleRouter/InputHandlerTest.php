@@ -8,30 +8,30 @@ require_once 'Dummy/Handler/ExceptionHandler.php';
 
 class InputHandlerTest extends \PHPUnit\Framework\TestCase
 {
-    protected $names = [
+    protected array $names = [
         'Lester',
         'Michael',
         'Franklin',
         'Trevor',
     ];
 
-    protected $brands = [
+    protected array $brands = [
         'Samsung',
         'Apple',
         'HP',
         'Canon',
     ];
 
-    protected $sodas = [
+    protected array $sodas = [
         0 => 'Pepsi',
         1 => 'Coca Cola',
         2 => 'Harboe',
         3 => 'Mountain Dew',
     ];
 
-    protected $day = 'monday';
+    protected string $day = 'monday';
 
-    public function testPost()
+    public function testPost(): void
     {
         global $_POST;
 
@@ -69,7 +69,7 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $this->assertCount(4, $objects);
 
         /* @var $object \Pecee\Http\Input\InputItem */
-        foreach($objects as $i => $object) {
+        foreach ($objects as $i => $object) {
             $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $object);
             $this->assertEquals($this->names[$i], $object->getValue());
         }
@@ -78,7 +78,7 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $_POST = [];
     }
 
-    public function testGet()
+    public function testGet(): void
     {
         global $_GET;
 
@@ -113,7 +113,7 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $this->assertCount(4, $objects);
 
         /* @var $object \Pecee\Http\Input\InputItem */
-        foreach($objects as $i => $object) {
+        foreach ($objects as $i => $object) {
             $this->assertInstanceOf(\Pecee\Http\Input\InputItem::class, $object);
             $this->assertEquals($this->names[$i], $object->getValue());
         }
@@ -122,9 +122,8 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $_GET = [];
     }
 
-    public function testFindInput() {
-
-        global $_POST;
+    public function testFindInput(): void
+    {
         $_POST['hello'] = 'motto';
 
         $router = TestRouter::router();
@@ -132,12 +131,12 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
         $router->getRequest()->setMethod('post');
         $inputHandler = TestRouter::request()->getInputHandler();
 
-        $value = $inputHandler->value('hello', null, \Pecee\Http\Request::$requestTypesPost);
+        $value = $inputHandler->value('hello', null, ...\Pecee\Http\Request::$requestTypesPost);
 
         $this->assertEquals($_POST['hello'], $value);
     }
 
-    public function testFile()
+    public function testFile(): void
     {
         global $_FILES;
 
@@ -271,11 +270,11 @@ class InputHandlerTest extends \PHPUnit\Framework\TestCase
     protected function generateFile()
     {
         return [
-            'name'     => uniqid('', false) . '.txt',
-            'type'     => 'text/plain',
+            'name' => uniqid('', false) . '.txt',
+            'type' => 'text/plain',
             'tmp_name' => sys_get_temp_dir() . '/phpYfWUiw',
-            'error'    => 0,
-            'size'     => rand(3, 40),
+            'error' => 0,
+            'size' => rand(3, 40),
         ];
     }
 
