@@ -1,5 +1,4 @@
 <?php
-
 namespace Pecee\SimpleRouter\Exceptions;
 
 use Throwable;
@@ -16,11 +15,11 @@ class ClassNotFoundHttpException extends NotFoundHttpException
      */
     protected ?string $method = null;
 
-    public function __construct(string $class, ?string $method = null, string $message = "", int $code = 0, Throwable $previous = null)
+    public function __construct(string $class, ?string $method = null, string $message = "", int $code = 0, Throwable | null $previous = null)
     {
         parent::__construct($message, $code, $previous);
 
-        $this->class = $class;
+        $this->class  = $class;
         $this->method = $method;
     }
 
