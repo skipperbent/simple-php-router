@@ -188,7 +188,7 @@ class SimpleRouter
      *
      * @return RouteUrl|IRoute
      */
-    public static function get(string $url, $callback, array $settings = null): IRoute
+    public static function get(string $url, $callback, array|null $settings = null): IRoute
     {
         return static::match([Request::REQUEST_TYPE_GET], $url, $callback, $settings);
     }
@@ -201,7 +201,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
-    public static function post(string $url, $callback, array $settings = null): IRoute
+    public static function post(string $url, $callback, array|null $settings = null): IRoute
     {
         return static::match([Request::REQUEST_TYPE_POST], $url, $callback, $settings);
     }
@@ -214,7 +214,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
-    public static function put(string $url, $callback, array $settings = null): IRoute
+    public static function put(string $url, $callback, array|null $settings = null): IRoute
     {
         return static::match([Request::REQUEST_TYPE_PUT], $url, $callback, $settings);
     }
@@ -227,7 +227,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
-    public static function patch(string $url, $callback, array $settings = null): IRoute
+    public static function patch(string $url, $callback, array|null $settings = null): IRoute
     {
         return static::match([Request::REQUEST_TYPE_PATCH], $url, $callback, $settings);
     }
@@ -240,7 +240,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
-    public static function options(string $url, $callback, array $settings = null): IRoute
+    public static function options(string $url, $callback, array|null $settings = null): IRoute
     {
         return static::match([Request::REQUEST_TYPE_OPTIONS], $url, $callback, $settings);
     }
@@ -253,7 +253,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
-    public static function delete(string $url, $callback, array $settings = null): IRoute
+    public static function delete(string $url, $callback, array|null $settings = null): IRoute
     {
         return static::match([Request::REQUEST_TYPE_DELETE], $url, $callback, $settings);
     }
@@ -309,7 +309,7 @@ class SimpleRouter
      * @return RouteUrl|IRoute
      * @see SimpleRouter::form
      */
-    public static function basic(string $url, $callback, array $settings = null): IRoute
+    public static function basic(string $url, $callback, array|null $settings = null): IRoute
     {
         return static::form($url, $callback, $settings);
     }
@@ -324,7 +324,7 @@ class SimpleRouter
      * @return RouteUrl|IRoute
      * @see SimpleRouter::form
      */
-    public static function form(string $url, $callback, array $settings = null): IRoute
+    public static function form(string $url, $callback, array|null $settings = null): IRoute
     {
         return static::match([
             Request::REQUEST_TYPE_GET,
@@ -341,7 +341,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
-    public static function match(array $requestMethods, string $url, $callback, array $settings = null): IRoute
+    public static function match(array $requestMethods, string $url, $callback, array|null $settings = null): IRoute
     {
         $route = new RouteUrl($url, $callback);
         $route->setRequestMethods($requestMethods);
@@ -361,7 +361,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteUrl|IRoute
      */
-    public static function all(string $url, $callback, array $settings = null): IRoute
+    public static function all(string $url, $callback, array|null $settings = null): IRoute
     {
         $route = new RouteUrl($url, $callback);
 
@@ -380,7 +380,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteController|IRoute
      */
-    public static function controller(string $url, string $controller, array $settings = null): IRoute
+    public static function controller(string $url, string $controller, array|null $settings = null): IRoute
     {
         $route = new RouteController($url, $controller);
 
@@ -399,7 +399,7 @@ class SimpleRouter
      * @param array|null $settings
      * @return RouteResource|IRoute
      */
-    public static function resource(string $url, string $controller, array $settings = null): IRoute
+    public static function resource(string $url, string $controller, array|null $settings = null): IRoute
     {
         $route = new RouteResource($url, $controller);
 
