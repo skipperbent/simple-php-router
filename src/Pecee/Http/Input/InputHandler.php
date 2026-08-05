@@ -79,8 +79,8 @@ class InputHandler
             if (strpos(trim($contents), '{') === 0) {
                 $post = json_decode($contents, true);
 
-                if ($post !== false) {
-                    $this->originalPost += $post;
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $this->originalPost += is_array($post) ? $post : [$post];
                 }
             } else {
                 $post = [];
